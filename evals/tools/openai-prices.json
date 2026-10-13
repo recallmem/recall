@@ -1,0 +1,22 @@
+{
+  "_comment": "USD per 1M tokens: input, output, cached input, and cacheWrite for models that bill cache writes (GPT-5.6 and later, 1.25x input; without it written tokens bill as input). Used by meter-proxy.mjs (budget guard) and summarize-tokens.py. gpt-6-luna matches packages/server/src/llm/pricing.ts; 'longContext' re-prices a whole request whose prompt exceeds 'over' tokens. Edit to match the price list in force when you run.",
+  "gpt-6-luna": {
+    "input": 0.1,
+    "output": 0.5,
+    "cached": 0.01,
+    "cacheWrite": 0.125,
+    "longContext": {
+      "over": 272000,
+      "input": 0.2,
+      "output": 0.75,
+      "cached": 0.02,
+      "cacheWrite": 0.25
+    }
+  },
+  "gpt-5.4-mini": { "input": 0.75, "output": 4.5, "cached": 0.075 },
+  "gpt-4.1": { "input": 2.0, "output": 8.0, "cached": 0.5 },
+  "gpt-4.1-mini": { "input": 0.4, "output": 1.6, "cached": 0.1 },
+  "gpt-4.1-nano": { "input": 0.1, "output": 0.4, "cached": 0.025 },
+  "text-embedding-3-small": { "input": 0.02, "output": 0, "cached": 0.02 },
+  "text-embedding-3-large": { "input": 0.13, "output": 0, "cached": 0.13 }
+}

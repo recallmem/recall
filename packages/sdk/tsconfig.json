@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["es2023", "dom"],
+    "types": ["node"],
+    "noEmit": true,
+    "paths": { "@recall-memory/sdk": ["./src/index.ts"] }
+  },
+  "include": ["src", "test", "vitest.config.ts", "../../examples/guides/*.ts"]
+}

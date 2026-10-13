@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Designing workspaces, peers and sessions — Recall guides</title>
+<meta name="description" content="How to map a product onto Recall's workspaces, peers, sessions and scopes, who observes whom, and the mistakes that mix up memories." />
+<meta name="theme-color" content="#0c0b0a" />
+<meta property="og:title" content="Designing workspaces, peers and sessions — Recall guides" />
+<meta property="og:description" content="How to map a product onto Recall's workspaces, peers, sessions and scopes, who observes whom, and the mistakes that mix up memories." />
+<meta property="og:type" content="article" />
+<meta property="og:image" content="/og.png" />
+<link rel="canonical" href="https://recallmem.dev/guides/modeling" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="preload" href="/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/departure-mono.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="/site.css" />
+<meta name="recall-api" content="https://api.recallmem.dev" data-site="https://recallmem.dev" />
+</head>
+<body>
+
+<header class="nav scrolled" id="nav">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="Recall home">
+      <svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>
+      Recall<span class="muted nowrap">/guides</span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="/#how">Product</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides">Guides</a>
+      <a href="https://github.com/recallmem/recall">GitHub</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-text" href="/app/login">Sign in</a>
+      <a class="btn btn-primary" href="/app/login">Get API key</a>
+    </div>
+  </div>
+</header>
+
+<div class="docs">
+  <aside class="toc" aria-label="Guides">
+    <details class="toc-box" open>
+      <summary>Guides</summary>
+      <div class="toc-links">
+        <a href="/guides">All guides</a>
+        <b>On this page</b>
+        <a class="sub" href="#concepts">The concepts</a>
+        <a class="sub" href="#workspaces">Workspaces: where memory stops</a>
+        <a class="sub" href="#peers">Peers: one stable id per person or agent</a>
+        <a class="sub" href="#sessions">Sessions and membership</a>
+        <a class="sub" href="#who-learns">Who learns about whom</a>
+        <a class="sub" href="#scopes">Scopes: sessions recalled together</a>
+        <a class="sub" href="#metadata">Metadata and filters</a>
+        <a class="sub" href="#create-or-read">Creating and reading</a>
+        <a class="sub" href="#keys">Scoped keys per tenant</a>
+        <a class="sub" href="#layouts">Layouts for common products</a>
+        <a class="sub" href="#pitfalls">Pitfalls</a>
+        <b>Use cases</b>
+        <a href="/guides/assistants">Personal assistants and companions</a>
+        <a href="/guides/support">Customer support</a>
+        <a href="/guides/coding-agents">Coding agents</a>
+        <a href="/guides/game-npcs">Game NPCs</a>
+        <a href="/guides/sales">Sales and CRM copilots</a>
+        <a href="/guides/multi-agent">Multi-agent systems</a>
+        <a href="/guides/tutoring">Tutoring and education</a>
+        <a href="/guides/community-bots">Discord and Slack bots</a>
+        <a href="/guides/coaching">Health, fitness and coaching</a>
+        <a href="/guides/voice-agents">Voice agents</a>
+        <a href="/guides/shopping">Shopping assistants</a>
+        <a href="/guides/workplace">Workplace assistants</a>
+        <b>Build well</b>
+        <a href="/guides/modeling" aria-current="page">Designing workspaces, peers and sessions</a>
+        <a href="/guides/levels-and-models">Reasoning levels and models</a>
+        <a href="/guides/privacy">Privacy, consent and forgetting</a>
+        <a href="/guides/cost-and-speed">Cost and speed</a>
+        <b>Reference</b>
+        <a href="/docs">Docs</a>
+        <a href="/docs#api">REST API</a>
+      </div>
+    </details>
+  </aside>
+  <script>
+    // On a phone the contents start collapsed; set before first paint so the page does not jump.
+    if (matchMedia("(max-width: 980px)").matches) document.querySelector(".toc-box").open = false;
+  </script>
+
+  <article class="prose guide">
+    <p class="crumbs"><a href="/guides">Guides</a> / Build well</p>
+<h1>Designing workspaces, peers and sessions</h1>
+    <p class="lede">Before you send the first message, decide how your product maps onto Recall. That choice decides whose memories stay apart, who learns about whom, and what you can delete in one call later. This guide covers each concept in depth, shows two agents with different views of the same person, and ends with layouts for common products.</p>
+
+    <h2 id="concepts">The concepts</h2>
+    <table>
+      <thead><tr><th>Concept</th><th>What it is</th><th>Rule of thumb</th></tr></thead>
+      <tbody>
+        <tr><td>Workspace</td><td>An isolated memory space. Nothing is read or learned across workspaces.</td><td>One per app and environment; one per business customer if you sell to businesses; one per save in a game.</td></tr>
+        <tr><td>Peer</td><td>Anyone who speaks: a person, an agent, a bot.</td><td>One per real person or agent, with a stable id from your own database.</td></tr>
+        <tr><td>Session</td><td>One coherent conversation. Messages, summaries and prompt context belong to it.</td><td>One per chat thread, ticket, call or scene. Not one per message.</td></tr>
+        <tr><td>Membership</td><td>Which peers take part in a session, and how each one observes the others there.</td><td>Set it when you create the session.</td></tr>
+        <tr><td>Scope</td><td>A named group of sessions you want to recall together.</td><td>One per account, project or case that spans several conversations.</td></tr>
+        <tr><td>Conclusions and peer cards</td><td>What Recall learned: facts about a peer as one observer sees them, and a short profile.</td><td>Recall writes them as it learns. You can read them, add facts and delete them.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="workspaces">Workspaces: where memory stops</h2>
+    <p>A workspace is the hard boundary. Context, search and chat only ever read one workspace, and the same peer id in two workspaces is two unrelated peers. Deleting a workspace removes everything in it.</p>
+    <ul>
+      <li><b>Per app and environment.</b> <code>support-prod</code> and <code>support-staging</code>, so test conversations never reach production memory.</li>
+      <li><b>Per business customer, if you sell to businesses.</b> <code>cust-1042</code> holds only that customer's people and conversations. Their backend gets a key that reaches only their workspace (see <a href="#keys">scoped keys</a>), and when they leave you delete one workspace.</li>
+      <li><b>Per save or world, in games.</b> A new game starts with empty memory, and an old save is one delete away. See <a href="/guides/game-npcs">Game NPCs</a>.</li>
+    </ul>
+    <p>The price of a boundary is that nothing crosses it. If people move between parts of your product and should be remembered across them, those parts belong in one workspace.</p>
+
+    <h2 id="peers">Peers: one stable id per person or agent</h2>
+    <p>Memory belongs to the id. Use the key your own database already has for the person, such as <code>user-8412</code>, and never change it. Ids are 1 to 512 characters of letters, digits, <code>_</code> and <code>-</code>.</p>
+    <ul>
+      <li><b>Not a display name or an email, not even an encoded one.</b> People change both, two people can share a name, and an email in the id copies personal data into every URL, log line and export. Put a name in peer <code>metadata</code> if you need it there at all.</li>
+      <li><b>One peer across devices and channels.</b> The same person on the web, in the app and by email is one peer. Record the channel in session or message metadata.</li>
+      <li><b>Agents are peers too.</b> Give each agent or bot its own id (<code>assistant</code>, <code>agent-billing</code>). When your prompt defines who the agent is, set <code>observeMe: false</code> on it: Recall then does not learn about the agent from its own lines, and those lines cost less (see <a href="/guides/cost-and-speed">Cost and speed</a>). Leave an agent observed when what it says is worth remembering, such as a research agent's findings in a <a href="/guides/multi-agent">multi-agent system</a>.</li>
+      <li><b>One id, one person, forever.</b> If a closed account's id is later given to someone else, they inherit the old memories unless you deleted the peer. Give each anonymous visitor a fresh id, never a shared <code>guest</code>.</li>
+    </ul>
+
+    <h2 id="sessions">Sessions and membership</h2>
+    <p>A session is one conversation with a beginning and an end: a chat thread, a support ticket, a phone call, a meeting, a game scene. Recall keeps its messages in order, summarises it as it grows, and builds prompt context from it. What it learns outlives the session: the next conversation with the same person starts with everything learned so far.</p>
+    <p>Too small and too large both hurt. A session per message leaves your model no recent turns or summary to work with. One endless session per user can work for a single-thread companion, but then you cannot delete one conversation, apply a retention period, or keep a work chat and a private chat apart in context.</p>
+    <p><b>Membership</b> is who takes part. Writing a message makes the author a member; you can also add peers when you create the session (<code>peers</code>) or later (<code>addPeers</code>). Each member has two settings for that session: <code>observeMe</code>, whether Recall learns from that member's messages there, and <code>observeOthers</code>, whether that member builds its own view of the others. When a member leaves, their messages stay in the session, and so does what they learned while they were there. A session can have at most 10 members with <code>observeOthers</code> on.</p>
+
+    <h2 id="who-learns">Who learns about whom</h2>
+    <p>Everything Recall learns is a view: what one peer, the observer, knows about another, the observed. There are two kinds.</p>
+    <table>
+      <thead><tr><th>View</th><th>Built from</th><th>Read it with</th></tr></thead>
+      <tbody>
+        <tr><td>Recall's view of Alice</td><td>Every message Alice wrote, in any session, while she is observed (the default)</td><td><code>alice.chat(...)</code>, or context with <code>peerTarget: alice</code></td></tr>
+        <tr><td>Bob's view of Alice</td><td>Only Alice's messages in sessions where Bob was a member with <code>observeOthers: true</code>, written while he was there</td><td><code>bob.chat(..., { target: alice })</code>, or context with <code>peerTarget: alice, peerPerspective: bob</code></td></tr>
+      </tbody>
+    </table>
+    <p>Three settings decide what goes into each view:</p>
+    <table>
+      <thead><tr><th>Setting</th><th>Where</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td><code>observeMe</code> (default on)</td><td>Peer configuration</td><td>Off: nothing is learned from this peer's messages, not by Recall and not by any other peer. The messages are still stored and still appear in context and search.</td></tr>
+        <tr><td><code>observeMe</code></td><td>Membership, per session</td><td>Overrides the peer's own setting in that one session.</td></tr>
+        <tr><td><code>observeOthers</code> (default off)</td><td>Membership, per session</td><td>On: this member builds its own view of the others from what they say in this session.</td></tr>
+      </tbody>
+    </table>
+    <p>In the example a travel app has a planner agent and a billing agent. The user tells the billing agent they moved; the planner is not there. Agents are peers with <code>observeMe: false</code>, because your prompts define them.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>import { Recall } from "@recall-memory/sdk";
+
+const recall = new Recall({ workspaceId: "trips-prod" });
+
+// One peer per real person or agent, with the id your own database already uses.
+const user = recall.peer("user-8412", { metadata: { plan: "pro" } });
+// Your code defines the agents, so Recall need not learn about them from their own lines.
+const agent = { configuration: { observeMe: false } };
+const planner = recall.peer("agent-planner", agent);
+const billing = recall.peer("agent-billing", agent);</code></pre>
+<pre data-panel="py" hidden><code>from recall_memory import PeerConfig, Recall, SessionPeerConfig
+
+recall = Recall(workspace_id="trips-prod")
+
+# One peer per real person or agent, with the id your own database already uses.
+user = recall.peer("user-8412", metadata={"plan": "pro"})
+# Your code defines the agents, so Recall need not learn about them from their own lines.
+agent = PeerConfig(observe_me=False)
+planner = recall.peer("agent-planner", configuration=agent)
+billing = recall.peer("agent-billing", configuration=agent)</code></pre>
+</div>
+    <p><b>Each agent observes only its own conversation.</b> The membership is set when the session is created: the agent joins with <code>observeOthers</code>, the user with the defaults.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// One session per conversation. Each agent joins with observeOthers, so it builds its own
+// view of the people it talks to, from this conversation only.
+const trip = recall.session("chat-5531", {
+  metadata: { channel: "web" },
+  peers: { "user-8412": {}, "agent-planner": { observeOthers: true } },
+});
+await trip.addMessages([
+  user.message("I live in Utrecht and I am vegetarian."),
+  planner.message("Noted. I'll only suggest restaurants with good vegetarian menus."),
+]);
+
+const invoice = recall.session("chat-5532", {
+  metadata: { channel: "email" },
+  peers: { "user-8412": {}, "agent-billing": { observeOthers: true } },
+});
+await invoice.addMessages([
+  user.message("I moved to Amersfoort last week, please update my billing address."),
+  billing.message("Done. Your next invoice goes to your new address in Amersfoort."),
+]);</code></pre>
+<pre data-panel="py" hidden><code># One session per conversation. Each agent joins with observe_others, so it builds its own
+# view of the people it talks to, from this conversation only.
+trip = recall.session(
+    "chat-5531",
+    metadata={"channel": "web"},
+    peers=[user, (planner, SessionPeerConfig(observe_others=True))],
+)
+trip.add_messages(
+    [
+        user.message("I live in Utrecht and I am vegetarian."),
+        planner.message("Noted. I'll only suggest restaurants with good vegetarian menus."),
+    ]
+)
+
+invoice = recall.session(
+    "chat-5532",
+    metadata={"channel": "email"},
+    peers=[user, (billing, SessionPeerConfig(observe_others=True))],
+)
+invoice.add_messages(
+    [
+        user.message("I moved to Amersfoort last week, please update my billing address."),
+        billing.message("Done. Your next invoice goes to your new address in Amersfoort."),
+    ]
+)</code></pre>
+</div>
+    <p><b>Two views of one person.</b> Recall's view has the move, because it learns from everything the user says. The planner's view does not: it was never told. In a prompt, pass <code>peerPerspective</code> for the agent that is speaking, so it only knows what it witnessed.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// (waitForIdle is for this demo; real apps rarely wait for learning to finish.)
+await recall.waitForIdle();
+// Recall's view of the user, built from everything they said in any session: Amersfoort.
+const recallView = await user.chat("Where do I live?", { reasoningLevel: "minimal" });
+// The planner's view holds only what it witnessed. It never heard about the move: Utrecht.
+const plannerView = await planner.chat("Where does the user live?", {
+  target: user,
+  reasoningLevel: "minimal",
+});
+// In a prompt, read the user through the eyes of the agent that is talking.
+const context = await trip.context({ peerTarget: user, peerPerspective: planner, tokens: 2000 });</code></pre>
+<pre data-panel="py" hidden><code># (wait_for_idle is for this demo; real apps rarely wait for learning to finish.)
+recall.wait_for_idle()
+# Recall's view of the user, built from everything they said in any session: Amersfoort.
+recall_view = user.chat("Where do I live?", reasoning_level="minimal")
+# The planner's view holds only what it witnessed. It never heard about the move: Utrecht.
+planner_view = planner.chat("Where does the user live?", target=user, reasoning_level="minimal")
+# In a prompt, read the user through the eyes of the agent that is talking.
+context = trip.context(peer_target=user, peer_perspective=planner, tokens=2000)</code></pre>
+</div>
+    <p>Which view to read is a product decision. A single assistant reads Recall's view. Separate agents, characters or departments that should not share what they heard read their own. When an agent should know something it did not witness, write the fact into its view yourself with <code>conclusionsOf(user).create(...)</code>, as the <a href="/guides/game-npcs">Game NPCs</a> guide does with rumours.</p>
+
+    <h2 id="scopes">Scopes: sessions recalled together</h2>
+    <p>Sometimes the right memory is neither one conversation nor everything a person ever said: one customer account with several contacts, one project with many meetings. A scope groups those sessions. Add sessions to it (<code>recall.scope("acct-1042").addSessions([...])</code>) and pass <code>scope</code> to chat or context: the answer then draws only on those sessions. A scope learns from its sessions like an observer of its own, and catches up on sessions that already had messages in the background. Scopes need a key for the whole workspace. <a href="/guides/sales">Sales and CRM copilots</a> and <a href="/guides/workplace">Workplace assistants</a> show them in use.</p>
+
+    <h2 id="metadata">Metadata and filters</h2>
+    <p>Workspaces, peers, sessions and messages carry a <code>metadata</code> object that is yours: the plan, the channel, your ticket number. Recall stores it and lets you filter on it; it does not learn from it. Lists and searches take <code>filters</code>: exact matches on metadata keys, and operators such as <code>gt</code>, <code>lt</code>, <code>in</code> and <code>contains</code>. Search also takes <code>peer_perspective</code>, which limits results to what one peer saw (see <a href="/docs#search-filters">Search filters</a>).</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// Metadata is yours to filter on.
+const emailChats = await (
+  await recall.sessions({ filters: { metadata: { channel: "email" } } })
+).toArray();
+// Search only what the billing agent saw: the trip chat is not in the results.
+const billingSaw = await recall.search("restaurants", {
+  filters: { peer_perspective: "agent-billing" },
+});</code></pre>
+<pre data-panel="py" hidden><code># Metadata is yours to filter on.
+email_chats = recall.sessions(filters={"metadata": {"channel": "email"}}).to_list()
+# Search only what the billing agent saw: the trip chat is not in the results.
+billing_saw = recall.search("restaurants", filters={"peer_perspective": "agent-billing"})</code></pre>
+</div>
+    <p>Metadata is returned by every read and included in exports, so keep secrets and anything you would not show in your own admin screens out of it.</p>
+
+    <h2 id="create-or-read">Creating and reading</h2>
+    <p>Writes create what they name. Adding a message creates its workspace, session and author when they do not exist yet, and the get-or-create routes (<code>POST /v3/workspaces</code>, <code>PUT …/peers/{peer}</code>, <code>PUT …/sessions/{session}</code>) do the same. That keeps your code short, but a typo in an id quietly starts a new, empty memory.</p>
+    <p>An SDK handle without options, such as <code>recall.peer("user-8412")</code>, makes no request, so creating one creates nothing. To check whether something exists, use the read-only routes. They return the same object as the get-or-create calls and answer <code>404</code> when it does not exist (see <a href="/docs#read-only-gets">Read without creating</a>):</p>
+<pre><code>GET /v3/workspaces/{workspace}
+GET /v3/workspaces/{workspace}/peers/{peer}
+GET /v3/workspaces/{workspace}/sessions/{session}</code></pre>
+    <p>Better still, validate ids where they enter your system (the signed-in user, a ticket number from your helpdesk) and derive every Recall id from them in one place in your code.</p>
+
+    <h2 id="keys">Scoped keys per tenant</h2>
+    <p>An API key can be limited to one workspace, one peer or one session. Create them under <b>API keys</b> in the dashboard, or from your backend with <code>recall.createKey({ workspaceId: "cust-1042" })</code> (<code>POST /v3/keys</code>).</p>
+    <table>
+      <thead><tr><th>Key</th><th>Give it to</th><th>It can</th></tr></thead>
+      <tbody>
+        <tr><td>Account (no scope)</td><td>Your own backend and admin jobs only</td><td>Everything, in every workspace</td></tr>
+        <tr><td>Workspace</td><td>The service that works for one business customer</td><td>Everything in that workspace, including forgetting a person</td></tr>
+        <tr><td>Peer</td><td>Code on a user's device, or one agent that only reads</td><td>Read the sessions that peer is in and ask from that peer's own point of view. It cannot write messages or delete a peer.</td></tr>
+        <tr><td>Session</td><td>A widget for one conversation</td><td>Read and write that one session. It cannot delete a peer.</td></tr>
+      </tbody>
+    </table>
+    <p>If users hold peer keys, give sessions ids they cannot guess (a UUID rather than <code>support-8412</code>), or create each session with your workspace key first: a peer key can create a session with itself as a member, and creating a session that already exists adds members. See <a href="/docs#cors">Browser access</a>.</p>
+
+    <h2 id="layouts">Layouts for common products</h2>
+    <table>
+      <thead><tr><th>Product</th><th>Workspace</th><th>Peers</th><th>Session</th><th>Also</th></tr></thead>
+      <tbody>
+        <tr><td><a href="/guides/assistants">Personal assistant or companion</a></td><td>One per environment, e.g. <code>assistant-prod</code></td><td>Each user; the assistant with <code>observeMe: false</code></td><td>Each conversation thread</td><td>Read Recall's view of the user.</td></tr>
+        <tr><td><a href="/guides/workplace">Workplace assistant, or any product sold to businesses</a></td><td>One per customer, e.g. <code>cust-1042</code></td><td>Each of their users; your agents</td><td>Each chat or meeting</td><td>A workspace key per customer; scopes for their projects.</td></tr>
+        <tr><td><a href="/guides/support">Customer support</a></td><td>One per brand and environment</td><td>Each customer, by CRM id; the bot; each human agent</td><td>Each ticket, e.g. <code>ticket-58213</code></td><td>A scope per company account when several contacts share one.</td></tr>
+        <tr><td><a href="/guides/game-npcs">Game</a></td><td>One per save or server, e.g. <code>save-7f3a</code></td><td>Each player; NPCs with <code>observeMe: false</code></td><td>Each scene</td><td><code>observeOthers</code> for the NPCs in a scene; read with <code>peerPerspective</code>.</td></tr>
+        <tr><td><a href="/guides/multi-agent">Multi-agent system</a></td><td>One per deployment</td><td>Each agent; each person they serve</td><td>Each task or run</td><td><code>observeOthers</code> for agents that keep their own view; a key per agent.</td></tr>
+        <tr><td><a href="/guides/community-bots">Discord or Slack bot</a></td><td>One per community, or one for the bot if members should be known across communities</td><td>Each member, by platform user id; the bot with <code>observeMe: false</code></td><td>Each channel or thread</td><td>Read Recall's view of the member who is talking.</td></tr>
+        <tr><td><a href="/guides/coding-agents">Coding agents</a></td><td>One per developer or team</td><td>The developer; the agent, not observed</td><td>Each agent session</td><td>The <a href="/docs#integrations">integrations</a> set this up for you.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>One workspace for all tenants.</b> One customer's people then turn up in another's searches and answers, you cannot give a customer a key that reaches only their data, and removing a customer means hunting down every peer and session.</li>
+      <li><b>A session per message.</b> Context then has no recent turns and no summary to give your model, and you can no longer delete or expire a conversation as a whole.</li>
+      <li><b>A peer per device or channel.</b> <code>user-8412-ios</code> and <code>user-8412-web</code> are two people to Recall; the phone never learns what was said on the web.</li>
+      <li><b>Reusing ids.</b> A recycled user id, or a shared <code>guest</code>, hands one person's memories to another. Delete the peer when an account closes.</li>
+      <li><b>Names or emails as ids.</b> They change, they collide, and they put personal data into every URL and log line.</li>
+      <li><b>Reading without <code>peerPerspective</code> in a multi-agent product.</b> Every agent then knows everything the person told any agent.</li>
+    </ul>
+    <p class="guide-next">Next: <a href="/guides/privacy">Privacy, consent and forgetting</a> · <a href="/guides/levels-and-models">Reasoning levels and models</a></p>
+  </article>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="logo" href="/"><svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>Recall</a>
+      <p class="tagline">Memory for AI agents. Hosted in the EU.</p>
+      <p class="muted">Smidt Beheer · KvK 99124254 · VAT NL004444074B96</p>
+    </div>
+    <nav aria-label="Footer">
+      <div><b>Product</b><a href="/#how">How it works</a><a href="/#why">Why Recall</a><a href="/#agents">Integrations</a><a href="/evals">Evals</a><a href="/#pricing">Pricing</a></div>
+      <div><b>Developers</b><a href="/docs#quickstart">Quickstart</a><a href="/guides">Guides</a><a href="/docs#integrations">Integrations</a><a href="/docs#api">API</a><a href="/docs#models">Models</a><a href="https://github.com/recallmem/recall">GitHub</a></div>
+      <div><b>Account</b><a href="/app/login">Sign in</a></div>
+      <div><b>Legal</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/dpa">Data processing</a><a href="/security">Security</a><a href="/support">Support</a></div>
+    </nav>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "name": "@recall-memory/evals",
+  "version": "0.1.0",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "description": "Head-to-head memory benchmark for any Honcho-compatible server (Honcho, Recall, ...)",
+  "scripts": {
+    "download": "tsx src/cli.ts download",
+    "bench": "tsx src/cli.ts run",
+    "smoke": "tsx src/smoke.ts",
+    "report": "tsx src/cli.ts report",
+    "compare": "tsx src/cli.ts compare",
+    "estimate": "tsx src/cli.ts estimate",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "rejudge": "tsx src/rejudge.ts"
+  },
+  "dependencies": {
+    "@recall-memory/server": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "tsx": "^4.23.15",
+    "typescript": "7.0.2",
+    "vitest": "^5.0.3"
+  }
+}

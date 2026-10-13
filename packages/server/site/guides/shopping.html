@@ -1,0 +1,90 @@
+    <h1>Shopping assistants</h1>
+    <p class="lede">For shopping assistants and recommendation chats in a web shop or app. Recall remembers each shopper's sizes, tastes, budget and returns across visits, and hands your catalogue search their preferences as structured filters, so recommendations fit the first time.</p>
+
+    <h2 id="what-changes">What memory adds</h2>
+    <p>Without memory, every visit starts with the same questions. With it, the assistant already knows what fits:</p>
+    <table>
+      <thead><tr><th></th><th>Without memory</th><th>With Recall</th></tr></thead>
+      <tbody>
+        <tr><td>"Trail shoes for muddy runs, nothing neon, max €150"</td><td>Asks for the size, then shows the bestseller in neon green.</td><td>Shows the Trailblaze GTX in black, in 43: the 42s came back too small.</td></tr>
+        <tr><td>"Something to eat on long runs?"</td><td>Suggests whey protein bars.</td><td>Only vegan bars: the shopper's account says vegan.</td></tr>
+        <tr><td>Next month, a rain jacket</td><td>Starts again from zero.</td><td>Keeps to the budget and the dislike of neon without being told again.</td></tr>
+      </tbody>
+    </table>
+    <p>Recall does not search your catalogue or write the replies. Your search and your model do; Recall tells them what this shopper wants, and learns from what they say.</p>
+
+    <h2 id="model">How to model it</h2>
+    <table>
+      <thead><tr><th>In your shop</th><th>In Recall</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Your shop</td><td>Workspace, e.g. <code>shop-eu</code></td><td>One memory space for all shoppers. Use separate workspaces only where data must stay apart, such as separate brands or legal entities.</td></tr>
+        <tr><td>A shopper</td><td>Peer <code>cust-1042</code>, your customer id</td><td>Recall learns from what they write in chat and in return forms.</td></tr>
+        <tr><td>Your assistant</td><td>Peer <code>shop-assistant</code> with <code>observeMe: false</code></td><td>Your product pitches are not facts about anyone; its replies cost less.</td></tr>
+        <tr><td>A chat visit</td><td>Session, e.g. <code>chat-5e21c</code></td><td>A summary per visit; what was learned about the shopper carries over.</td></tr>
+        <tr><td>An order with a return</td><td>Session, e.g. <code>order-77120</code>, with dated messages</td><td>The shopper's return reason is first-hand information about fit.</td></tr>
+        <tr><td>Sizes and diets the shopper entered in their account</td><td>Conclusions you create</td><td>Facts as given, stored at once; nothing is inferred.</td></tr>
+        <tr><td>A shopper who opts out of personalisation</td><td><code>observeMe: false</code> on their peer</td><td>Recall stops learning about them.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the SDK (<code>npm install @recall-memory/sdk</code> or <code>pip install recall-mem</code>) and set <code>RECALL_API_KEY</code>. Create the shopper and the assistant, and tell Recall once what to learn in your shop and what never to record. Custom instructions guide the model that extracts facts; they are not a hard filter, so also keep sensitive data out of what you send.</p>
+<!-- example: shopping#setup -->
+    <p><b>Account data: facts you write.</b> Sizes and diets the shopper entered in their account are things they told you, not guesses. Write them as conclusions: stored as given and usable at once. Preferences that come up in chat ("nothing neon") are learned from the messages in the background, dated, and updated when they change.</p>
+<!-- example: shopping#account -->
+    <p><b>Returns: the shopper's words, dated.</b> A return reason is some of the best information you have about fit. Add the text from the returns form as the shopper's message, in a session for the order, with <code>createdAt</code> set to when it was filed. Recall learns from it like any other message, so the next recommendation knows the 42s were too small in this brand. Put order numbers and SKUs in metadata for your own use; Recall learns from the text.</p>
+<!-- example: shopping#return -->
+    <p><b>In the chat: one request per message.</b> <code>turn</code> stores the shopper's message and returns the context for the reply: the visit so far and what Recall knows about the shopper, including the account facts and the return. Building the context uses no model and takes 0.3 to 0.7 seconds. Your model writes the reply from it and from your catalogue.</p>
+<!-- example: shopping#chat -->
+    <p><b>Preferences as filters.</b> Your search needs fields, not prose. Ask for JSON with <code>responseFormat</code> once per visit and keep the result in the shopper's web session: a question takes 2 to 4.5 seconds and each one is billed. Then filter or rank results in your own search. Make fields nullable so "not known" never filters out everything, and let filters the shopper sets in your UI win over memory.</p>
+<!-- example: shopping#filters -->
+    <p><b>Opting out.</b> When a shopper turns personalisation off, set <code>observeMe: false</code> on their peer: Recall stops learning from their messages. Delete what was learned and clear their card. Their chats stay stored for the conversation itself. To erase a shopper completely, for example when they close their account, call <code>shopper.delete()</code>.</p>
+<!-- example: shopping#opt-out -->
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>reasoning.customInstructions</code> (workspace configuration)</td><td>What to learn in your shop, and what never to record. A guide for the model, not a guarantee.</td></tr>
+        <tr><td><code>observeMe: false</code></td><td>On your assistant, always. On shoppers who opt out.</td></tr>
+        <tr><td><code>responseFormat</code></td><td>Filters as JSON: an object at the root, nullable fields for "not known".</td></tr>
+        <tr><td><code>reasoningLevel</code></td><td><code>low</code> (the default) for filters; <code>minimal</code> is cheaper and faster for a few simple fields. See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+        <tr><td>Message <code>createdAt</code></td><td>Returns and imported chats: when each was written, so the newest information wins.</td></tr>
+        <tr><td><code>peerTarget</code> and <code>tokens</code> on <code>turn</code></td><td><code>peerTarget: shopper</code> adds what Recall knows about them; 1,500 to 3,000 tokens is plenty for a shopping chat.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>Measured from Europe against the hosted API (Frankfurt), October 2026: a <code>turn</code> or context call took 0.3 to 0.7 seconds, a search about 0.9 seconds, a question at <code>minimal</code> or <code>low</code> 2 to 4.5 seconds. Learning happens in the background, usually within about 20 seconds of a message, and never holds up a call.</p>
+    <p>Context, search, storage, summaries and dreams are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50, and for questions. A shopper who chats twice a month (6 messages of about 30 tokens and 6 replies of about 120 tokens each time), files one return, and gets filters computed once per visit at <code>low</code>:</p>
+    <table>
+      <thead><tr><th>Item</th><th>Per month</th></tr></thead>
+      <tbody>
+        <tr><td>Shopper messages and the return: 13 × 50 tokens × $1.75 / 1M</td><td>$0.0011</td></tr>
+        <tr><td>Assistant replies, read but not learned from: 12 × 120 tokens × $1.75 / 1M</td><td>$0.0025</td></tr>
+        <tr><td>Filters at <code>low</code>: 2 × $0.005</td><td>$0.0100</td></tr>
+        <tr><td><b>Total</b></td><td><b>about $0.014 per shopper</b></td></tr>
+      </tbody>
+    </table>
+    <p>Questions are most of the bill: a cached answer is still billed as one query, so compute filters once per visit, not on every page view. More in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>What people buy and say while shopping can reveal more than their size. Be clear about what the assistant remembers, and keep it to shopping.</p>
+    <ul>
+      <li><b>Tell shoppers.</b> Say that the assistant remembers sizes, preferences and returns from chats and orders, give them a switch to turn it off, and a page that shows what is remembered.</li>
+      <li><b>Do not infer sensitive traits.</b> Purchases hint at health, pregnancy, religion or sexuality. Do not record such guesses or act on them: the custom instructions above help, and so does not sending order history you do not need. Health and similar data have stricter rules under the GDPR; see <a href="/guides/privacy">Privacy, consent and forgetting</a> (this is not legal advice).</li>
+      <li><b>Keep out what memory does not need:</b> payment details and full addresses. Your shop already holds them.</li>
+      <li><b>Marketing is a separate purpose.</b> Using what the assistant remembers in newsletters or ads goes beyond helping the shopper in the chat; check what your privacy notice and consent cover.</li>
+      <li><b>Forgetting:</b> <code>shopper.delete()</code> (or <code>DELETE /v3/workspaces/{workspace}/peers/{peer}</code>) erases the shopper's messages, every fact and card about them, the summaries that quoted them and cached answers. See <a href="/docs#forget-a-person">Forget a person</a>.</li>
+      <li><b>Where data lives:</b> the database and API are in Frankfurt (EU). Text is processed by AI model providers in the US through OpenRouter, restricted to providers that do not collect the data, and customer data is not used to train models. See the <a href="/privacy">privacy policy</a> and the <a href="/dpa">DPA</a>.</li>
+    </ul>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>Inferring sensitive traits.</b> "Bought prenatal vitamins" must never become "is pregnant". Tell Recall not to record such things, and do not send purchases it does not need.</li>
+      <li><b>Gifts read as taste.</b> A child's raincoat bought once says nothing about the shopper's size. Do not write every purchase down as a fact; let memory come from what the shopper says.</li>
+      <li><b>Asking on every page view.</b> A question takes seconds and each one is billed. Compute filters once per visit and keep them in your session.</li>
+      <li><b>Memory over explicit choices.</b> If the shopper filters for size 44, show 44. Memory fills gaps; it does not overrule what they just asked for.</li>
+      <li><b>One size for every brand.</b> Fit differs per brand. Keep the return reasons, and ask for the size in the brand you are about to show rather than one number for everything.</li>
+      <li><b>Learning from your own pitches.</b> Without <code>observeMe: false</code> on the assistant, "grips well in mud" is learned, and billed, as a statement about the assistant.</li>
+    </ul>

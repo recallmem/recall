@@ -1,0 +1,106 @@
+    <h1>Multi-agent systems</h1>
+    <p class="lede">For systems where several agents work on one job: a planner, a researcher, a writer, a reviewer. Recall gives each agent its own memory of what it saw, a shared memory the team can ask, and a signal when new knowledge is ready, so agents stop passing whole transcripts to each other.</p>
+
+    <h2 id="what-changes">What memory adds</h2>
+    <p>Without memory, what one agent learns reaches another only if your orchestrator copies it into a prompt, and it is gone when the job ends. With it:</p>
+    <table>
+      <thead><tr><th></th><th>Without memory</th><th>With Recall</th></tr></thead>
+      <tbody>
+        <tr><td>The researcher finds that competitor A raised its price</td><td>The planner knows only if the orchestrator pastes the researcher's output into its prompt.</td><td>The planner's own view of the researcher holds it, because both were in the job.</td></tr>
+        <tr><td>A week later, a new job on the same market</td><td>The research starts from zero.</td><td>"What do we know about competitor pricing?" is answered from the team's earlier jobs.</td></tr>
+        <tr><td>The orchestrator crashes and retries step 2</td><td>The findings are stored twice.</td><td>The retry carries the same idempotency key, and nothing is stored twice.</td></tr>
+      </tbody>
+    </table>
+    <p>Recall does not run, route or schedule agents. Your orchestrator decides who speaks and when; Recall keeps what was said and what each agent learned from it.</p>
+
+    <h2 id="model">How to model it</h2>
+    <table>
+      <thead><tr><th>In your system</th><th>In Recall</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>A team of agents, or one deployment</td><td>Workspace, e.g. <code>acme-agents</code></td><td>Agents in it can share memory; nothing crosses into other workspaces.</td></tr>
+        <tr><td>Each agent</td><td>Peer <code>agent-planner</code>, <code>agent-researcher</code></td><td>An agent speaks like anyone else. Leave it observed when what it says is worth learning (findings); set <code>observeMe: false</code> on agents whose output need not be remembered, such as a formatter.</td></tr>
+        <tr><td>The person who gave the job</td><td>Peer <code>user-8412</code></td><td>What the agents learn about the person, and the one id to erase if they ask.</td></tr>
+        <tr><td>A job, task or thread</td><td>Session, e.g. <code>job-58213</code></td><td>The job's messages in order, with a summary of older steps.</td></tr>
+        <tr><td>What one agent knows</td><td>That agent's view: <code>observeOthers: true</code> in the sessions it takes part in</td><td>Built only from jobs the agent was in. Read it with <code>peerPerspective</code>, or ask with <code>chat</code> and <code>target</code>.</td></tr>
+        <tr><td>What the team knows</td><td>A scope, e.g. <code>team-pricing</code>, or the whole workspace</td><td>Ask across every job in the scope with <code>recall.chat</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the SDK (<code>npm install @recall-memory/sdk</code> or <code>pip install recall-mem</code>) and set <code>RECALL_API_KEY</code>. One session per job; each agent that needs its own view gets <code>observeOthers</code>, and the job joins the team's scope.</p>
+<!-- example: multi-agent#setup -->
+    <p><b>Record every step, under a key.</b> The SDKs make each write safe to retry within one call. Across processes, after a crash, only a key you choose helps: name the step in it, and a second write with the same key in the same session returns the messages already stored.</p>
+<!-- example: multi-agent#record -->
+    <p><b>Each agent reads through its own eyes.</b> "What does agent X know about Y" is a <code>chat</code> from X with <code>target: Y</code>: a few seconds, with a model call. For an agent's next prompt, read context with <code>peerPerspective</code> instead: no model call, a fraction of a second.</p>
+<!-- example: multi-agent#views -->
+    <p><b>Shared memory: ask the team's scope.</b> A question with <code>scope</code> reads every job filed under it, from no single agent's point of view. Leave out <code>scope</code> to ask across the whole workspace.</p>
+<!-- example: multi-agent#team -->
+    <p><b>React when new knowledge is ready.</b> Learning runs in the background. Instead of polling, register a webhook: Recall sends <code>queue.empty</code> when background work for a session finishes, with the session and the observer whose view changed. Register once per workspace (at most 10 endpoints; private addresses are refused):</p>
+<pre><code>curl $RECALL_URL/v3/workspaces/acme-agents/webhooks \
+  -H "Authorization: Bearer $RECALL_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://agents.example.com/recall-webhook"}'</code></pre>
+    <p>The SDKs do the same with <code>recall.webhooks.create(url)</code>. Each delivery is signed: <code>X-Recall-Signature</code> is the HMAC-SHA256 of the raw body, keyed with your webhook secret (under Settings in the dashboard). Verify it before you trust the event, keep the <code>X-Recall-Event-Id</code> values you have handled to drop retries, and answer 2xx quickly.</p>
+<!-- example: multi-agent#webhook -->
+
+    <h3 id="keys">A key per agent</h3>
+    <p>An agent that reads untrusted text can be talked into calling tools it should not. Give each agent a key that reaches no further than it needs:</p>
+    <table>
+      <thead><tr><th>Key scoped to</th><th>It can</th><th>Give it to</th></tr></thead>
+      <tbody>
+        <tr><td>A workspace</td><td>Everything in that workspace: record, read any view, ask a scope, forget a person.</td><td>The orchestrator.</td></tr>
+        <tr><td>A peer</td><td>Ask as that peer (<code>chat</code>, with <code>target</code>), read its card and context, and read the sessions it is a member of. It cannot record messages, ask a scope, or delete a peer (401).</td><td>An agent that only needs to consult its own memory.</td></tr>
+        <tr><td>A session</td><td>Only that session: record in it and read its messages and context. No peer routes, no other sessions.</td><td>A sandboxed worker on one job.</td></tr>
+      </tbody>
+    </table>
+    <p>Create keys under <b>API keys</b> in the dashboard, or mint them in code with an account-wide key. Minted keys are revoked together with the key that minted them, and <code>expiresAt</code> suits short-lived workers:</p>
+<pre><code>// TypeScript
+const plannerKey = await recall.createKey({ workspaceId: "acme-agents", peerId: "agent-planner" });
+const workerKey = await recall.createKey({ workspaceId: "acme-agents", sessionId: "job-58213" });
+
+# Python
+planner_key = recall.create_key(workspace_id="acme-agents", peer_id="agent-planner")
+worker_key = recall.create_key(workspace_id="acme-agents", session_id="job-58213")</code></pre>
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>observeOthers: true</code> per agent, per session</td><td>The agent builds its own view of the others in that job. At most 10 members of a session can have it; give it to the agents that need their own view, not to all.</td></tr>
+        <tr><td><code>observeMe: false</code> on an agent</td><td>Its messages are kept and read, but nothing is learned from them. Use it for agents that only reformat or route.</td></tr>
+        <tr><td><code>peerPerspective</code> on context or <code>turn</code></td><td>Read the target through one agent's eyes. Without it, an agent sees what Recall learned from every job, including ones it was never in.</td></tr>
+        <tr><td><code>target</code> on <code>chat</code></td><td>Ask what one peer knows about another.</td></tr>
+        <tr><td><code>scopes</code> on the session, <code>scope</code> on <code>recall.chat</code></td><td>Shared team memory, limited to the jobs filed under the scope.</td></tr>
+        <tr><td><code>idempotencyKey</code></td><td>Your own key per step, so a retry from a restarted process stores nothing twice.</td></tr>
+        <tr><td><code>reasoningLevel: "minimal"</code></td><td>For quick checks an agent makes often, such as after a webhook. See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>Measured from Europe against the hosted API (Frankfurt), October 2026: a context read took 0.3 to 0.7 seconds, a search about 0.9 seconds, and a question at <code>minimal</code> or <code>low</code> 2 to 4.5 seconds. <code>high</code> and <code>max</code> run a tool loop and are slower. Learning usually finishes within about 20 seconds of a write; the webhook tells you when.</p>
+    <p>Context, search and storage are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50, and for questions. A message is billed once, however many agents observe it. A user who starts 40 jobs a month, each with a 150-token brief, 30 agent messages of about 250 tokens and 4 questions:</p>
+    <table>
+      <thead><tr><th>Item</th><th>Per month</th></tr></thead>
+      <tbody>
+        <tr><td>Briefs: 40 × 150 tokens × $1.75 / 1M</td><td>$0.0105</td></tr>
+        <tr><td>Agent messages: 40 × 30 × 250 tokens × $1.75 / 1M</td><td>$0.525</td></tr>
+        <tr><td>Questions at <code>low</code>: 160 × $0.005</td><td>$0.80</td></tr>
+        <tr><td>Context reads</td><td>included</td></tr>
+        <tr><td><b>Total</b></td><td><b>about $1.34 a month, or 3.3 cents a job</b></td></tr>
+      </tbody>
+    </table>
+    <p>The agents' messages are most of the learning cost. Agents that write long drafts nobody needs remembered are cheaper with <code>observeMe: false</code>: their messages then count only what Recall reads of them. More in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>Agents pass on what users told them, so personal data ends up in agents' messages too. When a user asks to be forgotten, <code>user.delete()</code> erases their messages and every fact about them or from their view, including each agent's view of them. Facts about other peers that merely mention them stay: "the researcher found the user's budget is €20,000" is a fact about the researcher. Delete those by id, or delete the job's sessions. See <a href="/docs#forget-a-person">Forget a person</a>.</p>
+    <p>Do not let agents write credentials or tool output into messages. Webhook deliveries carry ids, not content. Recall stores data in Frankfurt; text is processed by AI model providers in the US through OpenRouter, restricted to providers that do not collect it, and never used for training. See <a href="/guides/privacy">Privacy, consent and forgetting</a> and the <a href="/dpa">DPA</a>.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>Reading without <code>peerPerspective</code>.</b> Every agent then knows what was said in jobs it never took part in.</li>
+      <li><b><code>observeOthers</code> on every agent.</b> More than 10 in a session is refused, and views nobody reads only add work. Turn it on for agents that act on their own view.</li>
+      <li><b>Retrying without your own key.</b> The SDK's key covers retries within one call. A restarted process sends a new one and stores the step again.</li>
+      <li><b>Polling for learning.</b> <code>waitForIdle</code> suits tests and demos. In production, let the <code>queue.empty</code> webhook wake the agent.</li>
+      <li><b>Trusting unverified webhooks.</b> Verify the signature on the raw body, before parsing, and drop event ids you have already handled.</li>
+      <li><b>One account-wide key in every agent.</b> A misled agent could then read every view and delete people. Scope keys to a peer or a session.</li>
+    </ul>

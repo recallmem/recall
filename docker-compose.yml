@@ -1,0 +1,76 @@
+# Recall with Postgres (pgvector).
+#
+#   cp .env.example .env     # optional: add a provider key; without one Recall runs offline
+#   docker compose up --build
+#   curl localhost:8000/health
+#
+# Honcho's SDKs work unchanged: point their base URL at http://localhost:8000.
+
+name: recall
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: recall
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-recall}
+      POSTGRES_DB: recall
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U recall -d recall"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  recall:
+    build: .
+    image: recall-server:local
+    restart: unless-stopped
+    init: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${RECALL_PUBLISHED_PORT:-8000}:8000"
+    # Provider keys, model routing and the other RECALL_* settings come from .env
+    # (see .env.example). The file is optional.
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # Set here, after env_file, so a stray value in .env cannot point the server elsewhere.
+      RECALL_DATABASE_URL: postgres://recall:${POSTGRES_PASSWORD:-recall}@postgres:5432/recall
+      RECALL_PORT: "8000"
+
+volumes:
+  pgdata:
+
+# ---------------------------------------------------------------------------------------------
+# Single-container variant: no Postgres service. Recall runs an embedded Postgres (PGlite) and
+# keeps it in the /data volume. Good for a laptop, a demo or a small agent; use the Postgres
+# setup above when you need more than one server process or large histories.
+#
+# To use it, replace the `services:` and `volumes:` blocks above with:
+#
+# services:
+#   recall:
+#     build: .
+#     image: recall-server:local
+#     restart: unless-stopped
+#     init: true
+#     ports:
+#       - "8000:8000"
+#     env_file:
+#       - path: .env
+#         required: false
+#     volumes:
+#       - recall-data:/data
+# volumes:
+#   recall-data:
+#
+# or, without compose at all:
+#
+#   docker run -d --name recall -p 8000:8000 -v recall-data:/data \
+#     --env-file .env recall-server:local

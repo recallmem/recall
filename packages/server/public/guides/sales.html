@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sales and CRM copilots — Recall guides</title>
+<meta name="description" content="Build a sales copilot that remembers prospects, calls and objections across a deal with Recall: accounts as scopes, call notes, meeting prep, code and cost." />
+<meta name="theme-color" content="#0c0b0a" />
+<meta property="og:title" content="Sales and CRM copilots — Recall guides" />
+<meta property="og:description" content="Build a sales copilot that remembers prospects, calls and objections across a deal with Recall: accounts as scopes, call notes, meeting prep, code and cost." />
+<meta property="og:type" content="article" />
+<meta property="og:image" content="/og.png" />
+<link rel="canonical" href="https://recallmem.dev/guides/sales" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="preload" href="/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/departure-mono.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="/site.css" />
+<meta name="recall-api" content="https://api.recallmem.dev" data-site="https://recallmem.dev" />
+</head>
+<body>
+
+<header class="nav scrolled" id="nav">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="Recall home">
+      <svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>
+      Recall<span class="muted nowrap">/guides</span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="/#how">Product</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides">Guides</a>
+      <a href="https://github.com/recallmem/recall">GitHub</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-text" href="/app/login">Sign in</a>
+      <a class="btn btn-primary" href="/app/login">Get API key</a>
+    </div>
+  </div>
+</header>
+
+<div class="docs">
+  <aside class="toc" aria-label="Guides">
+    <details class="toc-box" open>
+      <summary>Guides</summary>
+      <div class="toc-links">
+        <a href="/guides">All guides</a>
+        <b>On this page</b>
+        <a class="sub" href="#what-changes">What memory adds</a>
+        <a class="sub" href="#model">How to model it</a>
+        <a class="sub" href="#build">Build it</a>
+        <a class="sub" href="#settings">Settings that matter</a>
+        <a class="sub" href="#cost-speed">Cost and speed</a>
+        <a class="sub" href="#privacy">Privacy and forgetting</a>
+        <a class="sub" href="#pitfalls">Pitfalls</a>
+        <b>Use cases</b>
+        <a href="/guides/assistants">Personal assistants and companions</a>
+        <a href="/guides/support">Customer support</a>
+        <a href="/guides/coding-agents">Coding agents</a>
+        <a href="/guides/game-npcs">Game NPCs</a>
+        <a href="/guides/sales" aria-current="page">Sales and CRM copilots</a>
+        <a href="/guides/multi-agent">Multi-agent systems</a>
+        <a href="/guides/tutoring">Tutoring and education</a>
+        <a href="/guides/community-bots">Discord and Slack bots</a>
+        <a href="/guides/coaching">Health, fitness and coaching</a>
+        <a href="/guides/voice-agents">Voice agents</a>
+        <a href="/guides/shopping">Shopping assistants</a>
+        <a href="/guides/workplace">Workplace assistants</a>
+        <b>Build well</b>
+        <a href="/guides/modeling">Designing workspaces, peers and sessions</a>
+        <a href="/guides/levels-and-models">Reasoning levels and models</a>
+        <a href="/guides/privacy">Privacy, consent and forgetting</a>
+        <a href="/guides/cost-and-speed">Cost and speed</a>
+        <b>Reference</b>
+        <a href="/docs">Docs</a>
+        <a href="/docs#api">REST API</a>
+      </div>
+    </details>
+  </aside>
+  <script>
+    // On a phone the contents start collapsed; set before first paint so the page does not jump.
+    if (matchMedia("(max-width: 980px)").matches) document.querySelector(".toc-box").open = false;
+  </script>
+
+  <article class="prose guide">
+    <p class="crumbs"><a href="/guides">Guides</a> / Use cases</p>
+<h1>Sales and CRM copilots</h1>
+    <p class="lede">For sales copilots, CRM assistants and call-note tools. Recall remembers what every contact said on calls and in email, keeps each account's and each deal's history together, and turns it into a meeting brief as JSON your UI can lay out.</p>
+
+    <h2 id="what-changes">What memory adds</h2>
+    <p>Without memory, what a prospect said lives in transcripts nobody rereads and in a few CRM fields. With it, the copilot knows the deal:</p>
+    <table>
+      <thead><tr><th></th><th>Without memory</th><th>With Recall</th></tr></thead>
+      <tbody>
+        <tr><td>Preparing the second call</td><td>The rep skims an hour of transcript and their own notes.</td><td>A brief: the CFO wants the month-end close under five days by next quarter, IT requires single sign-on, the budget is approved up to 40k; open question: who signs above that.</td></tr>
+        <tr><td>The Head of IT joins the next call</td><td>The rep pitches features IT has already ruled out.</td><td>"Their last vendor failed the security review on SSO. Start there."</td></tr>
+        <tr><td>The account moves to another rep</td><td>The history leaves with the old rep.</td><td>The new rep asks "What did they object to?" and gets an answer drawn from every call and email thread.</td></tr>
+      </tbody>
+    </table>
+    <p>Recall does not record or transcribe calls, and it does not write emails. Your recorder and your model do that; Recall stores what was said, learns about each contact, and answers questions about them.</p>
+
+    <h2 id="model">How to model it</h2>
+    <table>
+      <thead><tr><th>In your CRM</th><th>In Recall</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Your sales team, or each customer if you sell a CRM</td><td>Workspace, e.g. <code>crm-org-5531</code></td><td>One organisation's prospects never mix with another's.</td></tr>
+        <tr><td>Each contact at a prospect</td><td>Peer <code>contact-2210</code>, your CRM contact id</td><td>Recall learns about each person from what they say, across all calls and threads.</td></tr>
+        <tr><td>Each rep</td><td>Peer <code>rep-104</code> with <code>observeMe: false</code></td><td>Recall learns about prospects, not about your reps; rep lines are read as context and cost less.</td></tr>
+        <tr><td>A call, meeting or email thread</td><td>Session, e.g. <code>call-90211</code>, <code>email-4410</code></td><td>A summary per conversation, and transcripts keep their real times.</td></tr>
+        <tr><td>An account and a deal</td><td>Scopes, e.g. <code>acct-381</code> and <code>deal-7781</code></td><td>Ask across every conversation about the account or the deal. A session can be in several scopes.</td></tr>
+        <tr><td>Title, stage and other CRM fields</td><td>Peer and scope metadata</td><td>For your own code and UI. Recall learns from what people say, not from metadata.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the SDK (<code>npm install @recall-memory/sdk</code> or <code>pip install recall-mem</code>) and set <code>RECALL_API_KEY</code>. Create the contacts, the rep and the scopes.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>import { Recall } from "@recall-memory/sdk";
+
+const recall = new Recall({ workspaceId: "crm-org-5531" });
+
+// Contacts at the prospect are peers, keyed by your CRM contact ids.
+const cfo = recall.peer("contact-2210", { metadata: { title: "CFO" } });
+const itLead = recall.peer("contact-2211", { metadata: { title: "Head of IT" } });
+// Recall learns about prospects, not about your reps.
+const rep = recall.peer("rep-104", { configuration: { observeMe: false } });
+// One scope per account and one per deal: every call and thread about them.
+const account = recall.scope("acct-381");
+const deal = recall.scope("deal-7781", { metadata: { stage: "evaluation" } });</code></pre>
+<pre data-panel="py" hidden><code>from datetime import datetime, timedelta, timezone
+
+from pydantic import BaseModel
+
+from recall_memory import PeerConfig, Recall
+
+recall = Recall(workspace_id="crm-org-5531")
+
+# Contacts at the prospect are peers, keyed by your CRM contact ids.
+cfo = recall.peer("contact-2210", metadata={"title": "CFO"})
+it_lead = recall.peer("contact-2211", metadata={"title": "Head of IT"})
+# Recall learns about prospects, not about your reps.
+rep = recall.peer("rep-104", configuration=PeerConfig(observe_me=False))
+# One scope per account and one per deal: every call and thread about them.
+account = recall.scope("acct-381")
+deal = recall.scope("deal-7781", metadata={"stage": "evaluation"})</code></pre>
+</div>
+    <p><b>Calls: one message per speaker turn, with its time.</b> Most recorders give you a transcript with speakers and timestamps. Add one message per turn, from the person who spoke, with <code>createdAt</code> set to when it was said, so "by next quarter" is reckoned from the call. Put the call in the account's scope when you create it, or add it to a scope later with <code>addSessions</code>.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// A discovery call from your recorder's transcript: one message per turn, each dated with when
+// it was said, so "next quarter" is reckoned from the call, not from the upload.
+const call = recall.session("call-90211", { scopes: [account] });
+const start = Date.parse("2026-10-02T14:00:00Z");
+const at = (seconds: number) =&gt; new Date(start + seconds * 1000);
+await call.addMessages([
+  rep.message("Thanks for making time. What made you start looking?", { createdAt: at(0) }),
+  cfo.message("Month-end close takes eight days. I want it under five by next quarter.", {
+    createdAt: at(9),
+  }),
+  itLead.message("Whatever we pick must use our SSO. The last vendor failed our review.", {
+    createdAt: at(31),
+  }),
+  cfo.message("Budget is approved up to 40k a year. Above that it goes to the board.", {
+    createdAt: at(88),
+  }),
+]);
+await deal.addSessions([call]);</code></pre>
+<pre data-panel="py" hidden><code># A discovery call from your recorder's transcript: one message per turn, each dated with when
+# it was said, so "next quarter" is reckoned from the call, not from the upload.
+call = recall.session("call-90211", scopes=[account])
+start = datetime(2026, 10, 2, 14, 0, tzinfo=timezone.utc)
+
+def at(seconds: int) -&gt; datetime:
+    return start + timedelta(seconds=seconds)
+
+call.add_messages(
+    [
+        rep.message("Thanks for making time. What made you start looking?", created_at=at(0)),
+        cfo.message(
+            "Month-end close takes eight days. I want it under five by next quarter.",
+            created_at=at(9),
+        ),
+        it_lead.message(
+            "Whatever we pick must use our SSO. The last vendor failed our review.",
+            created_at=at(31),
+        ),
+        cfo.message(
+            "Budget is approved up to 40k a year. Above that it goes to the board.",
+            created_at=at(88),
+        ),
+    ]
+)
+deal.add_sessions([call])</code></pre>
+</div>
+    <p><b>Email threads and files.</b> An email thread is a session like a call. Files a contact sends you, such as an RFP or a requirements list, go in with <code>uploadFile</code>, from the person who sent them: PDF, text and JSON are understood, and a long file becomes several messages. If your recorder gives you one transcript file for a whole call, split it by speaker first; a file uploaded as one peer makes every line in it, the rep's pitch included, that person's words.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// An email thread is a session too. The requirements the Head of IT attached go in with
+// uploadFile, as their words (PDF, text or JSON; long files become several messages).
+const thread = recall.session("email-4410", { scopes: [account, deal] });
+const sent = "2026-10-05T08:30:00Z";
+await thread.addMessages([
+  itLead.message("Attached are our requirements. SSO and EU hosting are must-haves.", {
+    createdAt: sent,
+  }),
+]);
+const requirements =
+  "Must: SAML single sign-on.\nMust: data stored in the EU.\nNice: ERP export.";
+await thread.uploadFile(
+  { filename: "requirements.txt", content: new TextEncoder().encode(requirements) },
+  itLead,
+  { createdAt: sent },
+);</code></pre>
+<pre data-panel="py" hidden><code># An email thread is a session too. The requirements the Head of IT attached go in with
+# upload_file, as their words (PDF, text or JSON; long files become several messages).
+thread = recall.session("email-4410", scopes=[account, deal])
+sent = "2026-10-05T08:30:00Z"
+thread.add_messages(
+    [
+        it_lead.message(
+            "Attached are our requirements. SSO and EU hosting are must-haves.",
+            created_at=sent,
+        )
+    ]
+)
+requirements = b"Must: SAML single sign-on.\nMust: data stored in the EU.\nNice: ERP export."
+thread.upload_file(("requirements.txt", requirements, "text/plain"), it_lead, created_at=sent)</code></pre>
+</div>
+    <p><b>Meeting prep: one structured question.</b> Before a meeting, ask across the deal's scope for the brief you want, as JSON. In TypeScript pass a JSON Schema, or <code>{ jsonSchema, parse }</code> for a typed result; in Python pass a Pydantic model and get an instance back (a JSON Schema dict returns the JSON as a string). <code>medium</code> is still one retrieval and one model call, at $0.025; we have no measured latency for it, so make briefs ahead of the meeting rather than during it.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// Before the next meeting: one question across the whole deal, answered as JSON your UI lays
+// out. (With zod: { jsonSchema: z.toJSONSchema(Brief), parse: (d) =&gt; Brief.parse(d) }.)
+type MeetingBrief = {
+  stakeholders: { contact: string; role: string; cares_about: string }[];
+  objections: string[];
+  next_steps: string[];
+  open_questions: string[];
+};
+const text = { type: "string" };
+const list = { type: "array", items: text };
+const schema = {
+  type: "object",
+  properties: {
+    stakeholders: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: { contact: text, role: text, cares_about: text },
+        required: ["contact", "role", "cares_about"],
+      },
+    },
+    objections: list,
+    next_steps: list,
+    open_questions: list,
+  },
+  required: ["stakeholders", "objections", "next_steps", "open_questions"],
+};
+await recall.waitForIdle(); // for this demo; briefs are made later, when learning is done
+const brief = await recall.chat(
+  "Prepare me for the next meeting on this deal: who is involved and what each cares about, " +
+    "their objections, the next steps we agreed and the questions still open.",
+  {
+    scope: deal,
+    reasoningLevel: "medium",
+    responseFormat: { jsonSchema: schema, parse: (data) =&gt; data as MeetingBrief },
+  },
+);</code></pre>
+<pre data-panel="py" hidden><code># Before the next meeting: one question across the whole deal, answered as JSON your UI lays
+# out. Pass a Pydantic model (or a JSON Schema dict, which returns the JSON as a string).
+class Stakeholder(BaseModel):
+    contact: str
+    role: str
+    cares_about: str
+
+class MeetingBrief(BaseModel):
+    stakeholders: list[Stakeholder]
+    objections: list[str]
+    next_steps: list[str]
+    open_questions: list[str]
+
+recall.wait_for_idle()  # for this demo; briefs are made later, when learning is done
+brief = recall.chat(
+    "Prepare me for the next meeting on this deal: who is involved and what each cares about, "
+    "their objections, the next steps we agreed and the questions still open.",
+    scope=deal,
+    reasoning_level="medium",
+    response_format=MeetingBrief,
+)</code></pre>
+</div>
+    <p><b>Quick questions about one person.</b> Ask the contact's peer. The answer draws on everything they said, in any call or thread, and takes a few seconds at <code>low</code>.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// A quick question about one person, from everything they said in any call or thread.
+const cfoNeeds = await cfo.chat("What does this contact need to see before signing?", {
+  reasoningLevel: "low",
+});</code></pre>
+<pre data-panel="py" hidden><code># A quick question about one person, from everything they said in any call or thread.
+cfo_needs = cfo.chat(
+    "What does this contact need to see before signing?", reasoning_level="low"
+)</code></pre>
+</div>
+    <p><b>A contact who asks to be deleted.</b> <code>delete()</code> erases their words and everything learned about them, in every call, thread and scope. The rep's lines in those calls stay; delete the calls too if they must go.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// A contact asks you to delete their data: erase their words and everything learned about
+// them, in every call, thread and scope. Keep the result for your deletion log.
+const removed = await itLead.delete();</code></pre>
+<pre data-panel="py" hidden><code># A contact asks you to delete their data: erase their words and everything learned about
+# them, in every call, thread and scope. Keep the result for your deletion log.
+removed = it_lead.delete()</code></pre>
+</div>
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td>Message <code>createdAt</code></td><td>Every transcript turn and email: when it was said or sent. Imports without it are dated on the day you import them.</td></tr>
+        <tr><td><code>observeMe: false</code> on reps</td><td>Recall reads rep lines as context but learns nothing from them. Give it when you create the handle; the SDKs send it before the rep's first line.</td></tr>
+        <tr><td><code>scope</code> on <code>chat</code> and <code>search</code></td><td>Read only one deal's or account's conversations. Scopes need a workspace-level key.</td></tr>
+        <tr><td><code>responseFormat</code></td><td>A JSON Schema with an object at the root, or a Pydantic model. Keep fields few and plainly named. <code>allOf</code>, <code>not</code> and <code>if</code>/<code>then</code>/<code>else</code> are not supported.</td></tr>
+        <tr><td><code>reasoningLevel</code></td><td><code>medium</code> for a full brief, <code>low</code> (the default) for quick questions. See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+        <tr><td><code>includeEvidence</code></td><td>Returns the facts and messages behind an answer, so a rep can check a claim before repeating it to the customer.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>Measured from Europe against the hosted API (Frankfurt), October 2026: a <code>turn</code> or context call took 0.3 to 0.7 seconds, a search about 0.9 seconds, a question at <code>minimal</code> or <code>low</code> 2 to 4.5 seconds. Learning from a transcript happens in the background, usually within about 20 seconds, and never holds up a call.</p>
+    <p>Context, search, storage, summaries and dreams are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50; a rep's line, which Recall reads without learning from it, counts only what it reads, at most 200 tokens as context. One active deal in a month: three 45-minute calls with about 100 turns per side of about 40 tokens each, an email thread with six emails each way of about 250 tokens, three briefs at <code>medium</code> and ten quick questions at <code>low</code>:</p>
+    <table>
+      <thead><tr><th>Item</th><th>Per month</th></tr></thead>
+      <tbody>
+        <tr><td>Contacts' words: (300 × 50 + 6 × 250) tokens × $1.75 / 1M</td><td>$0.0289</td></tr>
+        <tr><td>Rep's words, read but not learned from: (300 × 40 + 6 × 200) tokens × $1.75 / 1M</td><td>$0.0231</td></tr>
+        <tr><td>Briefs at <code>medium</code>: 3 × $0.025</td><td>$0.0750</td></tr>
+        <tr><td>Questions at <code>low</code>: 10 × $0.005</td><td>$0.0500</td></tr>
+        <tr><td><b>Total</b></td><td><b>about $0.18 per deal</b></td></tr>
+      </tbody>
+    </table>
+    <p>A rep working ten such deals costs about $1.27 a month. Answers are cached until the memory they depend on changes, but a cached answer is still billed as one query, so keep a brief in your own database once it is made. More in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>What prospects say on calls is personal data about them, also in business-to-business sales.</p>
+    <ul>
+      <li><b>Tell people you record.</b> Say at the start of a call that it is recorded and transcribed and that your team keeps notes from it. Rules on consent to recording differ by country and state; check the ones that apply to you (this is not legal advice). If someone declines, do not add their words.</li>
+      <li><b>Keep it to business.</b> Calls drift into family, health and politics. Recall learns from what is said, so trim small talk from transcripts when you can.</li>
+      <li><b>Objections and deletion.</b> A contact who objects to being profiled but stays in touch: set <code>observeMe: false</code> on their peer so Recall stops learning about them, and delete what was learned. A contact who asks to be deleted: <code>contact.delete()</code>, or <code>DELETE /v3/workspaces/{workspace}/peers/{peer}</code>. See <a href="/docs#forget-a-person">Forget a person</a>.</li>
+      <li><b>Retention.</b> Delete the calls and threads of lost deals after the period your policy sets; deleting a session removes its messages and what was learned from it.</li>
+      <li><b>Where data lives:</b> the database and API are in Frankfurt (EU). Text is processed by AI model providers in the US through OpenRouter, restricted to providers that do not collect the data, and customer data is not used to train models. See the <a href="/privacy">privacy policy</a>, the <a href="/dpa">DPA</a> and <a href="/guides/privacy">Privacy, consent and forgetting</a>.</li>
+    </ul>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>One transcript file as one peer.</b> Every line in it, the rep's included, becomes that person's words. Split transcripts by speaker.</li>
+      <li><b>Call notes in the rep's name.</b> Recall does not learn from peers it does not observe, so a rep's notes are stored and searchable, but nothing in them is learned. Write facts you have confirmed as conclusions about the contact.</li>
+      <li><b>No <code>createdAt</code> on imported calls.</b> "Next quarter" is then reckoned from the day you imported them.</li>
+      <li><b>One session for the whole deal.</b> Summaries blur and calls run together. Use a session per call or thread and a scope for the deal.</li>
+      <li><b>Contact ids that change when your CRM merges duplicates.</b> Memory belongs to the id. Decide which id survives before you write, or what you know about the person stays split.</li>
+      <li><b>Treating the brief as a record.</b> It is a model's reading of the conversations. Check figures with <code>includeEvidence</code> before you quote them to the customer.</li>
+    </ul>
+    <p class="guide-next">Next: <a href="/guides/support">Customer support</a> · <a href="/guides/workplace">Workplace assistants</a></p>
+  </article>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="logo" href="/"><svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>Recall</a>
+      <p class="tagline">Memory for AI agents. Hosted in the EU.</p>
+      <p class="muted">Smidt Beheer · KvK 99124254 · VAT NL004444074B96</p>
+    </div>
+    <nav aria-label="Footer">
+      <div><b>Product</b><a href="/#how">How it works</a><a href="/#why">Why Recall</a><a href="/#agents">Integrations</a><a href="/evals">Evals</a><a href="/#pricing">Pricing</a></div>
+      <div><b>Developers</b><a href="/docs#quickstart">Quickstart</a><a href="/guides">Guides</a><a href="/docs#integrations">Integrations</a><a href="/docs#api">API</a><a href="/docs#models">Models</a><a href="https://github.com/recallmem/recall">GitHub</a></div>
+      <div><b>Account</b><a href="/app/login">Sign in</a></div>
+      <div><b>Legal</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/dpa">Data processing</a><a href="/security">Security</a><a href="/support">Support</a></div>
+    </nav>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

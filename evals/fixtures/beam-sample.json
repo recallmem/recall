@@ -1,0 +1,138 @@
+[
+  {
+    "conversation_id": "1",
+    "conversation_seed": {
+      "category": "Coding",
+      "id": 1,
+      "subtopics": ["Flask"],
+      "theme": "Budget app",
+      "title": "Building a Budget Tracker"
+    },
+    "chat": [
+      [
+        {
+          "content": "I'm Craig and I want to build a budget tracker in Flask. My first sprint ends on March 29. ->-> 1,1",
+          "id": 0,
+          "index": null,
+          "question_type": null,
+          "role": "user",
+          "time_anchor": "March-15-2024"
+        },
+        {
+          "content": "Great plan, Craig! Let's start with the project structure and a SQLite database.",
+          "id": 1,
+          "index": null,
+          "question_type": null,
+          "role": "assistant",
+          "time_anchor": null
+        },
+        {
+          "content": "I prefer simple, minimal dependencies to keep the app lightweight. ->-> 1,2",
+          "id": 2,
+          "index": null,
+          "question_type": null,
+          "role": "user",
+          "time_anchor": null
+        },
+        {
+          "content": "Understood: Flask, SQLite and nothing heavy.",
+          "id": 3,
+          "index": null,
+          "question_type": null,
+          "role": "assistant",
+          "time_anchor": null
+        },
+        {
+          "content": "   ",
+          "id": 4,
+          "index": null,
+          "question_type": null,
+          "role": "user",
+          "time_anchor": null
+        }
+      ],
+      [
+        {
+          "content": "Update: the dashboard API now responds in around 250ms after caching. ->-> 2,1",
+          "id": 0,
+          "index": null,
+          "question_type": null,
+          "role": "user",
+          "time_anchor": "April-05-2024"
+        },
+        {
+          "content": "That is a solid improvement over the earlier numbers.",
+          "id": 1,
+          "index": null,
+          "question_type": null,
+          "role": "assistant",
+          "time_anchor": null
+        },
+        {
+          "content": "Always format code snippets with syntax highlighting when I ask about implementation. ->-> 2,2",
+          "id": 2,
+          "index": null,
+          "question_type": null,
+          "role": "user",
+          "time_anchor": null
+        },
+        {
+          "content": "Noted. I will use fenced code blocks with a language tag.",
+          "id": 3,
+          "index": null,
+          "question_type": null,
+          "role": "assistant",
+          "time_anchor": null
+        }
+      ]
+    ],
+    "probing_questions": "{'abstention': [{'question': 'Question c1-abstention-1?', 'difficulty': 'easy', 'rubric': ['Based on the provided chat, there is no information related to c1-abstention-1'], 'ideal_response': 'Based on the provided chat, there is no information related to c1-abstention-1.', 'why_unanswerable': 'c1-abstention-1 was never discussed.'}, {'question': 'Question c1-abstention-2?', 'difficulty': 'easy', 'rubric': ['Based on the provided chat, there is no information related to c1-abstention-2'], 'ideal_response': 'Based on the provided chat, there is no information related to c1-abstention-2.', 'why_unanswerable': 'c1-abstention-2 was never discussed.'}], 'contradiction_resolution': [{'question': 'Question c1-contradiction_resolution-1?', 'difficulty': 'easy', 'rubric': ['LLM response should state: there is contradictory information', 'LLM response should mention: which statement is correct?'], 'ideal_answer': \"I notice you've mentioned contradictory information about this. Which is correct?\"}, {'question': 'Question c1-contradiction_resolution-2?', 'difficulty': 'easy', 'rubric': ['LLM response should state: there is contradictory information', 'LLM response should mention: which statement is correct?'], 'ideal_answer': \"I notice you've mentioned contradictory information about this. Which is correct?\"}], 'event_ordering': [{'question': 'Question c1-event_ordering-1?', 'difficulty': 'easy', 'rubric': ['Project setup', 'Database design', 'Deployment'], 'answer': '1) project setup, 2) database design, 3) deployment', 'ordering_tested': ['1st: Project setup', '2nd: Database design', '3rd: Deployment']}, {'question': 'Question c1-event_ordering-2?', 'difficulty': 'easy', 'rubric': ['LLM response should mention: Alpha stage', 'LLM response should mention: Beta stage', 'LLM response should mention: Gamma stage', 'Presents the events in the correct chronological order'], 'answer': 'A then B then C'}], 'information_extraction': [{'question': 'Question c1-information_extraction-1?', 'difficulty': 'easy', 'rubric': ['LLM response should state: March 29'], 'answer': 'My first sprint ends on March 29.'}, {'question': 'Question c1-information_extraction-2?', 'difficulty': 'easy', 'rubric': ['LLM response should state: March 29'], 'answer': 'My first sprint ends on March 29.'}], 'instruction_following': [{'question': 'Question c1-instruction_following-1?', 'difficulty': 'easy', 'rubric': ['LLM response should contain: code blocks with syntax highlighting'], 'instruction_being_tested': 'Always format code snippets with syntax highlighting.', 'expected_compliance': 'Response should include code with syntax highlighting.'}, {'question': 'Question c1-instruction_following-2?', 'difficulty': 'easy', 'rubric': ['LLM response should contain: code blocks with syntax highlighting'], 'instruction_being_tested': 'Always format code snippets with syntax highlighting.', 'expected_compliance': 'Response should include code with syntax highlighting.'}], 'knowledge_update': [{'question': 'Question c1-knowledge_update-1?', 'difficulty': 'easy', 'rubric': ['LLM response should state: 250ms'], 'answer': 'Around 250ms due to caching'}, {'question': 'Question c1-knowledge_update-2?', 'difficulty': 'easy', 'rubric': ['LLM response should state: 250ms'], 'answer': 'Around 250ms due to caching'}], 'multi_session_reasoning': [{'question': 'Question c1-multi_session_reasoning-1?', 'difficulty': 'easy', 'rubric': ['LLM response should state: Two columns', 'LLM response should state: \\'category\\' and \"notes\"'], 'answer': 'Two columns: \\'category\\' and \"notes\".'}, {'question': 'Question c1-multi_session_reasoning-2?', 'difficulty': 'easy', 'rubric': ['LLM response should state: Two columns', 'LLM response should state: \\'category\\' and \"notes\"'], 'answer': 'Two columns: \\'category\\' and \"notes\".'}], 'preference_following': [{'question': 'Question c1-preference_following-1?', 'difficulty': 'easy', 'rubric': ['LLM response should contain: suggests lightweight libraries', 'LLM response should contain: avoids heavy frameworks'], 'preference_being_tested': 'I prefer simple, minimal dependencies.', 'expected_compliance': 'Response should recommend lightweight tools.'}, {'question': 'Question c1-preference_following-2?', 'difficulty': 'easy', 'rubric': ['LLM response should contain: suggests lightweight libraries', 'LLM response should contain: avoids heavy frameworks'], 'preference_being_tested': 'I prefer simple, minimal dependencies.', 'expected_compliance': 'Response should recommend lightweight tools.'}], 'summarization': [{'question': 'Question c1-summarization-1?', 'difficulty': 'easy', 'rubric': ['LLM response should contain: Flask and SQLite', 'LLM response should contain: caching'], 'ideal_summary': 'The project started with Flask and SQLite, then added caching.'}, {'question': 'Question c1-summarization-2?', 'difficulty': 'easy', 'rubric': ['LLM response should contain: Flask and SQLite', 'LLM response should contain: caching'], 'ideal_summary': 'The project started with Flask and SQLite, then added caching.'}], 'temporal_reasoning': [{'question': 'Question c1-temporal_reasoning-1?', 'difficulty': 'easy', 'rubric': ['LLM response should state: 4 weeks'], 'answer': '4 weeks between January 15, 2024 and February 12, 2024.'}, {'question': 'Question c1-temporal_reasoning-2?', 'difficulty': 'easy', 'rubric': ['LLM response should state: 4 weeks'], 'answer': '4 weeks between January 15, 2024 and February 12, 2024.'}]}"
+  },
+  {
+    "conversation_id": "2",
+    "conversation_seed": {
+      "category": "Travel",
+      "id": 2,
+      "subtopics": ["Lisbon"],
+      "theme": "A week in Lisbon",
+      "title": "Planning a Lisbon Trip"
+    },
+    "chat": [
+      [
+        {
+          "content": "Hello, I'm Maya. I'm planning a trip to Lisbon with my sister Ana. ->-> 1,1",
+          "id": 0,
+          "index": null,
+          "question_type": null,
+          "role": "user",
+          "time_anchor": "June-01-2024"
+        },
+        {
+          "content": "Lisbon is wonderful in June! Do you have dates in mind?",
+          "id": 1,
+          "index": null,
+          "question_type": null,
+          "role": "assistant",
+          "time_anchor": null
+        },
+        {
+          "content": "We fly out on June 20 and come back on June 27. ->-> 1,2",
+          "id": 2,
+          "index": null,
+          "question_type": null,
+          "role": "user",
+          "time_anchor": null
+        },
+        {
+          "content": "That gives you a full week.",
+          "id": 3,
+          "index": null,
+          "question_type": null,
+          "role": "assistant",
+          "time_anchor": null
+        }
+      ]
+    ],
+    "probing_questions": "{'abstention': [{'question': 'Question c2-abstention-1?', 'difficulty': 'easy', 'rubric': ['Based on the provided chat, there is no information related to c2-abstention-1'], 'ideal_response': 'Based on the provided chat, there is no information related to c2-abstention-1.', 'why_unanswerable': 'c2-abstention-1 was never discussed.'}, {'question': 'Question c2-abstention-2?', 'difficulty': 'easy', 'rubric': ['Based on the provided chat, there is no information related to c2-abstention-2'], 'ideal_response': 'Based on the provided chat, there is no information related to c2-abstention-2.', 'why_unanswerable': 'c2-abstention-2 was never discussed.'}], 'contradiction_resolution': [{'question': 'Question c2-contradiction_resolution-1?', 'difficulty': 'easy', 'rubric': ['LLM response should state: there is contradictory information', 'LLM response should mention: which statement is correct?'], 'ideal_answer': \"I notice you've mentioned contradictory information about this. Which is correct?\"}, {'question': 'Question c2-contradiction_resolution-2?', 'difficulty': 'easy', 'rubric': ['LLM response should state: there is contradictory information', 'LLM response should mention: which statement is correct?'], 'ideal_answer': \"I notice you've mentioned contradictory information about this. Which is correct?\"}], 'event_ordering': [{'question': 'Question c2-event_ordering-1?', 'difficulty': 'easy', 'rubric': ['Project setup', 'Database design', 'Deployment'], 'answer': '1) project setup, 2) database design, 3) deployment', 'ordering_tested': ['1st: Project setup', '2nd: Database design', '3rd: Deployment']}, {'question': 'Question c2-event_ordering-2?', 'difficulty': 'easy', 'rubric': ['LLM response should mention: Alpha stage', 'LLM response should mention: Beta stage', 'LLM response should mention: Gamma stage', 'Presents the events in the correct chronological order'], 'answer': 'A then B then C'}], 'information_extraction': [{'question': 'Question c2-information_extraction-1?', 'difficulty': 'easy', 'rubric': ['LLM response should state: March 29'], 'answer': 'My first sprint ends on March 29.'}, {'question': 'Question c2-information_extraction-2?', 'difficulty': 'easy', 'rubric': ['LLM response should state: March 29'], 'answer': 'My first sprint ends on March 29.'}], 'instruction_following': [{'question': 'Question c2-instruction_following-1?', 'difficulty': 'easy', 'rubric': ['LLM response should contain: code blocks with syntax highlighting'], 'instruction_being_tested': 'Always format code snippets with syntax highlighting.', 'expected_compliance': 'Response should include code with syntax highlighting.'}, {'question': 'Question c2-instruction_following-2?', 'difficulty': 'easy', 'rubric': ['LLM response should contain: code blocks with syntax highlighting'], 'instruction_being_tested': 'Always format code snippets with syntax highlighting.', 'expected_compliance': 'Response should include code with syntax highlighting.'}], 'knowledge_update': [{'question': 'Question c2-knowledge_update-1?', 'difficulty': 'easy', 'rubric': ['LLM response should state: 250ms'], 'answer': 'Around 250ms due to caching'}, {'question': 'Question c2-knowledge_update-2?', 'difficulty': 'easy', 'rubric': ['LLM response should state: 250ms'], 'answer': 'Around 250ms due to caching'}], 'multi_session_reasoning': [{'question': 'Question c2-multi_session_reasoning-1?', 'difficulty': 'easy', 'rubric': ['LLM response should state: Two columns', 'LLM response should state: \\'category\\' and \"notes\"'], 'answer': 'Two columns: \\'category\\' and \"notes\".'}, {'question': 'Question c2-multi_session_reasoning-2?', 'difficulty': 'easy', 'rubric': ['LLM response should state: Two columns', 'LLM response should state: \\'category\\' and \"notes\"'], 'answer': 'Two columns: \\'category\\' and \"notes\".'}], 'preference_following': [{'question': 'Question c2-preference_following-1?', 'difficulty': 'easy', 'rubric': ['LLM response should contain: suggests lightweight libraries', 'LLM response should contain: avoids heavy frameworks'], 'preference_being_tested': 'I prefer simple, minimal dependencies.', 'expected_compliance': 'Response should recommend lightweight tools.'}, {'question': 'Question c2-preference_following-2?', 'difficulty': 'easy', 'rubric': ['LLM response should contain: suggests lightweight libraries', 'LLM response should contain: avoids heavy frameworks'], 'preference_being_tested': 'I prefer simple, minimal dependencies.', 'expected_compliance': 'Response should recommend lightweight tools.'}], 'summarization': [{'question': 'Question c2-summarization-1?', 'difficulty': 'easy', 'rubric': ['LLM response should contain: Flask and SQLite', 'LLM response should contain: caching'], 'ideal_summary': 'The project started with Flask and SQLite, then added caching.'}, {'question': 'Question c2-summarization-2?', 'difficulty': 'easy', 'rubric': ['LLM response should contain: Flask and SQLite', 'LLM response should contain: caching'], 'ideal_summary': 'The project started with Flask and SQLite, then added caching.'}], 'temporal_reasoning': [{'question': 'Question c2-temporal_reasoning-1?', 'difficulty': 'easy', 'rubric': ['LLM response should state: 4 weeks'], 'answer': '4 weeks between January 15, 2024 and February 12, 2024.'}, {'question': 'Question c2-temporal_reasoning-2?', 'difficulty': 'easy', 'rubric': ['LLM response should state: 4 weeks'], 'answer': '4 weeks between January 15, 2024 and February 12, 2024.'}]}"
+  }
+]

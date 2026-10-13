@@ -1,0 +1,22 @@
+{
+  "name": "recall",
+  "private": true,
+  "license": "SEE LICENSE IN LICENSE.md",
+  "description": "Recall — reasoning memory for stateful agents",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "pnpm -r --filter=!./evals build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "dev": "pnpm --filter @recall-memory/server dev"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "typescript": "7.0.2"
+  }
+}

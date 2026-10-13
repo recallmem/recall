@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Personal assistants and companions — Recall guides</title>
+<meta name="description" content="Build a personal assistant or AI companion that remembers the user across conversations with Recall: model, code in TypeScript and Python, settings, cost and forgetting." />
+<meta name="theme-color" content="#0c0b0a" />
+<meta property="og:title" content="Personal assistants and companions — Recall guides" />
+<meta property="og:description" content="Build a personal assistant or AI companion that remembers the user across conversations with Recall: model, code in TypeScript and Python, settings, cost and forgetting." />
+<meta property="og:type" content="article" />
+<meta property="og:image" content="/og.png" />
+<link rel="canonical" href="https://recallmem.dev/guides/assistants" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="preload" href="/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/departure-mono.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="/site.css" />
+<meta name="recall-api" content="https://api.recallmem.dev" data-site="https://recallmem.dev" />
+</head>
+<body>
+
+<header class="nav scrolled" id="nav">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="Recall home">
+      <svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>
+      Recall<span class="muted nowrap">/guides</span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="/#how">Product</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides">Guides</a>
+      <a href="https://github.com/recallmem/recall">GitHub</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-text" href="/app/login">Sign in</a>
+      <a class="btn btn-primary" href="/app/login">Get API key</a>
+    </div>
+  </div>
+</header>
+
+<div class="docs">
+  <aside class="toc" aria-label="Guides">
+    <details class="toc-box" open>
+      <summary>Guides</summary>
+      <div class="toc-links">
+        <a href="/guides">All guides</a>
+        <b>On this page</b>
+        <a class="sub" href="#what-changes">What memory adds</a>
+        <a class="sub" href="#model">How to model it</a>
+        <a class="sub" href="#build">Build it</a>
+        <a class="sub" href="#settings">Settings that matter</a>
+        <a class="sub" href="#cost-speed">Cost and speed</a>
+        <a class="sub" href="#privacy">Privacy and forgetting</a>
+        <a class="sub" href="#pitfalls">Pitfalls</a>
+        <b>Use cases</b>
+        <a href="/guides/assistants" aria-current="page">Personal assistants and companions</a>
+        <a href="/guides/support">Customer support</a>
+        <a href="/guides/coding-agents">Coding agents</a>
+        <a href="/guides/game-npcs">Game NPCs</a>
+        <a href="/guides/sales">Sales and CRM copilots</a>
+        <a href="/guides/multi-agent">Multi-agent systems</a>
+        <a href="/guides/tutoring">Tutoring and education</a>
+        <a href="/guides/community-bots">Discord and Slack bots</a>
+        <a href="/guides/coaching">Health, fitness and coaching</a>
+        <a href="/guides/voice-agents">Voice agents</a>
+        <a href="/guides/shopping">Shopping assistants</a>
+        <a href="/guides/workplace">Workplace assistants</a>
+        <b>Build well</b>
+        <a href="/guides/modeling">Designing workspaces, peers and sessions</a>
+        <a href="/guides/levels-and-models">Reasoning levels and models</a>
+        <a href="/guides/privacy">Privacy, consent and forgetting</a>
+        <a href="/guides/cost-and-speed">Cost and speed</a>
+        <b>Reference</b>
+        <a href="/docs">Docs</a>
+        <a href="/docs#api">REST API</a>
+      </div>
+    </details>
+  </aside>
+  <script>
+    // On a phone the contents start collapsed; set before first paint so the page does not jump.
+    if (matchMedia("(max-width: 980px)").matches) document.querySelector(".toc-box").open = false;
+  </script>
+
+  <article class="prose guide">
+    <p class="crumbs"><a href="/guides">Guides</a> / Use cases</p>
+<h1>Personal assistants and companions</h1>
+    <p class="lede">For personal assistants, AI companions and any chat product the same person keeps coming back to. With Recall your assistant starts every conversation knowing the user's plans, preferences and the people in their life, without old transcripts in the prompt: one call per message stores what was said and returns the memory for the reply.</p>
+
+    <h2 id="what-changes">What memory adds</h2>
+    <p>Without memory, every conversation starts from zero and the user repeats themselves. With it, the assistant picks up where they left off:</p>
+    <table>
+      <thead><tr><th></th><th>Without memory</th><th>With Recall</th></tr></thead>
+      <tbody>
+        <tr><td>"My parents visit on Saturday. Can you plan a dinner for four?"</td><td>Suggests roast chicken.</td><td>Suggests a mushroom risotto: the user set "vegetarian" in their profile.</td></tr>
+        <tr><td>Thursday, a new conversation: "What do I still need to buy?"</td><td>"For what, exactly?"</td><td>"For Saturday's dinner with your parents: mushrooms, risotto rice and a lemon."</td></tr>
+        <tr><td>The user mentions once that they moved</td><td>Keeps suggesting cafés in the old city.</td><td>Recall closes "lives in Utrecht", starts "lives in Amersfoort" and keeps the old fact as history.</td></tr>
+      </tbody>
+    </table>
+    <p>Recall does not write the replies. Your model does, as it does now; Recall gives it what it should know about this user, and learns from what they say.</p>
+
+    <h2 id="model">How to model it</h2>
+    <table>
+      <thead><tr><th>In your app</th><th>In Recall</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Your app, per environment</td><td>Workspace, e.g. <code>assistant-prod</code></td><td>One memory space for all your users. Use another workspace for staging and tests.</td></tr>
+        <tr><td>A user</td><td>Peer <code>user-8412</code>, your own stable user id</td><td>Recall learns about the user from everything they write. Each user's memory is built from their own messages.</td></tr>
+        <tr><td>Your assistant or companion character</td><td>Peer <code>assistant</code> with <code>observeMe: false</code></td><td>You write its persona, so Recall need not learn about it; its replies cost less.</td></tr>
+        <tr><td>A conversation</td><td>Session, e.g. <code>chat-20261010-a91f</code></td><td>Summaries and recent messages are per conversation. What Recall learns about the user carries over to every conversation.</td></tr>
+        <tr><td>Facts for every prompt: name, diet, timezone</td><td>The user's peer card</td><td>A short list that <code>turn</code> returns with the context. Recall keeps it up to date, and you can edit it.</td></tr>
+        <tr><td>What the user fills in under settings</td><td>Conclusions you create</td><td>Stored as facts at once, as given; nothing is inferred.</td></tr>
+      </tbody>
+    </table>
+    <p>Ask about one user through their peer (<code>user.chat</code>). The workspace-level <code>recall.chat</code> reads every user's memory, which is never what you want in a personal assistant.</p>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the SDK (<code>npm install @recall-memory/sdk</code> or <code>pip install recall-mem</code>) and set <code>RECALL_API_KEY</code>. Create handles for the user, the assistant and the conversation.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>import { Recall } from "@recall-memory/sdk";
+
+const recall = new Recall({ workspaceId: "assistant-prod" });
+
+// The user is a peer, keyed by your own stable user id (not their email address).
+const user = recall.peer("user-8412", { metadata: { locale: "nl-NL" } });
+// You write the assistant's persona, so Recall should not learn from its replies.
+const assistant = recall.peer("assistant", { configuration: { observeMe: false } });
+// One session per conversation. Memory of the user is shared across all of them.
+const chat = recall.session("chat-20261010-a91f");</code></pre>
+<pre data-panel="py" hidden><code>from recall_memory import PeerConfig, Recall
+
+recall = Recall(workspace_id="assistant-prod")
+
+# The user is a peer, keyed by your own stable user id (not their email address).
+user = recall.peer("user-8412", metadata={"locale": "nl-NL"})
+# You write the assistant's persona, so Recall should not learn from its replies.
+assistant = recall.peer("assistant", configuration=PeerConfig(observe_me=False))
+# One session per conversation. Memory of the user is shared across all of them.
+chat = recall.session("chat-20261010-a91f")</code></pre>
+</div>
+    <p><b>Settings are facts.</b> When a user fills in their profile ("I'm vegetarian", "keep it short"), write it down as conclusions about them. They are stored as given, can be found at once and show up in every answer that needs them. What the user says in conversation is learned in the background instead.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// What the user entered in your app's settings is fact, not inference: store it as such.
+// It is searchable at once, without waiting for background learning.
+await user.conclusions.create(["Is vegetarian.", "Prefers short answers."]);</code></pre>
+<pre data-panel="py" hidden><code># What the user entered in your app's settings is fact, not inference: store it as such.
+# It is searchable at once, without waiting for background learning.
+user.conclusions.create([{"content": "Is vegetarian."}, {"content": "Prefers short answers."}])</code></pre>
+</div>
+    <p><b>The peer card: facts for every prompt.</b> The card is a short list of the most stable facts about the user. Recall writes and updates it as it learns, and <code>turn</code> returns it with the context, so your model always sees it. You can add lines yourself, for example from onboarding. <code>setCard</code> replaces the whole list, so read it first.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// The peer card: a short list of facts for every prompt. Recall writes and updates it as it
+// learns; you can add lines yourself, e.g. from onboarding. setCard replaces the whole card.
+const card = (await user.getCard()) ?? [];
+await user.setCard([
+  ...card,
+  "Prefers to be called Sam.",
+  "Vegetarian.",
+  "Timezone Europe/Amsterdam.",
+]);</code></pre>
+<pre data-panel="py" hidden><code># The peer card: a short list of facts for every prompt. Recall writes and updates it as it
+# learns; you can add lines yourself, e.g. from onboarding. set_card replaces the whole card.
+card = user.get_card() or []
+user.set_card([*card, "Prefers to be called Sam.", "Vegetarian.", "Timezone Europe/Amsterdam."])</code></pre>
+</div>
+    <p><b>Every message: one request.</b> <code>turn</code> stores the user's message and returns the context for your model in the same round trip: the conversation so far, a summary of older turns, the card and what Recall has learned about the user, trimmed to <code>tokens</code>. Building the context uses no model, so it is fast and included in the price; you pay only for learning from the message. Store the reply afterwards so the conversation is complete.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// Every user message: one request stores it and returns the context for the reply: this
+// conversation so far, a summary of older turns, the card and what Recall knows about Sam.
+const { context } = await chat.turn(
+  [user.message("My parents visit on Saturday. Can you plan a dinner for four?")],
+  { peerTarget: user, tokens: 3000 },
+);
+const messages = context.toOpenAI(assistant); // or context.toAnthropicParams(assistant)
+// Your model writes the reply from `messages`; store it so the conversation is complete.
+const reply = "How about a mushroom risotto with a big salad? Here is a shopping list.";
+await chat.addMessages([assistant.message(reply)]);</code></pre>
+<pre data-panel="py" hidden><code># Every user message: one request stores it and returns the context for the reply: this
+# conversation so far, a summary of older turns, the card and what Recall knows about Sam.
+result = chat.turn(
+    [user.message("My parents visit on Saturday. Can you plan a dinner for four?")],
+    peer_target=user,
+    tokens=3000,
+)
+messages = result.context.to_openai(assistant=assistant)  # or .to_anthropic_params(...)
+# Your model writes the reply from `messages`; store it so the conversation is complete.
+reply = "How about a mushroom risotto with a big salad? Here is a shopping list."
+chat.add_messages([assistant.message(reply)])</code></pre>
+</div>
+    <p><b>Questions about the user: ask.</b> For things outside the chat, such as a morning briefing, a reminder or a suggestion for the weekend, ask the user's memory in plain language. That is one model call of a few seconds, so run it in the background, not while the user waits for a reply.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// A question about the user, for a reminder or a suggestion outside the chat. One model call
+// of a few seconds. (waitForIdle is for this demo; real apps rarely block on learning.)
+await recall.waitForIdle();
+const answer = await user.chat("What should I keep in mind when suggesting a weekend plan?", {
+  reasoningLevel: "low",
+});</code></pre>
+<pre data-panel="py" hidden><code># A question about the user, for a reminder or a suggestion outside the chat. One model call
+# of a few seconds. (wait_for_idle is for this demo; real apps rarely block on learning.)
+recall.wait_for_idle()
+answer = user.chat(
+    "What should I keep in mind when suggesting a weekend plan?", reasoning_level="low"
+)</code></pre>
+</div>
+    <p><b>Let users fix what you remember.</b> A "What I remember" page builds trust and catches mistakes. List the user's facts, delete the ones they flag, and store the right value when they give it. Deleting a fact does not change the card, so update the card too. When the user corrects something in conversation ("I moved to Amersfoort"), you need not do anything: Recall closes the old fact itself.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// A "What I remember" page: list the facts and let the user delete a wrong or outdated one.
+// Deleting a fact does not edit the card, so remove it there too, and store the new value.
+const { items: facts } = await user.conclusions.list({ size: 50 });
+const flagged = facts.find((f) =&gt; f.content.toLowerCase().includes("vegetarian")); // user's pick
+if (flagged) await user.conclusions.delete(flagged.id);
+const current = (await user.getCard()) ?? [];
+await user.setCard(current.filter((line) =&gt; !line.toLowerCase().includes("vegetarian")));
+await user.conclusions.create("Eats fish, but no meat.");</code></pre>
+<pre data-panel="py" hidden><code># A "What I remember" page: list the facts and let the user delete a wrong or outdated one.
+# Deleting a fact does not edit the card, so remove it there too, and store the new value.
+facts = user.conclusions.list(size=50).items
+flagged = next((f for f in facts if "vegetarian" in f.content.lower()), None)
+if flagged:  # the one the user flagged
+    user.conclusions.delete(flagged.id)
+current = user.get_card() or []
+user.set_card([line for line in current if "vegetarian" not in line.lower()])
+user.conclusions.create([{"content": "Eats fish, but no meat."}])</code></pre>
+</div>
+    <p><b>Account deletion.</b> <code>user.delete()</code> erases the user: their messages, everything learned about them and their card. The assistant's replies are another peer's messages, so delete the user's conversations as well.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// The user deletes their account: erase them (their messages, every fact and the card), then
+// their conversations, which still hold the assistant's replies to them.
+const chats = await (await user.sessions()).toArray();
+await user.delete();
+for (const c of chats) await c.delete();</code></pre>
+<pre data-panel="py" hidden><code># The user deletes their account: erase them (their messages, every fact and the card), then
+# their conversations, which still hold the assistant's replies to them.
+chats = list(user.sessions())
+user.delete()
+for c in chats:
+    c.delete()</code></pre>
+</div>
+
+    <h3 id="connectors">Memory in Claude and ChatGPT</h3>
+    <p>To give Claude or ChatGPT memory across chats you build nothing: add Recall as a connector with the URL <code>https://api.recallmem.dev/mcp</code> and sign in. With <i>Remember automatically</i> ticked (the default) the app saves lasting facts you share, such as preferences, plans and people, without being asked; untick it per app under API keys → Connected apps to have it save only what you ask. The steps for each app are in <a href="/docs#mcp-connector">Add Recall as a connector</a>. That is memory for your own Recall account. To give your product's users memory, build it as above.</p>
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>observeMe: false</code> on the assistant</td><td>Recall learns nothing from the assistant's replies; it reads them only as context for the user's messages. Give it when you create the handle; both SDKs send it before the assistant's first message.</td></tr>
+        <tr><td><code>peerTarget</code> and <code>tokens</code> on <code>turn</code></td><td><code>peerTarget: user</code> adds what Recall knows about the user and their card. 2,000 to 4,000 tokens is plenty for a chat; older turns become a summary.</td></tr>
+        <tr><td><code>reasoningLevel</code></td><td><code>low</code> (the default) for questions about the user, <code>minimal</code> for quick checks: the cheapest and fastest. See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+        <tr><td>Message <code>createdAt</code></td><td>When you import old chats, pass when each message was written, so "next week" is reckoned from then, not from the import.</td></tr>
+        <tr><td><code>reasoning.customInstructions</code> (workspace configuration)</td><td>Tell Recall what matters in your product and what to leave out. It guides the model that extracts facts; it is not a filter.</td></tr>
+        <tr><td><code>peerCard.create: false</code> (workspace configuration)</td><td>Recall stops writing cards and you own them entirely. Leave it on unless you need that.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>Measured from Europe against the hosted API (Frankfurt), October 2026: a <code>turn</code> or context call took 0.3 to 0.7 seconds, a search about 0.9 seconds, a question at <code>minimal</code> or <code>low</code> 2 to 4.5 seconds. Learning happens in the background, usually within about 20 seconds of a message, and never holds up a call.</p>
+    <p>Context, search, storage, summaries and dreams are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50, and for questions. A user who sends 300 messages a month of about 40 tokens, gets 300 replies of about 150 tokens, and about whom your app asks 30 questions at <code>low</code>:</p>
+    <table>
+      <thead><tr><th>Item</th><th>Per month</th></tr></thead>
+      <tbody>
+        <tr><td>User messages: 300 × 50 tokens × $1.75 / 1M</td><td>$0.0263</td></tr>
+        <tr><td>Assistant replies, read but not learned from: 300 × 150 tokens × $1.75 / 1M</td><td>$0.0788</td></tr>
+        <tr><td>Questions at <code>low</code>: 30 × $0.005</td><td>$0.1500</td></tr>
+        <tr><td><b>Total</b></td><td><b>about $0.26 per user</b></td></tr>
+      </tbody>
+    </table>
+    <p>An answer from empty memory is free. Set a monthly cap and auto top-up under Billing. More in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>People tell assistants a lot: health, relationships, money, other people. Say in your privacy notice that conversations are stored to give the assistant memory, that AI model providers process them, and how users delete it. Give users a page that shows what is remembered, like the one above.</p>
+    <ul>
+      <li><b>Keep out what memory does not need:</b> passwords, card numbers, one-time codes and ID numbers. Strip them before a message reaches Recall. A private or incognito mode should not send messages at all.</li>
+      <li><b>Forgetting a user:</b> <code>user.delete()</code> (or <code>DELETE /v3/workspaces/{workspace}/peers/{peer}</code>) erases their messages, every fact and card about them or from their view, the summaries that quoted them (rebuilt without them) and cached answers. Delete their conversations too, for the assistant's replies. See <a href="/docs#forget-a-person">Forget a person</a>.</li>
+      <li><b>Where data lives:</b> the database and API are in Frankfurt (EU). Text is processed by AI model providers in the US through OpenRouter, restricted to providers that do not collect the data, and customer data is not used to train models. See the <a href="/privacy">privacy policy</a>, the <a href="/dpa">DPA</a> and <a href="/security">security</a>.</li>
+    </ul>
+    <p><b>Companions.</b> Memory makes a companion feel like it knows the person, which is the point and also the risk. Keep it honest: let the character say it is an AI when asked, and do not use what it remembers to make people feel guilty for leaving or to keep them chatting longer. Let people see and delete what it remembers. If someone writes about self-harm or a crisis, your app has to point them to real help; Recall stores what was said, it does not notice or handle it. If minors may use your app, read <a href="/guides/privacy">Privacy, consent and forgetting</a> first.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>Learning from your own assistant.</b> Without <code>observeMe: false</code>, Recall also learns from the assistant's replies and builds a memory of your own persona, which you pay for and do not need.</li>
+      <li><b>An email address as the peer id.</b> Email addresses change and are personal data in every log line. Use your internal user id.</li>
+      <li><b>Asking on every message.</b> A question takes seconds. Reply from the context <code>turn</code> returns; ask only for things outside the chat, ahead of time.</li>
+      <li><b>Asking the workspace about one user.</b> <code>recall.chat</code> reads every user. Ask through the user's peer.</li>
+      <li><b>One session forever.</b> The summary then mixes every topic. Start a session per conversation; what Recall knows about the user carries over anyway.</li>
+      <li><b>Expecting Recall to write the reply.</b> Recall is memory, not the reply model. Bring your own model and persona prompt.</li>
+    </ul>
+    <p class="guide-next">Next: <a href="/guides/modeling">Designing workspaces, peers and sessions</a> · <a href="/guides/privacy">Privacy, consent and forgetting</a></p>
+  </article>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="logo" href="/"><svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>Recall</a>
+      <p class="tagline">Memory for AI agents. Hosted in the EU.</p>
+      <p class="muted">Smidt Beheer · KvK 99124254 · VAT NL004444074B96</p>
+    </div>
+    <nav aria-label="Footer">
+      <div><b>Product</b><a href="/#how">How it works</a><a href="/#why">Why Recall</a><a href="/#agents">Integrations</a><a href="/evals">Evals</a><a href="/#pricing">Pricing</a></div>
+      <div><b>Developers</b><a href="/docs#quickstart">Quickstart</a><a href="/guides">Guides</a><a href="/docs#integrations">Integrations</a><a href="/docs#api">API</a><a href="/docs#models">Models</a><a href="https://github.com/recallmem/recall">GitHub</a></div>
+      <div><b>Account</b><a href="/app/login">Sign in</a></div>
+      <div><b>Legal</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/dpa">Data processing</a><a href="/security">Security</a><a href="/support">Support</a></div>
+    </nav>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

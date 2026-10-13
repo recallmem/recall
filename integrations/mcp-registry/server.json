@@ -1,0 +1,14 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "dev.recallmem/memory",
+  "title": "Recall",
+  "description": "Long-term memory for AI agents: learns what is true about each person and answers with sources.",
+  "version": "1.0.0",
+  "websiteUrl": "https://recallmem.dev",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://api.recallmem.dev/mcp"
+    }
+  ]
+}

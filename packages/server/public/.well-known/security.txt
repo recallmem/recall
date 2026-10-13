@@ -1,0 +1,12 @@
+# Recall (recallmem.dev): how to report a security vulnerability.
+# Our policy, scope and safe-harbour terms: https://recallmem.dev/security
+# Please put "Security" in the subject of your email.
+
+Contact: mailto:security@recallmem.dev
+Contact: mailto:support@recallmem.dev
+Expires: 2027-10-09T00:00:00.000Z
+Preferred-Languages: en, nl
+Canonical: https://recallmem.dev/.well-known/security.txt
+Canonical: https://api.recallmem.dev/.well-known/security.txt
+Canonical: https://app.recallmem.dev/.well-known/security.txt
+Policy: https://recallmem.dev/security

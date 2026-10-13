@@ -1,0 +1,39 @@
+{
+  "description": "Recall memory: recall what is known about you at session start, record each prompt and final reply.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${PLUGIN_ROOT}/scripts/session-start.mjs\"",
+            "timeout": 10,
+            "statusMessage": "Recalling memory"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${PLUGIN_ROOT}/scripts/user-prompt-submit.mjs\"",
+            "timeout": 8
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${PLUGIN_ROOT}/scripts/stop.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

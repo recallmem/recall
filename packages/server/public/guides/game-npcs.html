@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Game NPCs — Recall guides</title>
+<meta name="description" content="Build game NPCs that remember the player with Recall: one memory per save, each NPC's own point of view, fast context for dialogue, code in TypeScript and Python, C# for Unity, cost and speed." />
+<meta name="theme-color" content="#0c0b0a" />
+<meta property="og:title" content="Game NPCs — Recall guides" />
+<meta property="og:description" content="Build game NPCs that remember the player with Recall: one memory per save, each NPC's own point of view, fast context for dialogue, code in TypeScript and Python, C# for Unity, cost and speed." />
+<meta property="og:type" content="article" />
+<meta property="og:image" content="/og.png" />
+<link rel="canonical" href="https://recallmem.dev/guides/game-npcs" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="preload" href="/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/departure-mono.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="/site.css" />
+<meta name="recall-api" content="https://api.recallmem.dev" data-site="https://recallmem.dev" />
+</head>
+<body>
+
+<header class="nav scrolled" id="nav">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="Recall home">
+      <svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>
+      Recall<span class="muted nowrap">/guides</span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="/#how">Product</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides">Guides</a>
+      <a href="https://github.com/recallmem/recall">GitHub</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-text" href="/app/login">Sign in</a>
+      <a class="btn btn-primary" href="/app/login">Get API key</a>
+    </div>
+  </div>
+</header>
+
+<div class="docs">
+  <aside class="toc" aria-label="Guides">
+    <details class="toc-box" open>
+      <summary>Guides</summary>
+      <div class="toc-links">
+        <a href="/guides">All guides</a>
+        <b>On this page</b>
+        <a class="sub" href="#what-changes">What memory adds</a>
+        <a class="sub" href="#model">How to model it</a>
+        <a class="sub" href="#build">Build it</a>
+        <a class="sub" href="#settings">Settings that matter</a>
+        <a class="sub" href="#cost-speed">Cost and speed</a>
+        <a class="sub" href="#privacy">Privacy and forgetting</a>
+        <a class="sub" href="#pitfalls">Pitfalls</a>
+        <b>Use cases</b>
+        <a href="/guides/assistants">Personal assistants and companions</a>
+        <a href="/guides/support">Customer support</a>
+        <a href="/guides/coding-agents">Coding agents</a>
+        <a href="/guides/game-npcs" aria-current="page">Game NPCs</a>
+        <a href="/guides/sales">Sales and CRM copilots</a>
+        <a href="/guides/multi-agent">Multi-agent systems</a>
+        <a href="/guides/tutoring">Tutoring and education</a>
+        <a href="/guides/community-bots">Discord and Slack bots</a>
+        <a href="/guides/coaching">Health, fitness and coaching</a>
+        <a href="/guides/voice-agents">Voice agents</a>
+        <a href="/guides/shopping">Shopping assistants</a>
+        <a href="/guides/workplace">Workplace assistants</a>
+        <b>Build well</b>
+        <a href="/guides/modeling">Designing workspaces, peers and sessions</a>
+        <a href="/guides/levels-and-models">Reasoning levels and models</a>
+        <a href="/guides/privacy">Privacy, consent and forgetting</a>
+        <a href="/guides/cost-and-speed">Cost and speed</a>
+        <b>Reference</b>
+        <a href="/docs">Docs</a>
+        <a href="/docs#api">REST API</a>
+      </div>
+    </details>
+  </aside>
+  <script>
+    // On a phone the contents start collapsed; set before first paint so the page does not jump.
+    if (matchMedia("(max-width: 980px)").matches) document.querySelector(".toc-box").open = false;
+  </script>
+
+  <article class="prose guide">
+    <p class="crumbs"><a href="/guides">Guides</a> / Use cases</p>
+<h1>Game NPCs</h1>
+    <p class="lede">Characters that remember the player across play sessions, each from their own point of view: the blacksmith remembers the hammer you lost, the innkeeper only knows what reached his ears. Recall stores the scenes, learns what each NPC saw, and hands your dialogue model the right memory in a few hundred milliseconds.</p>
+
+    <h2 id="what-changes">What memory adds</h2>
+    <p>Without memory, every conversation with an NPC starts from the script. With it, what the player did and said becomes part of the world:</p>
+    <table>
+      <thead><tr><th></th><th>Without memory</th><th>With Recall</th></tr></thead>
+      <tbody>
+        <tr><td>Day 3, at the forge</td><td colspan="2">The player loses Mira's hammer and promises her 30 gold by the harvest festival.</td></tr>
+        <tr><td>Day 9, back at the forge</td><td>"Welcome, traveller! Need a blade?"</td><td>"Back again. The festival is in two days, and I still don't see thirty gold."</td></tr>
+        <tr><td>Day 9, at the inn</td><td>Tomas has never heard of it.</td><td>Only if your story let the rumour travel: Tomas knows what you told him, nothing more.</td></tr>
+      </tbody>
+    </table>
+    <p>Recall does not write the lines. Your game's own model does, as it does now; Recall gives it what this NPC knows about this player, and learns from what was said.</p>
+
+    <h2 id="model">How to model it</h2>
+    <table>
+      <thead><tr><th>In your game</th><th>In Recall</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>A save game (or one player's world)</td><td>Workspace, e.g. <code>save-7f3a</code></td><td>Memories of different saves never mix, and a new game is one delete.</td></tr>
+        <tr><td>The player</td><td>Peer <code>player</code></td><td>Recall learns about the player from everything they say.</td></tr>
+        <tr><td>Each NPC</td><td>Peer <code>npc-mira</code>, <code>npc-tomas</code>, with <code>observeMe: false</code></td><td>You write NPC personalities yourself, so Recall need not learn about them; their lines cost less.</td></tr>
+        <tr><td>A scene or conversation</td><td>Session, e.g. <code>forge-day-3</code></td><td>The NPCs in a session are the ones who witnessed it.</td></tr>
+        <tr><td>What an NPC knows</td><td>The NPC's view of the player: <code>observeOthers: true</code> in that NPC's sessions</td><td>Mira's view is built only from scenes Mira was in.</td></tr>
+      </tbody>
+    </table>
+    <p>Multiplayer works the same way: one peer per player, and each NPC keeps a separate view of each player it met. For a shared world, use one workspace per server or shard instead of per save.</p>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the SDK (<code>npm install @recall-memory/sdk</code> or <code>pip install recall-mem</code>) and set <code>RECALL_API_KEY</code>. Create the save's peers and a session per scene; nothing is sent until the first call.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>import { Recall } from "@recall-memory/sdk";
+
+const recall = new Recall({ workspaceId: "save-7f3a" });
+
+const player = recall.peer("player");
+// Your game writes the NPCs' lines, so Recall need not learn about them (cheaper, see below).
+const npc = { configuration: { observeMe: false } };
+const mira = recall.peer("npc-mira", { ...npc, metadata: { role: "blacksmith" } });
+const tomas = recall.peer("npc-tomas", { ...npc, metadata: { role: "innkeeper" } });
+
+// One session per scene. Mira takes part and keeps her own view of the player.
+const forge = recall.session("forge-day-3", {
+  peers: [player, [mira, { observeOthers: true }]],
+});</code></pre>
+<pre data-panel="py" hidden><code>from recall_memory import PeerConfig, Recall, SessionPeerConfig
+
+recall = Recall(workspace_id="save-7f3a")
+
+player = recall.peer("player")
+# Your game writes the NPCs' lines, so Recall need not learn about them (cheaper, see below).
+npc = PeerConfig(observe_me=False)
+mira = recall.peer("npc-mira", configuration=npc, metadata={"role": "blacksmith"})
+tomas = recall.peer("npc-tomas", configuration=npc, metadata={"role": "innkeeper"})
+
+# One session per scene. Mira takes part and keeps her own view of the player.
+forge = recall.session(
+    "forge-day-3",
+    peers=[player, (mira, SessionPeerConfig(observe_others=True))],
+)</code></pre>
+</div>
+    <p><b>Every line of dialogue: one request.</b> <code>turn</code> stores the player's line and returns the context for the reply in the same round trip: the scene so far, a summary of older turns, and what Mira has learned about the player. <code>peerPerspective</code> is what keeps her view her own. It uses no model, so it is fast and included in the price.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// One request per line of dialogue: store the player's line, get back what Mira knows.
+const { context } = await forge.turn(
+  [
+    player.message(
+      "I lost your hammer in the river. I'll pay you 30 gold by the harvest festival.",
+    ),
+  ],
+  { peerTarget: player, peerPerspective: mira, tokens: 2000 },
+);
+const prompt = context.toOpenAI(mira); // Mira's memory as system messages, then the scene
+// Your game's own model writes Mira's line from `prompt`; store it so she remembers saying it.
+const line = "Thirty gold by the festival, then. I'll hold you to that.";
+await forge.addMessages([mira.message(line)]);</code></pre>
+<pre data-panel="py" hidden><code># One request per line of dialogue: store the player's line, get back what Mira knows.
+result = forge.turn(
+    [
+        player.message(
+            "I lost your hammer in the river. I'll pay you 30 gold by the harvest festival."
+        )
+    ],
+    peer_target=player,
+    peer_perspective=mira,
+    tokens=2000,
+)
+prompt = result.context.to_openai(assistant=mira)  # Mira's memory, then the scene
+# Your game's own model writes Mira's line from `prompt`; store it so she remembers saying it.
+line = "Thirty gold by the festival, then. I'll hold you to that."
+forge.add_messages([mira.message(line)])</code></pre>
+</div>
+    <p><b>Game logic: ask.</b> For decisions (does Mira refuse to sell? does the debt quest unlock?), ask the NPC's memory in plain language. That is one model call of a few seconds, so call it when a quest step or a scene starts, not every frame. Ask for JSON with <code>responseFormat</code> when your code needs a field rather than a sentence.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// Quest logic, not dialogue: what does Mira believe? One model call, so keep it off the
+// frame loop. (waitForIdle is for this demo; a game asks later, when learning is done.)
+await recall.waitForIdle();
+const debt = await mira.chat("Does the player owe me anything? How much, and by when?", {
+  target: player,
+  reasoningLevel: "minimal",
+});</code></pre>
+<pre data-panel="py" hidden><code># Quest logic, not dialogue: what does Mira believe? One model call, so keep it off the
+# frame loop. (wait_for_idle is for this demo; a game asks later, when learning is done.)
+recall.wait_for_idle()
+debt = mira.chat(
+    "Does the player owe me anything? How much, and by when?",
+    target=player,
+    reasoning_level="minimal",
+)</code></pre>
+</div>
+    <p><b>Rumours spread when your story says so.</b> NPCs who were not there know nothing. To pass news on, write a fact into the listener's view yourself. That keeps gossip under your control instead of leaking between characters.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// Tomas was not at the forge, so he knows nothing yet. When your story says the news has
+// travelled, write it into his view of the player yourself.
+await tomas
+  .conclusionsOf(player)
+  .create("Heard from Mira: the player lost her hammer and owes her 30 gold.");
+const rumour = await tomas.chat("What have I heard about the player?", {
+  target: player,
+  reasoningLevel: "minimal",
+});</code></pre>
+<pre data-panel="py" hidden><code># Tomas was not at the forge, so he knows nothing yet. When your story says the news has
+# travelled, write it into his view of the player yourself.
+tomas.conclusions_of(player).create(
+    [{"content": "Heard from Mira: the player lost her hammer and owes her 30 gold."}]
+)
+rumour = tomas.chat(
+    "What have I heard about the player?", target=player, reasoning_level="minimal"
+)</code></pre>
+</div>
+    <p><b>New game, or a player who leaves.</b></p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// A new game drops the whole save: its scenes first, then the workspace.
+const scenes = [];
+for await (const scene of await recall.sessions()) scenes.push(scene);
+for (const scene of scenes) await scene.delete();
+await recall.deleteWorkspace();
+// To forget one player and keep the world: await player.delete()</code></pre>
+<pre data-panel="py" hidden><code># A new game drops the whole save: its scenes first, then the workspace.
+for scene in list(recall.sessions()):
+    scene.delete()
+recall.delete_workspace(recall.workspace_id)
+# To forget one player and keep the world: player.delete()</code></pre>
+</div>
+
+    <h3 id="unity">Unity, Unreal and Godot</h3>
+    <p>There is no engine SDK; the REST API is two calls. Do not put your API key in the game build, where players can extract it: call Recall from your game server, or mint each player a key scoped to their own save with <code>POST /v3/keys</code>, so a leaked key reaches no one else's memory (set a monthly cap under Billing too). The turn call from C#:</p>
+<pre><code>// POST /v3/workspaces/{save}/sessions/{scene}/turn
+var body = @"{
+  ""messages"": [{ ""peer_id"": ""player"", ""content"": ""I lost your hammer in the river."" }],
+  ""context"": { ""tokens"": 2000, ""peer_target"": ""player"", ""peer_perspective"": ""npc-mira"" }
+}";
+using var req = new HttpRequestMessage(HttpMethod.Post,
+    $"https://api.recallmem.dev/v3/workspaces/{save}/sessions/{scene}/turn");
+req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+req.Content = new StringContent(body, Encoding.UTF8, "application/json");
+var res = await http.SendAsync(req);   // { "messages": [...], "context": { ... } }</code></pre>
+    <p>Set up each scene once, before its first turn: <code>POST /v3/workspaces/{save}/sessions</code> with <code>{"id": "forge-day-3", "peers": {"player": {}, "npc-mira": {"observe_others": true}}}</code>. It is get-or-create, so sending it again is harmless. See the <a href="/docs#api">REST API</a>.</p>
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>observeOthers: true</code> per NPC, per session</td><td>The NPC builds its own view of the others in that scene. Leave it off for NPCs who should not remember.</td></tr>
+        <tr><td><code>peerPerspective</code></td><td>Read the player through that NPC's eyes. Without it you get Recall's overall view of the player, which includes things the NPC never saw.</td></tr>
+        <tr><td><code>observeMe: false</code> on NPCs</td><td>Recall does not learn about the NPC from its own lines. Use it whenever your game, not the conversation, defines who the NPC is.</td></tr>
+        <tr><td><code>tokens</code></td><td>The context budget for the dialogue model, 1,000 to 4,000 is plenty for a scene. Older turns become a summary.</td></tr>
+        <tr><td><code>reasoningLevel: "minimal"</code></td><td>For game logic questions: the cheapest and fastest level. See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+        <tr><td>Message <code>createdAt</code></td><td>Recall dates what it learns by when a message was written. If your world has its own clock, map game days onto dates and pass them, so "by the festival" is reckoned in game time.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>Measured from Europe against the hosted API (Frankfurt), October 2026: a <code>turn</code> or context call took 0.3 to 0.7 seconds, a question at <code>minimal</code> or <code>low</code> 2 to 4.5 seconds. Learning happens in the background and does not hold up the call.</p>
+    <p>Context, search and storage are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50, and for questions. A player who plays two hours a week, with 200 lines of their own and 200 NPC lines of about 30 tokens, and 20 game-logic questions:</p>
+    <table>
+      <thead><tr><th>Item</th><th>Per week</th></tr></thead>
+      <tbody>
+        <tr><td>Player lines: 200 × 50 tokens × $1.75 / 1M</td><td>$0.0175</td></tr>
+        <tr><td>NPC lines, read but not learned from: 200 × 30 tokens × $1.75 / 1M</td><td>$0.0105</td></tr>
+        <tr><td>Questions at <code>minimal</code>: 20 × $0.0008</td><td>$0.0160</td></tr>
+        <tr><td><b>Total</b></td><td><b>about $0.04, or $0.18 a month</b></td></tr>
+      </tbody>
+    </table>
+    <p>More in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>Players type freely into chat-driven games, including things that are not about the game. Say in your privacy notice that conversations with characters are stored to give them memory, and let players reset it. Deleting the save's workspace removes everything in it; <code>player.delete()</code> forgets one player in a shared world, including every NPC's view of them. Games for children need more care: see <a href="/guides/privacy">Privacy, consent and forgetting</a>.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>One workspace for all saves.</b> Memories from a deleted save then haunt the new one. Use a workspace per save or per world.</li>
+      <li><b>Asking in the frame loop.</b> Questions take seconds. Read context for dialogue; ask only for game logic, ahead of time.</li>
+      <li><b>Reading without <code>peerPerspective</code>.</b> Every NPC then knows everything the player ever said to anyone.</li>
+      <li><b>NPC ids that change between builds.</b> Memory belongs to the id: keep <code>npc-mira</code> stable even if her display name changes.</li>
+      <li><b>Expecting the NPC's lines to be written for you.</b> Recall is memory, not the dialogue model; bring your own model and persona prompt.</li>
+    </ul>
+    <p class="guide-next">Next: <a href="/guides/cost-and-speed">Cost and speed</a> · <a href="/guides/modeling">Designing workspaces, peers and sessions</a></p>
+  </article>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="logo" href="/"><svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>Recall</a>
+      <p class="tagline">Memory for AI agents. Hosted in the EU.</p>
+      <p class="muted">Smidt Beheer · KvK 99124254 · VAT NL004444074B96</p>
+    </div>
+    <nav aria-label="Footer">
+      <div><b>Product</b><a href="/#how">How it works</a><a href="/#why">Why Recall</a><a href="/#agents">Integrations</a><a href="/evals">Evals</a><a href="/#pricing">Pricing</a></div>
+      <div><b>Developers</b><a href="/docs#quickstart">Quickstart</a><a href="/guides">Guides</a><a href="/docs#integrations">Integrations</a><a href="/docs#api">API</a><a href="/docs#models">Models</a><a href="https://github.com/recallmem/recall">GitHub</a></div>
+      <div><b>Account</b><a href="/app/login">Sign in</a></div>
+      <div><b>Legal</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/dpa">Data processing</a><a href="/security">Security</a><a href="/support">Support</a></div>
+    </nav>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

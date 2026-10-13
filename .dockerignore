@@ -1,0 +1,20 @@
+# Keep the build context small and the build reproducible: dependencies are installed in the
+# image from the lockfile, never copied from the host.
+.git
+**/node_modules
+**/dist
+**/.recall
+**/*.log
+.env
+.env.*
+!.env.example
+
+# Not needed to build the server
+docs
+sdks
+evals/data
+evals/results
+**/coverage
+**/__pycache__
+**/.venv
+**/.pytest_cache

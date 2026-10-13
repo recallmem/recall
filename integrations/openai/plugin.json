@@ -1,0 +1,40 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "recall-memory",
+  "version": "1.0.3",
+  "description": "Long-term memory for ChatGPT and Codex: Recall remembers what matters about you across conversations.",
+  "author": {
+    "name": "Recall",
+    "email": "support@recallmem.dev",
+    "url": "https://recallmem.dev"
+  },
+  "homepage": "https://recallmem.dev",
+  "repository": "https://github.com/RedSix6/recall-plugin",
+  "license": "MIT",
+  "keywords": ["memory", "personalization", "context", "notes"],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Recall Memory",
+        "shortDescription": "Memory that lasts across chats",
+        "longDescription": "Recall gives your assistant a memory that lasts between conversations. It learns what is true about you from what you choose to share (your projects, preferences, people and plans), notices when something changes, and answers with the sources it used.\n\nAsk \"what do you know about my launch?\" or \"what did I decide about the venue?\" and get the current answer, not last month's. Ask it to remember something and it is saved; ask it to forget a fact and it is deleted.\n\nYou can browse everything Recall remembers in the Recall dashboard and delete any of it at any time. Data is stored in the EU (Frankfurt) and is never used to train models.",
+        "developerName": "Smidt Beheer",
+        "category": "Productivity",
+        "capabilities": ["Read", "Write"],
+        "websiteURL": "https://recallmem.dev",
+        "privacyPolicyURL": "https://recallmem.dev/privacy",
+        "termsOfServiceURL": "https://recallmem.dev/terms",
+        "supportURL": "https://recallmem.dev/support",
+        "defaultPrompt": [
+          "What do you remember about my current projects?",
+          "Remember that I prefer short, direct answers.",
+          "What did I decide last time about the launch plan?"
+        ],
+        "brandColor": "#B87D00",
+        "brandColorDark": "#FFB000",
+        "composerIcon": "./assets/icon.png",
+        "logo": "./assets/logo.png"
+      }
+    }
+  }
+}

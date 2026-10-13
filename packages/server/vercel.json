@@ -1,0 +1,316 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm run build",
+  "outputDirectory": "public",
+  "cleanUrls": true,
+  "regions": ["fra1"],
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 300,
+      "includeFiles": "{dist/db/migrations/**,dist/core/pdf-worker.js,dist/core/pdf-text.js,public/404.html}"
+    }
+  },
+  "headers": [
+    {
+      "source": "/",
+      "missing": [
+        {
+          "type": "host",
+          "value": "app.recallmem.dev"
+        }
+      ],
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'none'; script-src 'self' 'sha256-Zw+jnmxprO0lGidY0YdWhzONqQf8TwarmO+N0AFZn/g=' 'sha256-L6VbaefzhJP2ci/82zzY5TFaqiKQnMIC9FPamleSsJc='; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/:page(home|docs|guides|evals|privacy|terms|dpa|security|support)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'none'; script-src 'self' 'sha256-Zw+jnmxprO0lGidY0YdWhzONqQf8TwarmO+N0AFZn/g=' 'sha256-L6VbaefzhJP2ci/82zzY5TFaqiKQnMIC9FPamleSsJc='; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/guides/:slug",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'none'; script-src 'self' 'sha256-Zw+jnmxprO0lGidY0YdWhzONqQf8TwarmO+N0AFZn/g=' 'sha256-L6VbaefzhJP2ci/82zzY5TFaqiKQnMIC9FPamleSsJc='; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/:file(site\\.css|site\\.js|favicon\\.svg|og\\.png|robots\\.txt|llms\\.txt)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        }
+      ]
+    },
+    {
+      "source": "/.well-known/security.txt",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        }
+      ]
+    },
+    {
+      "source": "/.well-known/openai-apps-challenge",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/plain; charset=utf-8"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/review/:file*",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/fonts/:file*",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/:path((?:v3|mcp|oauth|\\.well-known|admin|metrics|billing)(?:/.*)?)",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?<deployment>.+)\\.vercel\\.app"
+        }
+      ],
+      "destination": "https://api.recallmem.dev/:path",
+      "statusCode": 308
+    },
+    {
+      "source": "/:path((?!internal/|health$|v3|mcp|oauth|\\.well-known|admin|metrics|billing).*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?<deployment>.+)\\.vercel\\.app"
+        }
+      ],
+      "destination": "https://recallmem.dev/:path",
+      "statusCode": 308
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.recallmem.dev"
+        }
+      ],
+      "destination": "https://recallmem.dev/",
+      "statusCode": 308
+    },
+    {
+      "source": "/:page(home|docs|guides|evals|privacy|terms|dpa|security|support)",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.recallmem.dev"
+        }
+      ],
+      "destination": "https://recallmem.dev/:page",
+      "statusCode": 308
+    },
+    {
+      "source": "/guides/:slug",
+      "has": [
+        {
+          "type": "host",
+          "value": "api.recallmem.dev"
+        }
+      ],
+      "destination": "https://recallmem.dev/guides/:slug",
+      "statusCode": 308
+    },
+    {
+      "source": "/:page(home|docs|guides|evals|privacy|terms|dpa|security|support)",
+      "has": [
+        {
+          "type": "host",
+          "value": "app.recallmem.dev"
+        }
+      ],
+      "destination": "https://recallmem.dev/:page",
+      "statusCode": 308
+    },
+    {
+      "source": "/guides/:slug",
+      "has": [
+        {
+          "type": "host",
+          "value": "app.recallmem.dev"
+        }
+      ],
+      "destination": "https://recallmem.dev/guides/:slug",
+      "statusCode": 308
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/",
+      "missing": [
+        {
+          "type": "host",
+          "value": "app.recallmem.dev"
+        }
+      ],
+      "destination": "/home"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/api"
+    }
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "wip/*": false,
+      "bench-results": false
+    }
+  }
+}

@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tutoring and education — Recall guides</title>
+<meta name="description" content="Build a tutor that remembers each learner's progress, misconceptions and goals with Recall: model, structured answers, code, care for minors' data, cost." />
+<meta name="theme-color" content="#0c0b0a" />
+<meta property="og:title" content="Tutoring and education — Recall guides" />
+<meta property="og:description" content="Build a tutor that remembers each learner's progress, misconceptions and goals with Recall: model, structured answers, code, care for minors' data, cost." />
+<meta property="og:type" content="article" />
+<meta property="og:image" content="/og.png" />
+<link rel="canonical" href="https://recallmem.dev/guides/tutoring" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="preload" href="/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/departure-mono.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="/site.css" />
+<meta name="recall-api" content="https://api.recallmem.dev" data-site="https://recallmem.dev" />
+</head>
+<body>
+
+<header class="nav scrolled" id="nav">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="Recall home">
+      <svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>
+      Recall<span class="muted nowrap">/guides</span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="/#how">Product</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides">Guides</a>
+      <a href="https://github.com/recallmem/recall">GitHub</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-text" href="/app/login">Sign in</a>
+      <a class="btn btn-primary" href="/app/login">Get API key</a>
+    </div>
+  </div>
+</header>
+
+<div class="docs">
+  <aside class="toc" aria-label="Guides">
+    <details class="toc-box" open>
+      <summary>Guides</summary>
+      <div class="toc-links">
+        <a href="/guides">All guides</a>
+        <b>On this page</b>
+        <a class="sub" href="#what-changes">What memory adds</a>
+        <a class="sub" href="#model">How to model it</a>
+        <a class="sub" href="#build">Build it</a>
+        <a class="sub" href="#settings">Settings that matter</a>
+        <a class="sub" href="#cost-speed">Cost and speed</a>
+        <a class="sub" href="#privacy">Privacy and forgetting</a>
+        <a class="sub" href="#pitfalls">Pitfalls</a>
+        <b>Use cases</b>
+        <a href="/guides/assistants">Personal assistants and companions</a>
+        <a href="/guides/support">Customer support</a>
+        <a href="/guides/coding-agents">Coding agents</a>
+        <a href="/guides/game-npcs">Game NPCs</a>
+        <a href="/guides/sales">Sales and CRM copilots</a>
+        <a href="/guides/multi-agent">Multi-agent systems</a>
+        <a href="/guides/tutoring" aria-current="page">Tutoring and education</a>
+        <a href="/guides/community-bots">Discord and Slack bots</a>
+        <a href="/guides/coaching">Health, fitness and coaching</a>
+        <a href="/guides/voice-agents">Voice agents</a>
+        <a href="/guides/shopping">Shopping assistants</a>
+        <a href="/guides/workplace">Workplace assistants</a>
+        <b>Build well</b>
+        <a href="/guides/modeling">Designing workspaces, peers and sessions</a>
+        <a href="/guides/levels-and-models">Reasoning levels and models</a>
+        <a href="/guides/privacy">Privacy, consent and forgetting</a>
+        <a href="/guides/cost-and-speed">Cost and speed</a>
+        <b>Reference</b>
+        <a href="/docs">Docs</a>
+        <a href="/docs#api">REST API</a>
+      </div>
+    </details>
+  </aside>
+  <script>
+    // On a phone the contents start collapsed; set before first paint so the page does not jump.
+    if (matchMedia("(max-width: 980px)").matches) document.querySelector(".toc-box").open = false;
+  </script>
+
+  <article class="prose guide">
+    <p class="crumbs"><a href="/guides">Guides</a> / Use cases</p>
+<h1>Tutoring and education</h1>
+    <p class="lede">For tutoring apps, homework helpers and learning platforms: a tutor that knows what each learner has mastered, what they keep mixing up and what they are working towards, across every lesson. Recall stores the lessons, learns about the learner in the background, and gives your tutor and the teacher a learner model your app can use.</p>
+
+    <h2 id="what-changes">What memory adds</h2>
+    <p>Without memory, every lesson starts from the syllabus. With it, the tutor picks up where the learner is:</p>
+    <table>
+      <thead><tr><th></th><th>Without memory</th><th>With Recall</th></tr></thead>
+      <tbody>
+        <tr><td>Week 1, fractions lesson</td><td colspan="2">The learner says 1/8 is bigger than 1/4, "because 8 is bigger than 4".</td></tr>
+        <tr><td>Week 2, homework</td><td>"Let's start with fractions. A fraction has a numerator and a denominator..."</td><td>"Before we start: last week bigger denominators tripped you up. Which is bigger, 1/6 or 1/3?"</td></tr>
+        <tr><td>Week 4, the teacher looks</td><td>Twelve chat logs to read.</td><td>Mastered: comparing unit fractions. Still mixing up: adding fractions with different denominators. Next: common denominators. Search finds the lesson behind each.</td></tr>
+      </tbody>
+    </table>
+    <p>Recall does not teach. Your own model writes the explanations, with your teaching prompt and your safeguards; Recall gives it what this learner knows and gets wrong, and learns from each lesson.</p>
+
+    <h2 id="model">How to model it</h2>
+    <table>
+      <thead><tr><th>In your product</th><th>In Recall</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>A school, per school year</td><td>Workspace, e.g. <code>school-2207-y2026</code></td><td>Each school's data stays apart, and the end of the year is one delete.</td></tr>
+        <tr><td>A learner</td><td>Peer <code>learner-5531</code></td><td>A pseudonymous id from your own system. Recall learns about the learner from what they write.</td></tr>
+        <tr><td>Your tutor</td><td>Peer <code>tutor</code>, with <code>observeMe: false</code></td><td>Recall does not learn from the tutor's own lines, only reads them as context, so they cost less.</td></tr>
+        <tr><td>A lesson or homework session</td><td>Session, e.g. <code>lesson-40817</code></td><td>Context and summaries per lesson; a teacher can see which lesson something came from.</td></tr>
+        <tr><td>A course</td><td>Scope <code>course-math-7</code>, given when each session is created</td><td>The course's own view of the learner, so maths progress is not mixed with French.</td></tr>
+        <tr><td>What the learner knows and gets wrong</td><td>Conclusions and the peer card</td><td>Learned in the background. A fact that stops being true is closed, not lost.</td></tr>
+      </tbody>
+    </table>
+    <p>A consumer app with no school in between uses one workspace for the app and one peer per learner. With a single subject you can skip the scope and ask the learner peer directly.</p>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the SDK (<code>npm install @recall-memory/sdk</code> or <code>pip install recall-mem</code>) and set <code>RECALL_API_KEY</code>. Call Recall from your server, not from the learner's device. Create the learner, the tutor and a session per lesson, filed under its course.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>import { Recall } from "@recall-memory/sdk";
+
+const recall = new Recall({ workspaceId: "school-2207-y2026" });
+
+// A pseudonymous id from your own system: no name, email or class in Recall.
+const learner = recall.peer("learner-5531");
+// The tutor is your app, so Recall learns about the learner, not from the tutor's own lines.
+const tutor = recall.peer("tutor", { configuration: { observeMe: false } });
+
+// One session per lesson or homework session, filed under the course it belongs to.
+const course = "course-math-7";
+const lesson = recall.session("lesson-40817", { peers: [learner, tutor], scopes: [course] });</code></pre>
+<pre data-panel="py" hidden><code>from pydantic import BaseModel, Field
+
+from recall_memory import PeerConfig, Recall
+
+recall = Recall(workspace_id="school-2207-y2026")
+
+# A pseudonymous id from your own system: no name, email or class in Recall.
+learner = recall.peer("learner-5531")
+# The tutor is your app, so Recall learns about the learner, not from the tutor's own lines.
+tutor = recall.peer("tutor", configuration=PeerConfig(observe_me=False))
+
+# One session per lesson or homework session, filed under the course it belongs to.
+course = "course-math-7"
+lesson = recall.session("lesson-40817", peers=[learner, tutor], scopes=[course])</code></pre>
+</div>
+    <p><b>Every learner message: one request.</b> <code>turn</code> stores the message and returns the context for the tutor's reply in the same round trip: the lesson so far, a summary of older turns, and what Recall has learned about the learner in earlier lessons. It uses no model, so it is fast and included in the price.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// Each learner message: store it and get back what the tutor should know, in one request.
+const { context } = await lesson.turn(
+  [learner.message("1/8 is bigger than 1/4, right? Because 8 is bigger than 4.")],
+  { peerTarget: learner, tokens: 2000 },
+);
+const prompt = context.toOpenAI(tutor); // what Recall knows about the learner, then the lesson
+// Your model writes the tutor's reply from `prompt`; store it so the lesson stays complete.
+await lesson.addMessages([
+  tutor.message("One pizza cut into 8 slices, one cut into 4. Which slice is bigger?"),
+]);</code></pre>
+<pre data-panel="py" hidden><code># Each learner message: store it and get back what the tutor should know, in one request.
+result = lesson.turn(
+    [learner.message("1/8 is bigger than 1/4, right? Because 8 is bigger than 4.")],
+    peer_target=learner,
+    tokens=2000,
+)
+prompt = result.context.to_openai(assistant=tutor)  # the learner's memory, then the lesson
+# Your model writes the tutor's reply from `prompt`; store it so the lesson stays complete.
+lesson.add_messages(
+    [tutor.message("One pizza cut into 8 slices, one cut into 4. Which slice is bigger?")]
+)</code></pre>
+</div>
+    <p><b>The learner model, as JSON.</b> Ask in plain language and pass <code>responseFormat</code>: the answer comes back as JSON that matches your schema, ready for a progress screen or for choosing the next exercise. In TypeScript pass a JSON Schema (you get the parsed object) or <code>{ jsonSchema, parse }</code> for a typed result; in Python pass a Pydantic class (you get an instance) or a JSON-schema dict (you get the JSON text). <code>scope</code> answers from the course's view of the learner. This is one model call of a few seconds, so run it after a lesson and store the result rather than asking on every page view.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// Before the next lesson: the learner model as JSON your app can show and act on.
+// (waitForIdle is for this demo; by the next lesson, learning has long finished.)
+await recall.waitForIdle();
+type LearnerModel = { mastered: string[]; misconceptions: string[]; nextGoal: string };
+const list = { type: "array", items: { type: "string" } };
+const learnerModel = {
+  jsonSchema: {
+    type: "object",
+    properties: {
+      mastered: { ...list, description: "Skills the learner has shown they can do" },
+      misconceptions: { ...list, description: "Mistakes the learner still makes" },
+      nextGoal: { type: "string", description: "The one thing to practise next" },
+    },
+    required: ["mastered", "misconceptions", "nextGoal"],
+  },
+  // With zod: { jsonSchema: z.toJSONSchema(Schema), parse: (data) =&gt; Schema.parse(data) }
+  parse: (data: unknown) =&gt; data as LearnerModel,
+};
+const model = await learner.chat(
+  "What has this learner mastered, what do they still get wrong, and what should come next?",
+  { scope: course, reasoningLevel: "low", responseFormat: learnerModel },
+);</code></pre>
+<pre data-panel="py" hidden><code># Before the next lesson: the learner model as JSON your app can show and act on.
+# (wait_for_idle is for this demo; by the next lesson, learning has long finished.)
+recall.wait_for_idle()
+
+class LearnerModel(BaseModel):
+    mastered: list[str] = Field(description="Skills the learner has shown they can do")
+    misconceptions: list[str] = Field(description="Mistakes the learner still makes")
+    next_goal: str = Field(description="The one thing to practise next")
+
+model = learner.chat(
+    "What has this learner mastered, what do they still get wrong, and what should come next?",
+    scope=course,
+    reasoning_level="low",
+    response_format=LearnerModel,
+)</code></pre>
+</div>
+    <p><b>Misconceptions that get corrected.</b> Facts in Recall have a start and an end. When a later lesson shows the learner now gets it right, Recall closes the old fact ("thinks 1/8 is bigger than 1/4") and starts a new one, the same way it handles someone moving house. Prompt context and the learner model use what holds now. The old fact stays as history, so chat can answer "what has this learner corrected?", and the <a href="/docs#dashboard">dashboard</a>'s memory explorer shows when each fact held.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// Two weeks later, in homework, the learner has it right. Recall closes the old fact instead
+// of deleting it: context and the learner model show what holds now; chat can say what changed.
+const homework = recall.session("homework-40822", { peers: [learner, tutor], scopes: [course] });
+await homework.addMessages([
+  learner.message("Wait, 1/8 is smaller than 1/4. More slices means smaller slices."),
+]);
+await recall.waitForIdle(); // demo only, as above
+const progress = await learner.chat(
+  "Which misconceptions has this learner corrected, and when?",
+  { scope: course, reasoningLevel: "low" },
+);</code></pre>
+<pre data-panel="py" hidden><code># Two weeks later, in homework, the learner has it right. Recall closes the old fact instead
+# of deleting it: context and the learner model show what holds now; chat can say what changed.
+homework = recall.session("homework-40822", peers=[learner, tutor], scopes=[course])
+homework.add_messages(
+    [learner.message("Wait, 1/8 is smaller than 1/4. More slices means smaller slices.")]
+)
+recall.wait_for_idle()  # demo only, as above
+progress = learner.chat(
+    "Which misconceptions has this learner corrected, and when?",
+    scope=course,
+    reasoning_level="low",
+)</code></pre>
+</div>
+    <p><b>The teacher's view.</b> Search finds what the learner wrote about a topic across all their sessions, with the session each message came from, so a teacher can check where a line in the learner model came from. For a written overview of one learner, ask chat as above. Give teachers this view inside your app; they do not need Recall keys.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// The teacher's view: the learner's own words about a topic, across every lesson, with the
+// session each came from. Search takes about a second and is included in the price.
+const found = await learner.search("fractions pizza slices", { limit: 20 });
+const excerpts = found.map((m) =&gt; ({ lesson: m.sessionId, at: m.createdAt, said: m.content }));</code></pre>
+<pre data-panel="py" hidden><code># The teacher's view: the learner's own words about a topic, across every lesson, with the
+# session each came from. Search takes about a second and is included in the price.
+found = learner.search("fractions pizza slices", limit=20)
+excerpts = [{"lesson": m.session_id, "at": m.created_at, "said": m.content} for m in found]</code></pre>
+</div>
+    <p><b>A learner leaves, or the school year ends.</b> <code>learner.delete()</code> erases the learner's messages and everything learned about them. The tutor's replies in their lessons stay unless you delete those sessions too, and they often quote the learner, so delete both. With a workspace per school year, the end of the year is one loop.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// A learner leaves: delete their sessions (the tutor's replies quote them), then the learner.
+for (const s of await (await learner.sessions()).toArray()) await s.delete();
+await learner.delete();
+// End of the school year: every session, then the workspace (refused while sessions remain).
+for (const s of await (await recall.sessions()).toArray()) await s.delete();
+await recall.deleteWorkspace();</code></pre>
+<pre data-panel="py" hidden><code># A learner leaves: delete their sessions (the tutor's replies quote them), then the learner.
+for s in list(learner.sessions()):
+    s.delete()
+learner.delete()
+# End of the school year: every session, then the workspace (refused while sessions remain).
+for s in list(recall.sessions()):
+    s.delete()
+recall.delete_workspace(recall.workspace_id)</code></pre>
+</div>
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>observeMe: false</code> on the tutor</td><td>Recall learns about the learner only. The tutor's lines are read as context, not learned from, so they cost less.</td></tr>
+        <tr><td><code>scopes</code> on each session, <code>scope</code> on chat</td><td>A view of the learner built only from one course's sessions. Both need a workspace key, not a key scoped to one learner.</td></tr>
+        <tr><td><code>responseFormat</code></td><td>JSON for the learner model. The root must be an object; <code>allOf</code>, <code>not</code> and conditional keywords are not supported. Field descriptions help the model fill each field.</td></tr>
+        <tr><td><code>reasoningLevel</code></td><td><code>low</code> (the default) for the learner model, <code>minimal</code> for quick checks such as "has this learner met common denominators?". See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+        <tr><td>Workspace <code>reasoning.customInstructions</code></td><td>Keep learning on the subject, for example: "Record what the learner knows, gets wrong and is working on. Do not record family, health or other personal matters." It steers the model that learns; it is not a filter.</td></tr>
+        <tr><td><code>tokens</code></td><td>The context budget for the tutor's prompt. Older turns become a summary, so a long lesson stays within it.</td></tr>
+        <tr><td>Message <code>createdAt</code></td><td>When you import past homework, pass when it was written, so "corrected in week 3" is dated right.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>Measured from Europe against the hosted API (Frankfurt), October 2026: a <code>turn</code> or context call took 0.3 to 0.7 seconds, a search about 0.9 seconds, and a question at <code>minimal</code> or <code>low</code> 2 to 4.5 seconds. Learning happens in the background and does not hold up the lesson.</p>
+    <p>Context, search, storage and summaries are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50, and for questions. A learner with three lessons a week (12 a month), each with 20 short messages of their own and 20 tutor replies of about 80 tokens, a learner model after every lesson and four teacher questions a month:</p>
+    <table>
+      <thead><tr><th>Item</th><th>Per month</th></tr></thead>
+      <tbody>
+        <tr><td>Learner messages: 12 × 20 × 50 tokens × $1.75 / 1M</td><td>$0.0210</td></tr>
+        <tr><td>Tutor replies, read but not learned from: 12 × 20 × 80 tokens × $1.75 / 1M</td><td>$0.0336</td></tr>
+        <tr><td>Learner model at <code>low</code>: 12 × $0.005</td><td>$0.0600</td></tr>
+        <tr><td>Teacher questions at <code>low</code>: 4 × $0.005</td><td>$0.0200</td></tr>
+        <tr><td><b>Total</b></td><td><b>about $0.13 per learner a month</b></td></tr>
+      </tbody>
+    </table>
+    <p>Answers are cached until the memory they depend on changes, but a cached answer is still billed as one query, so store the learner model instead of asking again. More in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>Learners are often children. This is practical guidance, not legal advice: check it against the law that applies to you and to the schools you serve, and see <a href="/guides/privacy">Privacy, consent and forgetting</a>.</p>
+    <ul>
+      <li><b>Know who decides.</b> When a school uses your tutor, the school is usually the controller of its learners' data and you process it on the school's behalf, with Recall as your sub-processor. Sign a data processing agreement with each school that names Recall; our <a href="/dpa">DPA</a> covers this case. Expect the school to ask about a data protection impact assessment.</li>
+      <li><b>Get consent where it is required.</b> If you offer the tutor directly to children and rely on consent, get a parent's consent where the law requires it, before the first lesson is recorded. The age at which a child can consent alone differs by country.</li>
+      <li><b>Store less.</b> Use pseudonymous ids, never names or email addresses, and keep class lists and contact details in your own system. Children overshare: keep learning on the subject with a custom instruction, and do not send messages your tutor does not need, such as a chat about home.</li>
+      <li><b>Tell learners and parents.</b> In plain words: the tutor remembers what the learner worked on and got wrong, to pick up where they left off. The text is stored in the EU (Frankfurt) and processed by AI model providers in the US through OpenRouter, restricted to providers that do not collect the data, and it is not used to train models. Show them the learner model.</li>
+      <li><b>Delete on a schedule.</b> Delete a learner who leaves, and delete the year's workspace when the school's retention period ends. If the school wants a copy first, <a href="/docs#export">export</a> it under Settings.</li>
+    </ul>
+    <p>Recall's own terms are in the <a href="/privacy">privacy policy</a> and the <a href="/dpa">DPA</a>.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>Names as ids.</b> Ids appear in URLs, logs and exports and cannot be renamed. Use your own pseudonymous id.</li>
+      <li><b>Asking on every page view.</b> The learner model takes seconds and every request is billed, cached or not. Compute it after a lesson and store it.</li>
+      <li><b>All subjects in one memory.</b> Without course scopes, "what has this learner mastered?" mixes maths and French. Give each session its course scope when you create it.</li>
+      <li><b>Deleting the learner but not the lessons.</b> The tutor's replies stay and often quote the learner. Delete their sessions too.</li>
+      <li><b>Treating the learner model as a grade.</b> A model writes it from the conversation, and it can be wrong. Let a teacher decide anything that affects grades or placement.</li>
+      <li><b>Expecting Recall to teach.</b> Recall is memory, not the tutor: bring your own model, teaching prompt and safeguards for children.</li>
+    </ul>
+    <p class="guide-next">Next: <a href="/guides/coaching">Health, fitness and coaching</a> · <a href="/guides/privacy">Privacy, consent and forgetting</a></p>
+  </article>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="logo" href="/"><svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>Recall</a>
+      <p class="tagline">Memory for AI agents. Hosted in the EU.</p>
+      <p class="muted">Smidt Beheer · KvK 99124254 · VAT NL004444074B96</p>
+    </div>
+    <nav aria-label="Footer">
+      <div><b>Product</b><a href="/#how">How it works</a><a href="/#why">Why Recall</a><a href="/#agents">Integrations</a><a href="/evals">Evals</a><a href="/#pricing">Pricing</a></div>
+      <div><b>Developers</b><a href="/docs#quickstart">Quickstart</a><a href="/guides">Guides</a><a href="/docs#integrations">Integrations</a><a href="/docs#api">API</a><a href="/docs#models">Models</a><a href="https://github.com/recallmem/recall">GitHub</a></div>
+      <div><b>Account</b><a href="/app/login">Sign in</a></div>
+      <div><b>Legal</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/dpa">Data processing</a><a href="/security">Security</a><a href="/support">Support</a></div>
+    </nav>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

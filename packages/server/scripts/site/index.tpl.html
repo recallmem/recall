@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Recall — memory for AI agents</title>
+<meta name="description" content="Recall is long-term memory for AI agents: one API that keeps a dated, cited record of each user, retires facts that stop being true, and answers in a single model call. TypeScript and Python SDKs, MCP, and plugins for Claude Code and Codex. Hosted in Frankfurt." />
+<meta name="theme-color" content="#0c0b0a" />
+<link rel="canonical" href="https://recallmem.dev/" />
+<meta property="og:title" content="Recall — memory for AI agents" />
+<meta property="og:description" content="Your agents forget. Recall doesn't. A dated, cited record of each user, answered in one model call. Hosted in the EU." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://recallmem.dev/" />
+<meta property="og:image" content="https://recallmem.dev/og.png" />
+<meta property="og:site_name" content="Recall" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://recallmem.dev/og.png" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="preload" href="/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/geist-sans.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="/site.css" />
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://recallmem.dev/#org","name":"Smidt Beheer","brand":{"@type":"Brand","name":"Recall"},"url":"https://recallmem.dev/","logo":"https://recallmem.dev/favicon.svg","email":"support@recallmem.dev","address":{"@type":"PostalAddress","addressCountry":"NL"}},{"@type":"SoftwareApplication","name":"Recall","url":"https://recallmem.dev/","description":"Long-term memory for AI agents: a hosted API that keeps a dated, cited record of each user and answers in a single model call. Hosted in Frankfurt.","applicationCategory":"DeveloperApplication","operatingSystem":"Any","publisher":{"@id":"https://recallmem.dev/#org"},"offers":{"@type":"Offer","price":"0","priceCurrency":"USD","description":"Free credit to start, then prepaid usage-based pricing"}}]}</script>
+</head>
+<body>
+
+<a class="announce" href="/guides"><b>NEW</b><span class="long">A guide for every kind of agent: support, coding, tutoring, games, voice and more</span><span class="short">Guides for every kind of agent</span><span class="go" aria-hidden="true">→</span></a>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="Recall home">{{logo}}Recall</a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="#how">How it works</a>
+      <a href="#agents">Integrations</a>
+      <a href="#use-cases">Use cases</a>
+      <a href="/evals">Evals</a>
+      <a href="#pricing">Pricing</a>
+      <a href="/guides">Guides</a>
+      <a href="/docs">Docs</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-text" href="/app">Log in</a>
+      <a class="btn btn-primary" href="/app/login">Get API key</a>
+      <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="nav-menu"><span class="bars" aria-hidden="true"><i></i><i></i><i></i></span><span class="sr-only">Menu</span></button>
+    </div>
+    <nav class="nav-menu" id="nav-menu" aria-label="Main menu">
+      <a href="#how">How it works</a>
+      <a href="#agents">Integrations</a>
+      <a href="#use-cases">Use cases</a>
+      <a href="/evals">Evals</a>
+      <a href="#pricing">Pricing</a>
+      <a href="/guides">Guides</a>
+      <a href="/docs">Docs</a>
+      <a href="/app">Log in</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="hero-sky" aria-hidden="true">{{hero_sky}}</div>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <div class="kicker"><i></i>Memory for AI agents</div>
+      <h1 class="display">Your agents forget. <span class="amber">Recall doesn't.</span></h1>
+      <p class="lede">One API for agents that talk to the same people again. Recall keeps a <b>dated, cited record</b> of each user, retires facts that stop being true, and answers in a single model call. Hosted in Frankfurt.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-primary btn-lg" href="/app/login">Get your API key <span class="arrow">→</span></a>
+        <button type="button" class="btn btn-ghost btn-lg copy-prompt" data-copy-from="setup-prompt" data-done="Copied: paste it into your agent" title="A prompt for Claude Code, Codex or Cursor that installs Recall in your project">Copy setup prompt</button>
+      </div>
+      {{proof_line}}
+      <div class="cmd">
+        <span class="tag">Claude Code</span>
+        <code>/plugin marketplace add RedSix6/recall-plugin</code>
+        <button type="button" class="copy" data-copy="/plugin marketplace add RedSix6/recall-plugin" aria-label="Copy command">copy</button>
+      </div>
+    </div>
+    <figure class="window demo" aria-label="Example: what Recall knows about Alice, and an answer that cites its source">
+      <div class="window-bar"><span class="t"><b>[ demo ]</b> peer alice · memory</span><span class="r"><span class="live">up to date</span></span></div>
+      <div class="mc-body">
+        <div class="mc-msg"><span class="avatar a-alice">A</span><div><div class="mc-meta">Alice · 2 Sep · M2</div><p>Big news: we moved to Utrecht last weekend!</p></div></div>
+        <div class="mc-label">What Recall knows</div>
+        <ul class="mc-facts">
+          <li class="old"><span class="dot"></span><span class="txt">Lives in Amsterdam</span><span class="when">Mar – Aug</span></li>
+          <li class="new"><span class="dot"></span><span class="txt">Lives in Utrecht</span><span class="when">since Sep · M2</span></li>
+          <li><span class="dot"></span><span class="txt">Cycles to work every morning</span><span class="when">M1</span></li>
+          <li class="ns"><span class="dot"></span><span class="txt">Training for a half marathon</span><span class="when">night shift</span></li>
+        </ul>
+        <div class="mc-ask"><span class="p">alice.chat(</span>"Where should we meet on Saturday?"<span class="p">)</span></div>
+        <div class="mc-answer">Somewhere in Utrecht: Alice moved there in September<sup>M2</sup>. She cycles everywhere<sup>M1</sup>, so a café on a bike route works.</div>
+        <div class="mc-foot"><span>1 model call</span><span>{{price_low}}</span><span>sources cited</span></div>
+      </div>
+    </figure>
+  </div>
+  <div class="wrap">
+    <div class="works">
+      <span class="works-label">Works with</span>
+      <a href="/docs#claude-code">{{brand_claude}}Claude Code</a>
+      <a href="/docs#codex">{{brand_terminal}}Codex</a>
+      <a href="/docs#mcp">{{brand_claude}}Claude.ai</a>
+      <a href="/docs#mcp">{{brand_chat}}ChatGPT</a>
+      <a href="/docs#mcp">{{brand_cursor}}Cursor</a>
+      <a href="/docs#mcp">{{brand_mcp}}Any MCP client</a>
+      <a href="/docs#openclaw">OpenClaw</a>
+      <a href="/docs#hermes">Hermes</a>
+      <a href="/docs#api">REST API</a>
+    </div>
+  </div>
+</section>
+
+<section class="numbers" id="numbers" aria-labelledby="numbers-title">
+  <div class="wrap">
+    <div class="window stats">
+      <div class="window-bar"><h2 class="t" id="numbers-title"><b>[ benchmarks ]</b> <span class="wide-only">full runs · hosted service · default level</span></h2><a class="r" href="/evals#method">How we measured →</a></div>
+      <div class="stats-grid">
+{{stats}}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="how">
+  <div class="wrap">
+    <header class="sec-head">
+      <div class="tag-line">How it works</div>
+      <h2 class="title">Send messages. Ask questions. <span class="amber">That's it.</span></h2>
+      <p class="sub">No schema to design, no embeddings to tune, no prompts to write.</p>
+    </header>
+    <ol class="steps">
+      <li class="window step reveal">
+        <div class="window-bar"><span class="t"><b>[ 01 ]</b> send</span></div>
+        <div class="window-body">
+          <h3>Send the conversation</h3>
+          <p>One call per turn from the SDK, or a plugin does it for you.</p>
+          <div class="hscroll"><pre class="step-ui"><span class="tk-k">await</span> session.<span class="tk-f">addMessages</span>(
+  alice.<span class="tk-f">message</span>(<span class="tk-s">"Moved to Utrecht"</span>)
+);</pre></div>
+        </div>
+      </li>
+      <li class="window step reveal">
+        <div class="window-bar"><span class="t"><b>[ 02 ]</b> learn</span></div>
+        <div class="window-body">
+          <h3>Recall learns in the background</h3>
+          <p>Facts with dates and sources. When something changes, the old fact is closed.</p>
+          <div class="step-ui"><div class="sf old">Lives in Amsterdam</div><div class="sf new">Lives in Utrecht <small>since Sep</small></div></div>
+        </div>
+      </li>
+      <li class="window step reveal">
+        <div class="window-bar"><span class="t"><b>[ 03 ]</b> ask</span></div>
+        <div class="window-body">
+          <h3>Ask, or inject</h3>
+          <p>Ask in plain language, or put ready-made context into your next prompt.</p>
+          <div class="step-ui"><div class="sq">Where does Alice live?</div><div class="sa">Utrecht, since September<sup>M2</sup>.</div></div>
+        </div>
+      </li>
+    </ol>
+    <div class="keeps reveal">
+      <h3 class="list-head">What Recall keeps</h3>
+      <ul class="caps">
+        <li>{{scroll}}<b>Facts</b><span>with when they held and the messages they came from</span></li>
+        <li>{{clock}}<b>Changes over time</b><span>replaced facts are closed and kept as history</span></li>
+        <li>{{heart}}<b>Preferences</b><span>likes, dislikes and how they want things done</span></li>
+        <li>{{nodes}}<b>People and relationships</b><span>what each person knows about the others</span></li>
+        <li>{{braces}}<b>Sessions and scopes</b><span>a summary per conversation, recall per project or account</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="night-shift">
+  <div class="wrap split">
+    <div>
+      <div class="tag-line">Night shift</div>
+      <h2 class="title">Then Recall <span class="amber">sleeps on it.</span></h2>
+      <p class="sub">When a conversation goes quiet, Recall goes back over what it learned about each person.</p>
+      <ul class="ticks">
+        <li class="t-merge"><b>Merges duplicates</b><span>what was said twice is kept once</span></li>
+        <li class="t-close"><b>Closes facts that changed</b><span>including changes it missed the first time</span></li>
+        <li class="t-new"><b>Draws conclusions</b><span>across conversations, each with its sources</span></li>
+        <li class="t-card"><b>Rewrites the profile card</b><span>as the person changes</span></li>
+        <li class="t-incl"><b>Included in the price</b><span>at most three small model calls a pass</span></li>
+      </ul>
+    </div>
+    <figure class="window nightshift reveal" aria-label="Example: what one night shift changed in Alice's memory">
+      <div class="window-bar"><span class="t"><b>[ night shift ]</b> peer alice</span><span class="r"><span class="live">quiet 10m</span></span></div>
+      <div class="ns-body">
+        <div class="ns-sum"><span><b>6</b> facts reviewed</span><span><b>2</b> model calls</span><span>no extra charge</span></div>
+        <div class="facts">
+          <div class="fact on merge"><span class="dot"></span><span class="txt">Prefers trail runs to the track</span><span class="meta"><b>merged</b><br />2 facts → 1</span></div>
+          <div class="fact on old"><span class="dot"></span><span class="txt">Lives in Amsterdam</span><span class="meta"><b>closed</b><br />moved in September</span></div>
+          <div class="fact on new"><span class="dot"></span><span class="txt">Is training for a half marathon</span><span class="meta"><b>new</b><br />from 3 facts</span></div>
+          <div class="fact on card"><span class="dot"></span><span class="txt">Profile: runner, lives in Utrecht</span><span class="meta"><b>card</b><br />rewritten</span></div>
+        </div>
+      </div>
+    </figure>
+  </div>
+</section>
+
+<section class="block" id="agents">
+  <div class="wrap">
+    <header class="sec-head">
+      <div class="tag-line">Integrations</div>
+      <h2 class="title">Works with the agents <span class="amber">you already use.</span></h2>
+      <p class="sub">Install a plugin and your coding agent remembers you across sessions and projects. Building your own agent? Use the SDK, the REST API or the MCP server.</p>
+    </header>
+    <div class="install">
+    <div class="window code reveal" data-tabbox>
+      <div class="window-bar"><span class="t"><b>[ install ]</b> pick your stack</span><span class="r"><button type="button" class="copy" data-copy-active aria-label="Copy code">copy</button></span></div>
+      <div class="hscroll"><div class="tabs" role="tablist" aria-label="Integration">
+        <button type="button" class="tab" role="tab" id="code-tab-ts" aria-controls="code-ts" aria-selected="true" data-tab="ts">TypeScript</button>
+        <button type="button" class="tab" role="tab" id="code-tab-py" aria-controls="code-py" aria-selected="false" tabindex="-1" data-tab="py">Python</button>
+        <button type="button" class="tab" role="tab" id="code-tab-api" aria-controls="code-api" aria-selected="false" tabindex="-1" data-tab="api">curl</button>
+        <button type="button" class="tab" role="tab" id="code-tab-cc" aria-controls="code-cc" aria-selected="false" tabindex="-1" data-tab="cc">Claude Code</button>
+        <button type="button" class="tab" role="tab" id="code-tab-codex" aria-controls="code-codex" aria-selected="false" tabindex="-1" data-tab="codex">Codex</button>
+        <button type="button" class="tab" role="tab" id="code-tab-mcp" aria-controls="code-mcp" aria-selected="false" tabindex="-1" data-tab="mcp">MCP</button>
+      </div></div>
+      <div class="hscroll panes">
+<pre data-panel="ts" role="tabpanel" id="code-ts" aria-labelledby="code-tab-ts"><span class="tk-c">// npm install @recall-memory/sdk, then set RECALL_API_KEY</span>
+<span class="tk-k">import</span> { Recall } <span class="tk-k">from</span> <span class="tk-s">"@recall-memory/sdk"</span>;
+
+<span class="tk-k">const</span> recall = <span class="tk-k">new</span> <span class="tk-f">Recall</span>({ workspaceId: <span class="tk-s">"my-app"</span> });
+<span class="tk-k">const</span> alice = recall.<span class="tk-f">peer</span>(<span class="tk-s">"alice"</span>);
+<span class="tk-k">const</span> session = recall.<span class="tk-f">session</span>(<span class="tk-s">"s1"</span>);
+<span class="tk-k">await</span> session.<span class="tk-f">addMessages</span>([alice.<span class="tk-f">message</span>(<span class="tk-s">"I moved to Utrecht."</span>)]);
+
+<span class="tk-k">await</span> recall.<span class="tk-f">waitForIdle</span>(); <span class="tk-c">// demo only; real apps don't wait</span>
+console.<span class="tk-f">log</span>(<span class="tk-k">await</span> alice.<span class="tk-f">chat</span>(<span class="tk-s">"Where does Alice live?"</span>));</pre>
+<pre data-panel="py" role="tabpanel" id="code-py" aria-labelledby="code-tab-py" hidden><span class="tk-c"># pip install recall-mem, then set RECALL_API_KEY</span>
+<span class="tk-k">from</span> recall_memory <span class="tk-k">import</span> Recall
+
+recall = <span class="tk-f">Recall</span>(workspace_id=<span class="tk-s">"my-app"</span>)
+alice = recall.<span class="tk-f">peer</span>(<span class="tk-s">"alice"</span>)
+session = recall.<span class="tk-f">session</span>(<span class="tk-s">"s1"</span>)
+session.<span class="tk-f">add_messages</span>([alice.<span class="tk-f">message</span>(<span class="tk-s">"I moved to Utrecht."</span>)])
+
+recall.<span class="tk-f">wait_for_idle</span>()  <span class="tk-c"># demo only; real apps don't wait</span>
+<span class="tk-f">print</span>(alice.<span class="tk-f">chat</span>(<span class="tk-s">"Where does Alice live?"</span>))</pre>
+<pre data-panel="api" role="tabpanel" id="code-api" aria-labelledby="code-tab-api" hidden><span class="tk-c"># 1. send a conversation turn</span>
+curl https://api.recallmem.dev/v3/workspaces/my-app/sessions/s1/messages \
+  -H <span class="tk-s">"Authorization: Bearer $RECALL_API_KEY"</span> \
+  -H <span class="tk-s">"Content-Type: application/json"</span> \
+  -d <span class="tk-s">'{"messages":[{"peer_id":"alice","content":"I moved to Utrecht."}]}'</span>
+
+<span class="tk-c"># 2. ask about the person</span>
+curl https://api.recallmem.dev/v3/workspaces/my-app/peers/alice/chat \
+  -H <span class="tk-s">"Authorization: Bearer $RECALL_API_KEY"</span> \
+  -H <span class="tk-s">"Content-Type: application/json"</span> \
+  -d <span class="tk-s">'{"query":"Where does Alice live?"}'</span></pre>
+<pre data-panel="cc" role="tabpanel" id="code-cc" aria-labelledby="code-tab-cc" hidden><span class="tk-c"># in Claude Code</span>
+/plugin marketplace add RedSix6/recall-plugin
+/plugin install recall-memory@recall
+
+<span class="tk-c"># paste your API key when asked, then check it:</span>
+/recall-memory:status</pre>
+<pre data-panel="codex" role="tabpanel" id="code-codex" aria-labelledby="code-tab-codex" hidden><span class="tk-c"># in a terminal</span>
+codex plugin marketplace add RedSix6/recall-plugin
+codex plugin add recall-memory@recall
+
+<span class="tk-c"># then start Codex and trust the hooks with /hooks</span></pre>
+<pre data-panel="mcp" role="tabpanel" id="code-mcp" aria-labelledby="code-tab-mcp" hidden><span class="tk-c">// any MCP client; sign in when it asks</span>
+{
+  <span class="tk-s">"mcpServers"</span>: {
+    <span class="tk-s">"recall"</span>: {
+      <span class="tk-s">"type"</span>: <span class="tk-s">"http"</span>,
+      <span class="tk-s">"url"</span>: <span class="tk-s">"https://api.recallmem.dev/mcp"</span>
+    }
+  }
+}</pre>
+      </div>
+    </div>
+    <div class="install-side">
+      <ul class="ticks">
+        <li><b>Claude Code and Codex</b><span>plugins: memory at session start, every turn recorded</span></li>
+        <li><b>Claude.ai, ChatGPT, Cursor</b><span>add Recall as a connector or MCP server and sign in</span></li>
+        <li><b>OpenClaw, Hermes, any skills host</b><span>open source, MIT, <a href="https://github.com/RedSix6/recall-plugin">on GitHub</a></span></li>
+        <li><b>Your own agent</b><span>TypeScript and Python SDKs, or plain HTTP</span></li>
+      </ul>
+      <p class="more-links"><a href="/docs#integrations">Set-up guides →</a><button type="button" class="link-btn copy-prompt" data-copy-from="setup-prompt" data-done="Copied: paste it into your agent">Copy a setup prompt for your coding agent</button></p>
+    </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="use-cases">
+  <div class="wrap split">
+    <div>
+      <div class="tag-line">Use cases</div>
+      <h2 class="title">For agents people <span class="amber">come back to.</span></h2>
+      <p class="sub">If your users talk to your agent more than once, they expect it to remember them. Pick yours and see what changes.</p>
+      <ul class="ticks">
+        <li><b>Nothing to model</b><span>send the conversation; Recall works out what matters</span></li>
+        <li><b>Start free</b><span>{{signup_credit}} of credit on sign-up, no card needed</span></li>
+      </ul>
+      <p class="sub more">Building something else? There is a <a href="/guides">guide for each kind of product</a>: support, sales, games, voice, tutoring, Slack and Discord bots, multi-agent systems and more.</p>
+    </div>
+    <div class="window usecases reveal" data-tabbox>
+      <div class="window-bar"><span class="t"><b>[ use cases ]</b> what changes</span></div>
+      <div class="hscroll"><div class="tabs" role="tablist" aria-label="Use cases">
+        <button type="button" class="tab" role="tab" id="uc-tab-code" aria-controls="uc-code" aria-selected="true" data-tab="code">Coding</button>
+        <button type="button" class="tab" role="tab" id="uc-tab-support" aria-controls="uc-support" aria-selected="false" tabindex="-1" data-tab="support">Support</button>
+        <button type="button" class="tab" role="tab" id="uc-tab-tutor" aria-controls="uc-tutor" aria-selected="false" tabindex="-1" data-tab="tutor">Tutoring</button>
+        <button type="button" class="tab" role="tab" id="uc-tab-companion" aria-controls="uc-companion" aria-selected="false" tabindex="-1" data-tab="companion">Companions</button>
+        <button type="button" class="tab" role="tab" id="uc-tab-games" aria-controls="uc-games" aria-selected="false" tabindex="-1" data-tab="games">Games</button>
+      </div></div>
+      <div class="uc" id="uc-code" role="tabpanel" aria-labelledby="uc-tab-code" data-panel="code">
+        <p class="uc-pitch"><b>No more cold starts.</b> Your coding agent opens every session already knowing your stack, your rules and what didn't work last time.</p>
+        <div class="uc-thread">
+          <div class="uc-when">Monday · session 1</div>
+          <div class="msg on"><span class="avatar a-alice">D</span><div class="bubble">We use pnpm, not npm. And never edit the migrations by hand, they're generated.</div></div>
+          <div class="uc-learned"><span class="uc-when">Recall learned</span><div class="chips"><span class="chip">Uses pnpm, not npm</span><span class="chip">Migrations are generated: don't edit</span></div></div>
+          <div class="uc-when">Three weeks later · new session</div>
+          <div class="msg on"><span class="avatar a-alice">D</span><div class="bubble">Add a library to parse dates.</div></div>
+          <div class="msg on"><span class="avatar a-agent">AI</span><div class="bubble">Running <code>pnpm add date-fns</code>, <mark>since you use pnpm</mark>. No schema change, so the migrations stay untouched.</div></div>
+        </div>
+        <a class="btn btn-primary uc-cta" href="#agents">Add it to Claude Code or Codex <span class="arrow">→</span></a>
+        <a class="uc-guide" href="/guides/coding-agents">Read the coding agents guide <span class="arrow">→</span></a>
+      </div>
+      <div class="uc" id="uc-support" role="tabpanel" aria-labelledby="uc-tab-support" data-panel="support" hidden>
+        <p class="uc-pitch"><b>Customers never repeat themselves.</b> Every chat starts from what you already know: their plan, their last problem and how it ended.</p>
+        <div class="uc-thread">
+          <div class="uc-when">2 October · chat</div>
+          <div class="msg on"><span class="avatar a-alice">D</span><div class="bubble">My order #4471 arrived broken. I'm on the Pro plan, by the way.</div></div>
+          <div class="uc-learned"><span class="uc-when">Recall learned</span><div class="chips"><span class="chip">Order #4471 arrived damaged (2 Oct)</span><span class="chip">On the Pro plan</span></div></div>
+          <div class="uc-when">Two weeks later · new chat</div>
+          <div class="msg on"><span class="avatar a-alice">D</span><div class="bubble">Hi, it's me again.</div></div>
+          <div class="msg on"><span class="avatar a-agent">AI</span><div class="bubble">Hi Dana! <mark>Is this about order #4471, the one that arrived damaged?</mark> On Pro, the replacement ships free.</div></div>
+        </div>
+        <a class="btn btn-primary uc-cta" href="/app/login">Get {{signup_credit}} of free credit <span class="arrow">→</span></a>
+        <a class="uc-guide" href="/guides/support">Read the customer support guide <span class="arrow">→</span></a>
+      </div>
+      <div class="uc" id="uc-tutor" role="tabpanel" aria-labelledby="uc-tab-tutor" data-panel="tutor" hidden>
+        <p class="uc-pitch"><b>Teaching that compounds.</b> What each learner knows, where they got stuck and what helped, kept across weeks of lessons.</p>
+        <div class="uc-thread">
+          <div class="uc-when">Tuesday · lesson</div>
+          <div class="msg on"><span class="avatar a-alice">S</span><div class="bubble">Fractions still confuse me. Pictures help way more than rules.</div></div>
+          <div class="uc-learned"><span class="uc-when">Recall learned</span><div class="chips"><span class="chip">Struggles with fractions</span><span class="chip">Learns best from pictures</span></div></div>
+          <div class="uc-when">Friday · before the test</div>
+          <div class="msg on"><span class="avatar a-alice">S</span><div class="bubble">Can we practise for my test?</div></div>
+          <div class="msg on"><span class="avatar a-agent">AI</span><div class="bubble">Let's warm up with <mark>fractions, drawn as pizza slices, since pictures work best for you</mark>. Then a few mixed questions.</div></div>
+        </div>
+        <a class="btn btn-primary uc-cta" href="/app/login">Get {{signup_credit}} of free credit <span class="arrow">→</span></a>
+        <a class="uc-guide" href="/guides/tutoring">Read the tutoring guide <span class="arrow">→</span></a>
+      </div>
+      <div class="uc" id="uc-companion" role="tabpanel" aria-labelledby="uc-tab-companion" data-panel="companion" hidden>
+        <p class="uc-pitch"><b>It remembers the person, and notices change.</b> When life moves on, the old fact is closed.</p>
+        <div class="uc-thread">
+          <div class="uc-when">June · chat</div>
+          <div class="msg on"><span class="avatar a-alice">A</span><div class="bubble">Steak night is the best night of the week.</div></div>
+          <div class="uc-when">September · chat</div>
+          <div class="msg on"><span class="avatar a-alice">A</span><div class="bubble">I went vegetarian last month! And my sister Anna visits on the 16th.</div></div>
+          <div class="uc-learned"><span class="uc-when">Recall learned</span><div class="chips"><span class="chip old">Loves steak</span><span class="chip">Vegetarian since August</span><span class="chip">Anna visits on 16 Oct</span></div></div>
+          <div class="uc-when">October · chat</div>
+          <div class="msg on"><span class="avatar a-alice">A</span><div class="bubble">Plan a dinner for Friday.</div></div>
+          <div class="msg on"><span class="avatar a-agent">AI</span><div class="bubble">Friday is the 16th, <mark>when Anna is visiting</mark>. A table for two at a <mark>vegetarian</mark> place?</div></div>
+        </div>
+        <a class="btn btn-primary uc-cta" href="/app/login">Get {{signup_credit}} of free credit <span class="arrow">→</span></a>
+        <a class="uc-guide" href="/guides/assistants">Read the assistants guide <span class="arrow">→</span></a>
+      </div>
+      <div class="uc" id="uc-games" role="tabpanel" aria-labelledby="uc-tab-games" data-panel="games" hidden>
+        <p class="uc-pitch"><b>Characters that remember.</b> NPCs hold grudges and return favours, player by player.</p>
+        <div class="uc-thread">
+          <div class="uc-when">Day 3 · the forge</div>
+          <div class="msg on"><span class="avatar a-alice">P</span><div class="bubble">Nice sword. I'll just borrow it. <i>(runs off without paying)</i></div></div>
+          <div class="uc-when">Day 9 · the river</div>
+          <div class="msg on"><span class="avatar a-alice">P</span><div class="bubble">Bram! I pulled your daughter out of the water.</div></div>
+          <div class="uc-learned"><span class="uc-when">Recall learned</span><div class="chips"><span class="chip">Stole a sword from Bram (day 3)</span><span class="chip">Saved Bram's daughter (day 9)</span></div></div>
+          <div class="uc-when">Day 20 · the forge</div>
+          <div class="msg on"><span class="avatar a-alice">P</span><div class="bubble">Got anything good for me?</div></div>
+          <div class="msg on"><span class="avatar a-agent">B</span><div class="bubble"><mark>You still owe me for that sword, thief.</mark> But <mark>you saved my girl</mark>, so this one's on the house.</div></div>
+        </div>
+        <a class="btn btn-primary uc-cta" href="/app/login">Get {{signup_credit}} of free credit <span class="arrow">→</span></a>
+        <a class="uc-guide" href="/guides/game-npcs">Read the game NPC guide <span class="arrow">→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="why">
+  <div class="wrap">
+    <header class="sec-head">
+      <div class="tag-line">Why Recall</div>
+      <h2 class="title">The hard parts of memory, <span class="amber">already done.</span></h2>
+    </header>
+    <ul class="why-grid reveal">
+      <li>{{chat}}<h3>Says when it doesn't know</h3><p>Every answer comes with its sources and a confidence. When memory holds nothing, it says so instead of guessing.</p></li>
+      <li>{{chart}}<h3>See what it knows</h3><p>A dashboard to browse each person's facts, current and replaced, and to try questions before your users do.</p></li>
+      <li>{{retry}}<h3>Forget on request</h3><p><a href="/docs#forget-a-person">Erase a person</a> and what was learned about them with one call, or delete a session or a single fact.</p></li>
+      <li>{{shield}}<h3>Private, in the EU</h3><p>Stored in Frankfurt, never used for training. Answers come from US model providers chosen because they don't keep prompts; each one is named in our <a href="/privacy">privacy policy</a>.</p></li>
+      <li>{{port}}<h3>Keys you can scope</h3><p>Limit an API key to one workspace, person or session, and revoke it from the dashboard at any time.</p></li>
+      <li>{{meter}}<h3>Spend you control</h3><p>Prepaid credit with a monthly cap and optional auto top-up, and usage per day in the dashboard.</p></li>
+    </ul>
+  </div>
+</section>
+
+<section class="block" id="benchmarks">
+  <div class="wrap split">
+    <div>
+      <div class="tag-line">Evals</div>
+      <h2 class="title">Measured, <span class="amber">not claimed.</span></h2>
+      <p class="sub">Full runs of two public long-term memory benchmarks on the hosted service, at the default level: LongMemEval-S, with about 100,000 tokens of chat behind each question, and BEAM, with conversations of 100,000 to 500,000 tokens.</p>
+      <p class="fine">{{answer_model}} answers and {{memory_model}} builds memory. The other figures are as their makers published them, with their own models, judges and harnesses. <a href="/evals">All results, method and settings</a>.</p>
+    </div>
+    {{compare}}
+  </div>
+</section>
+
+<section class="block" id="pricing">
+  <div class="wrap">
+    <header class="sec-head">
+      <div class="tag-line">Pricing</div>
+      <h2 class="title">Pay for what you use. <span class="amber">Nothing else.</span></h2>
+      <p class="sub">Prepaid credit, no subscription, no seats.</p>
+    </header>
+    <div class="pricing">
+      <div class="pricing-side">
+        <div class="window plan reveal">
+          <div class="window-bar"><span class="t"><b>[ plan ]</b> pay as you go</span></div>
+          <div class="window-body">
+            <div class="price">{{signup_credit}}<small>free to start</small></div>
+            <p class="muted flush">Sign up with your email and get {{signup_credit}} of credit. No card needed until you top up.</p>
+            <ul>
+              <li>Unlimited workspaces, peers and sessions</li>
+              <li>Monthly spend caps and auto top-up</li>
+              <li>Memory explorer, playground and usage charts</li>
+              <li>EU hosting, export and erase anytime</li>
+            </ul>
+            <a class="btn btn-primary btn-lg" href="/app/login">Get your API key</a>
+          </div>
+        </div>
+        <div class="window example reveal">
+          <div class="window-bar"><span class="t"><b>[ example ]</b> a support bot's month</span></div>
+          <div class="window-body">
+{{example}}
+          </div>
+        </div>
+      </div>
+      <div class="window rates reveal">
+        <div class="window-bar"><span class="t"><b>[ rates ]</b> usd · excl. vat</span></div>
+        <table>
+          <thead><tr><th scope="col">Usage</th><th scope="col" class="right">Price</th></tr></thead>
+          <tbody>
+            <tr><td>Learning from messages<small>per 1M message tokens; a message counts as at least {{price_min_tokens}} tokens</small></td><td class="n">{{price_ingest}}</td></tr>
+            <tr class="incl-row"><td>Context and search<small>recent messages, a summary and what is known, for every prompt</small></td><td class="n">included</td></tr>
+            <tr><td>Chat · minimal<small>single facts: "where does she live?"</small></td><td class="n">{{price_minimal}}</td></tr>
+            <tr><td>Chat · low <span class="pill">default</span><small>everyday questions about a person, one model call</small></td><td class="n">{{price_low}}</td></tr>
+            <tr><td>Chat · medium<small>plans, summaries and comparisons across many facts</small></td><td class="n">{{price_medium}}</td></tr>
+            <tr><td>Chat · high<small>multi-step questions: searches memory in up to 3 rounds</small></td><td class="n">{{price_high}}</td></tr>
+            <tr><td>Chat · max<small>rare, hard questions: up to 6 rounds of searching</small></td><td class="n">{{price_max}}</td></tr>
+            <tr class="incl"><td colspan="2">Chat prices are per question. Storage, summaries and the night shift are included too. A message Recall only reads for context counts what it reads, and a cached answer still counts as one question. Prices are in US dollars; VAT is added at checkout where it applies.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="trust">
+  <div class="wrap">
+    <div class="window trust reveal">
+      <div class="window-bar"><h2 class="t"><b>[ trust ]</b> facts <span class="wide-only">you can check</span></h2><a class="r" href="/security">Security →</a></div>
+      <ul class="trust-grid">
+        <li><b>EU company</b><span>Smidt Beheer, the Netherlands</span></li>
+        <li><b>Stored in Frankfurt</b><span>database and API servers in the EU</span></li>
+        <li><b>DPA ready</b><span><a href="/dpa">Read it</a>; a signed copy on request</span></li>
+        <li><b>Export and erase</b><span>download everything, or delete it for good, from the dashboard</span></li>
+        <li><b>Never used for training</b><span>your data trains no models</span></li>
+        <li><b>Open-source plugin</b><span>Claude Code plugin, MIT, <a href="https://github.com/RedSix6/recall-plugin">on GitHub</a></span></li>
+      </ul>
+      <p class="trust-foot">Rolling Recall out for a team, or need a security review? Write to <a href="mailto:support@recallmem.dev">support@recallmem.dev</a>.</p>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="faq">
+  <div class="wrap">
+    <header class="sec-head">
+      <div class="tag-line">FAQ</div>
+      <h2 class="title">Questions, answered.</h2>
+    </header>
+    <div class="faq reveal">
+      <details><summary>How is Recall different from a vector database?</summary><p>A vector store returns similar text. Recall reasons over conversations: it extracts facts about each person, keeps when they were true and where they came from, resolves contradictions, and answers questions in plain language with citations.</p></details>
+      <details><summary>Is there an SDK?</summary><p>Yes, for TypeScript and Python: <code>npm install @recall-memory/sdk</code> or <code>pip install recall-mem</code> (imported as <code>recall_memory</code>). Both create nothing until you use it, make writes safe to retry, and turn memory into OpenAI or Anthropic messages. <a href="/docs#sdks">SDK docs</a>.</p></details>
+      <details><summary>I already use another memory API. Do I have to rewrite my code?</summary><p>Probably not. Recall implements the v3 memory REST API, so code written for it works once you point its base URL at Recall and use a Recall key. <a href="/docs#migrate">How to switch</a>.</p></details>
+      <details><summary>Where is my data stored?</summary><p>In the EU: the API runs in Frankfurt and the database is in Frankfurt, and your data is never used to train models. To learn and answer, Recall sends text to AI models that run in the US (Anthropic and OpenAI, through OpenRouter), and asks for providers that do not collect it; the <a href="/privacy">privacy policy</a> lists every party involved. Each account is isolated, API keys are stored as hashes, and you can export or permanently erase an account from the dashboard.</p></details>
+      <details><summary>Which models does Recall use?</summary><p>A fast model builds memory in the background and a stronger one answers. We choose both by eval score and swap them when something scores higher; current results are on the <a href="/evals">evals page</a>. Today {{memory_model}} builds memory (and answers at the minimal level) and {{answer_model}} answers. <a href="/docs#models">Details</a>.</p></details>
+      <details><summary>Can I self-host?</summary><p>Yes. The server is source-available under the Functional Source License, so you can run it for your own products and company with your own model provider keys; it may not be offered to others as a competing memory service. The hosted service in the EU is the easiest path, with nothing to operate. The code is <a href="{{repo_url}}">on GitHub</a>, and the docs show how to <a href="/docs#self-host">run it with Docker</a>.</p></details>
+      <details><summary>What happens when my credit runs out?</summary><p>Messages are always accepted, so you never lose data. Learning and chat pause with a clear error until you top up, or turn on auto top-up with a monthly cap.</p></details>
+      <details><summary>Who runs Recall?</summary><p>Smidt Beheer, a company in the Netherlands (KvK 99124254). Questions about the service, contracts or invoices go to <a href="mailto:support@recallmem.dev">support@recallmem.dev</a>.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="scene" aria-label="Pixel art: an amber elephant carrying a glowing memory past a city of data towers at night">
+  {{scene}}
+  <div class="scene-copy">
+    <h2 class="title">An elephant never forgets.<br /><span class="amber">Now neither do your agents.</span></h2>
+    <p class="sub">Start with {{signup_credit}} of free credit. Your first answer in five minutes.</p>
+    <div class="hero-ctas">
+      <a class="btn btn-primary btn-lg" href="/app/login">Get your API key <span class="arrow">→</span></a>
+      <a class="btn btn-ghost btn-lg" href="/docs#quickstart">Read the quickstart</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="logo" href="/">{{logo}}Recall</a>
+      <p class="tagline">Memory for AI agents. Hosted in the EU.</p>
+      <p class="muted">Smidt Beheer · KvK 99124254 · VAT NL004444074B96</p>
+    </div>
+    <nav aria-label="Footer">
+      <div><b>Product</b><a href="#how">How it works</a><a href="#agents">Integrations</a><a href="#why">Why Recall</a><a href="/evals">Evals</a><a href="#pricing">Pricing</a></div>
+      <div><b>Developers</b><a href="/docs">Docs</a><a href="/guides">Guides</a><a href="/docs#api">API</a><a href="/docs#integrations">Integrations</a><a href="/docs#models">Models</a><a href="/llms.txt">llms.txt</a><a href="{{repo_url}}">GitHub</a></div>
+      <div><b>Account</b><a href="/app">Log in</a><a href="/app/login">Get API key</a></div>
+      <div><b>Legal</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/dpa">Data processing</a><a href="/security">Security</a><a href="/support">Support</a></div>
+    </nav>
+  </div>
+</footer>
+
+<template id="setup-prompt">Add long-term memory to this project with Recall (https://recallmem.dev), so the app remembers each user across conversations.
+
+1. Install the SDK for this project's language: `npm install @recall-memory/sdk` (TypeScript) or `pip install recall-mem` (Python, imported as `recall_memory`).
+2. Read the key from the RECALL_API_KEY environment variable; never hard-code it. Add it to the example env file and tell me to create a key at https://app.recallmem.dev/keys (sign in with email; new accounts get {{signup_credit}} of free credit).
+3. Store every user and assistant message in a Recall session, with one stable peer id per person, and put the session's context into the prompt before each reply.
+4. Follow the quickstart at https://recallmem.dev/docs#quickstart and the SDK docs at https://recallmem.dev/docs#sdks. https://recallmem.dev/llms.txt links the rest of the docs.</template>
+<p class="sr-only" id="copy-status" aria-live="polite"></p>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

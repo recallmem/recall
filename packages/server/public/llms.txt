@@ -1,0 +1,49 @@
+# Recall
+
+> Recall is long-term memory for AI agents: a hosted API in the EU (Frankfurt). Send it the conversations your agent has with people. Recall keeps a dated, cited record of each person, retires facts that stop being true, and answers questions about them in a single model call. It implements the v3 memory REST API and has TypeScript and Python SDKs, an MCP server, and plugins for Claude Code and Codex.
+
+Recall is run by Smidt Beheer, the Netherlands (KvK 99124254). Data is stored in Frankfurt and never used to train models. Contact: support@recallmem.dev.
+
+## Get started
+
+- API base URL: https://api.recallmem.dev (send `Authorization: Bearer $RECALL_API_KEY`)
+- API key: sign in with your email at https://app.recallmem.dev/keys; new accounts get $5 of free credit, no card needed
+- TypeScript SDK: `npm install @recall-memory/sdk`
+- Python SDK: `pip install recall-mem` (import `recall_memory`)
+- MCP server: https://api.recallmem.dev/mcp
+- Claude Code plugin: `/plugin marketplace add RedSix6/recall-plugin`, then `/plugin install recall-memory@recall`
+- Source code: https://github.com/recallmem/recall (the server is source-available under the FSL and can be self-hosted; SDKs and integrations are MIT)
+
+## Docs
+
+- [Quickstart](https://recallmem.dev/docs#quickstart): get a key, record a conversation, ask about a person
+- [Concepts](https://recallmem.dev/docs#concepts): workspaces, peers, sessions, conclusions, peer cards, scopes, the night shift
+- [Switching to Recall](https://recallmem.dev/docs#migrate): code written for the v3 memory REST API works after changing the base URL and key
+- [Ask questions](https://recallmem.dev/docs#chat): chat with reasoning levels, evidence, citations and structured output
+- [Prompt context](https://recallmem.dev/docs#context): recent messages, a summary and what is known about a person, within a token budget
+- [SDKs](https://recallmem.dev/docs#sdks): TypeScript and Python
+- [Integrations](https://recallmem.dev/docs#integrations): Claude Code, Codex, OpenClaw, Hermes and the Agent Skill
+- [MCP](https://recallmem.dev/docs#mcp): add Recall to Claude.ai, ChatGPT, Cursor or any MCP client
+- [Webhooks](https://recallmem.dev/docs#webhooks): signed events when background work finishes
+- [Self-hosting](https://recallmem.dev/docs#self-host): run the server yourself with Docker or from source, with your own model provider keys
+- [REST API](https://recallmem.dev/docs#api): every endpoint
+- [Forget a person](https://recallmem.dev/docs#forget-a-person): erase a person and what was learned about them
+- [Export your data](https://recallmem.dev/docs#export)
+- [Errors and limits](https://recallmem.dev/docs#errors): error format, rate limits, message and request size limits
+- [Retries](https://recallmem.dev/docs#idempotency): the Idempotency-Key header
+- [Pricing](https://recallmem.dev/docs#pricing): prepaid credit; learning $1.75 per 1M message tokens (a message counts as at least 50 tokens); chat $0.0008 (minimal), $0.005 (low, the default), $0.025 (medium), $0.05 (high) or $0.25 (max) per question; context, search, storage and the night shift included
+
+## Guides
+
+- [All guides](https://recallmem.dev/guides): one per kind of agent (support, coding agents, tutoring, game NPCs, voice and more)
+- [Reasoning levels and models](https://recallmem.dev/guides/levels-and-models)
+- [Cost and speed](https://recallmem.dev/guides/cost-and-speed)
+- [Privacy, consent and forgetting](https://recallmem.dev/guides/privacy)
+
+## Optional
+
+- [Evals](https://recallmem.dev/evals): LongMemEval-S and BEAM results, with method
+- [Security](https://recallmem.dev/security)
+- [Data processing agreement](https://recallmem.dev/dpa)
+- [Privacy policy](https://recallmem.dev/privacy)
+- [Terms of service](https://recallmem.dev/terms)

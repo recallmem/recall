@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "..",
+    "noEmit": true,
+    "types": ["node"],
+    "paths": { "@recall-memory/server": ["../packages/server/src/index.ts"] }
+  },
+  "include": ["src", "test", "vitest.config.ts"]
+}

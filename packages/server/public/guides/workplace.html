@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Workplace assistants — Recall guides</title>
+<meta name="description" content="Build a workplace assistant that remembers a team's projects, decisions and owners with Recall: projects as scopes, scoped keys, imports, code and cost." />
+<meta name="theme-color" content="#0c0b0a" />
+<meta property="og:title" content="Workplace assistants — Recall guides" />
+<meta property="og:description" content="Build a workplace assistant that remembers a team's projects, decisions and owners with Recall: projects as scopes, scoped keys, imports, code and cost." />
+<meta property="og:type" content="article" />
+<meta property="og:image" content="/og.png" />
+<link rel="canonical" href="https://recallmem.dev/guides/workplace" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="preload" href="/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/departure-mono.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="/site.css" />
+<meta name="recall-api" content="https://api.recallmem.dev" data-site="https://recallmem.dev" />
+</head>
+<body>
+
+<header class="nav scrolled" id="nav">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="Recall home">
+      <svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>
+      Recall<span class="muted nowrap">/guides</span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="/#how">Product</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides">Guides</a>
+      <a href="https://github.com/recallmem/recall">GitHub</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-text" href="/app/login">Sign in</a>
+      <a class="btn btn-primary" href="/app/login">Get API key</a>
+    </div>
+  </div>
+</header>
+
+<div class="docs">
+  <aside class="toc" aria-label="Guides">
+    <details class="toc-box" open>
+      <summary>Guides</summary>
+      <div class="toc-links">
+        <a href="/guides">All guides</a>
+        <b>On this page</b>
+        <a class="sub" href="#what-changes">What memory adds</a>
+        <a class="sub" href="#model">How to model it</a>
+        <a class="sub" href="#build">Build it</a>
+        <a class="sub" href="#settings">Settings that matter</a>
+        <a class="sub" href="#cost-speed">Cost and speed</a>
+        <a class="sub" href="#privacy">Privacy and forgetting</a>
+        <a class="sub" href="#pitfalls">Pitfalls</a>
+        <b>Use cases</b>
+        <a href="/guides/assistants">Personal assistants and companions</a>
+        <a href="/guides/support">Customer support</a>
+        <a href="/guides/coding-agents">Coding agents</a>
+        <a href="/guides/game-npcs">Game NPCs</a>
+        <a href="/guides/sales">Sales and CRM copilots</a>
+        <a href="/guides/multi-agent">Multi-agent systems</a>
+        <a href="/guides/tutoring">Tutoring and education</a>
+        <a href="/guides/community-bots">Discord and Slack bots</a>
+        <a href="/guides/coaching">Health, fitness and coaching</a>
+        <a href="/guides/voice-agents">Voice agents</a>
+        <a href="/guides/shopping">Shopping assistants</a>
+        <a href="/guides/workplace" aria-current="page">Workplace assistants</a>
+        <b>Build well</b>
+        <a href="/guides/modeling">Designing workspaces, peers and sessions</a>
+        <a href="/guides/levels-and-models">Reasoning levels and models</a>
+        <a href="/guides/privacy">Privacy, consent and forgetting</a>
+        <a href="/guides/cost-and-speed">Cost and speed</a>
+        <b>Reference</b>
+        <a href="/docs">Docs</a>
+        <a href="/docs#api">REST API</a>
+      </div>
+    </details>
+  </aside>
+  <script>
+    // On a phone the contents start collapsed; set before first paint so the page does not jump.
+    if (matchMedia("(max-width: 980px)").matches) document.querySelector(".toc-box").open = false;
+  </script>
+
+  <article class="prose guide">
+    <p class="crumbs"><a href="/guides">Guides</a> / Use cases</p>
+<h1>Workplace assistants</h1>
+    <p class="lede">For internal tools that help a team: a chat assistant in Slack or Teams, a meeting notetaker, a project bot. Recall remembers what was said in which meeting, what each project decided and who owns what, so the assistant can answer the question that otherwise goes round five channels.</p>
+
+    <h2 id="what-changes">What memory adds</h2>
+    <p>Without memory, the assistant knows only the message in front of it. With it, decisions and commitments outlive the meeting where they were made:</p>
+    <table>
+      <thead><tr><th></th><th>Without memory</th><th>With Recall</th></tr></thead>
+      <tbody>
+        <tr><td>"Who owns the pricing page?"</td><td>Someone searches three channels and asks around.</td><td>"The checkout PM, since the kickoff on 6 October."</td></tr>
+        <tr><td>A new hire asks why PayPal is leaving checkout</td><td>The thread from March is long forgotten.</td><td>The assistant answers from the imported March thread: about 2% of orders used it.</td></tr>
+        <tr><td>"What did I promise for checkout?" in a DM</td><td>The assistant has no idea.</td><td>"New checkout mockups by 20 October, from the kickoff."</td></tr>
+      </tbody>
+    </table>
+    <p>Recall is memory, not the assistant: your model writes the replies, and your chat or meeting integration sends Recall what was said. Recall also does not know who may read which channel; you decide what goes into each scope.</p>
+
+    <h2 id="model">How to model it</h2>
+    <table>
+      <thead><tr><th>In your company</th><th>In Recall</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>The company, or a department whose memory must stay apart (HR)</td><td>Workspace, e.g. <code>acme-corp</code></td><td>Memory never crosses workspaces. Each internal tool gets its own key, scoped to the workspace it needs.</td></tr>
+        <tr><td>Each employee</td><td>Peer keyed by directory id, <code>emp-1042</code></td><td>Outlives name and email changes, and is the same person in chat, meetings and email.</td></tr>
+        <tr><td>The assistant</td><td>Peer <code>team-assistant</code> with <code>observeMe: false</code></td><td>Its replies stay in the history; facts are learned about people, not from the assistant.</td></tr>
+        <tr><td>A meeting, a thread, a DM</td><td>Session, e.g. <code>meet-20261006-checkout</code>, <code>dm-emp-2210</code></td><td>One conversation with its own summary. A DM stays between that person and the assistant.</td></tr>
+        <tr><td>A project</td><td>Scope <code>proj-checkout</code></td><td>Questions about the project read only the sessions filed under it.</td></tr>
+        <tr><td>Documents and wiki pages</td><td>A session per document, written by a peer for the source, <code>wiki</code></td><td>They stay when the person who wrote them leaves.</td></tr>
+        <tr><td>What is known about a person</td><td>Their peer card and facts (conclusions)</td><td>Role, projects and commitments, in the context of every DM.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the SDK (<code>npm install @recall-memory/sdk</code> or <code>pip install recall-mem</code>) and set <code>RECALL_API_KEY</code>. Create the people, the assistant and a session per meeting or thread, filed under its project.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>import { Recall } from "@recall-memory/sdk";
+
+const recall = new Recall({ workspaceId: "acme-corp" });
+
+// People are peers keyed by their directory id, which outlives name and email changes.
+const lead = recall.peer("emp-1042");
+const designer = recall.peer("emp-2210");
+// The assistant's own replies teach Recall nothing about the team.
+const assistant = recall.peer("team-assistant");
+await assistant.setConfiguration({ observeMe: false });
+
+// One session per meeting, thread or DM. Work on a project joins the project's scope.
+const kickoff = recall.session("meet-20261006-checkout", {
+  peers: [lead, designer, assistant],
+  scopes: ["proj-checkout"],
+});
+// Your notetaker or chat integration records what each person said.
+await kickoff.addMessages([
+  lead.message("I own the pricing page. Annual plans get two months free: decided."),
+  designer.message("Then I'll have the new checkout mockups ready by 20 October."),
+]);</code></pre>
+<pre data-panel="py" hidden><code>from recall_memory import PeerConfig, Recall
+
+recall = Recall(workspace_id="acme-corp")
+
+# People are peers keyed by their directory id, which outlives name and email changes.
+lead = recall.peer("emp-1042")
+designer = recall.peer("emp-2210")
+# The assistant's own replies teach Recall nothing about the team.
+assistant = recall.peer("team-assistant")
+assistant.set_configuration(PeerConfig(observe_me=False))
+
+# One session per meeting, thread or DM. Work on a project joins the project's scope.
+kickoff = recall.session(
+    "meet-20261006-checkout", peers=[lead, designer, assistant], scopes=["proj-checkout"]
+)
+# Your notetaker or chat integration records what each person said.
+kickoff.add_messages(
+    [
+        lead.message("I own the pricing page. Annual plans get two months free: decided."),
+        designer.message("Then I'll have the new checkout mockups ready by 20 October."),
+    ]
+)</code></pre>
+</div>
+    <p><b>Bring in what came before.</b> Import exported threads with the time each message was written, so Recall dates what it learns and reckons "next quarter" from then, not from today. The SDKs send more than 100 messages in ordered batches. Documents go in with <code>uploadFile</code>: PDF, JSON and text formats such as Markdown or CSV are accepted, and long files become several messages. Convert Word files to PDF or text first.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// Past material: an exported thread, oldest first, with the time each message was written,
+// so Recall dates what it learns. Over 100 messages go in ordered batches of 100.
+const exported = [
+  { user: "emp-1042", at: "2026-03-02T09:14:00Z", text: "We drop PayPal in Q4." },
+  { user: "emp-2210", at: "2026-03-02T09:20:00Z", text: "Fine, it is 2% of orders." },
+];
+const thread = recall.session("slack-c04p2qk-1709370840", { scopes: ["proj-checkout"] });
+await thread.addMessages(
+  exported.map((m) =&gt; recall.peer(m.user).message(m.text, { createdAt: m.at })),
+);
+// Documents (PDF, JSON or any text format) become messages from the peer you name: here a
+// peer for the wiki, so they outlive the person who wrote them.
+const wiki = recall.session("doc-checkout-decisions", { scopes: ["proj-checkout"] });
+const doc = "# Checkout decisions\n\n- PayPal goes in Q4.\n- Annual plans: two months free.";
+await wiki.uploadFile(
+  { filename: "checkout-decisions.md", content: new TextEncoder().encode(doc) },
+  "wiki",
+);</code></pre>
+<pre data-panel="py" hidden><code># Past material: an exported thread, oldest first, with the time each message was written,
+# so Recall dates what it learns. Over 100 messages go in ordered batches of 100.
+exported = [
+    {"user": "emp-1042", "at": "2026-03-02T09:14:00Z", "text": "We drop PayPal in Q4."},
+    {"user": "emp-2210", "at": "2026-03-02T09:20:00Z", "text": "Fine, it is 2% of orders."},
+]
+thread = recall.session("slack-c04p2qk-1709370840", scopes=["proj-checkout"])
+thread.add_messages(
+    [recall.peer(m["user"]).message(m["text"], created_at=m["at"]) for m in exported]
+)
+# Documents (PDF, JSON or any text format) become messages from the peer you name: here a
+# peer for the wiki, so they outlive the person who wrote them.
+wiki = recall.session("doc-checkout-decisions", scopes=["proj-checkout"])
+doc = "# Checkout decisions\n\n- PayPal goes in Q4.\n- Annual plans: two months free."
+wiki.upload_file(("checkout-decisions.md", doc.encode(), "text/markdown"), "wiki")</code></pre>
+</div>
+    <p><b>Ask about a project.</b> A question with <code>scope</code> answers from the sessions filed under that project and nothing else, in a few seconds. For an answer limited to what one person could have seen, search with <code>peer_perspective</code>: it returns only messages from sessions they were in while they were in them (see <a href="/docs#search-filters">Search filters</a>), and your model answers from those.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// A question about the project, answered only from the sessions in its scope.
+// (waitForIdle is for this demo; a real assistant does not block on learning.)
+await recall.waitForIdle();
+const answer = await recall.chat("Who owns the pricing page, and what is decided on PayPal?", {
+  scope: "proj-checkout",
+  reasoningLevel: "low",
+});
+// Only what one person could have seen: search through their perspective (no answer is
+// generated; your model answers from the messages).
+const seen = await recall.search("PayPal", {
+  filters: { peer_perspective: designer.id },
+  limit: 5,
+});</code></pre>
+<pre data-panel="py" hidden><code># A question about the project, answered only from the sessions in its scope.
+# (wait_for_idle is for this demo; a real assistant does not block on learning.)
+recall.wait_for_idle()
+answer = recall.chat(
+    "Who owns the pricing page, and what is decided on PayPal?",
+    scope="proj-checkout",
+    reasoning_level="low",
+)
+# Only what one person could have seen: search through their perspective (no answer is
+# generated; your model answers from the messages).
+seen = recall.search("PayPal", filters={"peer_perspective": designer.id}, limit=5)</code></pre>
+</div>
+    <p><b>A DM: one request per message.</b> <code>turn</code> stores the message and returns what the next reply needs: the conversation, a summary of older turns and what is known about this person, focused on what they asked.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// A direct message: one session per person, with what is known about them in the context.
+const dm = recall.session("dm-emp-2210", { peers: [designer, assistant] });
+const text = "What did I promise for the checkout project?";
+const { context } = await dm.turn([designer.message(text)], {
+  peerTarget: designer,
+  searchQuery: text,
+  tokens: 2000,
+});
+const prompt = context.toOpenAI(assistant); // your model writes the reply from `prompt`</code></pre>
+<pre data-panel="py" hidden><code># A direct message: one session per person, with what is known about them in the context.
+dm = recall.session("dm-emp-2210", peers=[designer, assistant])
+text = "What did I promise for the checkout project?"
+result = dm.turn([designer.message(text)], peer_target=designer, search_query=text, tokens=2000)
+prompt = result.context.to_openai(assistant=assistant)  # your model replies from `prompt`</code></pre>
+</div>
+
+    <h3 id="keys">A key per tool</h3>
+    <p>Give each internal tool (the chat assistant, the notetaker, a wiki sync) its own key, scoped to its workspace, under <b>API keys</b> in the dashboard. You can then revoke one tool without touching the others. A key scoped to one peer or one session cannot forget a person (401), so the job that handles leavers needs a workspace key.</p>
+
+    <h3 id="leavers">When someone leaves</h3>
+    <p>Decide your policy first: some companies keep work conversations as business records, others erase a person's data when they leave or ask. To erase:</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// Someone leaves and is to be forgotten: their messages and every fact about them or from
+// their view go. Other people's messages, the wiki and facts that only mention them stay.
+const removed = await lead.delete();</code></pre>
+<pre data-panel="py" hidden><code># Someone leaves and is to be forgotten: their messages and every fact about them or from
+# their view go. Other people's messages, the wiki and facts that only mention them stay.
+removed = lead.delete()</code></pre>
+</div>
+    <p><code>delete</code> removes every message the person wrote, their memberships, every fact and peer card about them or from their view, and cached answers; summaries of their sessions are rebuilt without them. Other people's messages stay, and so do facts about other people that merely mention them ("emp-2210 took over the pricing page from emp-1042"). A decision that lives only in the leaver's own messages goes with them, which is why decision documents belong to the <code>wiki</code> peer, not to their author. See <a href="/docs#forget-a-person">Forget a person</a>.</p>
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>scopes</code> on each session</td><td>Files the meeting or thread under a project. Keep HR conversations, one-to-ones and DMs out of project scopes.</td></tr>
+        <tr><td>Message <code>createdAt</code></td><td>The time a message was written, for imports. Without it, everything imported is dated today.</td></tr>
+        <tr><td><code>peer_perspective</code> search filter</td><td>Limits results to what one person saw, for answers that must respect who was in the room.</td></tr>
+        <tr><td><code>observeMe: false</code> on the assistant</td><td>Facts about people come from what they said, not from the assistant's summaries of it.</td></tr>
+        <tr><td><code>configuration: { reasoning: { enabled: false } }</code> on a session</td><td>For a channel you want searchable but not learned from, such as an off-topic channel. Its messages count only what Recall reads of them.</td></tr>
+        <tr><td><code>reasoningLevel</code></td><td><code>low</code> (the default) for most questions, <code>minimal</code> for quick lookups. See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>Measured from Europe against the hosted API (Frankfurt), October 2026: a <code>turn</code> or context call took 0.3 to 0.7 seconds, a search about 0.9 seconds, and a question at <code>minimal</code> or <code>low</code> 2 to 4.5 seconds, well within what people expect from a chat assistant. Learning runs in the background.</p>
+    <p>Context, search and storage are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50, and for questions. An employee who writes 40 short messages a day in recorded channels over 20 working days, speaks 60 times in each of 8 recorded meetings, gets 100 replies from the assistant and asks 60 questions:</p>
+    <table>
+      <thead><tr><th>Item</th><th>Per month</th></tr></thead>
+      <tbody>
+        <tr><td>Chat messages: 800 × 50 tokens × $1.75 / 1M</td><td>$0.070</td></tr>
+        <tr><td>Meeting turns: 480 × 50 tokens × $1.75 / 1M</td><td>$0.042</td></tr>
+        <tr><td>Assistant replies, read but not learned from: 100 × 200 tokens × $1.75 / 1M</td><td>$0.035</td></tr>
+        <tr><td>Questions at <code>low</code>: 60 × $0.005</td><td>$0.300</td></tr>
+        <tr><td><b>Total</b></td><td><b>about $0.45 per employee, or $89 for 200 people</b></td></tr>
+      </tbody>
+    </table>
+    <p>An import is paid once: 20,000 old messages at the 50-token minimum are 1,000,000 tokens, $1.75. More in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>An assistant that records meetings and chats processes employees' personal data, and staff can experience it as monitoring. What follows is practical guidance, not legal advice:</p>
+    <ul>
+      <li><b>Tell people.</b> Say in each recorded channel and in meeting invites that the assistant remembers what is said there, what for, and how to ask for something to be forgotten.</li>
+      <li><b>Involve the works council.</b> In many EU countries a works council has a say over tools that can be used to monitor staff. Talk to yours, and to your data protection officer, before you switch recording on.</li>
+      <li><b>Record only where invited.</b> Public project channels and meetings, not private channels, DMs between colleagues, HR conversations or one-to-ones.</li>
+      <li><b>Do not use it to judge people.</b> Memory built to answer questions about projects is not a basis for performance reviews.</li>
+    </ul>
+    <p>Recall stores data in Frankfurt; text is processed by AI model providers in the US through OpenRouter, restricted to providers that do not collect it, and is never used to train models. Your company is the controller and Recall the processor, under the <a href="/dpa">DPA</a>. Everything your account stores can be downloaded as JSON under Settings, for example to answer an access request (<a href="/docs#export">Export your data</a>), and a person is erased with <code>delete</code>. See <a href="/guides/privacy">Privacy, consent and forgetting</a> and the <a href="/privacy">privacy policy</a>.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>Display names or emails as ids.</b> People change both, and two people can share a name. Use the directory id.</li>
+      <li><b>One scope for everything.</b> Answers then draw on threads the asker was never in. Scope by project, and keep private conversations out.</li>
+      <li><b>Documents uploaded as their author.</b> They disappear when that person is erased. Upload them as <code>wiki</code> or another source peer.</li>
+      <li><b>Imports without <code>createdAt</code>.</b> A decision from March is then dated today, and "next quarter" is counted from now.</li>
+      <li><b>Expecting Recall to know your permissions.</b> It does not see your channel access rules. Scopes and <code>peer_perspective</code> are how you apply them.</li>
+    </ul>
+    <p class="guide-next">Next: <a href="/guides/multi-agent">Multi-agent systems</a> · <a href="/guides/community-bots">Discord and Slack bots</a></p>
+  </article>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="logo" href="/"><svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>Recall</a>
+      <p class="tagline">Memory for AI agents. Hosted in the EU.</p>
+      <p class="muted">Smidt Beheer · KvK 99124254 · VAT NL004444074B96</p>
+    </div>
+    <nav aria-label="Footer">
+      <div><b>Product</b><a href="/#how">How it works</a><a href="/#why">Why Recall</a><a href="/#agents">Integrations</a><a href="/evals">Evals</a><a href="/#pricing">Pricing</a></div>
+      <div><b>Developers</b><a href="/docs#quickstart">Quickstart</a><a href="/guides">Guides</a><a href="/docs#integrations">Integrations</a><a href="/docs#api">API</a><a href="/docs#models">Models</a><a href="https://github.com/recallmem/recall">GitHub</a></div>
+      <div><b>Account</b><a href="/app/login">Sign in</a></div>
+      <div><b>Legal</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/dpa">Data processing</a><a href="/security">Security</a><a href="/support">Support</a></div>
+    </nav>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

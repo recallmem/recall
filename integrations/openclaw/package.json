@@ -1,0 +1,38 @@
+{
+  "name": "@recall-memory/openclaw",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "OpenClaw plugin: long-term memory from Recall.",
+  "type": "module",
+  "private": true,
+  "main": "./index.js",
+  "files": [
+    "index.js",
+    "recall.js",
+    "openclaw.plugin.json",
+    "README.md"
+  ],
+  "keywords": [
+    "openclaw",
+    "openclaw-plugin",
+    "memory",
+    "recall"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RedSix6/recall-plugin.git",
+    "directory": "integrations/openclaw"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "openclaw": {
+    "extensions": [
+      "./index.js"
+    ],
+    "compat": {
+      "pluginApi": ">=2026.9.9",
+      "minGatewayVersion": "2026.9.9"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "recall-memory",
+  "version": "0.1.0",
+  "description": "Long-term memory for Codex from Recall: recalls what it knows about you when a session starts, records your prompts and Codex's replies so it keeps learning, and adds Recall's MCP tools.",
+  "author": { "name": "Recall" },
+  "homepage": "https://github.com/RedSix6/recall-plugin/tree/main/integrations/codex",
+  "repository": "https://github.com/RedSix6/recall-plugin",
+  "keywords": ["memory", "recall", "mcp", "hooks"],
+  "interface": {
+    "displayName": "Recall Memory",
+    "shortDescription": "Long-term memory that learns from your Codex sessions.",
+    "longDescription": "Recall remembers what you work on and how you like to work. When a session starts it adds what it knows about you to Codex's context, each prompt and final reply is recorded so it keeps learning, and its MCP tools let Codex look things up or correct memory.",
+    "developerName": "Recall",
+    "category": "Productivity",
+    "websiteURL": "https://recallmem.dev"
+  }
+}

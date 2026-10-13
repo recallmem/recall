@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "recall": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/mcp-bridge.mjs"],
+      "env": {
+        "CLAUDE_PLUGIN_OPTION_API_KEY": "${user_config.api_key}",
+        "CLAUDE_PLUGIN_OPTION_URL": "${user_config.url}",
+        "CLAUDE_PLUGIN_OPTION_WORKSPACE": "${user_config.workspace}",
+        "CLAUDE_PLUGIN_OPTION_PEER": "${user_config.peer}"
+      }
+    }
+  }
+}

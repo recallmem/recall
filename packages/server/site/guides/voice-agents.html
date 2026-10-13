@@ -1,0 +1,105 @@
+    <h1>Voice agents</h1>
+    <p class="lede">For phone lines and voice assistants: an agent that knows who is calling and what happened last time, without adding silence to the call. You read the caller's memory while the call connects, store each utterance in one fast request that runs next to your model, and leave anything that takes seconds until after the hang-up.</p>
+
+    <h2 id="what-changes">What memory adds</h2>
+    <p>Without memory, every call starts with "how can I help?" and the same questions. With it, the agent knows the story so far:</p>
+    <table>
+      <thead><tr><th></th><th>Without memory</th><th>With Recall</th></tr></thead>
+      <tbody>
+        <tr><td>Monday's call</td><td colspan="2">The caller reports that the internet drops out every evening. The agent resets the line and promises to check it again on Friday.</td></tr>
+        <tr><td>Friday, same caller, verified</td><td>"What is the reason for your call today?"</td><td>"Is this about the evening drop-outs? We said we would check your line today."</td></tr>
+        <tr><td>A month later</td><td>"Which router do you have?"</td><td>"Is it still the white router we sent in August? And shall I call you back after six, like last time?"</td></tr>
+      </tbody>
+    </table>
+    <p>Recall does not hear or speak. Your speech-to-text, model and text-to-speech do; Recall stores the transcript and gives your model the caller's memory.</p>
+
+    <h2 id="model">How to model it</h2>
+    <table>
+      <thead><tr><th>On your line</th><th>In Recall</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Your phone line or voice product</td><td>Workspace, e.g. <code>support-line</code></td><td>One per product and environment, so test calls never mix with real callers.</td></tr>
+        <tr><td>The caller</td><td>Peer: your account id (<code>cust-1042</code>) once verified, otherwise <code>caller-</code> and a keyed hash of the number</td><td>One stable id per person, and never the raw number.</td></tr>
+        <tr><td>Your voice agent</td><td>Peer <code>voice-agent</code>, with <code>observeMe: false</code></td><td>Recall does not learn from the agent's lines, only reads them as context, so they cost less.</td></tr>
+        <tr><td>A call</td><td>Session, e.g. <code>call-7f3e9a2c</code>, from your telephony provider's call id</td><td>One transcript per call, its own running summary, and one place to delete it.</td></tr>
+        <tr><td>What the caller said on earlier calls</td><td>The peer card and facts, returned with the context</td><td>Ready for the first prompt, before the caller says a word.</td></tr>
+      </tbody>
+    </table>
+    <p><b>Why not the phone number?</b> Ids show up in request paths, logs, exports and the dashboard, and cannot be renamed. A plain SHA-256 of a number protects nothing, because every possible number can be hashed and compared. A keyed hash (an HMAC with a secret only your server holds) cannot be reversed without the key, and the same number always gives the same id, so you can still find a caller to delete them. A number is still not a person, though: numbers change hands and a household can share one line. Once a caller is verified against your accounts, key memory by your account id and keep the number-to-account mapping in your own system; use the hashed number only for callers you cannot identify.</p>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the SDK (<code>npm install @recall-memory/sdk</code> or <code>pip install recall-mem</code>) and set <code>RECALL_API_KEY</code> on the server that handles your call events. Configure the agent once at startup; per call you only need two handles, which make no request.</p>
+<!-- example: voice-agents#setup -->
+    <p><b>Before the first word: read the caller's memory.</b> As soon as the call connects, while your greeting plays, read the session context with the caller as <code>peerTarget</code>. It is one request (a context call measured 0.3 to 0.7 seconds) and works before the session exists, so a first-time caller gets empty context rather than an error. The result holds the caller's peer card and facts, ready as system messages. Until the caller is verified, keep personal details from it out of what the agent says.</p>
+<!-- example: voice-agents#before-call -->
+    <p><b>Each utterance: one request, off the critical path.</b> When speech-to-text gives you the final transcript of an utterance, send it with <code>turn</code>, together with the agent's previous line, so one request stores both. A turn measured 0.3 to 0.7 seconds, which is too long to add to every reply. Your model does not need to wait for it: it already has the memory from the start of the call and the call so far, so start the model call and the turn together. Use the context the turn returns for the next utterance; on a long call it replaces older turns with a summary, so the prompt stays within <code>tokens</code>.</p>
+<!-- example: voice-agents#turn -->
+    <p><b>Questions wait until the call is over.</b> <code>chat</code> took 2 to 4.5 seconds at <code>minimal</code> or <code>low</code>, which is dead air on a phone line. Never call it inside a turn. Ask before the call when you can (an outbound call you are about to place), or after it, for your CRM or to prepare the next call. If a question must inform this call, start it in the background when the call connects and use the answer only if it arrives in time.</p>
+    <p><b>After the hang-up: the summary and anything slow.</b> Store the agent's last line. Recall keeps a running summary of each session, written every 20 messages by default (at least 10, set with <code>messagesPerShortSummary</code>), and <code>summaries()</code> returns it; a short call may not have one. A <code>queue.empty</code> <a href="/docs#webhooks">webhook</a> tells your server when learning for the call has finished, so you do not need to poll. For a note on every call, short ones included, ask a question as below ($0.005 at <code>low</code>), or have your own model write it from the transcript you already hold.</p>
+<!-- example: voice-agents#after-call -->
+    <p><b>A caller asks to be forgotten.</b> Verify them, derive the id from their number with the same key, delete their calls (the agent's lines quote them), then the caller. <code>delete()</code> erases their messages, every fact and card about them, and cached answers.</p>
+<!-- example: voice-agents#forget -->
+
+    <h3 id="rest">Other languages and voice platforms</h3>
+    <p>Recall has no telephony SDK; call it from whatever handles your call events. Over REST, the call start and each utterance are one request each. The context read:</p>
+<pre><code>curl -G $RECALL_URL/v3/workspaces/support-line/sessions/call-7f3e9a2c/context \
+  -d tokens=1500 -d peer_target=cust-1042 \
+  -H "Authorization: Bearer $RECALL_API_KEY"</code></pre>
+    <p>Each utterance, with the agent's previous line. The <code>Idempotency-Key</code> header makes a retry safe; the speech-to-text segment id is a good value:</p>
+<pre><code>curl $RECALL_URL/v3/workspaces/support-line/sessions/call-7f3e9a2c/turn \
+  -H "Authorization: Bearer $RECALL_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: call-7f3e9a2c-utt-7" \
+  -d '{"messages":[
+        {"peer_id":"voice-agent","content":"Thanks for calling. How can I help?"},
+        {"peer_id":"cust-1042","content":"Hi, me again. The internet keeps dropping out."}
+      ],
+      "context":{"tokens":1500,"peer_target":"cust-1042"}}'</code></pre>
+    <p>The answer is <code>{"messages": [...], "context": {...}}</code>: the stored messages and the context for the next prompt. The first turn creates the session and the caller. See the <a href="/docs#api">REST API</a>.</p>
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>tokens</code></td><td>The context goes into every prompt, so keep the budget small: a shorter prompt is faster for your model. Older turns become a summary.</td></tr>
+        <tr><td><code>observeMe: false</code> on the agent</td><td>Recall learns about the caller only, and the agent's lines cost less.</td></tr>
+        <tr><td><code>summary.messagesPerShortSummary</code> (workspace or session)</td><td>How often the running summary of a call is written: every 20 messages by default, at least 10.</td></tr>
+        <tr><td><code>idempotencyKey</code> on <code>turn</code> (<code>idempotency_key</code> in Python)</td><td>The SDKs add one per call, so their own retries never store an utterance twice. Pass your own, such as the speech-to-text segment id, if another worker may send it again.</td></tr>
+        <tr><td><code>timeout</code> and <code>maxRetries</code> (<code>max_retries</code> in Python)</td><td>On a live call, give up early and carry on without memory rather than leave the caller in silence. TypeScript also takes <code>timeout</code> per request.</td></tr>
+        <tr><td><code>reasoningLevel: "low"</code></td><td>For questions after the call. See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>Measured from Europe against the hosted API (Frankfurt), October 2026: a <code>turn</code> or context call took 0.3 to 0.7 seconds, a question at <code>minimal</code> or <code>low</code> 2 to 4.5 seconds. Learning happens in the background and never holds up a call. Speech-to-text, your model and text-to-speech already sit between the caller and the reply, so keep Recall beside that path, not on it: context while the call connects, each turn next to your model, questions after the hang-up.</p>
+    <p>Context reads and turns are included; you pay for learning from the messages a turn stores, $1.75 per million message tokens with every message counting as at least 50, and for questions. A caller who calls four times a month, with 30 short utterances and 30 agent lines of about 30 tokens per call, and one question after each call:</p>
+    <table>
+      <thead><tr><th>Item</th><th>Per month</th></tr></thead>
+      <tbody>
+        <tr><td>Caller utterances: 4 × 30 × 50 tokens × $1.75 / 1M</td><td>$0.0105</td></tr>
+        <tr><td>Agent lines, read but not learned from: 4 × 30 × 30 tokens × $1.75 / 1M</td><td>$0.0063</td></tr>
+        <tr><td>Questions after the call at <code>low</code>: 4 × $0.005</td><td>$0.0200</td></tr>
+        <tr><td><b>Total</b></td><td><b>about $0.04 per caller a month</b></td></tr>
+      </tbody>
+    </table>
+    <p>More in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>This is practical guidance, not legal advice. See <a href="/guides/privacy">Privacy, consent and forgetting</a> for the general picture.</p>
+    <ul>
+      <li><b>Tell callers, and get consent where it is required.</b> Say at the start that the call is transcribed and that the assistant remembers earlier calls. The rules on recording and transcribing calls differ between countries, and in some countries between states; some require every party's consent. Recall stores the text you send, never audio.</li>
+      <li><b>Caller ID is not identity.</b> Numbers can be spoofed. Verify the caller, with a code, account details or a call back, before the agent repeats anything personal from memory.</li>
+      <li><b>Keep secrets out of the transcript.</b> Redact card numbers, PINs, one-time codes and answers to security questions before an utterance reaches Recall.</li>
+      <li><b>Say where the data goes.</b> Transcripts are stored in the EU (Frankfurt) and processed by AI model providers in the US through OpenRouter, restricted to providers that do not collect the data; they are not used to train models.</li>
+      <li><b>Forget on request.</b> Delete the caller and their calls as above. Facts about other people that merely mention them stay; delete those with <code>DELETE …/conclusions/{id}</code> if needed (<a href="/docs#forget-a-person">Forget a person</a>).</li>
+    </ul>
+    <p>Recall's own terms are in the <a href="/privacy">privacy policy</a> and the <a href="/dpa">DPA</a>.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>Asking during the call.</b> A question takes seconds, which is silence on a phone line. Read context during the call; ask before or after it.</li>
+      <li><b>Recall in series with your model.</b> Waiting for each turn before you start your model adds its 0.3 to 0.7 seconds to every reply. Start both together.</li>
+      <li><b>The raw number as id.</b> It ends up in logs and URLs, and memory follows the number to its next owner. Use your account id, or a keyed hash for callers you cannot identify.</li>
+      <li><b>Trusting caller ID.</b> Anyone can show someone else's number. Verify before the agent uses personal memory.</li>
+      <li><b>Expecting a summary after every call.</b> The running summary is written every 20 messages by default, so short calls have none. For call notes, ask a question or use your own model.</li>
+      <li><b>Expecting Recall to listen.</b> It works on text. Bring your own speech-to-text, model and voice.</li>
+    </ul>

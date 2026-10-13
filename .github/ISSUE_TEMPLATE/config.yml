@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security problem
+    url: https://recallmem.dev/security
+    about: Please report vulnerabilities privately to security@recallmem.dev, not in an issue.
+  - name: Help with your account or billing
+    url: https://recallmem.dev/support
+    about: Email support@recallmem.dev.

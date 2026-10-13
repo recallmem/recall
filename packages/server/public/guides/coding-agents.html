@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Coding agents — Recall guides</title>
+<meta name="description" content="Give coding agents memory of a developer's preferences, a project's conventions and past decisions with Recall: plugins, MCP, code, settings and cost." />
+<meta name="theme-color" content="#0c0b0a" />
+<meta property="og:title" content="Coding agents — Recall guides" />
+<meta property="og:description" content="Give coding agents memory of a developer's preferences, a project's conventions and past decisions with Recall: plugins, MCP, code, settings and cost." />
+<meta property="og:type" content="article" />
+<meta property="og:image" content="/og.png" />
+<link rel="canonical" href="https://recallmem.dev/guides/coding-agents" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="preload" href="/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/departure-mono.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="/site.css" />
+<meta name="recall-api" content="https://api.recallmem.dev" data-site="https://recallmem.dev" />
+</head>
+<body>
+
+<header class="nav scrolled" id="nav">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="Recall home">
+      <svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>
+      Recall<span class="muted nowrap">/guides</span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="/#how">Product</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides">Guides</a>
+      <a href="https://github.com/recallmem/recall">GitHub</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-text" href="/app/login">Sign in</a>
+      <a class="btn btn-primary" href="/app/login">Get API key</a>
+    </div>
+  </div>
+</header>
+
+<div class="docs">
+  <aside class="toc" aria-label="Guides">
+    <details class="toc-box" open>
+      <summary>Guides</summary>
+      <div class="toc-links">
+        <a href="/guides">All guides</a>
+        <b>On this page</b>
+        <a class="sub" href="#what-changes">What memory adds</a>
+        <a class="sub" href="#model">How to model it</a>
+        <a class="sub" href="#build">Build it</a>
+        <a class="sub" href="#settings">Settings that matter</a>
+        <a class="sub" href="#cost-speed">Cost and speed</a>
+        <a class="sub" href="#privacy">Privacy and forgetting</a>
+        <a class="sub" href="#pitfalls">Pitfalls</a>
+        <b>Use cases</b>
+        <a href="/guides/assistants">Personal assistants and companions</a>
+        <a href="/guides/support">Customer support</a>
+        <a href="/guides/coding-agents" aria-current="page">Coding agents</a>
+        <a href="/guides/game-npcs">Game NPCs</a>
+        <a href="/guides/sales">Sales and CRM copilots</a>
+        <a href="/guides/multi-agent">Multi-agent systems</a>
+        <a href="/guides/tutoring">Tutoring and education</a>
+        <a href="/guides/community-bots">Discord and Slack bots</a>
+        <a href="/guides/coaching">Health, fitness and coaching</a>
+        <a href="/guides/voice-agents">Voice agents</a>
+        <a href="/guides/shopping">Shopping assistants</a>
+        <a href="/guides/workplace">Workplace assistants</a>
+        <b>Build well</b>
+        <a href="/guides/modeling">Designing workspaces, peers and sessions</a>
+        <a href="/guides/levels-and-models">Reasoning levels and models</a>
+        <a href="/guides/privacy">Privacy, consent and forgetting</a>
+        <a href="/guides/cost-and-speed">Cost and speed</a>
+        <b>Reference</b>
+        <a href="/docs">Docs</a>
+        <a href="/docs#api">REST API</a>
+      </div>
+    </details>
+  </aside>
+  <script>
+    // On a phone the contents start collapsed; set before first paint so the page does not jump.
+    if (matchMedia("(max-width: 980px)").matches) document.querySelector(".toc-box").open = false;
+  </script>
+
+  <article class="prose guide">
+    <p class="crumbs"><a href="/guides">Guides</a> / Use cases</p>
+<h1>Coding agents</h1>
+    <p class="lede">For developers who want Claude Code, Codex or an agent of their own to remember how they work, what a repository's rules are and what was decided last month. Install an integration in a few minutes, or add memory to your own agent with the SDK.</p>
+
+    <h2 id="what-changes">What memory adds</h2>
+    <p>Without memory, every coding session starts from the same blank page and you repeat your preferences in each one. With it, the agent starts where the last session ended:</p>
+    <table>
+      <thead><tr><th></th><th>Without memory</th><th>With Recall</th></tr></thead>
+      <tbody>
+        <tr><td>Monday, a new session</td><td>The agent runs <code>npm install</code> and you correct it, again.</td><td>It already knows you use pnpm, want small commits and write the test first.</td></tr>
+        <tr><td>A task that needs a schema change</td><td>It edits the generated migration by hand.</td><td>It starts with the repository rule: migrations are generated, never edited.</td></tr>
+        <tr><td>"Why is <code>refund_reason</code> nullable?"</td><td>Nobody remembers; someone searches chat history.</td><td>It answers from the session where that was decided: the backfill comes later.</td></tr>
+      </tbody>
+    </table>
+    <p>Recall is memory, not the agent. It does not read your repository, index files or run tools; it stores what you and the agent said and learns from it. Code search stays with your agent.</p>
+
+    <h2 id="model">How to model it</h2>
+    <p>The integrations below set this up for you. When you build your own agent, map it like this:</p>
+    <table>
+      <thead><tr><th>In your setup</th><th>In Recall</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>A team or organisation</td><td>Workspace, e.g. <code>acme-eng</code></td><td>The team's memory stays together and apart from everything else. Working for several clients? One workspace per client.</td></tr>
+        <tr><td>Each developer</td><td>Peer <code>dev-4821</code></td><td>Recall learns how this person works from their prompts. Their peer card holds the stable preferences.</td></tr>
+        <tr><td>The agent</td><td>Peer <code>coding-agent</code> with <code>observeMe: false</code></td><td>Its replies stay in the history, but facts are learned about the developer, not from the agent's own statements. They also cost less.</td></tr>
+        <tr><td>A coding session</td><td>Session, e.g. <code>cs-20261010-7f2c</code></td><td>One conversation, with its summary and recent turns.</td></tr>
+        <tr><td>A repository</td><td>Scope <code>billing-api</code></td><td>Ask what was decided across every session in that repository, and nothing from other repositories.</td></tr>
+        <tr><td>The repository's rules</td><td>Conclusions on a peer for the repository, <code>repo-billing-api</code></td><td>Rules you state outright hold from the first session, for every developer, without waiting to come up in conversation.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="build">Build it</h2>
+    <h3 id="integrations">Claude Code, Codex and other agents</h3>
+    <p>Each integration <b>recalls</b> (adds your peer card and the facts Recall learned about you to the agent's context), <b>records</b> (stores your prompts and the agent's final replies) and, where the agent supports it, adds Recall's MCP <b>tools</b> so the agent can look things up and correct memory. The agent is a peer Recall does not observe (<code>claude</code>, <code>codex</code>), so facts are learned about you.</p>
+    <table>
+      <thead><tr><th>Agent</th><th>Connects through</th><th>Memory is added</th></tr></thead>
+      <tbody>
+        <tr><td><a href="/docs#claude-code">Claude Code</a></td><td>Plugin: hooks and MCP</td><td>at session start, resume and compaction</td></tr>
+        <tr><td><a href="/docs#codex">Codex</a></td><td>Plugin or installer: hooks and MCP</td><td>at session start, and after <code>/clear</code> or a compaction</td></tr>
+        <tr><td><a href="/docs#openclaw">OpenClaw</a></td><td>Plugin</td><td>before each turn</td></tr>
+        <tr><td><a href="/docs#hermes">Hermes Agent</a></td><td>Memory provider</td><td>before each turn</td></tr>
+        <tr><td><a href="/docs#agent-skill">Agent Skill</a></td><td>A <code>SKILL.md</code> the agent reads</td><td>when the agent decides to look</td></tr>
+        <tr><td>Cursor, VS Code, any MCP client</td><td><a href="/docs#mcp">MCP server</a></td><td>when the model calls a tool</td></tr>
+      </tbody>
+    </table>
+    <p><b>Claude Code.</b> Install the plugin, and enter your API key when Claude Code asks for it (it is kept in your system's credential store):</p>
+<pre><code>/plugin marketplace add RedSix6/recall-plugin
+/plugin install recall-memory@recall</code></pre>
+    <p>Set the workspace and your peer id under <code>/plugin</code> → recall-memory → Configure, or with <code>RECALL_WORKSPACE_ID</code> and <code>RECALL_PEER_ID</code>. Then run <code>/recall-memory:status</code> to check the connection. Each Claude session is recorded in a Recall session named <code>cc-&lt;session id&gt;</code>.</p>
+    <p><b>Codex.</b> <code>codex plugin marketplace add RedSix6/recall-plugin</code> and <code>codex plugin add recall-memory@recall</code>, or the <a href="/docs#codex">installer</a>; pick one, because both together handle every turn twice. Codex skips new hooks until you trust them, so run <code>/hooks</code> once. The key comes from <code>RECALL_API_KEY</code> or <code>~/.recall/config.json</code> (see <a href="/docs#integrations">connect to your server</a>).</p>
+    <p><b>A team on the integrations.</b> Everyone uses the same workspace and their own stable peer id. Each developer's memory is their own; rules they ask the agent to remember are saved as facts about them. For rules the whole team shares, write them to a repository peer as shown below.</p>
+    <p><b>Any MCP client.</b> Point it at <code>https://api.recallmem.dev/mcp</code>. Cursor, VS Code and Claude Code (<code>claude mcp add --transport http recall https://api.recallmem.dev/mcp</code>, then <code>/mcp</code> → Authenticate) sign in with your email; no key is copied. Through MCP the model decides when to look things up. With <b>Remember automatically</b> on (the default for a connected app; change it under API keys → Connected apps) it also saves lasting facts you share without being asked. See <a href="/docs#mcp-connector">Add Recall as a connector</a>.</p>
+    <div class="callout"><svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="10" cy="10" r="7"/><path d="M10 6.5v4M10 13.5h.01"/></svg><span>What the plugins send: your prompts and the agent's final replies, each cut to 24,000 characters, to the Recall server you configured. Tool calls and their output, including the files the agent reads, are not sent. <code>RECALL_RECORD=false</code> stops recording and keeps lookup; <code>RECALL_ENABLED=false</code> under <code>env</code> in a project's <code>.claude/settings.json</code> switches Recall off for that project.</span></div>
+
+    <h3 id="your-own">Your own agent</h3>
+    <p>Install the SDK (<code>npm install @recall-memory/sdk</code> or <code>pip install recall-mem</code>) and set <code>RECALL_API_KEY</code>. Create the peers and a session per coding session. Set <code>observeMe: false</code> before the agent's first message is stored.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>import { Recall } from "@recall-memory/sdk";
+
+const recall = new Recall({ workspaceId: "acme-eng" });
+
+const dev = recall.peer("dev-4821");
+// Recall learns about the developer, not from the agent's own replies.
+const agent = recall.peer("coding-agent");
+await agent.setConfiguration({ observeMe: false });
+// The repository's rules live on a peer of their own. Nobody speaks as it.
+const repo = recall.peer("repo-billing-api");
+await repo.setConfiguration({ observeMe: false });
+
+// One session per coding session, filed under the repository's scope.
+const session = recall.session("cs-20261010-7f2c", {
+  peers: [dev, agent],
+  scopes: ["billing-api"],
+});</code></pre>
+<pre data-panel="py" hidden><code>import re
+
+from recall_memory import PeerConfig, Recall
+
+recall = Recall(workspace_id="acme-eng")
+
+dev = recall.peer("dev-4821")
+# Recall learns about the developer, not from the agent's own replies.
+agent = recall.peer("coding-agent")
+agent.set_configuration(PeerConfig(observe_me=False))
+# The repository's rules live on a peer of their own. Nobody speaks as it.
+repo = recall.peer("repo-billing-api")
+repo.set_configuration(PeerConfig(observe_me=False))
+
+# One session per coding session, filed under the repository's scope.
+session = recall.session("cs-20261010-7f2c", peers=[dev, agent], scopes=["billing-api"])</code></pre>
+</div>
+    <p><b>Rules you know for sure: write them.</b> Conclusions are facts you state directly. They are searchable at once, without waiting for background learning, and every developer's agent reads the same ones.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// Rules the team states outright: write them as facts, so they hold from the first session.
+await repo.conclusions.create([
+  "Migrations are generated with `pnpm db:generate`; never edit them by hand.",
+  "billing-api runs on Node 22 and uses pnpm, not npm.",
+  "Money amounts are integers in cents; never floats.",
+]);</code></pre>
+<pre data-panel="py" hidden><code># Rules the team states outright: write them as facts, so they hold from the first session.
+team_rules = [
+    "Migrations are generated with `pnpm db:generate`; never edit them by hand.",
+    "billing-api runs on Node 22 and uses pnpm, not npm.",
+    "Money amounts are integers in cents; never floats.",
+]
+repo.conclusions.create([{"content": rule} for rule in team_rules])</code></pre>
+</div>
+    <p><b>Session start: read, focused on the task.</b> <code>searchQuery</code> pulls the facts that matter for this task into the prompt instead of the most frequent ones. Both are reads, not questions: no answer is generated, so they are fast and included in the price. Run them in parallel.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// At session start: what is known about the developer and the rules that touch the task.
+// Two reads: no answer is generated, so they are fast and included in the price.
+const task = "Add a refund_reason column to the payments table";
+const [ctx, rules] = await Promise.all([
+  session.context({ peerTarget: dev, searchQuery: task, tokens: 1500 }),
+  repo.context({ searchQuery: task }),
+]);
+const messages = [
+  { role: "system", content: `Rules of this repository:\n${rules.representation ?? ""}` },
+  ...ctx.toOpenAI(agent),
+];</code></pre>
+<pre data-panel="py" hidden><code># At session start: what is known about the developer and the rules that touch the task.
+# Two reads: no answer is generated, so they are fast and included in the price.
+task = "Add a refund_reason column to the payments table"
+ctx = session.context(peer_target=dev, search_query=task, tokens=1500)
+rules = repo.context(search_query=task)
+messages = [
+    {"role": "system", "content": f"Rules of this repository:\n{rules.representation or ''}"},
+    *ctx.to_openai(assistant=agent),
+]</code></pre>
+</div>
+    <p><b>After each turn: record the conversation, not the work.</b> The developer's prompt and the agent's final answer are what Recall learns from. Build logs, diffs and file contents cost tokens and teach it nothing about the developer, and they are where secrets hide.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// After each turn: the developer's prompt and the agent's final answer. No tool output, no file
+// contents, no secrets (this pattern is crude: run your own secret scanner too).
+const redact = (text: string) =&gt;
+  text.replace(/\b(?:sk|pk|ghp|xox[bp])[-_][\w-]{16,}/g, "[redacted]").slice(0, 24_000);
+const prompt = "Add refund_reason to payments. Nullable for now, we backfill next sprint.";
+// Your model wrote this answer from `messages`.
+const answer = "Added a nullable refund_reason column and generated migration 0042.";
+await session.addMessages([dev.message(redact(prompt)), agent.message(redact(answer))]);</code></pre>
+<pre data-panel="py" hidden><code># After each turn: the developer's prompt and the agent's final answer. No tool output, no file
+# contents, no secrets (this pattern is crude: run your own secret scanner too).
+def redact(text: str) -&gt; str:
+    return re.sub(r"\b(?:sk|pk|ghp|xox[bp])[-_][\w-]{16,}", "[redacted]", text)[:24_000]
+
+prompt = "Add refund_reason to payments. Nullable for now, we backfill next sprint."
+# Your model wrote this answer from `messages`.
+answer = "Added a nullable refund_reason column and generated migration 0042."
+session.add_messages([dev.message(redact(prompt)), agent.message(redact(answer))])</code></pre>
+</div>
+    <p><b>Past decisions: ask the repository.</b> A question with <code>scope</code> reads only the sessions filed under that repository. It is one model call of a few seconds, so ask when the agent needs it, not on every turn.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// Weeks later, from any session: what was decided in this repository? Only sessions in its
+// scope are read. (waitForIdle is for this demo; an agent rarely blocks on learning.)
+await recall.waitForIdle();
+const decided = await recall.chat("Is refund_reason nullable, and why?", {
+  scope: "billing-api",
+  reasoningLevel: "low",
+});</code></pre>
+<pre data-panel="py" hidden><code># Weeks later, from any session: what was decided in this repository? Only sessions in its
+# scope are read. (wait_for_idle is for this demo; an agent rarely blocks on learning.)
+recall.wait_for_idle()
+decided = recall.chat(
+    "Is refund_reason nullable, and why?", scope="billing-api", reasoning_level="low"
+)</code></pre>
+</div>
+    <p><b>Rules change, people leave.</b></p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// A rule that changed: delete the old fact and write the new one.
+const stale: string[] = [];
+for await (const rule of await repo.conclusions.list()) {
+  if (rule.content.includes("Node 22")) stale.push(rule.id);
+}
+for (const id of stale) await repo.conclusions.delete(id);
+await repo.conclusions.create("billing-api runs on Node 24 and uses pnpm, not npm.");
+// A developer who leaves: erase them and everything learned from or about them.
+await dev.delete();</code></pre>
+<pre data-panel="py" hidden><code># A rule that changed: delete the old fact and write the new one.
+stale = [rule.id for rule in repo.conclusions.list() if "Node 22" in rule.content]
+for rule_id in stale:
+    repo.conclusions.delete(rule_id)
+repo.conclusions.create([{"content": "billing-api runs on Node 24 and uses pnpm, not npm."}])
+# A developer who leaves: erase them and everything learned from or about them.
+dev.delete()</code></pre>
+</div>
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>observeMe: false</code> on the agent</td><td>Facts come from the developer, not from the agent's own claims. The replies are still read as context, at a lower price.</td></tr>
+        <tr><td><code>searchQuery</code> on the context read</td><td>The task in one line. Without it you get the most frequent facts, which may not touch the task.</td></tr>
+        <tr><td><code>tokens</code></td><td>The memory budget. 1,500 (the integrations' default) leaves room for code; with Codex keep <code>RECALL_CONTEXT_TOKENS</code> at or below about 2,500, its hook output limit.</td></tr>
+        <tr><td><code>scopes</code> on the session</td><td>Files the session under a repository, so <code>recall.chat(..., { scope })</code> answers from that repository only.</td></tr>
+        <tr><td><code>RECALL_LOOKUP=prompt</code></td><td>Plugins also look up facts related to each prompt, not only at session start.</td></tr>
+        <tr><td><code>RECALL_SESSION_STRATEGY=per-directory</code></td><td>Plugins record every session in a project directory into one Recall session instead of one per agent session.</td></tr>
+        <tr><td><code>reasoningLevel</code></td><td><code>low</code> (the default) for most questions. <code>high</code> for questions that need many sessions; it is slower. See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>Measured from Europe against the hosted API (Frankfurt), October 2026: a context read took 0.3 to 0.7 seconds, so memory at session start adds well under a second. A question at <code>low</code> took 2 to 4.5 seconds. Learning runs in the background and never holds up a turn.</p>
+    <p>Context, search and storage are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50, and for questions. A developer who works 20 days a month, with 30 prompts a day of about 100 tokens, the agent's 30 replies (long, but read only as context, at most 200 tokens each), and 40 questions about past decisions:</p>
+    <table>
+      <thead><tr><th>Item</th><th>Per month</th></tr></thead>
+      <tbody>
+        <tr><td>Prompts: 600 × 100 tokens × $1.75 / 1M</td><td>$0.105</td></tr>
+        <tr><td>Agent replies, read but not learned from: 600 × 200 tokens × $1.75 / 1M</td><td>$0.210</td></tr>
+        <tr><td>Questions at <code>low</code>: 40 × $0.005</td><td>$0.200</td></tr>
+        <tr><td>Context at session start</td><td>included</td></tr>
+        <tr><td><b>Total</b></td><td><b>about $0.52 per developer, or $13 for a team of 25</b></td></tr>
+      </tbody>
+    </table>
+    <p>A pasted stack trace counts at its length: 2,000 tokens cost $0.0035. More in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>Prompts carry more than preferences: pasted errors with connection strings, customer data from a bug report, code under NDA. Tell your team what the agent records, switch recording off for repositories that must not leave your machines, and never record tool output or file contents from your own agent. Recall stores data in Frankfurt; text is processed by AI model providers in the US through OpenRouter, restricted to providers that do not collect it, and is never used to train models. If you work on client code, check that your contract allows a processor; see the <a href="/dpa">DPA</a>.</p>
+    <p>To remove one wrong or outdated fact, ask the agent to forget it (the MCP tools include <code>delete_conclusion</code>) or delete it by id. When a developer leaves, <code>dev.delete()</code> erases their messages and every fact about them or from their view; facts about other peers that merely mention them stay. See <a href="/docs#forget-a-person">Forget a person</a>, <a href="/docs#export">Export your data</a> and <a href="/guides/privacy">Privacy, consent and forgetting</a>.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>Secrets in prompts.</b> A pasted <code>.env</code> or token is recorded with the prompt. Redact before you record, and use <code>RECALL_RECORD=false</code> for repositories you cannot risk.</li>
+      <li><b>One workspace for several clients.</b> What the agent learned in one client's code then surfaces in another's. Use a workspace per client, each with its own key.</li>
+      <li><b>Team rules said only in passing.</b> A rule mentioned once in a chat is learned as a fact about the developer who said it. Write rules the whole team follows to the repository's peer.</li>
+      <li><b>Recording tool output.</b> Logs and file dumps cost tokens and teach nothing about how anyone works. Record the prompt and the final answer.</li>
+      <li><b>Both Codex routes installed.</b> The plugin and the installer each handle every turn, so everything is recorded twice. Pick one.</li>
+      <li><b>Expecting it to know the code.</b> Recall remembers conversations, not files. The agent still needs its own code search.</li>
+    </ul>
+    <p class="guide-next">Next: <a href="/guides/multi-agent">Multi-agent systems</a> · <a href="/guides/levels-and-models">Reasoning levels and models</a></p>
+  </article>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="logo" href="/"><svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>Recall</a>
+      <p class="tagline">Memory for AI agents. Hosted in the EU.</p>
+      <p class="muted">Smidt Beheer · KvK 99124254 · VAT NL004444074B96</p>
+    </div>
+    <nav aria-label="Footer">
+      <div><b>Product</b><a href="/#how">How it works</a><a href="/#why">Why Recall</a><a href="/#agents">Integrations</a><a href="/evals">Evals</a><a href="/#pricing">Pricing</a></div>
+      <div><b>Developers</b><a href="/docs#quickstart">Quickstart</a><a href="/guides">Guides</a><a href="/docs#integrations">Integrations</a><a href="/docs#api">API</a><a href="/docs#models">Models</a><a href="https://github.com/recallmem/recall">GitHub</a></div>
+      <div><b>Account</b><a href="/app/login">Sign in</a></div>
+      <div><b>Legal</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/dpa">Data processing</a><a href="/security">Security</a><a href="/support">Support</a></div>
+    </nav>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

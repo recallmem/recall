@@ -1,0 +1,92 @@
+    <h1>Game NPCs</h1>
+    <p class="lede">Characters that remember the player across play sessions, each from their own point of view: the blacksmith remembers the hammer you lost, the innkeeper only knows what reached his ears. Recall stores the scenes, learns what each NPC saw, and hands your dialogue model the right memory in a few hundred milliseconds.</p>
+
+    <h2 id="what-changes">What memory adds</h2>
+    <p>Without memory, every conversation with an NPC starts from the script. With it, what the player did and said becomes part of the world:</p>
+    <table>
+      <thead><tr><th></th><th>Without memory</th><th>With Recall</th></tr></thead>
+      <tbody>
+        <tr><td>Day 3, at the forge</td><td colspan="2">The player loses Mira's hammer and promises her 30 gold by the harvest festival.</td></tr>
+        <tr><td>Day 9, back at the forge</td><td>"Welcome, traveller! Need a blade?"</td><td>"Back again. The festival is in two days, and I still don't see thirty gold."</td></tr>
+        <tr><td>Day 9, at the inn</td><td>Tomas has never heard of it.</td><td>Only if your story let the rumour travel: Tomas knows what you told him, nothing more.</td></tr>
+      </tbody>
+    </table>
+    <p>Recall does not write the lines. Your game's own model does, as it does now; Recall gives it what this NPC knows about this player, and learns from what was said.</p>
+
+    <h2 id="model">How to model it</h2>
+    <table>
+      <thead><tr><th>In your game</th><th>In Recall</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>A save game (or one player's world)</td><td>Workspace, e.g. <code>save-7f3a</code></td><td>Memories of different saves never mix, and a new game is one delete.</td></tr>
+        <tr><td>The player</td><td>Peer <code>player</code></td><td>Recall learns about the player from everything they say.</td></tr>
+        <tr><td>Each NPC</td><td>Peer <code>npc-mira</code>, <code>npc-tomas</code>, with <code>observeMe: false</code></td><td>You write NPC personalities yourself, so Recall need not learn about them; their lines cost less.</td></tr>
+        <tr><td>A scene or conversation</td><td>Session, e.g. <code>forge-day-3</code></td><td>The NPCs in a session are the ones who witnessed it.</td></tr>
+        <tr><td>What an NPC knows</td><td>The NPC's view of the player: <code>observeOthers: true</code> in that NPC's sessions</td><td>Mira's view is built only from scenes Mira was in.</td></tr>
+      </tbody>
+    </table>
+    <p>Multiplayer works the same way: one peer per player, and each NPC keeps a separate view of each player it met. For a shared world, use one workspace per server or shard instead of per save.</p>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the SDK (<code>npm install @recall-memory/sdk</code> or <code>pip install recall-mem</code>) and set <code>RECALL_API_KEY</code>. Create the save's peers and a session per scene; nothing is sent until the first call.</p>
+<!-- example: game-npcs#setup -->
+    <p><b>Every line of dialogue: one request.</b> <code>turn</code> stores the player's line and returns the context for the reply in the same round trip: the scene so far, a summary of older turns, and what Mira has learned about the player. <code>peerPerspective</code> is what keeps her view her own. It uses no model, so it is fast and included in the price.</p>
+<!-- example: game-npcs#turn -->
+    <p><b>Game logic: ask.</b> For decisions (does Mira refuse to sell? does the debt quest unlock?), ask the NPC's memory in plain language. That is one model call of a few seconds, so call it when a quest step or a scene starts, not every frame. Ask for JSON with <code>responseFormat</code> when your code needs a field rather than a sentence.</p>
+<!-- example: game-npcs#ask -->
+    <p><b>Rumours spread when your story says so.</b> NPCs who were not there know nothing. To pass news on, write a fact into the listener's view yourself. That keeps gossip under your control instead of leaking between characters.</p>
+<!-- example: game-npcs#gossip -->
+    <p><b>New game, or a player who leaves.</b></p>
+<!-- example: game-npcs#forget -->
+
+    <h3 id="unity">Unity, Unreal and Godot</h3>
+    <p>There is no engine SDK; the REST API is two calls. Do not put your API key in the game build, where players can extract it: call Recall from your game server, or mint each player a key scoped to their own save with <code>POST /v3/keys</code>, so a leaked key reaches no one else's memory (set a monthly cap under Billing too). The turn call from C#:</p>
+<pre><code>// POST /v3/workspaces/{save}/sessions/{scene}/turn
+var body = @"{
+  ""messages"": [{ ""peer_id"": ""player"", ""content"": ""I lost your hammer in the river."" }],
+  ""context"": { ""tokens"": 2000, ""peer_target"": ""player"", ""peer_perspective"": ""npc-mira"" }
+}";
+using var req = new HttpRequestMessage(HttpMethod.Post,
+    $"https://api.recallmem.dev/v3/workspaces/{save}/sessions/{scene}/turn");
+req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+req.Content = new StringContent(body, Encoding.UTF8, "application/json");
+var res = await http.SendAsync(req);   // { "messages": [...], "context": { ... } }</code></pre>
+    <p>Set up each scene once, before its first turn: <code>POST /v3/workspaces/{save}/sessions</code> with <code>{"id": "forge-day-3", "peers": {"player": {}, "npc-mira": {"observe_others": true}}}</code>. It is get-or-create, so sending it again is harmless. See the <a href="/docs#api">REST API</a>.</p>
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>observeOthers: true</code> per NPC, per session</td><td>The NPC builds its own view of the others in that scene. Leave it off for NPCs who should not remember.</td></tr>
+        <tr><td><code>peerPerspective</code></td><td>Read the player through that NPC's eyes. Without it you get Recall's overall view of the player, which includes things the NPC never saw.</td></tr>
+        <tr><td><code>observeMe: false</code> on NPCs</td><td>Recall does not learn about the NPC from its own lines. Use it whenever your game, not the conversation, defines who the NPC is.</td></tr>
+        <tr><td><code>tokens</code></td><td>The context budget for the dialogue model, 1,000 to 4,000 is plenty for a scene. Older turns become a summary.</td></tr>
+        <tr><td><code>reasoningLevel: "minimal"</code></td><td>For game logic questions: the cheapest and fastest level. See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+        <tr><td>Message <code>createdAt</code></td><td>Recall dates what it learns by when a message was written. If your world has its own clock, map game days onto dates and pass them, so "by the festival" is reckoned in game time.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>Measured from Europe against the hosted API (Frankfurt), October 2026: a <code>turn</code> or context call took 0.3 to 0.7 seconds, a question at <code>minimal</code> or <code>low</code> 2 to 4.5 seconds. Learning happens in the background and does not hold up the call.</p>
+    <p>Context, search and storage are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50, and for questions. A player who plays two hours a week, with 200 lines of their own and 200 NPC lines of about 30 tokens, and 20 game-logic questions:</p>
+    <table>
+      <thead><tr><th>Item</th><th>Per week</th></tr></thead>
+      <tbody>
+        <tr><td>Player lines: 200 × 50 tokens × $1.75 / 1M</td><td>$0.0175</td></tr>
+        <tr><td>NPC lines, read but not learned from: 200 × 30 tokens × $1.75 / 1M</td><td>$0.0105</td></tr>
+        <tr><td>Questions at <code>minimal</code>: 20 × $0.0008</td><td>$0.0160</td></tr>
+        <tr><td><b>Total</b></td><td><b>about $0.04, or $0.18 a month</b></td></tr>
+      </tbody>
+    </table>
+    <p>More in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>Players type freely into chat-driven games, including things that are not about the game. Say in your privacy notice that conversations with characters are stored to give them memory, and let players reset it. Deleting the save's workspace removes everything in it; <code>player.delete()</code> forgets one player in a shared world, including every NPC's view of them. Games for children need more care: see <a href="/guides/privacy">Privacy, consent and forgetting</a>.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>One workspace for all saves.</b> Memories from a deleted save then haunt the new one. Use a workspace per save or per world.</li>
+      <li><b>Asking in the frame loop.</b> Questions take seconds. Read context for dialogue; ask only for game logic, ahead of time.</li>
+      <li><b>Reading without <code>peerPerspective</code>.</b> Every NPC then knows everything the player ever said to anyone.</li>
+      <li><b>NPC ids that change between builds.</b> Memory belongs to the id: keep <code>npc-mira</code> stable even if her display name changes.</li>
+      <li><b>Expecting the NPC's lines to be written for you.</b> Recall is memory, not the dialogue model; bring your own model and persona prompt.</li>
+    </ul>

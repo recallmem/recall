@@ -1,0 +1,63 @@
+[
+  {
+    "sample_id": "conv-test",
+    "conversation": {
+      "speaker_a": "Caroline",
+      "speaker_b": "Melanie",
+      "session_1_date_time": "1:56 pm on 8 May, 2023",
+      "session_1": [
+        {
+          "speaker": "Caroline",
+          "dia_id": "D1:1",
+          "text": "Hey Mel! I went to the LGBTQ support group yesterday."
+        },
+        {
+          "speaker": "Melanie",
+          "dia_id": "D1:2",
+          "text": "That sounds great, Caroline!",
+          "blip_caption": "a photo of a painted sunset"
+        }
+      ],
+      "session_2_date_time": "9:30 am on 12 May, 2023",
+      "session_2": [
+        {
+          "speaker": "Melanie",
+          "dia_id": "D2:1",
+          "text": "I ran a charity race for mental health on Sunday."
+        }
+      ]
+    },
+    "qa": [
+      {
+        "question": "What did Melanie run a charity race for?",
+        "answer": "mental health",
+        "evidence": ["D2:1"],
+        "category": 4
+      },
+      {
+        "question": "When did Caroline go to the LGBTQ support group?",
+        "answer": "7 May 2023",
+        "evidence": ["D1:1"],
+        "category": 2
+      },
+      {
+        "question": "What did Caroline and Melanie talk about?",
+        "answer": "A support group and a race",
+        "evidence": ["D1:1", "D2:1"],
+        "category": 1
+      },
+      {
+        "question": "What fields might Caroline pursue?",
+        "answer": 42,
+        "evidence": [],
+        "category": 3
+      },
+      {
+        "question": "What did Melanie realize after the race?",
+        "evidence": ["D2:1"],
+        "category": 5,
+        "adversarial_answer": "self-care is important"
+      }
+    ]
+  }
+]

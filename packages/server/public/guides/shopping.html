@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Shopping assistants — Recall guides</title>
+<meta name="description" content="Build a shopping assistant that remembers sizes, tastes, budgets and returns with Recall: structured preferences, code, consent and cost." />
+<meta name="theme-color" content="#0c0b0a" />
+<meta property="og:title" content="Shopping assistants — Recall guides" />
+<meta property="og:description" content="Build a shopping assistant that remembers sizes, tastes, budgets and returns with Recall: structured preferences, code, consent and cost." />
+<meta property="og:type" content="article" />
+<meta property="og:image" content="/og.png" />
+<link rel="canonical" href="https://recallmem.dev/guides/shopping" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="preload" href="/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/departure-mono.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="/site.css" />
+<meta name="recall-api" content="https://api.recallmem.dev" data-site="https://recallmem.dev" />
+</head>
+<body>
+
+<header class="nav scrolled" id="nav">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="Recall home">
+      <svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>
+      Recall<span class="muted nowrap">/guides</span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="/#how">Product</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides">Guides</a>
+      <a href="https://github.com/recallmem/recall">GitHub</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-text" href="/app/login">Sign in</a>
+      <a class="btn btn-primary" href="/app/login">Get API key</a>
+    </div>
+  </div>
+</header>
+
+<div class="docs">
+  <aside class="toc" aria-label="Guides">
+    <details class="toc-box" open>
+      <summary>Guides</summary>
+      <div class="toc-links">
+        <a href="/guides">All guides</a>
+        <b>On this page</b>
+        <a class="sub" href="#what-changes">What memory adds</a>
+        <a class="sub" href="#model">How to model it</a>
+        <a class="sub" href="#build">Build it</a>
+        <a class="sub" href="#settings">Settings that matter</a>
+        <a class="sub" href="#cost-speed">Cost and speed</a>
+        <a class="sub" href="#privacy">Privacy and forgetting</a>
+        <a class="sub" href="#pitfalls">Pitfalls</a>
+        <b>Use cases</b>
+        <a href="/guides/assistants">Personal assistants and companions</a>
+        <a href="/guides/support">Customer support</a>
+        <a href="/guides/coding-agents">Coding agents</a>
+        <a href="/guides/game-npcs">Game NPCs</a>
+        <a href="/guides/sales">Sales and CRM copilots</a>
+        <a href="/guides/multi-agent">Multi-agent systems</a>
+        <a href="/guides/tutoring">Tutoring and education</a>
+        <a href="/guides/community-bots">Discord and Slack bots</a>
+        <a href="/guides/coaching">Health, fitness and coaching</a>
+        <a href="/guides/voice-agents">Voice agents</a>
+        <a href="/guides/shopping" aria-current="page">Shopping assistants</a>
+        <a href="/guides/workplace">Workplace assistants</a>
+        <b>Build well</b>
+        <a href="/guides/modeling">Designing workspaces, peers and sessions</a>
+        <a href="/guides/levels-and-models">Reasoning levels and models</a>
+        <a href="/guides/privacy">Privacy, consent and forgetting</a>
+        <a href="/guides/cost-and-speed">Cost and speed</a>
+        <b>Reference</b>
+        <a href="/docs">Docs</a>
+        <a href="/docs#api">REST API</a>
+      </div>
+    </details>
+  </aside>
+  <script>
+    // On a phone the contents start collapsed; set before first paint so the page does not jump.
+    if (matchMedia("(max-width: 980px)").matches) document.querySelector(".toc-box").open = false;
+  </script>
+
+  <article class="prose guide">
+    <p class="crumbs"><a href="/guides">Guides</a> / Use cases</p>
+<h1>Shopping assistants</h1>
+    <p class="lede">For shopping assistants and recommendation chats in a web shop or app. Recall remembers each shopper's sizes, tastes, budget and returns across visits, and hands your catalogue search their preferences as structured filters, so recommendations fit the first time.</p>
+
+    <h2 id="what-changes">What memory adds</h2>
+    <p>Without memory, every visit starts with the same questions. With it, the assistant already knows what fits:</p>
+    <table>
+      <thead><tr><th></th><th>Without memory</th><th>With Recall</th></tr></thead>
+      <tbody>
+        <tr><td>"Trail shoes for muddy runs, nothing neon, max €150"</td><td>Asks for the size, then shows the bestseller in neon green.</td><td>Shows the Trailblaze GTX in black, in 43: the 42s came back too small.</td></tr>
+        <tr><td>"Something to eat on long runs?"</td><td>Suggests whey protein bars.</td><td>Only vegan bars: the shopper's account says vegan.</td></tr>
+        <tr><td>Next month, a rain jacket</td><td>Starts again from zero.</td><td>Keeps to the budget and the dislike of neon without being told again.</td></tr>
+      </tbody>
+    </table>
+    <p>Recall does not search your catalogue or write the replies. Your search and your model do; Recall tells them what this shopper wants, and learns from what they say.</p>
+
+    <h2 id="model">How to model it</h2>
+    <table>
+      <thead><tr><th>In your shop</th><th>In Recall</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Your shop</td><td>Workspace, e.g. <code>shop-eu</code></td><td>One memory space for all shoppers. Use separate workspaces only where data must stay apart, such as separate brands or legal entities.</td></tr>
+        <tr><td>A shopper</td><td>Peer <code>cust-1042</code>, your customer id</td><td>Recall learns from what they write in chat and in return forms.</td></tr>
+        <tr><td>Your assistant</td><td>Peer <code>shop-assistant</code> with <code>observeMe: false</code></td><td>Your product pitches are not facts about anyone; its replies cost less.</td></tr>
+        <tr><td>A chat visit</td><td>Session, e.g. <code>chat-5e21c</code></td><td>A summary per visit; what was learned about the shopper carries over.</td></tr>
+        <tr><td>An order with a return</td><td>Session, e.g. <code>order-77120</code>, with dated messages</td><td>The shopper's return reason is first-hand information about fit.</td></tr>
+        <tr><td>Sizes and diets the shopper entered in their account</td><td>Conclusions you create</td><td>Facts as given, stored at once; nothing is inferred.</td></tr>
+        <tr><td>A shopper who opts out of personalisation</td><td><code>observeMe: false</code> on their peer</td><td>Recall stops learning about them.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the SDK (<code>npm install @recall-memory/sdk</code> or <code>pip install recall-mem</code>) and set <code>RECALL_API_KEY</code>. Create the shopper and the assistant, and tell Recall once what to learn in your shop and what never to record. Custom instructions guide the model that extracts facts; they are not a hard filter, so also keep sensitive data out of what you send.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>import { Recall } from "@recall-memory/sdk";
+
+const recall = new Recall({ workspaceId: "shop-eu" });
+
+// The shopper is a peer keyed by your customer id; the assistant is a peer Recall does not
+// learn about.
+const shopper = recall.peer("cust-1042", { metadata: { country: "NL" } });
+const assistant = recall.peer("shop-assistant", { configuration: { observeMe: false } });
+// Once, for the whole shop: what Recall should learn here, and what it must not.
+await recall.setConfiguration({
+  reasoning: {
+    customInstructions:
+      "Record sizes and fit per brand, budgets, colours, styles, brands, diets the shopper " +
+      "states, and returns with their reasons. Never record or guess health, pregnancy, " +
+      "religion, ethnicity, sexuality or money trouble from purchases or messages.",
+  },
+});</code></pre>
+<pre data-panel="py" hidden><code>from pydantic import BaseModel
+
+from recall_memory import PeerConfig, Recall
+
+recall = Recall(workspace_id="shop-eu")
+
+# The shopper is a peer keyed by your customer id; the assistant is a peer Recall does not
+# learn about.
+shopper = recall.peer("cust-1042", metadata={"country": "NL"})
+assistant = recall.peer("shop-assistant", configuration=PeerConfig(observe_me=False))
+# Once, for the whole shop: what Recall should learn here, and what it must not.
+recall.set_configuration(
+    {
+        "reasoning": {
+            "custom_instructions": (
+                "Record sizes and fit per brand, budgets, colours, styles, brands, diets the "
+                "shopper states, and returns with their reasons. Never record or guess health, "
+                "pregnancy, religion, ethnicity, sexuality or money trouble from purchases or "
+                "messages."
+            )
+        }
+    }
+)</code></pre>
+</div>
+    <p><b>Account data: facts you write.</b> Sizes and diets the shopper entered in their account are things they told you, not guesses. Write them as conclusions: stored as given and usable at once. Preferences that come up in chat ("nothing neon") are learned from the messages in the background, dated, and updated when they change.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// What the shopper entered in their account is fact, not inference: store it as facts.
+await shopper.conclusions.create(["Shoe size EU 42.", "Eats vegan."]);</code></pre>
+<pre data-panel="py" hidden><code># What the shopper entered in their account is fact, not inference: store it as facts.
+shopper.conclusions.create([{"content": "Shoe size EU 42."}, {"content": "Eats vegan."}])</code></pre>
+</div>
+    <p><b>Returns: the shopper's words, dated.</b> A return reason is some of the best information you have about fit. Add the text from the returns form as the shopper's message, in a session for the order, with <code>createdAt</code> set to when it was filed. Recall learns from it like any other message, so the next recommendation knows the 42s were too small in this brand. Put order numbers and SKUs in metadata for your own use; Recall learns from the text.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// A return from an earlier order, in the shopper's words from the returns form, dated when
+// it was filed. Recall learns from it like any message, and can close facts it contradicts.
+const order = recall.session("order-77120");
+await order.addMessages([
+  shopper.message("Returning the Trailblaze GTX in 42: too small. I need a 43 in this brand.", {
+    createdAt: "2026-10-08T17:20:00Z",
+    metadata: { order: "77120", sku: "TB-GTX-42", reason: "too_small" },
+  }),
+]);</code></pre>
+<pre data-panel="py" hidden><code># A return from an earlier order, in the shopper's words from the returns form, dated when
+# it was filed. Recall learns from it like any message, and can close facts it contradicts.
+order = recall.session("order-77120")
+order.add_messages(
+    [
+        shopper.message(
+            "Returning the Trailblaze GTX in 42: too small. I need a 43 in this brand.",
+            created_at="2026-10-08T17:20:00Z",
+            metadata={"order": "77120", "sku": "TB-GTX-42", "reason": "too_small"},
+        )
+    ]
+)</code></pre>
+</div>
+    <p><b>In the chat: one request per message.</b> <code>turn</code> stores the shopper's message and returns the context for the reply: the visit so far and what Recall knows about the shopper, including the account facts and the return. Building the context uses no model and takes 0.3 to 0.7 seconds. Your model writes the reply from it and from your catalogue.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// In the shop's chat: one request stores the message and returns what Recall knows about
+// the shopper for the reply. Preferences stated here are learned in the background.
+const visit = recall.session("chat-5e21c");
+const { context } = await visit.turn(
+  [shopper.message("Trail shoes for muddy autumn runs, please. Nothing neon, max €150.")],
+  { peerTarget: shopper, tokens: 2000 },
+);
+const prompt = context.toOpenAI(assistant);
+// Your model writes the reply from `prompt` and your catalogue; store it too.
+const reply = "The Trailblaze GTX in black grips well in mud, €139. In 43 this time?";
+await visit.addMessages([assistant.message(reply)]);</code></pre>
+<pre data-panel="py" hidden><code># In the shop's chat: one request stores the message and returns what Recall knows about
+# the shopper for the reply. Preferences stated here are learned in the background.
+visit = recall.session("chat-5e21c")
+result = visit.turn(
+    [shopper.message("Trail shoes for muddy autumn runs, please. Nothing neon, max €150.")],
+    peer_target=shopper,
+    tokens=2000,
+)
+prompt = result.context.to_openai(assistant=assistant)
+# Your model writes the reply from `prompt` and your catalogue; store it too.
+reply = "The Trailblaze GTX in black grips well in mud, €139. In 43 this time?"
+visit.add_messages([assistant.message(reply)])</code></pre>
+</div>
+    <p><b>Preferences as filters.</b> Your search needs fields, not prose. Ask for JSON with <code>responseFormat</code> once per visit and keep the result in the shopper's web session: a question takes 2 to 4.5 seconds and each one is billed. Then filter or rank results in your own search. Make fields nullable so "not known" never filters out everything, and let filters the shopper sets in your UI win over memory.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// Turn memory into filters for your catalogue: ask for JSON once per visit and keep it in your
+// session. (waitForIdle is for this demo; real apps rarely block on learning.)
+await recall.waitForIdle();
+type Filters = {
+  shoe_size_eu: number | null;
+  max_price_eur: number | null;
+  avoid_colours: string[];
+  diet: string[];
+};
+const prefs = await shopper.chat("Which filters should a product search use for this shopper?", {
+  reasoningLevel: "low",
+  responseFormat: {
+    jsonSchema: {
+      type: "object",
+      properties: {
+        shoe_size_eu: { type: ["number", "null"] },
+        max_price_eur: { type: ["number", "null"] },
+        avoid_colours: { type: "array", items: { type: "string" } },
+        diet: { type: "array", items: { type: "string" } },
+      },
+      required: ["shoe_size_eu", "max_price_eur", "avoid_colours", "diet"],
+    },
+    parse: (data: unknown) =&gt; data as Filters, // or a zod schema's parse
+  },
+});
+const catalogue = [
+  { sku: "TB-GTX-43", size: 43, price: 139, colour: "black" },
+  { sku: "VX-9-43", size: 43, price: 165, colour: "neon green" },
+];
+const picks = catalogue.filter(
+  (p) =&gt;
+    (!prefs?.max_price_eur || p.price &lt;= prefs.max_price_eur) &amp;&amp;
+    !prefs?.avoid_colours.some((c) =&gt; p.colour.includes(c)),
+);</code></pre>
+<pre data-panel="py" hidden><code># Turn memory into filters for your catalogue: ask for JSON once per visit and keep it in your
+# session. (wait_for_idle is for this demo; real apps rarely block on learning.)
+recall.wait_for_idle()
+
+class Filters(BaseModel):
+    shoe_size_eu: float | None
+    max_price_eur: float | None
+    avoid_colours: list[str]
+    diet: list[str]
+
+prefs = shopper.chat(
+    "Which filters should a product search use for this shopper?",
+    reasoning_level="low",
+    response_format=Filters,
+)
+catalogue = [
+    {"sku": "TB-GTX-43", "size": 43, "price": 139, "colour": "black"},
+    {"sku": "VX-9-43", "size": 43, "price": 165, "colour": "neon green"},
+]
+picks = [
+    p
+    for p in catalogue
+    if prefs is None
+    or (
+        (not prefs.max_price_eur or p["price"] &lt;= prefs.max_price_eur)
+        and not any(c in p["colour"] for c in prefs.avoid_colours)
+    )
+]</code></pre>
+</div>
+    <p><b>Opting out.</b> When a shopper turns personalisation off, set <code>observeMe: false</code> on their peer: Recall stops learning from their messages. Delete what was learned and clear their card. Their chats stay stored for the conversation itself. To erase a shopper completely, for example when they close their account, call <code>shopper.delete()</code>.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// The shopper turns personalisation off: stop learning from their messages and drop every
+// fact memory holds about them. Their chats stay stored.
+// (To erase the shopper completely instead: await shopper.delete())
+await shopper.setConfiguration({ observeMe: false });
+const learned = await (await shopper.conclusions.list()).toArray();
+for (const fact of learned) await shopper.conclusions.delete(fact.id);
+await shopper.setCard([]);</code></pre>
+<pre data-panel="py" hidden><code># The shopper turns personalisation off: stop learning from their messages and drop every
+# fact memory holds about them. Their chats stay stored.
+# (To erase the shopper completely instead: shopper.delete())
+shopper.set_configuration(PeerConfig(observe_me=False))
+learned = list(shopper.conclusions.list())
+for fact in learned:
+    shopper.conclusions.delete(fact.id)
+shopper.set_card([])</code></pre>
+</div>
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>reasoning.customInstructions</code> (workspace configuration)</td><td>What to learn in your shop, and what never to record. A guide for the model, not a guarantee.</td></tr>
+        <tr><td><code>observeMe: false</code></td><td>On your assistant, always. On shoppers who opt out.</td></tr>
+        <tr><td><code>responseFormat</code></td><td>Filters as JSON: an object at the root, nullable fields for "not known".</td></tr>
+        <tr><td><code>reasoningLevel</code></td><td><code>low</code> (the default) for filters; <code>minimal</code> is cheaper and faster for a few simple fields. See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+        <tr><td>Message <code>createdAt</code></td><td>Returns and imported chats: when each was written, so the newest information wins.</td></tr>
+        <tr><td><code>peerTarget</code> and <code>tokens</code> on <code>turn</code></td><td><code>peerTarget: shopper</code> adds what Recall knows about them; 1,500 to 3,000 tokens is plenty for a shopping chat.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>Measured from Europe against the hosted API (Frankfurt), October 2026: a <code>turn</code> or context call took 0.3 to 0.7 seconds, a search about 0.9 seconds, a question at <code>minimal</code> or <code>low</code> 2 to 4.5 seconds. Learning happens in the background, usually within about 20 seconds of a message, and never holds up a call.</p>
+    <p>Context, search, storage, summaries and dreams are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50, and for questions. A shopper who chats twice a month (6 messages of about 30 tokens and 6 replies of about 120 tokens each time), files one return, and gets filters computed once per visit at <code>low</code>:</p>
+    <table>
+      <thead><tr><th>Item</th><th>Per month</th></tr></thead>
+      <tbody>
+        <tr><td>Shopper messages and the return: 13 × 50 tokens × $1.75 / 1M</td><td>$0.0011</td></tr>
+        <tr><td>Assistant replies, read but not learned from: 12 × 120 tokens × $1.75 / 1M</td><td>$0.0025</td></tr>
+        <tr><td>Filters at <code>low</code>: 2 × $0.005</td><td>$0.0100</td></tr>
+        <tr><td><b>Total</b></td><td><b>about $0.014 per shopper</b></td></tr>
+      </tbody>
+    </table>
+    <p>Questions are most of the bill: a cached answer is still billed as one query, so compute filters once per visit, not on every page view. More in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>What people buy and say while shopping can reveal more than their size. Be clear about what the assistant remembers, and keep it to shopping.</p>
+    <ul>
+      <li><b>Tell shoppers.</b> Say that the assistant remembers sizes, preferences and returns from chats and orders, give them a switch to turn it off, and a page that shows what is remembered.</li>
+      <li><b>Do not infer sensitive traits.</b> Purchases hint at health, pregnancy, religion or sexuality. Do not record such guesses or act on them: the custom instructions above help, and so does not sending order history you do not need. Health and similar data have stricter rules under the GDPR; see <a href="/guides/privacy">Privacy, consent and forgetting</a> (this is not legal advice).</li>
+      <li><b>Keep out what memory does not need:</b> payment details and full addresses. Your shop already holds them.</li>
+      <li><b>Marketing is a separate purpose.</b> Using what the assistant remembers in newsletters or ads goes beyond helping the shopper in the chat; check what your privacy notice and consent cover.</li>
+      <li><b>Forgetting:</b> <code>shopper.delete()</code> (or <code>DELETE /v3/workspaces/{workspace}/peers/{peer}</code>) erases the shopper's messages, every fact and card about them, the summaries that quoted them and cached answers. See <a href="/docs#forget-a-person">Forget a person</a>.</li>
+      <li><b>Where data lives:</b> the database and API are in Frankfurt (EU). Text is processed by AI model providers in the US through OpenRouter, restricted to providers that do not collect the data, and customer data is not used to train models. See the <a href="/privacy">privacy policy</a> and the <a href="/dpa">DPA</a>.</li>
+    </ul>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>Inferring sensitive traits.</b> "Bought prenatal vitamins" must never become "is pregnant". Tell Recall not to record such things, and do not send purchases it does not need.</li>
+      <li><b>Gifts read as taste.</b> A child's raincoat bought once says nothing about the shopper's size. Do not write every purchase down as a fact; let memory come from what the shopper says.</li>
+      <li><b>Asking on every page view.</b> A question takes seconds and each one is billed. Compute filters once per visit and keep them in your session.</li>
+      <li><b>Memory over explicit choices.</b> If the shopper filters for size 44, show 44. Memory fills gaps; it does not overrule what they just asked for.</li>
+      <li><b>One size for every brand.</b> Fit differs per brand. Keep the return reasons, and ask for the size in the brand you are about to show rather than one number for everything.</li>
+      <li><b>Learning from your own pitches.</b> Without <code>observeMe: false</code> on the assistant, "grips well in mud" is learned, and billed, as a statement about the assistant.</li>
+    </ul>
+    <p class="guide-next">Next: <a href="/guides/assistants">Personal assistants and companions</a> · <a href="/guides/privacy">Privacy, consent and forgetting</a></p>
+  </article>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="logo" href="/"><svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>Recall</a>
+      <p class="tagline">Memory for AI agents. Hosted in the EU.</p>
+      <p class="muted">Smidt Beheer · KvK 99124254 · VAT NL004444074B96</p>
+    </div>
+    <nav aria-label="Footer">
+      <div><b>Product</b><a href="/#how">How it works</a><a href="/#why">Why Recall</a><a href="/#agents">Integrations</a><a href="/evals">Evals</a><a href="/#pricing">Pricing</a></div>
+      <div><b>Developers</b><a href="/docs#quickstart">Quickstart</a><a href="/guides">Guides</a><a href="/docs#integrations">Integrations</a><a href="/docs#api">API</a><a href="/docs#models">Models</a><a href="https://github.com/recallmem/recall">GitHub</a></div>
+      <div><b>Account</b><a href="/app/login">Sign in</a></div>
+      <div><b>Legal</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/dpa">Data processing</a><a href="/security">Security</a><a href="/support">Support</a></div>
+    </nav>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

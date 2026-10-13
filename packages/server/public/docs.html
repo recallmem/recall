@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Docs — Recall</title>
+<meta name="description" content="Quickstart, concepts, SDKs, the command line, integrations for Claude Code, Codex, OpenClaw and Hermes, MCP connectors for Claude and ChatGPT, models and the REST API for Recall, memory for AI agents." />
+<meta name="theme-color" content="#0c0b0a" />
+<meta property="og:title" content="Recall docs" />
+<meta property="og:description" content="Quickstart, SDKs, the command line, integrations for Claude Code, Codex, OpenClaw and Hermes, MCP, models and the REST API." />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="/og.png" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="preload" href="/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/departure-mono.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="/site.css" />
+<meta name="recall-api" content="https://api.recallmem.dev" data-site="https://recallmem.dev" />
+</head>
+<body>
+
+<header class="nav scrolled" id="nav">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="Recall home">
+      <svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>
+      Recall<span class="muted nowrap">/docs</span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="/#how">Product</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides">Guides</a>
+      <a href="https://github.com/recallmem/recall">GitHub</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-text" href="/app/login">Sign in</a>
+      <a class="btn btn-primary" href="/app/login">Get API key</a>
+    </div>
+  </div>
+</header>
+
+<div class="docs">
+  <aside class="toc" aria-label="On this page">
+    <details class="toc-box" open>
+      <summary>On this page</summary>
+      <div class="toc-links">
+        <b>Start</b>
+        <a href="#quickstart">Quickstart</a>
+        <a href="#concepts">Concepts</a>
+        <a href="#migrate">Switching to Recall</a>
+        <a href="/guides">Guides by use case</a>
+        <b>Use it</b>
+        <a href="#chat">Ask questions</a>
+        <a href="#context">Prompt context</a>
+        <a href="#sdks">SDKs</a>
+        <a href="#cli">Command line</a>
+        <a href="#integrations">Integrations</a>
+        <a class="sub" href="#claude-code">Claude Code</a>
+        <a class="sub" href="#codex">Codex</a>
+        <a class="sub" href="#openclaw">OpenClaw</a>
+        <a class="sub" href="#hermes">Hermes Agent</a>
+        <a class="sub" href="#agent-skill">Agent Skill</a>
+        <a href="#mcp">MCP</a>
+        <a class="sub" href="#mcp-connector">Add as a connector</a>
+        <a href="#webhooks">Webhooks</a>
+        <a href="#dashboard">Dashboard</a>
+        <a href="#self-host">Self-hosting</a>
+        <b>Reference</b>
+        <a href="#api">REST API</a>
+        <a class="sub" href="#idempotency">Retries and Idempotency-Key</a>
+        <a class="sub" href="#forget-a-person">Forget a person</a>
+        <a class="sub" href="#export">Export your data</a>
+        <a href="#errors">Errors and limits</a>
+        <a href="#models">Models and providers</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#benchmarks">Benchmarks</a>
+      </div>
+    </details>
+  </aside>
+  <script>
+    // On a phone the contents start collapsed; set before first paint so the page does not jump.
+    if (matchMedia("(max-width: 980px)").matches) document.querySelector(".toc-box").open = false;
+  </script>
+
+  <article class="prose">
+    <h1>Recall docs</h1>
+    <p>Recall is a memory layer for AI agents. You send it the messages your agents exchange with people; it works out what is true about each person, keeps track of what changed, and answers questions about them. It has a REST API, TypeScript and Python SDKs, a command line and an MCP server.</p>
+    <p>Building an app? Start with the <a href="#quickstart">quickstart</a>. Giving a coding agent a memory? Go to <a href="#integrations">integrations</a>. Running it on your own servers? See <a href="#self-host">self-hosting</a>.</p>
+
+    <h2 id="quickstart">Quickstart</h2>
+    <p><b>1. Get an API key.</b> <a href="/app/login">Sign in</a> with your email, open <b>API keys</b> and create a key. It is shown once; keep it in your secret store.</p>
+    <p><b>2. Point your environment at Recall.</b></p>
+<pre><code>export RECALL_URL=<span class="origin">https://api.recallmem.dev</span>
+export RECALL_API_KEY=pk_live_...</code></pre>
+    <p><b>3. Record a conversation.</b> Workspaces, sessions and peers are created on first use.</p>
+<pre><code>curl $RECALL_URL/v3/workspaces/my-app/sessions/chat-1/messages \
+  -H "Authorization: Bearer $RECALL_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"messages":[
+        {"peer_id":"alice","content":"I moved to Utrecht last month and I am vegetarian now."},
+        {"peer_id":"assistant","content":"Noted! Utrecht has great veggie food."}
+      ]}'</code></pre>
+    <p><b>4. Ask about the person.</b> Learning runs in the background. New messages wait briefly so that a conversation is read in batches, so a single message is usually learned from within about 20 seconds. <code>GET /v3/workspaces/my-app/queue/status</code> shows progress; in a test or a script, <code>GET /v3/workspaces/my-app/queue/status?wait_ms=30000</code> starts the waiting work at once and answers when it is done (it waits at most 60 seconds), and the SDKs do the same with <code>waitForIdle()</code> (<code>wait_for_idle()</code> in Python). Prompt context always includes the newest messages, learned from or not.</p>
+<pre><code>curl $RECALL_URL/v3/workspaces/my-app/peers/alice/chat \
+  -H "Authorization: Bearer $RECALL_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"What should I cook for Alice?","reasoning_level":"low"}'
+
+{"content":"Something vegetarian — she switched to a vegetarian diet...",
+ "citations":["..."],"confidence":0.9,"abstained":false}</code></pre>
+    <p><b>5. Look at what it learned.</b> Open the <a href="#dashboard">dashboard</a>: <b>Memory</b> lists the facts Recall concluded about Alice, with when each held and the messages it came from.</p>
+
+    <h2 id="concepts">Concepts</h2>
+    <table>
+      <thead><tr><th>Thing</th><th>What it is</th></tr></thead>
+      <tbody>
+        <tr><td><b>Workspace</b></td><td>An isolated memory space, usually one per app or environment.</td></tr>
+        <tr><td><b>Peer</b></td><td>Anyone who speaks: a user, an agent, a bot. Use one stable id per real person or agent.</td></tr>
+        <tr><td><b>Session</b></td><td>One coherent conversation between peers. Messages belong to a session.</td></tr>
+        <tr><td><b>Conclusion</b></td><td>A fact Recall derived about a peer, as seen by an observer, with when it became true, when it stopped, and the messages it came from.</td></tr>
+        <tr><td><b>Peer card</b></td><td>A short, always-up-to-date profile of a peer: the facts worth having in every prompt.</td></tr>
+        <tr><td><b>Scope</b></td><td>A group of sessions you want to recall together, e.g. one project or one customer account.</td></tr>
+        <tr><td><b>Night shift</b></td><td>A background pass after a conversation goes quiet, once enough new facts have built up: it merges duplicates, closes facts that changed, draws new conclusions with their sources and rewrites the peer card. At most three model calls, included in the price. The API calls it a dream; <a href="#dreams"><code>POST …/schedule_dream</code></a> runs one at once.</td></tr>
+      </tbody>
+    </table>
+    <div class="callout"><svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="10" cy="10" r="7"/><path d="M10 6.5v4M10 13.5h.01"/></svg><span>Facts are bi-temporal. When Alice says she moved, "lives in Amsterdam" is closed and "lives in Utrecht" starts — at ingest, with relative dates like "last week" anchored to when the message was written.</span></div>
+
+    <h2 id="migrate">Switching to Recall</h2>
+    <p>Recall implements the v3 memory REST API (workspaces, peers, sessions, messages, chat and context), so a client written for it keeps working: point its base URL at Recall and use a Recall key. Nothing else changes.</p>
+<pre><code># the two settings to change in your existing client
+base URL  https://api.recallmem.dev
+API key   your Recall key (pk_live_...)</code></pre>
+    <p>What you get on top: answers with <code>citations</code>, <code>confidence</code> and <code>abstained</code>; facts that are superseded at ingest instead of later; an <a href="#idempotency"><code>Idempotency-Key</code></a> header that makes retried writes and questions safe; <code>POST …/sessions/{id}/turn</code> to store messages and get context in one request; usage by task at <code>GET /v3/usage</code>; <a href="#read-only-gets">read-only <code>GET</code>s</a> for one workspace, peer or session; and <code>DELETE …/peers/{peer}</code> to <a href="#forget-a-person">forget a person</a>.</p>
+
+    <h2 id="chat">Ask questions</h2>
+    <p><code>POST /v3/workspaces/{workspace}/peers/{peer}/chat</code> answers a question from what the peer knows. Ask about another peer with <code>target</code>, restrict to a conversation with <code>session_id</code>, and stream with <code>"stream": true</code>.</p>
+    <table>
+      <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code>query</code></td><td>The question, in plain language.</td></tr>
+        <tr><td><code>reasoning_level</code></td><td><code>minimal</code>, <code>low</code> (default), <code>medium</code>, <code>high</code> or <code>max</code>. Up to medium: one retrieval and one model call. High and max use a tool loop for hard, multi-step questions. On the hosted service Recall Loom answers at <code>minimal</code> and Recall Lumen at <code>low</code> to <code>max</code> (<a href="/guides/levels-and-models#levels">levels compared</a>).</td></tr>
+        <tr><td><code>include_evidence</code></td><td>Also return the facts and messages the answer used.</td></tr>
+        <tr><td><code>response_format</code></td><td>A JSON Schema: the answer comes back as matching JSON.</td></tr>
+      </tbody>
+    </table>
+    <p>Answers are cached until the memory they depend on changes; a cached answer is still billed as one query. To make a retry safe, send an <code>Idempotency-Key</code> header: the same key with the same request returns the first answer again, without asking or charging a second time. See <a href="#idempotency">retries</a>.</p>
+
+    <h2 id="context">Prompt context</h2>
+    <p><code>GET /v3/workspaces/{workspace}/sessions/{session}/context?tokens=4000&amp;peer_target=alice</code> returns recent messages, a running summary and what is known about the peer, trimmed to your token budget. With <code>search_query</code> it adds the facts most relevant to the current turn. The SDKs turn it into OpenAI or Anthropic messages for you.</p>
+
+    <h2 id="sdks">SDKs</h2>
+    <p>Recall ships typed SDKs for TypeScript and Python with lazy handles (no request until you use them), idempotent writes, retries with backoff, and prompt builders.</p>
+<pre><code>import { Recall } from "@recall-memory/sdk";
+
+const recall = new Recall();             // RECALL_URL, RECALL_API_KEY
+const alice = recall.peer("alice");
+const session = recall.session("chat-1");
+
+const { context } = await session.turn([alice.message("Hi again!")], {
+  peerTarget: alice, tokens: 4000,
+});
+const messages = context.toOpenAI(recall.peer("assistant"));</code></pre>
+    <p><b>Install.</b> TypeScript: <code>npm install @recall-memory/sdk</code>. Python: <code>pip install recall-mem</code> (you import it as <code>recall_memory</code>). Both are open source under the MIT licence, in <code>packages/sdk</code> and <code>sdks/python</code> of the <a href="https://github.com/recallmem/recall">repository</a>. Any other client for the v3 API works unchanged too; see <a href="#migrate">Switching to Recall</a>.</p>
+    <p>Both SDKs also have <code>peer.delete()</code> to <a href="#forget-a-person">forget a person</a>.</p>
+
+    <h2 id="cli">Command line</h2>
+    <p><code>recall</code> is the command-line client for a Recall server, and it can run one too. It is part of the server's source code, not a package on npm, so you get it from the <a href="https://github.com/recallmem/recall">repository</a>:</p>
+<pre><code># from a checkout (Node 22 and pnpm 10)
+git clone https://github.com/recallmem/recall && cd recall
+pnpm install && pnpm --filter @recall-memory/server build
+alias recall="node $PWD/packages/server/dist/cli.js"
+
+# or inside the Docker image, where it is on the PATH (see self-hosting)
+docker compose exec recall recall doctor</code></pre>
+    <p>You do not need it to use the hosted service: the dashboard, the SDKs and the integrations do the same things. Save the connection once, then look at and edit memory:</p>
+<pre><code>recall init --url $RECALL_URL --api-key $RECALL_API_KEY -w my-app -p alice
+recall doctor --url $RECALL_URL        # check the key, workspace, queue and peer
+recall peer card                       # what Recall knows about you
+recall peer chat "Where do I live?"
+recall session messages &lt;id&gt; --last 10
+recall conclusion create "Prefers tabs over spaces"
+recall session upload notes.pdf &lt;id&gt; -p alice   # a file becomes messages
+recall queue status                    # still learning from recent messages?
+recall peer delete alice --yes         # forget a person</code></pre>
+    <table>
+      <thead><tr><th>Group</th><th>Commands</th></tr></thead>
+      <tbody>
+        <tr><td class="nw"><code>workspace</code></td><td>list, create, inspect, delete, chat, search, queue-status</td></tr>
+        <tr><td class="nw"><code>peer</code></td><td>list, create, inspect, card, chat, search, representation, get-metadata, set-metadata, dream, delete</td></tr>
+        <tr><td class="nw"><code>session</code></td><td>list, create, inspect, messages, context, summaries, search, representation, peers, add-peers, remove-peers, get-metadata, set-metadata, upload, delete</td></tr>
+        <tr><td class="nw"><code>scope</code></td><td>list, create, inspect, sessions, status, add-sessions, remove-session</td></tr>
+        <tr><td class="nw"><code>message</code></td><td>list, create, get</td></tr>
+        <tr><td class="nw"><code>conclusion</code></td><td>list, search, get, derived, create, delete</td></tr>
+        <tr><td class="nw"><code>queue</code></td><td>status</td></tr>
+      </tbody>
+    </table>
+    <p>Settings come from flags, then <code>RECALL_URL</code>, <code>RECALL_API_KEY</code>, <code>RECALL_WORKSPACE_ID</code> and <code>RECALL_PEER_ID</code>, then <code>~/.recall/config.json</code>. Other services' variables and config files are never read, so their keys cannot reach Recall. <code>recall config</code> shows each value and where it came from. Every command takes <code>--json</code>, and commands that delete need <code>--yes</code>.</p>
+    <p><b><code>recall doctor</code></b> prints the configuration a server would start with (secrets are never shown): the database, which provider keys are set and the model each task routes to. With <code>--url</code> it also checks a running server the way a client would: <code>/health</code>, your API key, the workspace and its background queue, and the peer. It only reads, and exits 1 when a check fails. <code>recall start</code>, <code>token</code>, <code>accounts</code> and <code>keys</code> are for running a server.</p>
+
+    <h2 id="integrations">Integrations</h2>
+    <p>Recall plugs into coding agents and assistants so they remember you across sessions and projects. An integration <b>recalls</b> (adds your peer card and the facts Recall has learned about you to the agent's context), <b>records</b> (stores your messages and the agent's final replies, so Recall keeps learning) and, where the agent supports it, adds <b>tools</b>. The agent is a peer that Recall does not observe, so facts are learned about you, not from the agent's own statements.</p>
+    <table>
+      <thead><tr><th>Agent</th><th>Connects through</th><th>Memory is added</th></tr></thead>
+      <tbody>
+        <tr><td><a href="#claude-code">Claude Code</a></td><td>Plugin: hooks and MCP</td><td>at session start</td></tr>
+        <tr><td><a href="#codex">Codex</a></td><td>Plugin or installer: hooks and MCP</td><td>at session start</td></tr>
+        <tr><td><a href="#openclaw">OpenClaw</a></td><td>Plugin</td><td>before each turn</td></tr>
+        <tr><td><a href="#hermes">Hermes Agent</a></td><td>Memory provider</td><td>before each turn</td></tr>
+        <tr><td><a href="#agent-skill">Agent Skill</a></td><td>A <code>SKILL.md</code> the agent reads</td><td>when the agent decides to look</td></tr>
+        <tr><td>Any MCP client</td><td><a href="#mcp">MCP server</a></td><td>when the model calls a tool</td></tr>
+      </tbody>
+    </table>
+    <p><b>Connect to your server.</b> Every integration needs the URL of your Recall server and an API key, and optionally a workspace and a peer id for you. Set <code>RECALL_URL</code>, <code>RECALL_API_KEY</code>, <code>RECALL_WORKSPACE_ID</code> and <code>RECALL_PEER_ID</code>, or save them once in <code>~/.recall/config.json</code> (readable only by you, <code>chmod 600</code>; the <a href="#cli">command line</a>'s <code>recall init</code> writes the same file):</p>
+<pre><code>{"url": "<span class="origin">https://api.recallmem.dev</span>", "apiKey": "pk_live_...", "workspace": "my-workspace", "peer": "your-name"}</code></pre>
+    <p>With neither, an integration uses the hosted API at <code>https://api.recallmem.dev</code>, the workspace <code>default</code> and your OS user name as your peer id. For a server of your own, set its URL, for example <code>http://localhost:8000</code>; one with authentication off needs no key. Keep the peer id stable: it is how Recall knows you.</p>
+    <div class="callout"><svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="10" cy="10" r="7"/><path d="M10 6.5v4M10 13.5h.01"/></svg><span>Recording sends your prompts and the agent's final replies, each cut to 24,000 characters, to the Recall server you configured. Tool calls and their output are not sent. The plugins and the Hermes provider can stop recording (<code>RECALL_RECORD=false</code>).</span></div>
+    <p>If Recall is unreachable, the plugins and the Hermes provider fail quietly: they skip it for a minute, keep what could not be sent, and deliver it in order once Recall is back. The agent behaves as it would without them.</p>
+
+    <h3 id="claude-code">Claude Code</h3>
+    <p>The plugin recalls when a session starts, resumes or is compacted, records each prompt and Claude's final reply in a Recall session named <code>cc-&lt;claude session id&gt;</code>, and adds Recall's MCP tools. It needs Claude Code with plugin support and Node 18+.</p>
+<pre><code>/plugin marketplace add RedSix6/recall-plugin
+/plugin install recall-memory@recall</code></pre>
+    <p>From a shell, <code>claude plugin marketplace add RedSix6/recall-plugin</code> and <code>claude plugin install recall-memory@recall</code> do the same. When you enable the plugin, Claude Code asks for your Recall API key and keeps it in your system's credential store; change it, the server URL, the workspace and your name under <code>/plugin</code> → recall-memory → Configure. The URL, workspace and peer can also come from <code>RECALL_URL</code>, <code>RECALL_WORKSPACE_ID</code>, <code>RECALL_PEER_ID</code> or <code>~/.recall/config.json</code>; the key only ever comes from the plugin's setting, never from files or the shell.</p>
+    <p>Restart Claude Code (or run <code>/reload-plugins</code>) and run <code>/recall-memory:status</code>: it prints the settings in use and whether the server answers and accepts your key. <code>/mcp</code> shows whether the <code>recall</code> tools connected.</p>
+    <table>
+      <thead><tr><th>Setting (default)</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><code>RECALL_LOOKUP</code> (<code>session</code>)</td><td><code>session</code> adds memory at session start; <code>prompt</code> also looks up facts related to each prompt; <code>off</code> turns lookup off.</td></tr>
+        <tr><td><code>RECALL_RECORD</code> (<code>true</code>)</td><td><code>false</code> stops recording; lookup still works.</td></tr>
+        <tr><td><code>RECALL_CONTEXT_TOKENS</code> (<code>1500</code>)</td><td>Size of the memory added to the session.</td></tr>
+        <tr><td><code>RECALL_MCP_PROFILE</code> (<code>default</code>)</td><td><code>full</code> exposes all 40 MCP tools instead of the curated eight.</td></tr>
+        <tr><td><code>RECALL_SESSION_STRATEGY</code> (<code>per-session</code>)</td><td><code>per-directory</code> records every session of a project into one Recall session.</td></tr>
+        <tr><td><code>RECALL_ENABLED</code> (<code>true</code>)</td><td><code>false</code> turns the hooks off. Set it under <code>env</code> in a project's <code>.claude/settings.json</code> to switch Recall off for that project.</td></tr>
+      </tbody>
+    </table>
+    <p><b>Check it.</b> Send Claude a prompt, then look at what was recorded, on the dashboard's <b>Memory</b> page or with the <a href="#cli">command line</a>; in a new session ask "what do you know about me?".</p>
+<pre><code>recall session list
+recall session messages cc-&lt;session id&gt; --last 2</code></pre>
+    <p>Hooks never print errors into the session; they log to <code>hooks.log</code> in the plugin's data directory (<code>RECALL_DEBUG=1</code> also prints them to stderr). Full reference: <a href="https://github.com/RedSix6/recall-plugin#readme"><code>integrations/claude-code</code></a>.</p>
+
+    <h3 id="codex">Codex</h3>
+    <p>The Codex integration uses Codex hooks (<code>SessionStart</code>, <code>UserPromptSubmit</code>, <code>Stop</code>) and a stdio MCP server: it adds your peer card and facts at session start (also after <code>/clear</code> or a compaction), records each prompt and Codex's final reply in a session named <code>codex-&lt;codex session id&gt;</code>, and adds the same eight MCP tools. It needs Codex CLI with hooks (tested with 0.162.0) and Node 18+. Pick one of the two routes; installing both handles every turn twice.</p>
+    <p><b>As a Codex plugin:</b></p>
+<pre><code>codex plugin marketplace add RedSix6/recall-plugin
+codex plugin add recall-memory@recall</code></pre>
+    <p>Start Codex and run <code>/hooks</code>: Codex skips new hooks until you trust them, so trust the three Recall hooks.</p>
+    <p><b>With the installer</b> (no plugin system needed):</p>
+<pre><code>git clone https://github.com/RedSix6/recall-plugin
+node recall-plugin/integrations/codex/install.mjs \
+  --url <span class="origin">https://api.recallmem.dev</span> --api-key pk_live_... --workspace my-workspace --peer your-name</code></pre>
+    <p>It copies the scripts to <code>~/.codex/recall/scripts</code>, adds the three hooks to <code>~/.codex/hooks.json</code> and the <code>recall</code> MCP server to <code>~/.codex/config.toml</code> (in a marked block; your other settings are untouched), and saves the connection to <code>~/.recall/config.json</code>. Run it again to update, or with <code>--uninstall</code> to remove everything it added; then start Codex and trust the hooks with <code>/hooks</code>. Other options: <code>--codex-home DIR</code>, <code>--no-hooks</code>, <code>--no-mcp</code>, <code>--skill</code> (also installs the <a href="#agent-skill">Agent Skill</a>) and <code>--agents-md</code> (adds a short "Recall memory" section to <code>~/.codex/AGENTS.md</code>).</p>
+    <p>The settings are the same as for <a href="#claude-code">Claude Code</a>, except that <code>RECALL_ASSISTANT_PEER</code> defaults to <code>codex</code>. Codex's hook output limit is about 2,500 tokens, so keep <code>RECALL_CONTEXT_TOKENS</code> at or below that.</p>
+    <p><b>Check it.</b></p>
+<pre><code>codex mcp list                                # shows the recall server
+codex exec "I prefer pnpm over npm"           # prints "session id: &lt;id&gt;"
+recall session messages codex-&lt;id&gt; --last 2   # your prompt and Codex's reply</code></pre>
+    <p>If nothing is recorded, the hooks are probably not trusted yet: run <code>/hooks</code> in Codex. Full reference: <a href="https://github.com/RedSix6/recall-plugin/blob/main/integrations/codex/README.md"><code>integrations/codex</code></a>.</p>
+
+    <h3 id="openclaw">OpenClaw</h3>
+    <p>A plugin that adds what Recall knows about you, focused on the message at hand, before each turn (in a <code>&lt;recall-memory&gt;</code> block marked as background information, not instructions), records your message and the assistant's reply after each turn in a session named <code>oc-&lt;session key&gt;</code>, and gives the assistant four tools: <code>recall_search</code>, <code>recall_ask</code>, <code>recall_remember</code> and <code>recall_forget</code>. It runs next to OpenClaw's own memory and does not take the <code>memory</code> slot. It needs OpenClaw 2026.9.9 or later and is installed from a checkout, because it is not on ClawHub or npm yet.</p>
+<pre><code>git clone https://github.com/RedSix6/recall-plugin
+openclaw plugins install ./recall-plugin/integrations/openclaw --force --accept-capabilities</code></pre>
+    <p>Both hooks read the conversation, which OpenClaw only allows a third-party plugin to do once you grant it. Then say where Recall is:</p>
+<pre><code>openclaw config set plugins.entries.recall-memory.hooks '{"allowConversationAccess":true}' --strict-json --merge
+openclaw config set plugins.entries.recall-memory.config \
+  '{"url":"<span class="origin">https://api.recallmem.dev</span>","workspace":"my-workspace","peer":"your-name"}' --strict-json --merge</code></pre>
+    <p>Put the API key in <code>RECALL_API_KEY</code> in the Gateway's environment, or in <code>~/.recall/config.json</code>, rather than in <code>openclaw.json</code>. Restart the Gateway, or run <code>openclaw plugins reload recall-memory</code>. The plugin's <code>lookup</code> setting chooses when memory is added: <code>turn</code> (default) on every user turn, <code>first-turn</code> once per session, <code>off</code> for tools only. Heartbeat and cron turns are not recorded unless you set <code>recordAutomated</code>.</p>
+    <p><b>Check it.</b></p>
+<pre><code>openclaw plugins inspect recall-memory --runtime --json      # lists the four recall_* tools
+openclaw agent --local -m "I moved to Utrecht last month" --session-key agent:main:recall-check
+recall session messages oc-agent-main-recall-check --last 2   # your message and the reply</code></pre>
+    <p>Full reference: <a href="https://github.com/RedSix6/recall-plugin/blob/main/integrations/openclaw/README.md"><code>integrations/openclaw</code></a>.</p>
+
+    <h3 id="hermes">Hermes Agent</h3>
+    <p>A memory provider for <a href="https://hermes-agent.nousresearch.com">Hermes Agent</a>. Hermes' own <code>MEMORY.md</code> and <code>USER.md</code> memory keeps working; Recall is the one external provider next to it. Before each turn it returns your peer card and the facts most related to the message, after each turn it stores the exchange in a session named <code>hermes-&lt;session id&gt;</code>, it copies the facts Hermes' built-in memory saves about you, and it adds the tools <code>recall_search</code>, <code>recall_ask</code>, <code>recall_remember</code> and <code>recall_forget</code>. It uses only the Python standard library.</p>
+<pre><code>git clone https://github.com/RedSix6/recall-plugin
+mkdir -p ~/.hermes/plugins
+cp -r recall-plugin/integrations/hermes/recall ~/.hermes/plugins/recall
+hermes memory setup        # pick "recall" and enter the URL, API key, workspace and your peer id</code></pre>
+    <p><code>hermes memory setup</code> writes the API key to <code>~/.hermes/.env</code> (<code>RECALL_API_KEY</code>) and the rest to <code>~/.hermes/recall.json</code>. Instead of the wizard you can set <code>memory.provider: recall</code> in <code>~/.hermes/config.yaml</code>.</p>
+    <p><b>Check it.</b></p>
+<pre><code>hermes memory status                               # "recall ... ← active"
+hermes chat -q "I moved to Utrecht last month" -Q  # prints session_id: &lt;id&gt;
+recall session messages hermes-&lt;id&gt; --last 2       # your message and the reply</code></pre>
+    <p>Then, in a new chat, ask "where do I live?". Full reference: <a href="https://github.com/RedSix6/recall-plugin/blob/main/integrations/hermes/README.md"><code>integrations/hermes</code></a>.</p>
+
+    <h3 id="agent-skill">Agent Skill</h3>
+    <p>A portable skill in the <a href="https://agentskills.io">Agent Skills</a> format: a folder with a <code>SKILL.md</code> that teaches any agent that supports skills when and how to use Recall. It looks up what is known about the user, saves facts they state, forgets on request, and records conversations when nothing else does. It works through Recall's MCP tools when they are connected, and otherwise through <code>scripts/recall.mjs</code>, a dependency-free Node 18+ helper. Nothing happens automatically: the agent reads the skill when a task calls for memory and decides what to call. Use it alone or next to an integration; the skill tells the agent not to record messages itself when an integration already does.</p>
+    <p>Copy the <code>recall-memory</code> folder to where your agent looks for skills:</p>
+<pre><code>git clone https://github.com/RedSix6/recall-plugin
+mkdir -p ~/.agents/skills &amp;&amp; cp -r recall-plugin/integrations/agent-skill/recall-memory ~/.agents/skills/</code></pre>
+    <table>
+      <thead><tr><th>Agent</th><th>Personal skills folder</th></tr></thead>
+      <tbody>
+        <tr><td>Claude Code</td><td><code>~/.claude/skills/</code></td></tr>
+        <tr><td>Codex</td><td><code>~/.agents/skills/</code>, or run the Codex installer with <code>--skill</code></td></tr>
+        <tr><td>OpenClaw</td><td><code>~/.agents/skills/</code>, or <code>&lt;workspace&gt;/skills/</code> for one agent</td></tr>
+        <tr><td>Hermes Agent</td><td><code>~/.hermes/skills/</code>, or add <code>~/.agents/skills</code> to its external skill directories</td></tr>
+      </tbody>
+    </table>
+    <p>The skill needs no configuration when the agent has Recall's MCP tools. For the helper script, set the usual variables or write <code>~/.recall/config.json</code> (see <a href="#integrations">connect to your server</a>). <b>Check it:</b></p>
+<pre><code>node ~/.agents/skills/recall-memory/scripts/recall.mjs status        # health ok, access accepted
+node ~/.agents/skills/recall-memory/scripts/recall.mjs remember "Prefers tea over coffee"
+node ~/.agents/skills/recall-memory/scripts/recall.mjs context --query drinks</code></pre>
+    <p>Then ask your agent "what do you remember about my drinks?". Full reference: <a href="https://github.com/RedSix6/recall-plugin/blob/main/integrations/agent-skill/README.md"><code>integrations/agent-skill</code></a>.</p>
+
+    <h2 id="mcp">MCP</h2>
+    <p>Recall serves the Model Context Protocol at <code><span class="origin">https://api.recallmem.dev</span>/mcp</code> (streamable HTTP, stateless). By default it exposes eight tools for recording and recalling: <code>chat</code>, <code>search</code>, <code>get_session_context</code>, <code>get_peer_card</code>, <code>list_conclusions</code>, <code>create_conclusions</code>, <code>delete_conclusion</code> and <code>add_messages_to_session</code>. Use <code>/mcp?profile=full</code> (or send <code>x-recall-mcp-profile: full</code>) for all 40 tools (workspaces, peers, sessions, conclusions, scopes). There are two ways to connect: sign in from the app (hosted Recall), or send an API key.</p>
+
+    <h3 id="mcp-connector">Add Recall as a connector</h3>
+    <p>Apps that support remote MCP servers with OAuth sign in to Recall themselves: you paste the URL, sign in with your email, choose what the app may use and approve. No API key is copied anywhere.</p>
+    <ul>
+      <li><b>Claude</b> (claude.ai, Desktop and mobile share connectors): <b>Settings</b>, <b>Connectors</b>, <b>Add custom connector</b>. Name it Recall, enter <code><span class="origin">https://api.recallmem.dev</span>/mcp</code>, leave the OAuth client fields empty and choose <b>Add</b>, then <b>Connect</b>. In a chat, switch Recall on in the tools menu.</li>
+      <li><b>ChatGPT</b>: turn on developer mode (<b>Settings</b>, <b>Apps &amp; Connectors</b>, <b>Advanced settings</b>), then create a connector with the same URL and OAuth authentication, and sign in when ChatGPT asks.</li>
+      <li><b>Claude Code</b>: <code>claude mcp add --transport http recall <span class="origin">https://api.recallmem.dev</span>/mcp</code>, then run <code>/mcp</code> and choose <b>Authenticate</b>.</li>
+      <li><b>Cursor, VS Code and other clients</b>: add a remote (streamable HTTP) MCP server with that URL and no headers; the client finds the sign-in at <code>/.well-known/oauth-protected-resource</code>.</li>
+    </ul>
+    <p>A browser window opens on Recall. Sign in with the emailed link (it brings you back), then on <b>Connect an app</b> check the app's name and where it sends you back to, pick the account, the <b>default workspace</b> (used when a tool names none), whether the app may also use other workspaces or all of them, and optionally a <b>default peer</b>: who "I" am in this memory, usually your name. <b>Remember automatically</b> is ticked: the app then saves lasting facts you share (preferences, plans, people) without being asked. Untick it to have the app save only what you ask it to; you can change it later under <b>API keys → Connected apps</b>. Choose <b>Allow</b>.</p>
+    <p>The app then works with the reach you chose, under the same rate limits, budget and credit as an API key. Its tokens renew themselves; a connection unused for 30 days has to sign in again. See and revoke connections in the dashboard under <b>API keys</b>, <b>Connected apps</b>: a revoked app is signed out within seconds. Connected apps reach only the MCP endpoint, never the REST API, your keys, billing or settings. Only owners and admins of an account can connect apps to it.</p>
+    <div class="callout"><svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="10" cy="10" r="7"/><path d="M10 6.5v4M10 13.5h.01"/></svg><span>Approve only connections you started yourself. If the consent screen says the app sends you back to <code>localhost</code>, any program on your computer could be asking: continue only if you just connected from an app on this device.</span></div>
+
+    <h3 id="mcp-key">With an API key</h3>
+    <p>Clients that can send headers can use a key instead (self-hosted servers, which have no sign-in, always do). Defaults for the workspace, your peer id and the session then come from the headers <code>X-Recall-Workspace-ID</code>, <code>X-Recall-User-Name</code> and <code>X-Recall-Session-ID</code>.</p>
+<pre><code>{
+  "mcpServers": {
+    "recall": {
+      "type": "http",
+      "url": "<span class="origin">https://api.recallmem.dev</span>/mcp",
+      "headers": { "Authorization": "Bearer pk_live_..." }
+    }
+  }
+}</code></pre>
+
+    <h2 id="webhooks">Webhooks</h2>
+    <p>Register an endpoint with <code>POST /v3/workspaces/{workspace}/webhooks</code> and a body of <code>{"url": "https://…"}</code>. Recall sends a <code>queue.empty</code> event when background work for a session finishes; <code>GET …/webhooks/test</code> sends a <code>test.event</code>. A workspace can have 10 endpoints, and URLs that point at private addresses are refused.</p>
+<pre><code>POST https://your-endpoint.example/recall
+X-Recall-Signature: &lt;hex HMAC-SHA256 of the body&gt;
+X-Recall-Event-Id: &lt;event id&gt;
+
+{"data":{"observed":"alice","observer":"alice","queue_type":"representation",
+ "session_id":"chat-1","workspace_id":"my-app"},
+ "timestamp":"2026-10-09T10:00:00Z","type":"queue.empty"}</code></pre>
+    <ul>
+      <li><b>Verify the signature.</b> <code>X-Recall-Signature</code> is the hex HMAC-SHA256 of the raw request body, keyed with your webhook secret: your account's own secret (rotate it under <b>Settings</b>). The body is compact JSON with sorted keys, so verify the bytes you received.</li>
+      <li><b>Drop duplicates.</b> <code>X-Recall-Event-Id</code> is the same on every retry of an event, so keep the ids you have handled and ignore repeats.</li>
+      <li><b>Answer quickly with a 2xx.</b> Recall retries with backoff when your endpoint cannot be reached, times out, or answers 5xx, 408 or 429. Other 3xx and 4xx answers are final.</li>
+    </ul>
+
+    <h2 id="dashboard">Dashboard</h2>
+    <p>The dashboard at <a href="/app">/app</a> is where you see and manage what Recall holds for your account. Sign in with your email; there is no password.</p>
+    <table>
+      <thead><tr><th>Page</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><b>Overview</b></td><td>A getting-started checklist (create a key, send messages, ask a question) that ticks itself off from your account's data, spend this month, and charts of messages and questions per day.</td></tr>
+        <tr><td><b>Memory</b></td><td>The memory explorer. Browse workspaces, then peers and sessions. A peer shows its card and its facts: <b>Current</b> or <b>All</b>, so superseded facts stay visible as history, each with when it held, the messages it came from and what replaced it. A session shows the transcript, its summary and a free context preview (no model calls).</td></tr>
+        <tr><td><b>Playground</b></td><td>Pick a workspace and a peer, ask a question at any reasoning level, and see the evidence behind the answer. It runs the same engine, billing and spend caps as <code>POST …/peers/{peer}/chat</code>.</td></tr>
+        <tr><td><b>API keys</b></td><td>Create keys, optionally scoped to a workspace, peer or session, and revoke them. <b>Connected apps</b> lists the apps you approved through a <a href="#mcp-connector">connector sign-in</a>, with their workspaces and last use, and revokes them.</td></tr>
+        <tr><td><b>Usage</b></td><td>The last 30 days: what you were charged, message tokens learned and questions answered at each level, and a table by day.</td></tr>
+        <tr><td><b>Billing</b> and <b>Settings</b></td><td>Credit, top-ups and invoices; account name, monthly budget, webhook secret, export and deletion of your data.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="self-host">Self-hosting</h2>
+    <p>You can run Recall yourself. The server is source-available under the <a href="https://github.com/recallmem/recall/blob/main/LICENSE.md">Functional Source License</a> (FSL-1.1-ALv2): you may run it in production for your own products and company, with your own model provider keys, and change it; what it does not allow is offering it to others as a memory service that substitutes for Recall. Each version becomes Apache 2.0 two years after its release. The SDKs and integrations are MIT. The hosted service runs the same server and is the easiest path, with nothing to operate. The code is at <a href="https://github.com/recallmem/recall">github.com/recallmem/recall</a>.</p>
+    <p><b>With Docker Compose</b>: Postgres with pgvector, and Recall on port 8000.</p>
+<pre><code>git clone https://github.com/recallmem/recall && cd recall
+cp .env.example .env        # add a model provider key; every setting is explained there
+docker compose up --build
+curl localhost:8000/health</code></pre>
+    <p><b>One container</b>, with an embedded Postgres kept in a volume: good for a laptop, a demo or a small agent.</p>
+<pre><code>docker build -t recall-server .
+docker run -p 8000:8000 -v recall-data:/data -e OPENAI_API_KEY=sk-... recall-server</code></pre>
+    <p><b>From source</b> (Node 22 and pnpm 10): <code>pnpm install</code>, then <code>pnpm dev</code> runs the server with reload on port 8000; for production, <code>pnpm --filter @recall-memory/server build</code> and <code>node packages/server/dist/main.js</code>. Without <code>RECALL_DATABASE_URL</code> the server keeps an embedded Postgres in <code>./.recall</code>; any Postgres 16 or later with pgvector works through that setting.</p>
+    <p>Point clients at your server with <code>RECALL_URL=http://localhost:8000</code> (in the SDKs, <code>baseURL</code> or <code>base_url</code>; in the integrations, their server URL setting). With no provider key the server runs on an offline mock model: the API, storage and search are real and the answers are canned, which is enough to try it. Set a key and choose models as described in <a href="#models">models and providers</a>.</p>
+    <p>Authentication is off by default, so a local server needs no key. Before anyone else can reach it, set <code>RECALL_AUTH_ENABLED=true</code> and a long random <code>RECALL_AUTH_SECRET</code>, then give each client a token from the <a href="#cli">command line</a>, scoped to a workspace (and optionally a peer or session), or <code>--admin</code> for everything:</p>
+<pre><code>docker compose exec recall recall token --workspace my-app</code></pre>
+    <p>Compared with the hosted service, a server of your own has no sign-in, dashboard or billing (those belong to its multi-tenant hosted mode), so MCP clients connect with a token in a header instead of signing in; usage shows your real providers, models and cost; and how good the memory is depends on the models you choose. The benchmark figures were measured on the hosted service, and <code>evals/</code> in the repository measures your own setup.</p>
+
+    <h2 id="api">REST API</h2>
+    <p>Base URL <code><span class="origin">https://api.recallmem.dev</span></code>. Every request carries <code>Authorization: Bearer &lt;key&gt;</code>; bodies are JSON. Messages, turns and chat accept an <a href="#idempotency"><code>Idempotency-Key</code></a> header. In the table, <code>…</code> stands for <code>/v3/workspaces/{workspace}</code>.</p>
+    <table>
+      <thead><tr><th>Endpoint</th><th>Does</th></tr></thead>
+      <tbody>
+        <tr><td><code>GET /v3/account</code><span class="pill">Recall</span></td><td>Your account: <code>id</code>, <code>name</code>, <code>monthly_budget_usd</code>, <code>created_at</code> and <code>webhook_secret</code>, which signs <a href="#webhooks">webhooks</a>. Needs a key for the whole account.</td></tr>
+        <tr><td><code>POST /v3/workspaces</code> · <code>/list</code></td><td>Get or create a workspace (<code>{"id": "my-app"}</code>) · list them</td></tr>
+        <tr><td><code>GET /v3/workspaces/{w}</code><span class="pill">Recall</span></td><td>Read one workspace; never creates</td></tr>
+        <tr><td><code>DELETE /v3/workspaces/{w}</code></td><td>Delete a workspace: <code>409</code> while it still has sessions, so delete those first; then <code>202</code>, and it is removed in the background</td></tr>
+        <tr><td><code>POST …/peers</code> · <code>/list</code></td><td>Get or create a peer (<code>{"id": "alice"}</code>, optional <code>metadata</code>, <code>configuration</code>) · list them</td></tr>
+        <tr><td><code>PUT …/peers/{p}</code></td><td>Set a peer's metadata or configuration (creates the peer if needed)</td></tr>
+        <tr><td><code>GET …/peers/{p}</code><span class="pill">Recall</span></td><td>Read one peer; never creates</td></tr>
+        <tr><td><code>DELETE …/peers/{p}</code><span class="pill">Recall</span></td><td><a href="#forget-a-person">Forget a person</a></td></tr>
+        <tr><td><code>GET|PUT …/peers/{p}/card</code></td><td>Read or set the peer card</td></tr>
+        <tr><td><code>POST …/sessions</code> · <code>/list</code></td><td>Get or create a session (<code>{"id": "chat-1", "peers": {"alice": {}, "assistant": {}}}</code>, optional <code>metadata</code>, <code>configuration</code>) · list them</td></tr>
+        <tr><td><code>PUT …/sessions/{s}</code> · <code>…/sessions/{s}/peers</code></td><td>Set a session's metadata or configuration (creates it if needed) · manage who is in it</td></tr>
+        <tr><td><code>GET …/sessions/{s}</code><span class="pill">Recall</span></td><td>Read one session; never creates</td></tr>
+        <tr><td><code>DELETE …/sessions/{s}</code></td><td>Delete a session and its messages</td></tr>
+        <tr><td><code>POST …/sessions/{s}/messages</code></td><td>Add 1 to 100 messages (<code>{"messages": [{"peer_id": "alice", "content": "…"}]}</code>)</td></tr>
+        <tr><td><code>POST …/sessions/{s}/messages/upload</code></td><td>A file (up to 5 MB) becomes messages</td></tr>
+        <tr><td><code>POST …/sessions/{s}/messages/list</code></td><td>Page through messages, with filters</td></tr>
+        <tr><td><code>POST …/sessions/{s}/turn</code><span class="pill">Recall</span></td><td>Add messages and get the next context in one call</td></tr>
+        <tr><td><code>POST …/peers/{p}/chat</code> · <code>POST …/chat</code></td><td>Ask about a peer · ask across the workspace</td></tr>
+        <tr><td><code>GET …/sessions/{s}/context</code> · <code>GET …/peers/{p}/context</code></td><td>Prompt-ready context</td></tr>
+        <tr><td><code>POST …/search</code> · <code>…/peers/{p}/search</code> · <code>…/sessions/{s}/search</code></td><td>Hybrid <a href="#search-filters">search</a> over messages</td></tr>
+        <tr><td><code>POST …/conclusions/list</code> · <code>/query</code></td><td><a href="#facts">List facts</a> · query them by meaning</td></tr>
+        <tr><td><code>POST …/conclusions</code> · <code>DELETE …/conclusions/{id}</code></td><td><a href="#add-facts">Add facts yourself</a> · delete one</td></tr>
+        <tr><td><code>GET …/queue/status</code></td><td>Background work still pending; <code>?wait_ms=</code> waits until it is done<span class="pill">Recall</span></td></tr>
+        <tr><td><code>POST …/queue/retry</code><span class="pill">Recall</span></td><td>Queue background work that failed (say, during a provider outage) again</td></tr>
+        <tr><td><code>POST …/schedule_dream</code></td><td><a href="#dreams">Run the night shift now</a></td></tr>
+        <tr><td><code>POST …/webhooks</code> · <code>GET …/webhooks</code> · <code>DELETE …/webhooks/{id}</code></td><td>Manage <a href="#webhooks">webhook</a> endpoints</td></tr>
+        <tr><td><code>GET /v3/usage</code> · <code>GET …/usage</code><span class="pill">Recall</span></td><td>Usage and charges for the account · a workspace</td></tr>
+      </tbody>
+    </table>
+    <p>The <span class="pill flush-left">Recall</span> tag marks endpoints beyond the standard v3 API.</p>
+
+    <h3 id="read-only-gets">Read without creating</h3>
+    <p><code>POST /v3/workspaces</code>, <code>POST …/peers</code>, <code>POST …/sessions</code> and the <code>PUT</code>s on a peer or a session get or create, so a typo in an id quietly makes something new. To only look, use <code>GET</code>:</p>
+<pre><code>GET /v3/workspaces/{workspace}
+GET /v3/workspaces/{workspace}/peers/{peer}
+GET /v3/workspaces/{workspace}/sessions/{session}</code></pre>
+    <p>Each returns the same object as the get-or-create call and never creates anything. A workspace, peer or session that does not exist answers <code>404</code>; the hidden peer id of a scope answers <code>422</code>.</p>
+
+    <h3 id="search-filters">Search filters</h3>
+    <p>The three search routes take <code>query</code>, <code>limit</code> (1 to 100, default 10) and <code>filters</code>. Besides field and metadata filters, <code>filters</code> accepts <code>peer_perspective</code>: a peer id. Results are then limited to what that peer saw, meaning messages in sessions it belongs to (or belonged to) that were written while it was a member, plus everything it wrote itself.</p>
+<pre><code>curl $RECALL_URL/v3/workspaces/my-app/search \
+  -H "Authorization: Bearer $RECALL_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"tent","filters":{"peer_perspective":"bob"},"limit":10}'</code></pre>
+    <p><code>peer_perspective</code> must be a non-empty peer id, otherwise the request is a <code>422</code>. A peer that does not exist saw nothing, so the result is empty.</p>
+
+    <h3 id="idempotency">Retries and <code>Idempotency-Key</code></h3>
+    <p>A request can time out after the server did the work. To retry without doing it twice, send an <code>Idempotency-Key</code> header (up to 255 characters, for example a UUID per logical request) and send the same key with the retry:</p>
+    <ul>
+      <li><b>Messages</b> (<code>POST …/messages</code>, <code>POST …/messages/upload</code>, and the messages of <code>POST …/turn</code>): the same key with the same messages returns what the first request stored, and nothing is stored twice. The same messages means the same authors, content, metadata, configuration and <code>created_at</code>, in the same order. The same key with different messages answers <code>409</code>.</li>
+      <li><b>Chat</b> (<code>POST …/chat</code>): the same key with the same request returns the first answer again, with the same status and body and the header <code>Idempotent-Replayed: true</code>. Nothing is asked or charged a second time. A streamed answer comes back as the same stream. If a stream breaks off, retry with the same key: the answer was finished and comes back whole. The same key with a different question or settings answers <code>409</code>, and so does the same key while the first request is still running (retry shortly). A request that produced no answer (an error, or an answer from empty memory) is not kept, so the same key can try again.</li>
+    </ul>
+    <p>Chat answers are kept for 24 hours; after that the key counts as new. A chat key belongs to the API key that sent it, so two API keys never share one.</p>
+    <p>The SDKs add a key to every write, so their own retries are always safe; pass your own (<code>idempotencyKey</code>, or <code>idempotency_key</code> in Python) when another process might send the same write again.</p>
+
+    <h3 id="add-facts">Add facts yourself</h3>
+    <p>Recall learns facts from messages, but you can also store facts you already know, such as a plan from your billing system or a preference set in your app. <code>observer_id</code> is whose view the fact belongs to and <code>observed_id</code> who it is about; for what Recall knows about a person, both are that person. <code>session_id</code> is optional. Send 1 to 100 facts of up to 65,535 characters each; the answer is <code>201</code> with the stored facts and their ids.</p>
+<pre><code>curl $RECALL_URL/v3/workspaces/my-app/conclusions \
+  -H "Authorization: Bearer $RECALL_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"conclusions":[{"content":"Is on the Team plan since March 2026",
+                     "observer_id":"alice","observed_id":"alice"}]}'</code></pre>
+    <p>A fact that the same view already holds as a current fact, with the same text apart from case and spacing, is not stored twice. The answer has the stored fact, with <code>times_derived</code> one higher. Recall does the same with facts it learns from messages.</p>
+
+    <h3 id="facts">Facts and their history</h3>
+    <p><code>POST …/conclusions/list</code> pages through facts, newest first. <code>POST …/conclusions/query</code> finds the facts closest in meaning to <code>query</code> in one view, so its <code>filters</code> must name <code>observer_id</code> and <code>observed_id</code>. Both also return facts that no longer hold, so you can see how something changed. A fact looks like this:</p>
+<pre><code>{"id":"Hq3…","content":"alice lives in Rotterdam","observer_id":"alice","observed_id":"alice",
+ "session_id":"chat-1","level":"explicit","source_ids":[],"times_derived":1,
+ "created_at":"2026-09-01T09:00:04.512Z","valid_from":"2026-09-01T09:00:00.000Z",
+ "valid_to":"2026-09-20T09:00:00.000Z","superseded_by":"Vt8…","message_ids":["Kp2…"]}</code></pre>
+    <table>
+      <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code>level</code></td><td><code>explicit</code>: said outright, or added by you. <code>deductive</code>, <code>inductive</code> or <code>contradiction</code>: drawn from other facts.</td></tr>
+        <tr><td><code>source_ids</code></td><td>The facts a drawn fact was drawn from. Empty for explicit facts.</td></tr>
+        <tr><td><code>times_derived</code></td><td>How often the fact was learned or stated.</td></tr>
+        <tr><td><code>valid_from</code><span class="pill">Recall</span></td><td>When the fact started to hold: the time of the message it was learned from, or when you added it.</td></tr>
+        <tr><td><code>valid_to</code><span class="pill">Recall</span></td><td>When it stopped holding. <code>null</code> while it is current.</td></tr>
+        <tr><td><code>superseded_by</code><span class="pill">Recall</span></td><td>The id of the fact that replaced it, or <code>null</code>.</td></tr>
+        <tr><td><code>message_ids</code><span class="pill">Recall</span></td><td>The ids of the messages it was learned from. Empty for facts you added.</td></tr>
+      </tbody>
+    </table>
+    <p>To get only what holds now, filter on <code>"current": true</code>; <code>false</code> gives only the history. Without it you get both, as before.</p>
+<pre><code>curl $RECALL_URL/v3/workspaces/my-app/conclusions/list \
+  -H "Authorization: Bearer $RECALL_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"filters":{"observer_id":"alice","observed_id":"alice","current":true}}'</code></pre>
+    <p>Both routes filter on <code>id</code>, <code>workspace_id</code>, <code>observer_id</code>, <code>observed_id</code>, <code>session_id</code>, <code>level</code>, <code>source_ids</code>, <code>times_derived</code> and <code>metadata</code>, and on Recall's <code>current</code>, <code>valid_from</code>, <code>valid_to</code>, <code>superseded_by</code> and <code>message_ids</code>. For example, <code>{"message_ids": "Kp2…"}</code> finds the facts learned from one message, and <code>{"valid_to": {"gte": "2026-09-01"}}</code> the facts that stopped holding since 1 September. Any other field answers <code>422</code>.</p>
+
+    <h3 id="dreams">Run the night shift now</h3>
+    <p>The night shift runs by itself; <code>POST …/schedule_dream</code> starts one now, for example after importing a history. The answer is <code>204</code> and the work is queued.</p>
+<pre><code>curl $RECALL_URL/v3/workspaces/my-app/schedule_dream \
+  -H "Authorization: Bearer $RECALL_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"observer":"alice","observed":"alice","dream_type":"omni"}'</code></pre>
+    <table>
+      <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code>observer</code></td><td>Required. Whose memory to go over.</td></tr>
+        <tr><td><code>observed</code></td><td>Who it is about; defaults to <code>observer</code>.</td></tr>
+        <tr><td><code>dream_type</code></td><td>Required. <code>omni</code>: the full pass (merge, close, conclude, rewrite the card). <code>card_refresh</code>: only rewrite the peer card; with <code>"rebuild": true</code> from scratch.</td></tr>
+        <tr><td><code>session_id</code></td><td>Optional: use that session's configuration for the pass.</td></tr>
+      </tbody>
+    </table>
+    <p>A requested pass is free, so the same kind runs at most once every 10 minutes for the same observer and peer, and <code>omni</code> only when facts changed since the last pass; otherwise the request is skipped.</p>
+
+    <h3 id="forget-a-person">Forget a person</h3>
+    <p><code>DELETE /v3/workspaces/{workspace}/peers/{peer}</code> erases a person, for example when they ask you to under GDPR. It removes:</p>
+    <ul>
+      <li>every message the peer wrote, and its memberships in sessions;</li>
+      <li>everything memory holds about the peer and from its point of view: facts and peer cards in every collection it observes or is observed in, including what scopes remember of it;</li>
+      <li>the summaries of sessions it wrote in. They quote it, so they are dropped and rebuilt from the remaining messages;</li>
+      <li>cached answers, which may quote it.</li>
+    </ul>
+    <p>It keeps facts about <em>other</em> peers that merely mention the person, and messages other people wrote. Delete those separately if you need them gone: <code>DELETE …/conclusions/{id}</code>, or the session with <code>DELETE …/sessions/{session}</code>.</p>
+<pre><code>curl -X DELETE $RECALL_URL/v3/workspaces/my-app/peers/alice \
+  -H "Authorization: Bearer $RECALL_API_KEY"
+
+{"peer_id":"alice","deleted":true,"messages_deleted":12,
+ "conclusions_deleted":9,"sessions_affected":2}</code></pre>
+    <p>The response says what was removed (the numbers here are examples). The call is permanent. It needs a key for the whole workspace or account: a key scoped to one peer or one session answers <code>401</code>. A peer that does not exist answers <code>404</code>, so if the response to a retry is a <code>404</code>, the peer is already gone. The SDKs and the CLI do the same:</p>
+<pre><code>await recall.peer("alice").delete();   // TypeScript
+recall.peer("alice").delete()          # Python
+recall peer delete alice --yes         # CLI; --yes confirms</code></pre>
+    <p>The TypeScript SDK returns <code>{ peerId, messagesDeleted, conclusionsDeleted, sessionsAffected }</code>; the Python SDK returns the response as a dict.</p>
+
+    <h3 id="export">Export your data</h3>
+    <p><b>Settings</b> &gt; <b>Export all data</b> in the dashboard downloads everything your account stores as one JSON file, free of charge, as often as you like. Its <code>format</code> is <code>recall-export-v1</code>; the other top-level keys are:</p>
+    <ul>
+      <li><code>exported_at</code>, <code>account</code>, <code>members</code>, <code>api_keys</code> (names, scopes and dates; never a key or its hash) and <code>connected_apps</code>;</li>
+      <li><code>workspaces</code>, <code>peers</code>, <code>sessions</code> and <code>session_peers</code>, with their metadata and configuration;</li>
+      <li><code>messages</code>: every message with its workspace, session, peer, position in the session, content, metadata and token count;</li>
+      <li><code>collections</code> (what one peer knows about another, with its peer card), <code>conclusions</code> (the facts, with confidence, sources as message ids, the period they were true and what replaced them; facts the night shift replaced have <code>deleted_at</code> set) and <code>summaries</code>;</li>
+      <li><code>webhook_endpoints</code> (URLs, never the secret), <code>llm_usage</code> (model calls with token counts) and <code>credit_ledger</code> (every charge and top-up, in micro-USD).</li>
+    </ul>
+    <p>Each array holds plain objects with snake_case fields (for example <code>workspace_id</code>, <code>created_at</code>); times are ISO 8601 in UTC. Embeddings are left out: they are recomputed from the text. To move to another server, replay <code>peers</code>, <code>sessions</code> and <code>messages</code> through the REST API; memory is rebuilt from the messages.</p>
+
+    <h3 id="cors">Browser access</h3>
+    <p>By default any origin may call the API, because it authenticates with bearer keys, not cookies. If you run Recall yourself, restrict it with <code>RECALL_CORS_ORIGINS</code>, a comma-separated list of origins; unset, or <code>*</code>, allows any:</p>
+<pre><code>RECALL_CORS_ORIGINS=https://app.example.com,https://admin.example.com</code></pre>
+    <p>Code that runs in a browser should hold a key scoped to one workspace, peer or session (set the scope when you create it under <b>API keys</b>), never an account-wide key.</p>
+    <p>A key scoped to a peer can create sessions with that peer as a member, and creating a session that already exists adds members instead of replacing them. So when you hand peer keys to your end users, give sessions ids they cannot guess (a UUID, not <code>support-bob</code>), or create each session with your workspace key before the user's key ever sees its id; otherwise one user could create the session another user's conversation will later go into. Keys minted with <code>POST /v3/keys</code> are revoked together with the key that minted them, and a <code>pk_test_</code> key reaches the same data and spends the same credit as a live one: the prefix is only a label.</p>
+
+    <h2 id="errors">Errors and limits</h2>
+    <p>Errors are JSON with a <code>detail</code> field. Usually it is a sentence: <code>{"detail": "Workspace my-app not found"}</code>. When the request itself is invalid (a missing field, a wrong type, a value out of range), the answer is <code>422</code> and <code>detail</code> is a list with one entry per problem, in the format FastAPI uses, so v3 clients parse it unchanged:</p>
+<pre><code>{"detail":[{"type":"too_big","loc":["body","messages",0,"content"],
+  "msg":"Too big: expected string to have &lt;=25000 characters","input":"…"}]}</code></pre>
+    <p><code>input</code> is the value you sent. A long value is cut to about 200 characters, ending in <code>…</code>, so a huge request never comes back in full.</p>
+    <p>A few checks made after that (such as an <code>Idempotency-Key</code> that is too long) also answer <code>422</code>, with a sentence. Read <code>detail</code> as a string or a list.</p>
+    <table>
+      <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code>401</code></td><td>Missing or invalid key, or a key whose scope does not cover this resource. Recall never answers <code>403</code>.</td></tr>
+        <tr><td><code>402</code></td><td>Out of credit or over your monthly cap. Messages are still stored; learning and chat resume after a top-up.</td></tr>
+        <tr><td><code>404</code></td><td>Not found.</td></tr>
+        <tr><td><code>409</code></td><td>Conflict: an <a href="#idempotency"><code>Idempotency-Key</code></a> sent again with a different request or while its first request is still running, or deleting a workspace that still has sessions.</td></tr>
+        <tr><td><code>413</code></td><td>The request body is too large (see the limits below).</td></tr>
+        <tr><td><code>422</code></td><td>Invalid input; <code>detail</code> says which field.</td></tr>
+        <tr><td><code>429</code></td><td>Rate limited; retry after the number of seconds in the <code>Retry-After</code> header.</td></tr>
+      </tbody>
+    </table>
+    <p><b>Rate limits.</b> Each API key or connected app may make 600 requests a minute, and ask 60 questions a minute (<code>chat</code> over REST or MCP; the dashboard's Playground counts per account). Limits are token buckets: you can burst up to the minute's allowance, which then refills steadily. After 30 failed sign-ins with a bad key from one network within a minute, further failures from there answer <code>429</code> instead of <code>401</code> for a while; valid keys keep working. Responses carry no rate-limit headers (no <code>X-RateLimit-*</code>), so pace yourself and, on a <code>429</code>, wait for <code>Retry-After</code>; the SDKs do that for you.</p>
+    <table>
+      <thead><tr><th>Limit</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Message <code>content</code></td><td>25,000 characters; split longer text, or upload it as a file</td></tr>
+        <tr><td>Messages per request</td><td>1 to 100</td></tr>
+        <tr><td>Request body</td><td>10 MB; file uploads 5 MB</td></tr>
+        <tr><td>Workspace, peer and session ids</td><td>1 to 512 characters: letters, digits, <code>_</code> and <code>-</code></td></tr>
+        <tr><td><code>metadata</code></td><td>100 keys, nested at most 5 deep, 64 KB of JSON</td></tr>
+        <tr><td>Facts per <code>POST …/conclusions</code></td><td>1 to 100, up to 65,535 characters each</td></tr>
+        <tr><td>Search results</td><td><code>limit</code> 1 to 100</td></tr>
+        <tr><td>Webhook endpoints</td><td>10 per workspace</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="models">Models and providers</h2>
+    <p>Recall sends each model task to a <code>provider/model</code> reference you choose, so any model can serve any task. These are server settings, set as environment variables when you <a href="#self-host">run Recall yourself</a>; the hosted service chooses its own models. With no provider key at all, Recall runs on an offline mock model, so you can try the API.</p>
+    <table>
+      <thead><tr><th>Provider</th><th>Key and model reference</th></tr></thead>
+      <tbody>
+        <tr><td>OpenAI</td><td><code>OPENAI_API_KEY</code><br><code>openai/&lt;model&gt;</code></td></tr>
+        <tr><td>Anthropic</td><td><code>ANTHROPIC_API_KEY</code><br><code>anthropic/&lt;model&gt;</code></td></tr>
+        <tr><td>Gemini</td><td><code>GEMINI_API_KEY</code><br><code>gemini/&lt;model&gt;</code></td></tr>
+        <tr><td>OpenRouter</td><td><code>OPENROUTER_API_KEY</code><br><code>openrouter/&lt;vendor&gt;/&lt;model&gt;</code></td></tr>
+        <tr><td>Groq</td><td><code>GROQ_API_KEY</code><br><code>groq/&lt;model&gt;</code></td></tr>
+        <tr><td>xAI (Grok)</td><td><code>XAI_API_KEY</code><br><code>xai/&lt;model&gt;</code></td></tr>
+        <tr><td>DeepSeek</td><td><code>DEEPSEEK_API_KEY</code><br><code>deepseek/&lt;model&gt;</code></td></tr>
+        <tr><td>Together</td><td><code>TOGETHER_API_KEY</code><br><code>together/&lt;model&gt;</code>, or <code>together-dedicated/&lt;project&gt;/&lt;endpoint&gt;</code> for a fine-tune</td></tr>
+        <tr><td>Fireworks</td><td><code>FIREWORKS_API_KEY</code><br><code>fireworks/accounts/&lt;account&gt;/models/&lt;model&gt;</code></td></tr>
+        <tr><td>Any OpenAI-compatible endpoint (Ollama, vLLM, LM Studio)</td><td><code>RECALL_COMPAT_BASE_URL</code> and <code>RECALL_COMPAT_API_KEY</code><br><code>compat/&lt;model&gt;</code></td></tr>
+      </tbody>
+    </table>
+    <p>Set a model per task. Each can come from a different provider:</p>
+    <table>
+      <thead><tr><th>Variable</th><th>Task</th></tr></thead>
+      <tbody>
+        <tr><td><code>RECALL_MODEL_REASONER</code></td><td>Learning: extracting facts from messages in the background</td></tr>
+        <tr><td><code>RECALL_MODEL_SUMMARY</code></td><td>Session summaries</td></tr>
+        <tr><td><code>RECALL_MODEL_CARD</code></td><td>Peer cards</td></tr>
+        <tr><td><code>RECALL_MODEL_DREAM</code></td><td>Night shift (consolidation)</td></tr>
+        <tr><td><code>RECALL_MODEL_CHAT_MINIMAL</code> to <code>RECALL_MODEL_CHAT_MAX</code></td><td>Chat at each reasoning level: <code>MINIMAL</code>, <code>LOW</code>, <code>MEDIUM</code>, <code>HIGH</code>, <code>MAX</code></td></tr>
+        <tr><td><code>RECALL_EMBEDDING_MODEL</code>, <code>RECALL_EMBEDDING_DIMENSIONS</code></td><td>Embeddings (1536 dimensions by default)</td></tr>
+        <tr><td><code>RECALL_DEFAULT_PROVIDER</code></td><td><code>anthropic</code>, <code>openai</code>, <code>gemini</code> or <code>openrouter</code>: the provider for every task you have not set</td></tr>
+      </tbody>
+    </table>
+    <p>A task you leave unset gets the cheapest suitable model among the providers that have a key (Anthropic, OpenAI, Gemini or OpenRouter), unless you pin one with <code>RECALL_DEFAULT_PROVIDER</code>. <code>recall doctor</code> prints the model each task will use.</p>
+<pre><code>OPENROUTER_API_KEY=sk-or-...
+ANTHROPIC_API_KEY=sk-ant-...
+RECALL_MODEL_REASONER=openrouter/openai/gpt-oss-120b
+RECALL_MODEL_CHAT_HIGH=anthropic/claude-sonnet-5-5
+RECALL_MODEL_CHAT_MAX=anthropic/claude-opus-5-5</code></pre>
+
+    <h3 id="openrouter">OpenRouter: fallbacks and price-sorted routing</h3>
+    <p><code>RECALL_OPENROUTER_ROUTING</code> is a JSON object keyed by task, plus <code>default</code>, which applies to every task and is overridden field by field by the task's own entry:</p>
+<pre><code>RECALL_OPENROUTER_ROUTING='{
+  "default":  {"sort": "price", "data_collection": "deny"},
+  "reasoner": {"fallbacks": ["qwen/qwen3.5-9b"], "allow_fallbacks": true}
+}'</code></pre>
+    <table>
+      <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code>fallbacks</code></td><td>Models tried in order when the first is down or refuses.</td></tr>
+        <tr><td><code>sort</code></td><td><code>price</code> (cheapest endpoint first), <code>throughput</code> or <code>latency</code>.</td></tr>
+        <tr><td><code>data_collection</code>, <code>zdr</code></td><td><code>deny</code> allows only providers that do not store or train on prompts; <code>zdr</code> only zero-data-retention endpoints.</td></tr>
+        <tr><td><code>max_price</code></td><td>A ceiling in USD per 1M tokens.</td></tr>
+        <tr><td><code>allow_fallbacks</code>, <code>order</code>, <code>only</code>, <code>ignore</code>, <code>require_parameters</code></td><td>Provider selection, as in OpenRouter's request body.</td></tr>
+      </tbody>
+    </table>
+    <p>Model suffixes pass through: <code>openrouter/google/gemma-4-26b-a4b-it:floor</code> sorts that model's providers by price, <code>:nitro</code> by throughput.</p>
+    <div class="callout"><svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="10" cy="10" r="7"/><path d="M10 6.5v4M10 13.5h.01"/></svg><span><b>Hosted mode</b> (<code>RECALL_HOSTED=true</code>, for customer data). Every OpenRouter request is sent with <code>data_collection: "deny"</code>, whatever the routing says. <code>:free</code> models are refused, at startup when you configure one and per call otherwise, because free endpoints are often served by providers that log or train on prompts. <code>RECALL_OPENROUTER_ALLOW_FREE=true</code> overrides it.</span></div>
+
+    <h3 id="metering">Cost metering</h3>
+    <p>Every model and embedding call is recorded with its tokens and cost, by workspace, task and model. <code>GET /v3/workspaces/{id}/usage</code> and <code>GET /v3/usage</code> report <code>calls</code>, <code>input_tokens</code> and <code>output_tokens</code> (the workspace usage also <code>cache_read_tokens</code> and <code>cache_write_tokens</code>), in <code>total</code>, <code>by_task</code> and by model or workspace.</p>
+    <p>On the hosted service there is no <code>cost_usd</code>: our provider cost is not what you pay. The workspace usage names the hosted models Recall Lumen (<code>recall-lumen</code>, answers at <code>low</code> to <code>max</code>), Recall Loom (<code>recall-loom</code>, builds memory and answers at <code>minimal</code>) and Recall Embed (<code>recall-embed</code>, embeddings). On prepaid credit, what you were charged is in <code>billed</code>, for the period and, at <code>GET /v3/usage</code>, for each workspace: <code>billed_usd</code> in all, <code>learning</code> (<code>message_tokens</code> billed, each message counting as at least 50, and their <code>billed_usd</code>) and <code>chat</code> (<code>questions</code> and <code>billed_usd</code>, in all and <code>by_level</code>). Charges given back are left out, so it matches the credit history under <b>Billing</b>.</p>
+    <p>On a server of your own, <code>cost_usd</code> is the provider cost and <code>unpriced_calls</code> counts calls to models with no known price; there is no <code>billed</code>. OpenRouter reports what it charged for each call and Recall records exactly that; on your own provider key (BYOK) it adds the upstream provider's charge OpenRouter reports, and prices the call's tokens at list price when that charge is missing. For other providers the cost is the call's tokens at list price, cache reads and writes included; override prices with <code>RECALL_PRICING_JSON</code>. OpenRouter models missing from Recall's price table are priced from OpenRouter's public catalog (turn that off with <code>RECALL_OPENROUTER_LIVE_PRICES=false</code>).</p>
+
+    <h2 id="pricing">Pricing</h2>
+    <p>Prepaid credit, no subscription. New accounts get $5. Learning from messages costs <b>$1.75 per 1M message tokens</b>, a message counting as at least 50 tokens. A message Recall reads without learning from it (from a peer you do not observe, or in a session with reasoning off) counts only what it reads: at most 200 tokens as context, 600 for a summary. Chat costs <b>$0.0008</b> (minimal), <b>$0.005</b> (low), <b>$0.025</b> (medium), <b>$0.05</b> (high) or <b>$0.25</b> (max) per query. The price is taken when the answer starts, so it never spends credit you do not have; it is given back when no answer comes, and an answer from empty memory is free. On chat, an <code>Idempotency-Key</code> makes a retry free: the same key with the same request returns the first answer again (see <a href="#idempotency">retries</a>). Context, search, storage, summaries and dreams are included. Set a monthly cap and auto top-up under <b>Billing</b>. Credit is in US dollars; Checkout charges its euro amount at the European Central Bank's daily rate (or your own currency where Stripe offers it) and takes cards, iDEAL, Bancontact and other local methods.</p>
+
+    <h2 id="benchmarks">Benchmarks</h2>
+    <p>Full runs of two public long-term memory benchmarks against the hosted service at the default <code>low</code> level, with Recall Lumen answering, Recall Loom building memory and one model call per answer. <a href="https://arxiv.org/abs/2410.10813">LongMemEval-S</a> gives each question its own chat history of about 100,000 tokens; <a href="https://arxiv.org/abs/2510.27246">BEAM</a> asks 20 questions about each long conversation, across ten abilities, at about 125,000 tokens (100K) and 500,000 tokens (500K). One workspace per LongMemEval-S question and per BEAM conversation; the memory was built on 10 October 2026 and every question asked on 11 October.</p>
+    <table>
+      <thead><tr><th>Benchmark</th><th>Result</th><th>95% interval</th></tr></thead>
+      <tbody>
+        <tr><td>LongMemEval-S, all 500 questions</td><td><b>91.0%</b> (455 correct)</td><td>88.2-93.2%</td></tr>
+        <tr><td>BEAM 100K, all 400 questions</td><td><b>0.683</b></td><td>0.653-0.713</td></tr>
+        <tr><td>BEAM 500K, all 700 questions</td><td><b>0.670</b></td><td>0.643-0.695</td></tr>
+      </tbody>
+    </table>
+    <p><b>Scoring.</b> LongMemEval-S is graded by its official judge, <code>gpt-4o-2024-08-06</code> with the prompts from LongMemEval's <code>evaluate_qa.py</code>; two questions were never asked because a background memory job failed in each one's workspace (a provider error), and they count as wrong. BEAM is scored with BEAM's own evaluation code, ported from the BEAM repository (commit b2da22e) with its judge prompts: each rubric item is judged on its own and a question scores the mean of its items, event ordering scores Kendall tau-b normalised to 0-1, and the overall score, from 0 to 1, is the mean of the ten abilities. The judge is <code>gpt-4.1-mini</code> at temperature 0, the model BEAM's code uses, and every question was scored. Each figure is a single run; the per-ability and per-type results are on the evals page.</p>
+    <p><b>LoCoMo.</b> On 75 held-out LoCoMo questions (15 per conversation; single-hop, multi-hop, temporal and open-domain), self-hosted with Recall Loom for every task and judged by <code>gpt-4.1</code>, Recall answered 60.0% correctly under a strict judge and 79.2% under a lenient one, with a median answer time of 1.6 s. Published LoCoMo scores are usually higher because of lenient judges and an easier question mix, so compare like with like.</p>
+    <p>All results, with comparisons, charts and method: <a href="/evals">Evals</a>.</p>
+  </article>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="logo" href="/"><svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>Recall</a>
+      <p class="tagline">Memory for AI agents. Hosted in the EU.</p>
+      <p class="muted">Smidt Beheer · KvK 99124254 · VAT NL004444074B96</p>
+    </div>
+    <nav aria-label="Footer">
+      <div><b>Product</b><a href="/#how">How it works</a><a href="/#why">Why Recall</a><a href="/#agents">Integrations</a><a href="/evals">Evals</a><a href="/#pricing">Pricing</a></div>
+      <div><b>Developers</b><a href="#quickstart">Quickstart</a><a href="/guides">Guides</a><a href="#integrations">Integrations</a><a href="#api">API</a><a href="#models">Models</a><a href="https://github.com/recallmem/recall">GitHub</a></div>
+      <div><b>Account</b><a href="/app/login">Sign in</a></div>
+      <div><b>Legal</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/dpa">Data processing</a><a href="/security">Security</a><a href="/support">Support</a></div>
+    </nav>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

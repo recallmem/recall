@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Voice agents — Recall guides</title>
+<meta name="description" content="Give a voice or phone agent memory of the caller with Recall within a real-time latency budget: context before the call, one call per turn, code, measured speed and cost." />
+<meta name="theme-color" content="#0c0b0a" />
+<meta property="og:title" content="Voice agents — Recall guides" />
+<meta property="og:description" content="Give a voice or phone agent memory of the caller with Recall within a real-time latency budget: context before the call, one call per turn, code, measured speed and cost." />
+<meta property="og:type" content="article" />
+<meta property="og:image" content="/og.png" />
+<link rel="canonical" href="https://recallmem.dev/guides/voice-agents" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="preload" href="/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/departure-mono.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="/site.css" />
+<meta name="recall-api" content="https://api.recallmem.dev" data-site="https://recallmem.dev" />
+</head>
+<body>
+
+<header class="nav scrolled" id="nav">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="Recall home">
+      <svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>
+      Recall<span class="muted nowrap">/guides</span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="/#how">Product</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides">Guides</a>
+      <a href="https://github.com/recallmem/recall">GitHub</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-text" href="/app/login">Sign in</a>
+      <a class="btn btn-primary" href="/app/login">Get API key</a>
+    </div>
+  </div>
+</header>
+
+<div class="docs">
+  <aside class="toc" aria-label="Guides">
+    <details class="toc-box" open>
+      <summary>Guides</summary>
+      <div class="toc-links">
+        <a href="/guides">All guides</a>
+        <b>On this page</b>
+        <a class="sub" href="#what-changes">What memory adds</a>
+        <a class="sub" href="#model">How to model it</a>
+        <a class="sub" href="#build">Build it</a>
+        <a class="sub" href="#settings">Settings that matter</a>
+        <a class="sub" href="#cost-speed">Cost and speed</a>
+        <a class="sub" href="#privacy">Privacy and forgetting</a>
+        <a class="sub" href="#pitfalls">Pitfalls</a>
+        <b>Use cases</b>
+        <a href="/guides/assistants">Personal assistants and companions</a>
+        <a href="/guides/support">Customer support</a>
+        <a href="/guides/coding-agents">Coding agents</a>
+        <a href="/guides/game-npcs">Game NPCs</a>
+        <a href="/guides/sales">Sales and CRM copilots</a>
+        <a href="/guides/multi-agent">Multi-agent systems</a>
+        <a href="/guides/tutoring">Tutoring and education</a>
+        <a href="/guides/community-bots">Discord and Slack bots</a>
+        <a href="/guides/coaching">Health, fitness and coaching</a>
+        <a href="/guides/voice-agents" aria-current="page">Voice agents</a>
+        <a href="/guides/shopping">Shopping assistants</a>
+        <a href="/guides/workplace">Workplace assistants</a>
+        <b>Build well</b>
+        <a href="/guides/modeling">Designing workspaces, peers and sessions</a>
+        <a href="/guides/levels-and-models">Reasoning levels and models</a>
+        <a href="/guides/privacy">Privacy, consent and forgetting</a>
+        <a href="/guides/cost-and-speed">Cost and speed</a>
+        <b>Reference</b>
+        <a href="/docs">Docs</a>
+        <a href="/docs#api">REST API</a>
+      </div>
+    </details>
+  </aside>
+  <script>
+    // On a phone the contents start collapsed; set before first paint so the page does not jump.
+    if (matchMedia("(max-width: 980px)").matches) document.querySelector(".toc-box").open = false;
+  </script>
+
+  <article class="prose guide">
+    <p class="crumbs"><a href="/guides">Guides</a> / Use cases</p>
+<h1>Voice agents</h1>
+    <p class="lede">For phone lines and voice assistants: an agent that knows who is calling and what happened last time, without adding silence to the call. You read the caller's memory while the call connects, store each utterance in one fast request that runs next to your model, and leave anything that takes seconds until after the hang-up.</p>
+
+    <h2 id="what-changes">What memory adds</h2>
+    <p>Without memory, every call starts with "how can I help?" and the same questions. With it, the agent knows the story so far:</p>
+    <table>
+      <thead><tr><th></th><th>Without memory</th><th>With Recall</th></tr></thead>
+      <tbody>
+        <tr><td>Monday's call</td><td colspan="2">The caller reports that the internet drops out every evening. The agent resets the line and promises to check it again on Friday.</td></tr>
+        <tr><td>Friday, same caller, verified</td><td>"What is the reason for your call today?"</td><td>"Is this about the evening drop-outs? We said we would check your line today."</td></tr>
+        <tr><td>A month later</td><td>"Which router do you have?"</td><td>"Is it still the white router we sent in August? And shall I call you back after six, like last time?"</td></tr>
+      </tbody>
+    </table>
+    <p>Recall does not hear or speak. Your speech-to-text, model and text-to-speech do; Recall stores the transcript and gives your model the caller's memory.</p>
+
+    <h2 id="model">How to model it</h2>
+    <table>
+      <thead><tr><th>On your line</th><th>In Recall</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Your phone line or voice product</td><td>Workspace, e.g. <code>support-line</code></td><td>One per product and environment, so test calls never mix with real callers.</td></tr>
+        <tr><td>The caller</td><td>Peer: your account id (<code>cust-1042</code>) once verified, otherwise <code>caller-</code> and a keyed hash of the number</td><td>One stable id per person, and never the raw number.</td></tr>
+        <tr><td>Your voice agent</td><td>Peer <code>voice-agent</code>, with <code>observeMe: false</code></td><td>Recall does not learn from the agent's lines, only reads them as context, so they cost less.</td></tr>
+        <tr><td>A call</td><td>Session, e.g. <code>call-7f3e9a2c</code>, from your telephony provider's call id</td><td>One transcript per call, its own running summary, and one place to delete it.</td></tr>
+        <tr><td>What the caller said on earlier calls</td><td>The peer card and facts, returned with the context</td><td>Ready for the first prompt, before the caller says a word.</td></tr>
+      </tbody>
+    </table>
+    <p><b>Why not the phone number?</b> Ids show up in request paths, logs, exports and the dashboard, and cannot be renamed. A plain SHA-256 of a number protects nothing, because every possible number can be hashed and compared. A keyed hash (an HMAC with a secret only your server holds) cannot be reversed without the key, and the same number always gives the same id, so you can still find a caller to delete them. A number is still not a person, though: numbers change hands and a household can share one line. Once a caller is verified against your accounts, key memory by your account id and keep the number-to-account mapping in your own system; use the hashed number only for callers you cannot identify.</p>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the SDK (<code>npm install @recall-memory/sdk</code> or <code>pip install recall-mem</code>) and set <code>RECALL_API_KEY</code> on the server that handles your call events. Configure the agent once at startup; per call you only need two handles, which make no request.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>import { createHmac } from "node:crypto";
+import { Recall } from "@recall-memory/sdk";
+
+const recall = new Recall({ workspaceId: "support-line" });
+
+// Ids show up in URLs, logs and exports, so never use the raw number. A plain hash of a phone
+// number is easy to reverse; a keyed hash is not, without the key from your secret store.
+const secret = process.env.CALLER_ID_SECRET ?? "local-dev-only";
+const callerId = (phone: string) =&gt;
+  `caller-${createHmac("sha256", secret).update(phone).digest("hex").slice(0, 32)}`;
+
+// Once, at startup: Recall reads the agent's lines but learns nothing from them, and keeps a
+// running summary of each call every 10 messages (the default is 20).
+const agent = recall.peer("voice-agent", { configuration: { observeMe: false } });
+await recall.setConfiguration({ summary: { messagesPerShortSummary: 10 } });
+
+// Per call: the caller, and a session named after your telephony provider's call id.
+// Handles make no request; the first utterance creates the session.
+const caller = recall.peer(callerId("+447700900123")); // or your account id, once verified
+const call = recall.session("call-7f3e9a2c");</code></pre>
+<pre data-panel="py" hidden><code>import hashlib
+import hmac
+import os
+from concurrent.futures import ThreadPoolExecutor
+
+from recall_memory import PeerConfig, Recall
+
+recall = Recall(workspace_id="support-line")
+
+# Ids show up in URLs, logs and exports, so never use the raw number. A plain hash of a phone
+# number is easy to reverse; a keyed hash is not, without the key from your secret store.
+secret = os.environ.get("CALLER_ID_SECRET", "local-dev-only").encode()
+
+def caller_id(phone: str) -&gt; str:
+    return "caller-" + hmac.new(secret, phone.encode(), hashlib.sha256).hexdigest()[:32]
+
+# Once, at startup: Recall reads the agent's lines but learns nothing from them, and keeps a
+# running summary of each call every 10 messages (the default is 20).
+agent = recall.peer("voice-agent", configuration=PeerConfig(observe_me=False))
+recall.set_configuration({"summary": {"messages_per_short_summary": 10}})
+
+# Per call: the caller, and a session named after your telephony provider's call id.
+# Handles make no request; the first utterance creates the session.
+caller = recall.peer(caller_id("+447700900123"))  # or your account id, once verified
+call = recall.session("call-7f3e9a2c")</code></pre>
+</div>
+    <p><b>Before the first word: read the caller's memory.</b> As soon as the call connects, while your greeting plays, read the session context with the caller as <code>peerTarget</code>. It is one request (a context call measured 0.3 to 0.7 seconds) and works before the session exists, so a first-time caller gets empty context rather than an error. The result holds the caller's peer card and facts, ready as system messages. Until the caller is verified, keep personal details from it out of what the agent says.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// The call is connecting: read what Recall knows about the caller while your greeting plays,
+// so the first reply needs no lookup. One request; a new caller just has no memory yet.
+const start = await call.context({ peerTarget: caller, tokens: 1500 });
+const system = start.toOpenAI(agent); // peer card and known facts, as system messages</code></pre>
+<pre data-panel="py" hidden><code># The call is connecting: read what Recall knows about the caller while your greeting plays,
+# so the first reply needs no lookup. One request; a new caller just has no memory yet.
+start = call.context(peer_target=caller, tokens=1500)
+system = start.to_openai(assistant=agent)  # peer card and known facts, as system messages</code></pre>
+</div>
+    <p><b>Each utterance: one request, off the critical path.</b> When speech-to-text gives you the final transcript of an utterance, send it with <code>turn</code>, together with the agent's previous line, so one request stores both. A turn measured 0.3 to 0.7 seconds, which is too long to add to every reply. Your model does not need to wait for it: it already has the memory from the start of the call and the call so far, so start the model call and the turn together. Use the context the turn returns for the next utterance; on a long call it replaces older turns with a summary, so the prompt stays within <code>tokens</code>.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// Each finished utterance (the final transcript from speech-to-text): one request that stores
+// it with the agent's previous line and returns fresh context. Start it next to your model call,
+// not before it: the model already has `system` and the call so far.
+const greeting = "Thanks for calling. How can I help?";
+const heard = "Hi, it's me again. The internet keeps dropping out in the evenings.";
+const stored = call.turn([agent.message(greeting), caller.message(heard)], {
+  peerTarget: caller,
+  tokens: 1500,
+});
+// Your voice model replies now, from `system`, the call so far and `heard`.
+const reply = "Sorry about that. Is it the router we replaced in August?";
+const { context } = await stored; // for the next utterance; older turns become a summary</code></pre>
+<pre data-panel="py" hidden><code># Each finished utterance (the final transcript from speech-to-text): one request that stores
+# it with the agent's previous line and returns fresh context. Start it next to your model
+# call, not before it: the model already has `system` and the call so far. (In an asyncio
+# voice stack, use AsyncRecall and asyncio.create_task instead of a thread.)
+greeting = "Thanks for calling. How can I help?"
+heard = "Hi, it's me again. The internet keeps dropping out in the evenings."
+with ThreadPoolExecutor(max_workers=1) as pool:
+    stored = pool.submit(
+        call.turn,
+        [agent.message(greeting), caller.message(heard)],
+        peer_target=caller,
+        tokens=1500,
+    )
+    # Your voice model replies now, from `system`, the call so far and `heard`.
+    reply = "Sorry about that. Is it the router we replaced in August?"
+    context = stored.result().context  # for the next utterance; older turns become a summary</code></pre>
+</div>
+    <p><b>Questions wait until the call is over.</b> <code>chat</code> took 2 to 4.5 seconds at <code>minimal</code> or <code>low</code>, which is dead air on a phone line. Never call it inside a turn. Ask before the call when you can (an outbound call you are about to place), or after it, for your CRM or to prepare the next call. If a question must inform this call, start it in the background when the call connects and use the answer only if it arrives in time.</p>
+    <p><b>After the hang-up: the summary and anything slow.</b> Store the agent's last line. Recall keeps a running summary of each session, written every 20 messages by default (at least 10, set with <code>messagesPerShortSummary</code>), and <code>summaries()</code> returns it; a short call may not have one. A <code>queue.empty</code> <a href="/docs#webhooks">webhook</a> tells your server when learning for the call has finished, so you do not need to poll. For a note on every call, short ones included, ask a question as below ($0.005 at <code>low</code>), or have your own model write it from the transcript you already hold.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// Hang-up: store the agent's last line. Anything slow happens now, off the call.
+await call.addMessages([agent.message(reply)]);
+// (waitForIdle is for this demo; in production the queue.empty webhook says when to read.)
+await recall.waitForIdle();
+// Recall's running summary of the call (every 10 messages, as set at startup); a call as
+// short as this one has none yet.
+const { shortSummary } = await call.summaries();
+// A question for your CRM or the next call: one model call of a few seconds, fine now.
+const followUp = await caller.chat("What have we promised this caller, and by when?", {
+  reasoningLevel: "low",
+});</code></pre>
+<pre data-panel="py" hidden><code># Hang-up: store the agent's last line. Anything slow happens now, off the call.
+call.add_messages([agent.message(reply)])
+# (wait_for_idle is for this demo; in production the queue.empty webhook says when to read.)
+recall.wait_for_idle()
+# Recall's running summary of the call (every 10 messages, as set at startup); a call as
+# short as this one has none yet.
+summary = call.summaries().short_summary
+# A question for your CRM or the next call: one model call of a few seconds, fine now.
+follow_up = caller.chat(
+    "What have we promised this caller, and by when?", reasoning_level="low"
+)</code></pre>
+</div>
+    <p><b>A caller asks to be forgotten.</b> Verify them, derive the id from their number with the same key, delete their calls (the agent's lines quote them), then the caller. <code>delete()</code> erases their messages, every fact and card about them, and cached answers.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// A caller asks to be forgotten: derive the same id from their number, delete their calls
+// (the agent's lines quote them), then the caller.
+const person = recall.peer(callerId("+447700900123"));
+for (const s of await (await person.sessions()).toArray()) await s.delete();
+const removed = await person.delete();</code></pre>
+<pre data-panel="py" hidden><code># A caller asks to be forgotten: derive the same id from their number, delete their calls
+# (the agent's lines quote them), then the caller.
+person = recall.peer(caller_id("+447700900123"))
+for s in list(person.sessions()):
+    s.delete()
+removed = person.delete()</code></pre>
+</div>
+
+    <h3 id="rest">Other languages and voice platforms</h3>
+    <p>Recall has no telephony SDK; call it from whatever handles your call events. Over REST, the call start and each utterance are one request each. The context read:</p>
+<pre><code>curl -G $RECALL_URL/v3/workspaces/support-line/sessions/call-7f3e9a2c/context \
+  -d tokens=1500 -d peer_target=cust-1042 \
+  -H "Authorization: Bearer $RECALL_API_KEY"</code></pre>
+    <p>Each utterance, with the agent's previous line. The <code>Idempotency-Key</code> header makes a retry safe; the speech-to-text segment id is a good value:</p>
+<pre><code>curl $RECALL_URL/v3/workspaces/support-line/sessions/call-7f3e9a2c/turn \
+  -H "Authorization: Bearer $RECALL_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: call-7f3e9a2c-utt-7" \
+  -d '{"messages":[
+        {"peer_id":"voice-agent","content":"Thanks for calling. How can I help?"},
+        {"peer_id":"cust-1042","content":"Hi, me again. The internet keeps dropping out."}
+      ],
+      "context":{"tokens":1500,"peer_target":"cust-1042"}}'</code></pre>
+    <p>The answer is <code>{"messages": [...], "context": {...}}</code>: the stored messages and the context for the next prompt. The first turn creates the session and the caller. See the <a href="/docs#api">REST API</a>.</p>
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>tokens</code></td><td>The context goes into every prompt, so keep the budget small: a shorter prompt is faster for your model. Older turns become a summary.</td></tr>
+        <tr><td><code>observeMe: false</code> on the agent</td><td>Recall learns about the caller only, and the agent's lines cost less.</td></tr>
+        <tr><td><code>summary.messagesPerShortSummary</code> (workspace or session)</td><td>How often the running summary of a call is written: every 20 messages by default, at least 10.</td></tr>
+        <tr><td><code>idempotencyKey</code> on <code>turn</code> (<code>idempotency_key</code> in Python)</td><td>The SDKs add one per call, so their own retries never store an utterance twice. Pass your own, such as the speech-to-text segment id, if another worker may send it again.</td></tr>
+        <tr><td><code>timeout</code> and <code>maxRetries</code> (<code>max_retries</code> in Python)</td><td>On a live call, give up early and carry on without memory rather than leave the caller in silence. TypeScript also takes <code>timeout</code> per request.</td></tr>
+        <tr><td><code>reasoningLevel: "low"</code></td><td>For questions after the call. See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>Measured from Europe against the hosted API (Frankfurt), October 2026: a <code>turn</code> or context call took 0.3 to 0.7 seconds, a question at <code>minimal</code> or <code>low</code> 2 to 4.5 seconds. Learning happens in the background and never holds up a call. Speech-to-text, your model and text-to-speech already sit between the caller and the reply, so keep Recall beside that path, not on it: context while the call connects, each turn next to your model, questions after the hang-up.</p>
+    <p>Context reads and turns are included; you pay for learning from the messages a turn stores, $1.75 per million message tokens with every message counting as at least 50, and for questions. A caller who calls four times a month, with 30 short utterances and 30 agent lines of about 30 tokens per call, and one question after each call:</p>
+    <table>
+      <thead><tr><th>Item</th><th>Per month</th></tr></thead>
+      <tbody>
+        <tr><td>Caller utterances: 4 × 30 × 50 tokens × $1.75 / 1M</td><td>$0.0105</td></tr>
+        <tr><td>Agent lines, read but not learned from: 4 × 30 × 30 tokens × $1.75 / 1M</td><td>$0.0063</td></tr>
+        <tr><td>Questions after the call at <code>low</code>: 4 × $0.005</td><td>$0.0200</td></tr>
+        <tr><td><b>Total</b></td><td><b>about $0.04 per caller a month</b></td></tr>
+      </tbody>
+    </table>
+    <p>More in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>This is practical guidance, not legal advice. See <a href="/guides/privacy">Privacy, consent and forgetting</a> for the general picture.</p>
+    <ul>
+      <li><b>Tell callers, and get consent where it is required.</b> Say at the start that the call is transcribed and that the assistant remembers earlier calls. The rules on recording and transcribing calls differ between countries, and in some countries between states; some require every party's consent. Recall stores the text you send, never audio.</li>
+      <li><b>Caller ID is not identity.</b> Numbers can be spoofed. Verify the caller, with a code, account details or a call back, before the agent repeats anything personal from memory.</li>
+      <li><b>Keep secrets out of the transcript.</b> Redact card numbers, PINs, one-time codes and answers to security questions before an utterance reaches Recall.</li>
+      <li><b>Say where the data goes.</b> Transcripts are stored in the EU (Frankfurt) and processed by AI model providers in the US through OpenRouter, restricted to providers that do not collect the data; they are not used to train models.</li>
+      <li><b>Forget on request.</b> Delete the caller and their calls as above. Facts about other people that merely mention them stay; delete those with <code>DELETE …/conclusions/{id}</code> if needed (<a href="/docs#forget-a-person">Forget a person</a>).</li>
+    </ul>
+    <p>Recall's own terms are in the <a href="/privacy">privacy policy</a> and the <a href="/dpa">DPA</a>.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>Asking during the call.</b> A question takes seconds, which is silence on a phone line. Read context during the call; ask before or after it.</li>
+      <li><b>Recall in series with your model.</b> Waiting for each turn before you start your model adds its 0.3 to 0.7 seconds to every reply. Start both together.</li>
+      <li><b>The raw number as id.</b> It ends up in logs and URLs, and memory follows the number to its next owner. Use your account id, or a keyed hash for callers you cannot identify.</li>
+      <li><b>Trusting caller ID.</b> Anyone can show someone else's number. Verify before the agent uses personal memory.</li>
+      <li><b>Expecting a summary after every call.</b> The running summary is written every 20 messages by default, so short calls have none. For call notes, ask a question or use your own model.</li>
+      <li><b>Expecting Recall to listen.</b> It works on text. Bring your own speech-to-text, model and voice.</li>
+    </ul>
+    <p class="guide-next">Next: <a href="/guides/cost-and-speed">Cost and speed</a> · <a href="/guides/support">Customer support</a></p>
+  </article>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="logo" href="/"><svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>Recall</a>
+      <p class="tagline">Memory for AI agents. Hosted in the EU.</p>
+      <p class="muted">Smidt Beheer · KvK 99124254 · VAT NL004444074B96</p>
+    </div>
+    <nav aria-label="Footer">
+      <div><b>Product</b><a href="/#how">How it works</a><a href="/#why">Why Recall</a><a href="/#agents">Integrations</a><a href="/evals">Evals</a><a href="/#pricing">Pricing</a></div>
+      <div><b>Developers</b><a href="/docs#quickstart">Quickstart</a><a href="/guides">Guides</a><a href="/docs#integrations">Integrations</a><a href="/docs#api">API</a><a href="/docs#models">Models</a><a href="https://github.com/recallmem/recall">GitHub</a></div>
+      <div><b>Account</b><a href="/app/login">Sign in</a></div>
+      <div><b>Legal</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/dpa">Data processing</a><a href="/security">Security</a><a href="/support">Support</a></div>
+    </nav>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

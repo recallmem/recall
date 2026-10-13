@@ -1,0 +1,20 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+coverage/
+.recall/
+data/
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+evals/results/
+evals/.vault/
+evals/data
+
+# Claude Code agent worktrees
+.claude/worktrees/

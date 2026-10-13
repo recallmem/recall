@@ -1,0 +1,117 @@
+    <h1>Discord and Slack bots</h1>
+    <p class="lede">For bots that live in a busy Discord server or Slack workspace, where hundreds of members talk in the same channels. Recall keeps every member apart, remembers each one across channels and weeks, and keeps what someone told the bot in private out of its public replies.</p>
+
+    <h2 id="what-changes">What memory adds</h2>
+    <p>Without memory, the bot sees the message that mentions it and perhaps the last few lines of the channel. With it, the bot knows who is asking:</p>
+    <table>
+      <thead><tr><th></th><th>Without memory</th><th>With Recall</th></tr></thead>
+      <tbody>
+        <tr><td>"@bot any tips for the level 12 boss?"</td><td>Generic tips for every class.</td><td>"As a frost mage, swap to a fire staff for this fight: the boss is immune to frost."</td></tr>
+        <tr><td>Two members both called Alex</td><td>The bot mixes them up.</td><td>Each is a peer keyed by user id; their memories never meet.</td></tr>
+        <tr><td>A member tells the bot in a DM that they may leave the raid team</td><td>A bot with one shared history may repeat it in #general.</td><td>The DM feeds only that member's own memory, which the bot reads in that DM and nowhere else.</td></tr>
+      </tbody>
+    </table>
+    <p>Recall is memory, not the bot: your model writes the replies and your bot code talks to Discord or Slack. Recall has no Discord or Slack integration of its own; the bot calls the SDK.</p>
+
+    <h2 id="model">How to model it</h2>
+    <table>
+      <thead><tr><th>On the platform</th><th>In Recall</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>A Discord server or Slack workspace</td><td>Workspace, e.g. <code>discord-912847561203948572</code></td><td>Each community's memory stays apart, and a server that removes the bot is one delete.</td></tr>
+        <tr><td>Each member</td><td>Peer keyed by platform user id: <code>discord-284711093281726464</code>, <code>slack-U04AB12CD34</code></td><td>User ids never change. Display names change and repeat.</td></tr>
+        <tr><td>The bot</td><td>Peer <code>bot</code> with <code>observeMe: false</code></td><td>Recall learns about members, not from the bot's own lines, which also cost less.</td></tr>
+        <tr><td>A channel or thread</td><td>Session, e.g. <code>ch-1129384756102938475</code></td><td>Members join it with their first message; its context is the channel's recent history and a summary.</td></tr>
+        <tr><td>What the bot knows from public channels</td><td>The bot's view: <code>observeOthers: true</code> in public channels</td><td>Read with <code>peerPerspective: bot</code> when replying in public.</td></tr>
+        <tr><td>A DM with the bot</td><td>A session of its own, without <code>observeOthers</code> for the bot</td><td>What a member says there never reaches the bot's public view.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the SDK (<code>npm install @recall-memory/sdk</code> or <code>pip install recall-mem</code>) and set <code>RECALL_API_KEY</code>. Create the bot peer and turn off learning from it before its first line is stored, then a session per channel in which the bot observes the others.</p>
+<!-- example: community-bots#setup -->
+    <p><b>Busy channels: batch, and only read when asked.</b> Storing every message as it arrives is a request per message, and a busy server soon meets the rate limit. Buffer what nobody addressed to the bot and store it every few seconds in one request (up to 100 messages; the SDKs split larger batches). When someone mentions the bot, <code>turn</code> stores their message and returns the context for the reply in one request of a fraction of a second.</p>
+<!-- example: community-bots#channel -->
+    <p><b>DMs stay private.</b> In a DM the bot reads the member's own memory, which includes what they said in public. In public it reads only its own view, which was never told what was said in a DM.</p>
+<!-- example: community-bots#dm -->
+    <p><b>Ask about a member.</b> For a <code>/memory</code> command or a moderator tool, ask the bot's view of one member in plain language. That is a model call of a few seconds, so keep it out of the reply path.</p>
+<!-- example: community-bots#ask -->
+    <p><b>Forget on request.</b></p>
+<!-- example: community-bots#forget -->
+
+    <h3 id="discord-js">Wiring it to discord.js or Slack Bolt</h3>
+    <p>The platform code stays small. A sketch for discord.js, with one Recall client per server and the calls from above; <code>yourModel</code> stands for your own model call:</p>
+<pre><code>const clients = new Map(); // guild id -&gt; Recall client for that server's workspace
+async function recallFor(guildId) {
+  if (!clients.has(guildId)) {
+    const recall = new Recall({ workspaceId: `discord-${guildId}` });
+    await recall.peer("bot").setConfiguration({ observeMe: false });
+    clients.set(guildId, recall);
+  }
+  return clients.get(guildId);
+}
+const pending = new Map(); // channel id -&gt; messages not stored yet
+
+client.on("messageCreate", async (msg) =&gt; {
+  if (msg.author.bot || !msg.guild) return;
+  const recall = await recallFor(msg.guild.id);
+  const author = recall.peer(`discord-${msg.author.id}`);
+  const waiting = pending.get(msg.channelId) ?? [];
+  pending.set(msg.channelId, waiting);
+  waiting.push(author.message(msg.content, { createdAt: msg.createdAt }));
+  if (!msg.mentions.has(client.user)) return; // a timer flushes `waiting` with addMessages
+
+  const channel = recall.session(`ch-${msg.channelId}`, {
+    peers: { bot: { observeOthers: true } },
+  });
+  const { context } = await channel.turn(waiting.splice(0), {
+    peerTarget: author,
+    peerPerspective: "bot",
+    tokens: 1500,
+  });
+  const reply = await yourModel(context.toOpenAI("bot"));
+  await msg.reply(reply);
+  await channel.addMessages([recall.peer("bot").message(reply)]);
+});</code></pre>
+    <p>With Slack Bolt the same calls go in <code>app.message</code> (buffer) and <code>app.event("app_mention")</code> (<code>turn</code>); peer ids are <code>slack-</code> plus the user id, and the workspace is named after the Slack team id. Both platforms expect a slash command to be acknowledged within a few seconds, so acknowledge first and then ask.</p>
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>observeMe: false</code> on the bot</td><td>Recall learns about members only. Set it before the bot's first line is stored.</td></tr>
+        <tr><td><code>observeOthers: true</code> for the bot in public channels</td><td>Builds the bot's own view of each member. Only the bot needs it: a session allows at most 10 members with it, so never give it to members.</td></tr>
+        <tr><td><code>peerPerspective: bot</code> in public channels</td><td>Read a member through the bot's public view, so nothing from a DM comes up.</td></tr>
+        <tr><td><code>tokens</code></td><td>The context budget. 1,000 to 2,000 holds a busy channel's recent lines, a summary and what is known about the member.</td></tr>
+        <tr><td>Message <code>createdAt</code></td><td>Pass the platform's timestamp when you flush a buffer, so each message keeps the time it was written.</td></tr>
+        <tr><td><code>configuration: { reasoning: { enabled: false } }</code> on a session</td><td>For channels worth keeping as history but not learning from, such as a memes channel. Their messages count only what Recall reads of them.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>Measured from Europe against the hosted API (Frankfurt), October 2026: a <code>turn</code> or context call took 0.3 to 0.7 seconds, and a question at <code>minimal</code> or <code>low</code> 2 to 4.5 seconds. Learning runs in the background and never holds up a reply. When you go over the rate limit (counted per API key), Recall answers <code>429</code> with <code>Retry-After</code>; the SDKs wait that long and retry, but batching is what keeps you under it.</p>
+    <p>Context, search and storage are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50, and for questions. Members who only read cost nothing. An active member who posts 200 short messages a month, gets 40 replies from the bot of about 80 tokens, and runs <code>/memory</code> 5 times:</p>
+    <table>
+      <thead><tr><th>Item</th><th>Per month</th></tr></thead>
+      <tbody>
+        <tr><td>Member's messages: 200 × 50 tokens × $1.75 / 1M</td><td>$0.0175</td></tr>
+        <tr><td>Bot replies, read but not learned from: 40 × 80 tokens × $1.75 / 1M</td><td>$0.0056</td></tr>
+        <tr><td>Questions at <code>minimal</code>: 5 × $0.0008</td><td>$0.0040</td></tr>
+        <tr><td>Context for every reply</td><td>included</td></tr>
+        <tr><td><b>Total</b></td><td><b>about $0.03 per active member, or $27 for 1,000</b></td></tr>
+      </tbody>
+    </table>
+    <p>Short chat lines count as 50 tokens each, so a chatty member costs more than their word count suggests. More in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>Members do not expect a bot to remember them unless they are told. Pin a notice in the channels the bot reads, say it in the bot's profile, and give members two commands: <code>/memory</code> to see what the bot knows about them, and <code>/forget</code> to erase it. When a member asks, or leaves the server if your notice says so, <code>delete</code> erases their messages and every fact about them or from their view; other members' messages and facts about others that merely mention them stay. A member who never spoke answers <code>404</code>: there is nothing to forget.</p>
+    <p>Do not store what the bot does not need: skip channels it is not used in, and never record moderators' private channels. Many Discord communities include teenagers; read <a href="/guides/privacy">Privacy, consent and forgetting</a> before you build profiles of them. Recall stores data in Frankfurt; text is processed by AI model providers in the US through OpenRouter, restricted to providers that do not collect it, and never used for training. See the <a href="/dpa">DPA</a> and <a href="/docs#forget-a-person">Forget a person</a>.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>Display names as ids.</b> Names change and repeat, and memories follow the name to the wrong person. Use the platform's user id.</li>
+      <li><b>One request per message.</b> A busy channel then hits <code>429</code>. Batch, and call <code>turn</code> only when the bot is addressed.</li>
+      <li><b>Public replies without <code>peerPerspective</code>.</b> The member's own memory includes their DMs, which can then surface in front of everyone.</li>
+      <li><b>One workspace for every server.</b> What a member said in one community follows them into another. Use a workspace per server.</li>
+      <li><b><code>observeOthers</code> for members.</b> A session allows at most 10, and members do not need their own view. Give it to the bot only.</li>
+      <li><b>Asking on every message.</b> A question takes seconds and costs per call. Replies need context, not questions.</li>
+    </ul>

@@ -1,0 +1,130 @@
+[
+  {
+    "slug": "assistants",
+    "group": "Use cases",
+    "title": "Personal assistants and companions",
+    "short": "An assistant that knows the user's life, plans and preferences from the first message.",
+    "description": "Build a personal assistant or AI companion that remembers the user across conversations with Recall: model, code in TypeScript and Python, settings, cost and forgetting.",
+    "next": ["modeling", "privacy"]
+  },
+  {
+    "slug": "support",
+    "group": "Use cases",
+    "title": "Customer support",
+    "short": "Agents and bots that know each customer's history across tickets and channels.",
+    "description": "Give a support bot and human agents memory of each customer across tickets, chat and email with Recall: model, code, handoffs, deletion requests and cost.",
+    "next": ["sales", "privacy"]
+  },
+  {
+    "slug": "coding-agents",
+    "group": "Use cases",
+    "title": "Coding agents",
+    "short": "Claude Code, Codex and your own agents that remember conventions and decisions.",
+    "description": "Give coding agents memory of a developer's preferences, a project's conventions and past decisions with Recall: plugins, MCP, code, settings and cost.",
+    "next": ["multi-agent", "levels-and-models"]
+  },
+  {
+    "slug": "game-npcs",
+    "group": "Use cases",
+    "title": "Game NPCs",
+    "short": "Characters that remember the player, keep their own point of view and gossip.",
+    "description": "Build game NPCs that remember the player with Recall: one memory per save, each NPC's own point of view, fast context for dialogue, code in TypeScript and Python, C# for Unity, cost and speed.",
+    "next": ["cost-and-speed", "modeling"]
+  },
+  {
+    "slug": "sales",
+    "group": "Use cases",
+    "title": "Sales and CRM copilots",
+    "short": "A copilot that remembers every prospect, call and objection across the deal.",
+    "description": "Build a sales copilot that remembers prospects, calls and objections across a deal with Recall: accounts as scopes, call notes, meeting prep, code and cost.",
+    "next": ["support", "workplace"]
+  },
+  {
+    "slug": "multi-agent",
+    "group": "Use cases",
+    "title": "Multi-agent systems",
+    "short": "Agents that share what they learn, each with its own view and its own key.",
+    "description": "Share memory between agents with Recall: agents as peers, private and shared views, scoped keys per agent, webhooks to react to new knowledge, code and cost.",
+    "next": ["coding-agents", "modeling"]
+  },
+  {
+    "slug": "tutoring",
+    "group": "Use cases",
+    "title": "Tutoring and education",
+    "short": "A tutor that tracks what each learner knows, mixes up and is working towards.",
+    "description": "Build a tutor that remembers each learner's progress, misconceptions and goals with Recall: model, structured answers, code, care for minors' data, cost.",
+    "next": ["coaching", "privacy"]
+  },
+  {
+    "slug": "community-bots",
+    "group": "Use cases",
+    "title": "Discord and Slack bots",
+    "short": "A bot in a busy channel that keeps every member apart and remembers each one.",
+    "description": "Build a Discord or Slack bot that remembers every member of a busy channel with Recall: channels as sessions, members as peers, per-member memory, code and cost.",
+    "next": ["workplace", "multi-agent"]
+  },
+  {
+    "slug": "coaching",
+    "group": "Use cases",
+    "title": "Health, fitness and coaching",
+    "short": "A coach that remembers goals, setbacks and what worked, handled with care.",
+    "description": "Build a coaching or wellness assistant that remembers goals, progress and setbacks with Recall: model, code, sensitive data, consent and deletion, cost.",
+    "next": ["privacy", "tutoring"]
+  },
+  {
+    "slug": "voice-agents",
+    "group": "Use cases",
+    "title": "Voice agents",
+    "short": "Phone and voice assistants that know the caller, within a real-time budget.",
+    "description": "Give a voice or phone agent memory of the caller with Recall within a real-time latency budget: context before the call, one call per turn, code, measured speed and cost.",
+    "next": ["cost-and-speed", "support"]
+  },
+  {
+    "slug": "shopping",
+    "group": "Use cases",
+    "title": "Shopping assistants",
+    "short": "Recommendations that remember sizes, tastes, budgets and what was returned.",
+    "description": "Build a shopping assistant that remembers sizes, tastes, budgets and returns with Recall: structured preferences, code, consent and cost.",
+    "next": ["assistants", "privacy"]
+  },
+  {
+    "slug": "workplace",
+    "group": "Use cases",
+    "title": "Workplace assistants",
+    "short": "An assistant for a team that remembers projects, decisions and who owns what.",
+    "description": "Build a workplace assistant that remembers a team's projects, decisions and owners with Recall: projects as scopes, scoped keys, imports, code and cost.",
+    "next": ["multi-agent", "community-bots"]
+  },
+  {
+    "slug": "modeling",
+    "group": "Build well",
+    "title": "Designing workspaces, peers and sessions",
+    "short": "How to map your product onto Recall so memory stays separate where it should.",
+    "description": "How to map a product onto Recall's workspaces, peers, sessions and scopes, who observes whom, and the mistakes that mix up memories.",
+    "next": ["privacy", "levels-and-models"]
+  },
+  {
+    "slug": "levels-and-models",
+    "group": "Build well",
+    "title": "Reasoning levels and models",
+    "short": "When to read context, when to ask, and which reasoning level to pick.",
+    "description": "Choose between prompt context, search and chat, pick a reasoning level per question, and what models Recall answers with, from our own measurements.",
+    "next": ["cost-and-speed", "modeling"]
+  },
+  {
+    "slug": "privacy",
+    "group": "Build well",
+    "title": "Privacy, consent and forgetting",
+    "short": "What to store, how to tell users, and how to forget a person completely.",
+    "description": "Privacy with Recall: what to store and what not, consent, opting people out of being modelled, scoped keys, EU hosting, export and forgetting a person.",
+    "next": ["modeling", "cost-and-speed"]
+  },
+  {
+    "slug": "cost-and-speed",
+    "group": "Build well",
+    "title": "Cost and speed",
+    "short": "What a user costs per month and how fast each call is, with the arithmetic.",
+    "description": "Estimate what Recall costs per user per month and how fast each call is, with worked examples, measured latencies and ways to spend less.",
+    "next": ["levels-and-models", "voice-agents"]
+  }
+]

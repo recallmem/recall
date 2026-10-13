@@ -1,0 +1,93 @@
+    <h1>Personal assistants and companions</h1>
+    <p class="lede">For personal assistants, AI companions and any chat product the same person keeps coming back to. With Recall your assistant starts every conversation knowing the user's plans, preferences and the people in their life, without old transcripts in the prompt: one call per message stores what was said and returns the memory for the reply.</p>
+
+    <h2 id="what-changes">What memory adds</h2>
+    <p>Without memory, every conversation starts from zero and the user repeats themselves. With it, the assistant picks up where they left off:</p>
+    <table>
+      <thead><tr><th></th><th>Without memory</th><th>With Recall</th></tr></thead>
+      <tbody>
+        <tr><td>"My parents visit on Saturday. Can you plan a dinner for four?"</td><td>Suggests roast chicken.</td><td>Suggests a mushroom risotto: the user set "vegetarian" in their profile.</td></tr>
+        <tr><td>Thursday, a new conversation: "What do I still need to buy?"</td><td>"For what, exactly?"</td><td>"For Saturday's dinner with your parents: mushrooms, risotto rice and a lemon."</td></tr>
+        <tr><td>The user mentions once that they moved</td><td>Keeps suggesting cafés in the old city.</td><td>Recall closes "lives in Utrecht", starts "lives in Amersfoort" and keeps the old fact as history.</td></tr>
+      </tbody>
+    </table>
+    <p>Recall does not write the replies. Your model does, as it does now; Recall gives it what it should know about this user, and learns from what they say.</p>
+
+    <h2 id="model">How to model it</h2>
+    <table>
+      <thead><tr><th>In your app</th><th>In Recall</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Your app, per environment</td><td>Workspace, e.g. <code>assistant-prod</code></td><td>One memory space for all your users. Use another workspace for staging and tests.</td></tr>
+        <tr><td>A user</td><td>Peer <code>user-8412</code>, your own stable user id</td><td>Recall learns about the user from everything they write. Each user's memory is built from their own messages.</td></tr>
+        <tr><td>Your assistant or companion character</td><td>Peer <code>assistant</code> with <code>observeMe: false</code></td><td>You write its persona, so Recall need not learn about it; its replies cost less.</td></tr>
+        <tr><td>A conversation</td><td>Session, e.g. <code>chat-20261010-a91f</code></td><td>Summaries and recent messages are per conversation. What Recall learns about the user carries over to every conversation.</td></tr>
+        <tr><td>Facts for every prompt: name, diet, timezone</td><td>The user's peer card</td><td>A short list that <code>turn</code> returns with the context. Recall keeps it up to date, and you can edit it.</td></tr>
+        <tr><td>What the user fills in under settings</td><td>Conclusions you create</td><td>Stored as facts at once, as given; nothing is inferred.</td></tr>
+      </tbody>
+    </table>
+    <p>Ask about one user through their peer (<code>user.chat</code>). The workspace-level <code>recall.chat</code> reads every user's memory, which is never what you want in a personal assistant.</p>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the SDK (<code>npm install @recall-memory/sdk</code> or <code>pip install recall-mem</code>) and set <code>RECALL_API_KEY</code>. Create handles for the user, the assistant and the conversation.</p>
+<!-- example: assistants#setup -->
+    <p><b>Settings are facts.</b> When a user fills in their profile ("I'm vegetarian", "keep it short"), write it down as conclusions about them. They are stored as given, can be found at once and show up in every answer that needs them. What the user says in conversation is learned in the background instead.</p>
+<!-- example: assistants#settings -->
+    <p><b>The peer card: facts for every prompt.</b> The card is a short list of the most stable facts about the user. Recall writes and updates it as it learns, and <code>turn</code> returns it with the context, so your model always sees it. You can add lines yourself, for example from onboarding. <code>setCard</code> replaces the whole list, so read it first.</p>
+<!-- example: assistants#card -->
+    <p><b>Every message: one request.</b> <code>turn</code> stores the user's message and returns the context for your model in the same round trip: the conversation so far, a summary of older turns, the card and what Recall has learned about the user, trimmed to <code>tokens</code>. Building the context uses no model, so it is fast and included in the price; you pay only for learning from the message. Store the reply afterwards so the conversation is complete.</p>
+<!-- example: assistants#turn -->
+    <p><b>Questions about the user: ask.</b> For things outside the chat, such as a morning briefing, a reminder or a suggestion for the weekend, ask the user's memory in plain language. That is one model call of a few seconds, so run it in the background, not while the user waits for a reply.</p>
+<!-- example: assistants#ask -->
+    <p><b>Let users fix what you remember.</b> A "What I remember" page builds trust and catches mistakes. List the user's facts, delete the ones they flag, and store the right value when they give it. Deleting a fact does not change the card, so update the card too. When the user corrects something in conversation ("I moved to Amersfoort"), you need not do anything: Recall closes the old fact itself.</p>
+<!-- example: assistants#correct -->
+    <p><b>Account deletion.</b> <code>user.delete()</code> erases the user: their messages, everything learned about them and their card. The assistant's replies are another peer's messages, so delete the user's conversations as well.</p>
+<!-- example: assistants#forget -->
+
+    <h3 id="connectors">Memory in Claude and ChatGPT</h3>
+    <p>To give Claude or ChatGPT memory across chats you build nothing: add Recall as a connector with the URL <code>https://api.recallmem.dev/mcp</code> and sign in. With <i>Remember automatically</i> ticked (the default) the app saves lasting facts you share, such as preferences, plans and people, without being asked; untick it per app under API keys → Connected apps to have it save only what you ask. The steps for each app are in <a href="/docs#mcp-connector">Add Recall as a connector</a>. That is memory for your own Recall account. To give your product's users memory, build it as above.</p>
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>observeMe: false</code> on the assistant</td><td>Recall learns nothing from the assistant's replies; it reads them only as context for the user's messages. Give it when you create the handle; both SDKs send it before the assistant's first message.</td></tr>
+        <tr><td><code>peerTarget</code> and <code>tokens</code> on <code>turn</code></td><td><code>peerTarget: user</code> adds what Recall knows about the user and their card. 2,000 to 4,000 tokens is plenty for a chat; older turns become a summary.</td></tr>
+        <tr><td><code>reasoningLevel</code></td><td><code>low</code> (the default) for questions about the user, <code>minimal</code> for quick checks: the cheapest and fastest. See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+        <tr><td>Message <code>createdAt</code></td><td>When you import old chats, pass when each message was written, so "next week" is reckoned from then, not from the import.</td></tr>
+        <tr><td><code>reasoning.customInstructions</code> (workspace configuration)</td><td>Tell Recall what matters in your product and what to leave out. It guides the model that extracts facts; it is not a filter.</td></tr>
+        <tr><td><code>peerCard.create: false</code> (workspace configuration)</td><td>Recall stops writing cards and you own them entirely. Leave it on unless you need that.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>Measured from Europe against the hosted API (Frankfurt), October 2026: a <code>turn</code> or context call took 0.3 to 0.7 seconds, a search about 0.9 seconds, a question at <code>minimal</code> or <code>low</code> 2 to 4.5 seconds. Learning happens in the background, usually within about 20 seconds of a message, and never holds up a call.</p>
+    <p>Context, search, storage, summaries and dreams are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50, and for questions. A user who sends 300 messages a month of about 40 tokens, gets 300 replies of about 150 tokens, and about whom your app asks 30 questions at <code>low</code>:</p>
+    <table>
+      <thead><tr><th>Item</th><th>Per month</th></tr></thead>
+      <tbody>
+        <tr><td>User messages: 300 × 50 tokens × $1.75 / 1M</td><td>$0.0263</td></tr>
+        <tr><td>Assistant replies, read but not learned from: 300 × 150 tokens × $1.75 / 1M</td><td>$0.0788</td></tr>
+        <tr><td>Questions at <code>low</code>: 30 × $0.005</td><td>$0.1500</td></tr>
+        <tr><td><b>Total</b></td><td><b>about $0.26 per user</b></td></tr>
+      </tbody>
+    </table>
+    <p>An answer from empty memory is free. Set a monthly cap and auto top-up under Billing. More in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>People tell assistants a lot: health, relationships, money, other people. Say in your privacy notice that conversations are stored to give the assistant memory, that AI model providers process them, and how users delete it. Give users a page that shows what is remembered, like the one above.</p>
+    <ul>
+      <li><b>Keep out what memory does not need:</b> passwords, card numbers, one-time codes and ID numbers. Strip them before a message reaches Recall. A private or incognito mode should not send messages at all.</li>
+      <li><b>Forgetting a user:</b> <code>user.delete()</code> (or <code>DELETE /v3/workspaces/{workspace}/peers/{peer}</code>) erases their messages, every fact and card about them or from their view, the summaries that quoted them (rebuilt without them) and cached answers. Delete their conversations too, for the assistant's replies. See <a href="/docs#forget-a-person">Forget a person</a>.</li>
+      <li><b>Where data lives:</b> the database and API are in Frankfurt (EU). Text is processed by AI model providers in the US through OpenRouter, restricted to providers that do not collect the data, and customer data is not used to train models. See the <a href="/privacy">privacy policy</a>, the <a href="/dpa">DPA</a> and <a href="/security">security</a>.</li>
+    </ul>
+    <p><b>Companions.</b> Memory makes a companion feel like it knows the person, which is the point and also the risk. Keep it honest: let the character say it is an AI when asked, and do not use what it remembers to make people feel guilty for leaving or to keep them chatting longer. Let people see and delete what it remembers. If someone writes about self-harm or a crisis, your app has to point them to real help; Recall stores what was said, it does not notice or handle it. If minors may use your app, read <a href="/guides/privacy">Privacy, consent and forgetting</a> first.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>Learning from your own assistant.</b> Without <code>observeMe: false</code>, Recall also learns from the assistant's replies and builds a memory of your own persona, which you pay for and do not need.</li>
+      <li><b>An email address as the peer id.</b> Email addresses change and are personal data in every log line. Use your internal user id.</li>
+      <li><b>Asking on every message.</b> A question takes seconds. Reply from the context <code>turn</code> returns; ask only for things outside the chat, ahead of time.</li>
+      <li><b>Asking the workspace about one user.</b> <code>recall.chat</code> reads every user. Ask through the user's peer.</li>
+      <li><b>One session forever.</b> The summary then mixes every topic. Start a session per conversation; what Recall knows about the user carries over anyway.</li>
+      <li><b>Expecting Recall to write the reply.</b> Recall is memory, not the reply model. Bring your own model and persona prompt.</li>
+    </ul>

@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Reasoning levels and models — Recall guides</title>
+<meta name="description" content="Choose between prompt context, search and chat, pick a reasoning level per question, and what models Recall answers with, from our own measurements." />
+<meta name="theme-color" content="#0c0b0a" />
+<meta property="og:title" content="Reasoning levels and models — Recall guides" />
+<meta property="og:description" content="Choose between prompt context, search and chat, pick a reasoning level per question, and what models Recall answers with, from our own measurements." />
+<meta property="og:type" content="article" />
+<meta property="og:image" content="/og.png" />
+<link rel="canonical" href="https://recallmem.dev/guides/levels-and-models" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="preload" href="/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/departure-mono.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="/site.css" />
+<meta name="recall-api" content="https://api.recallmem.dev" data-site="https://recallmem.dev" />
+</head>
+<body>
+
+<header class="nav scrolled" id="nav">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="Recall home">
+      <svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>
+      Recall<span class="muted nowrap">/guides</span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="/#how">Product</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides">Guides</a>
+      <a href="https://github.com/recallmem/recall">GitHub</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-text" href="/app/login">Sign in</a>
+      <a class="btn btn-primary" href="/app/login">Get API key</a>
+    </div>
+  </div>
+</header>
+
+<div class="docs">
+  <aside class="toc" aria-label="Guides">
+    <details class="toc-box" open>
+      <summary>Guides</summary>
+      <div class="toc-links">
+        <a href="/guides">All guides</a>
+        <b>On this page</b>
+        <a class="sub" href="#three-ways">Context, search or chat</a>
+        <a class="sub" href="#levels">The five chat levels</a>
+        <a class="sub" href="#choosing">Choosing a level</a>
+        <a class="sub" href="#evidence">Evidence and abstaining</a>
+        <a class="sub" href="#structured">Structured answers</a>
+        <a class="sub" href="#caching">Caching</a>
+        <a class="sub" href="#models">Which models answer</a>
+        <a class="sub" href="#pitfalls">Pitfalls</a>
+        <b>Use cases</b>
+        <a href="/guides/assistants">Personal assistants and companions</a>
+        <a href="/guides/support">Customer support</a>
+        <a href="/guides/coding-agents">Coding agents</a>
+        <a href="/guides/game-npcs">Game NPCs</a>
+        <a href="/guides/sales">Sales and CRM copilots</a>
+        <a href="/guides/multi-agent">Multi-agent systems</a>
+        <a href="/guides/tutoring">Tutoring and education</a>
+        <a href="/guides/community-bots">Discord and Slack bots</a>
+        <a href="/guides/coaching">Health, fitness and coaching</a>
+        <a href="/guides/voice-agents">Voice agents</a>
+        <a href="/guides/shopping">Shopping assistants</a>
+        <a href="/guides/workplace">Workplace assistants</a>
+        <b>Build well</b>
+        <a href="/guides/modeling">Designing workspaces, peers and sessions</a>
+        <a href="/guides/levels-and-models" aria-current="page">Reasoning levels and models</a>
+        <a href="/guides/privacy">Privacy, consent and forgetting</a>
+        <a href="/guides/cost-and-speed">Cost and speed</a>
+        <b>Reference</b>
+        <a href="/docs">Docs</a>
+        <a href="/docs#api">REST API</a>
+      </div>
+    </details>
+  </aside>
+  <script>
+    // On a phone the contents start collapsed; set before first paint so the page does not jump.
+    if (matchMedia("(max-width: 980px)").matches) document.querySelector(".toc-box").open = false;
+  </script>
+
+  <article class="prose guide">
+    <p class="crumbs"><a href="/guides">Guides</a> / Build well</p>
+<h1>Reasoning levels and models</h1>
+    <p class="lede">Recall gives you three ways to read memory: context, search and chat. Two of them use no model at all. This guide shows which call fits where, what the five chat levels do and cost, and how to choose the models that answer.</p>
+
+    <h2 id="three-ways">Context, search or chat</h2>
+    <table>
+      <thead><tr><th>Call</th><th>Model call</th><th>Speed (measured)</th><th>Price</th><th>Use it for</th></tr></thead>
+      <tbody>
+        <tr><td>Context: <code>session.context</code>, <code>turn</code>, <code>peer.context</code></td><td>No</td><td>0.3 to 0.7 s</td><td>Included</td><td>Building every prompt: recent messages, a summary of older ones, and what is known about the person, within a token budget.</td></tr>
+        <tr><td>Search: <code>search</code> on a peer, session or workspace</td><td>No</td><td>About 0.9 s</td><td>Included</td><td>Finding the messages that match, to show sources or to let your own model read the original words.</td></tr>
+        <tr><td>Chat: <code>peer.chat</code>, <code>recall.chat</code></td><td>Yes</td><td>2 to 4.5 s at <code>minimal</code> and <code>low</code></td><td>Per question, by level</td><td>A written answer from memory: questions, decisions, summaries, structured extraction.</td></tr>
+      </tbody>
+    </table>
+    <p>Measured from Europe against the hosted API in Frankfurt, October 2026. Most products need context on every turn and chat now and then. If your own model is already writing the reply, give it context instead of asking Recall a question first: you save a model call and seconds of waiting.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>import { Recall } from "@recall-memory/sdk";
+
+const recall = new Recall({ workspaceId: "my-app" });
+
+const user = recall.peer("user-8412");
+const assistant = recall.peer("assistant", { configuration: { observeMe: false } });
+const session = recall.session("chat-311", { peers: ["user-8412", "assistant"] });
+await session.addMessages([
+  user.message("I moved from Leeds to Utrecht in March. I cycle to work most days."),
+  assistant.message("Utrecht is a great city for cycling."),
+  user.message("I'm allergic to peanuts, and I've started learning Dutch."),
+]);
+await recall.waitForIdle(); // for this demo only: real apps do not wait for learning</code></pre>
+<pre data-panel="py" hidden><code>from pydantic import BaseModel
+
+from recall_memory import PeerConfig, Recall
+
+recall = Recall(workspace_id="my-app")
+
+user = recall.peer("user-8412")
+assistant = recall.peer("assistant", configuration=PeerConfig(observe_me=False))
+session = recall.session("chat-311", peers=[user, assistant])
+session.add_messages(
+    [
+        user.message("I moved from Leeds to Utrecht in March. I cycle to work most days."),
+        assistant.message("Utrecht is a great city for cycling."),
+        user.message("I'm allergic to peanuts, and I've started learning Dutch."),
+    ]
+)
+recall.wait_for_idle()  # for this demo only: real apps do not wait for learning</code></pre>
+</div>
+    <p><b>Context.</b> <code>searchQuery</code> adds the facts most relevant to what the user just said; <code>tokens</code> caps the whole result. The SDKs turn it into OpenAI or Anthropic messages.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// 1. Context: no model call, a few hundred milliseconds, included in the price.
+//    Use it to build every prompt.
+const context = await session.context({ peerTarget: user, tokens: 3000, searchQuery: "dinner" });
+const messages = context.toOpenAI(assistant);</code></pre>
+<pre data-panel="py" hidden><code># 1. Context: no model call, a few hundred milliseconds, included in the price.
+#    Use it to build every prompt.
+context = session.context(peer_target=user, tokens=3000, search_query="dinner")
+messages = context.to_openai(assistant=assistant)</code></pre>
+</div>
+    <p><b>Search.</b> Hybrid search over the stored messages, with filters. It returns what was said, not what Recall concluded.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// 2. Search: the stored messages that match, no model call. Use it to show sources or to
+//    let your own model read the raw text.
+const hits = await user.search("allergy", { limit: 5 });</code></pre>
+<pre data-panel="py" hidden><code># 2. Search: the stored messages that match, no model call. Use it to show sources or to
+#    let your own model read the raw text.
+hits = user.search("allergy", limit=5)</code></pre>
+</div>
+
+    <h2 id="levels">The five chat levels</h2>
+    <table>
+      <thead><tr><th>Level</th><th>How it answers</th><th>Price per question</th><th>Good for</th></tr></thead>
+      <tbody>
+        <tr><td><code>minimal</code></td><td>One retrieval of up to 8 facts, one call to Recall Loom</td><td>$0.0008</td><td>Single facts: "where does she live?", game and workflow logic</td></tr>
+        <tr><td><code>low</code> (default)</td><td>One retrieval of up to 24 facts, one call to Recall Lumen</td><td>$0.005</td><td>Everyday questions about a person</td></tr>
+        <tr><td><code>medium</code></td><td>One retrieval of up to 32 facts, one call to Recall Lumen that thinks longer</td><td>$0.025</td><td>Questions that combine many facts: plans, summaries, comparisons</td></tr>
+        <tr><td><code>high</code></td><td>Recall Lumen searches memory itself, in up to 3 rounds, then answers</td><td>$0.05</td><td>Multi-step questions across many conversations</td></tr>
+        <tr><td><code>max</code></td><td>Up to 6 rounds of searching by Recall Lumen, with the largest budget</td><td>$0.25</td><td>Rare, hard questions where the answer is worth the wait</td></tr>
+      </tbody>
+    </table>
+    <p>Recall Loom and Recall Lumen are the models of the hosted service (see <a href="#models">which models answer</a>); on your own server each level uses the model you set for it. <code>high</code> and <code>max</code> are slower than the single-call levels, by how many steps the question needs. An answer from empty memory is free. The price is taken when the answer starts and given back if no answer comes.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// 3. Chat: an answer written from memory, one model call. Pick the level per question.
+const city = await user.chat("Where do I live now?", { reasoningLevel: "minimal" });
+const plan = await user.chat("Suggest a weekend plan I'd enjoy, given what you know about me.", {
+  reasoningLevel: "medium",
+});</code></pre>
+<pre data-panel="py" hidden><code># 3. Chat: an answer written from memory, one model call. Pick the level per question.
+city = user.chat("Where do I live now?", reasoning_level="minimal")
+plan = user.chat(
+    "Suggest a weekend plan I'd enjoy, given what you know about me.",
+    reasoning_level="medium",
+)</code></pre>
+</div>
+
+    <h2 id="choosing">Choosing a level</h2>
+    <ul>
+      <li><b>Start low, then move up only where it helps.</b> Collect twenty real questions from your product and run them at two levels in the dashboard's Playground, which runs the same engine and shows the evidence behind each answer. Keep the lowest level that answers them correctly.</li>
+      <li><b>Choose per question, not per app.</b> A support bot can look up the plan at <code>minimal</code> and write a handoff summary at <code>medium</code>.</li>
+      <li><b>Counting and timelines are the hard cases.</b> "How many times did I…" and "what happened first" need many facts at once; give those a higher level or read the messages with search.</li>
+      <li><b>Never block a user on a level they do not need.</b> In real-time products (voice, games) read context in the turn and ask questions before or after it.</li>
+    </ul>
+
+    <h2 id="evidence">Evidence and abstaining</h2>
+    <p>With <code>includeEvidence</code> you get the facts and messages the answer used, a confidence between 0 and 1, and <code>abstained</code>: true when memory did not hold the answer and Recall said so instead of guessing. Show the sources to users who need to trust the answer, and handle abstentions in your code rather than passing "I don't know" to a customer.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// With evidence: the facts and messages behind the answer, a confidence, and whether it
+// declined to answer. Show sources, or fall back when it abstains.
+const answer = await user.chat("Which foods must I avoid?", {
+  reasoningLevel: "low",
+  includeEvidence: true,
+});
+const safe = answer.abstained ? "Not sure: please check with the user." : answer.content;</code></pre>
+<pre data-panel="py" hidden><code># With evidence: the facts and messages behind the answer, a confidence, and whether it
+# declined to answer. Show sources, or fall back when it abstains.
+answer = user.chat("Which foods must I avoid?", reasoning_level="low", include_evidence=True)
+safe = "Not sure: please check with the user." if answer.abstained else answer.content</code></pre>
+</div>
+
+    <h2 id="structured">Structured answers</h2>
+    <p>Give a JSON Schema (or, in Python, a Pydantic model) and the answer comes back as matching JSON, ready for code: profile fields, a list of open issues, a yes or no with a reason.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// Structured: a JSON Schema in, matching JSON out, for code rather than people.
+const profile = await user.chat("Summarise this user's diet and languages.", {
+  reasoningLevel: "low",
+  responseFormat: {
+    type: "object",
+    properties: {
+      allergies: { type: "array", items: { type: "string" } },
+      languages: { type: "array", items: { type: "string" } },
+    },
+    required: ["allergies", "languages"],
+    additionalProperties: false,
+  },
+});</code></pre>
+<pre data-panel="py" hidden><code># Structured: a Pydantic model (or a JSON Schema) in, a parsed object out, for code.
+class Profile(BaseModel):
+    allergies: list[str]
+    languages: list[str]
+
+profile = user.chat(
+    "Summarise this user's diet and languages.",
+    reasoning_level="low",
+    response_format=Profile,
+)</code></pre>
+</div>
+
+    <h2 id="caching">Caching</h2>
+    <p>Answers are cached until the memory they depend on changes, so asking the same question twice returns at once. A cached answer is still billed as one question; the cache saves time, not money. Sending the same <code>Idempotency-Key</code> with the same request returns the first answer again instead of asking a second time, so a retry after a timeout never pays twice; the same key with a different question answers <code>409</code> (see <a href="/docs#idempotency">retries</a>).</p>
+
+    <h2 id="models">Which models answer</h2>
+    <p>Recall sends each kind of work (learning from messages, summaries, peer cards, the night shift, and chat at each level) to a model chosen for it. Each can come from a different provider.</p>
+    <ul>
+      <li><b>On the hosted service</b> we choose the models, test candidates against public long-term memory benchmarks with the memory held fixed before changing one, and publish results on <a href="/evals">Evals</a>. Requests go through OpenRouter only to providers that do not collect the data (see <a href="/privacy">Privacy</a>). <code>GET …/usage</code> shows the tokens of each kind of work by model: Recall Lumen (<code>recall-lumen</code>) answers questions at <code>low</code> to <code>max</code>, Recall Loom (<code>recall-loom</code>) builds memory and answers at <code>minimal</code>, and Recall Embed (<code>recall-embed</code>) computes embeddings.</li>
+      <li><b>When you <a href="/docs#self-host">run Recall yourself</a></b> you set a model per task with environment variables such as <code>RECALL_MODEL_REASONER</code> and <code>RECALL_MODEL_CHAT_LOW</code>, from OpenAI, Anthropic, Gemini, OpenRouter, Groq, xAI, DeepSeek, Together, Fireworks or any OpenAI-compatible server. See <a href="/docs#models">Models and providers</a>.</li>
+    </ul>
+    <p>What we have learned from testing: a stronger answer model helps most on questions about timelines and on questions that combine many conversations, and thinking models can add many seconds per answer. A cheap model is fine for learning, which runs in the background, as long as it extracts dates and changes reliably.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>Asking where reading would do.</b> If your model writes the reply anyway, context gives it the same knowledge without a second model call.</li>
+      <li><b>Using <code>max</code> by default.</b> It costs 50 times <code>low</code> and is slower. Keep it for the questions that need it.</li>
+      <li><b>Treating an abstention as an answer.</b> Check <code>abstained</code> and decide what your product does when memory does not know.</li>
+      <li><b>Asking right after storing.</b> Learning runs in the background and usually takes about 20 seconds, because new messages are read in batches. A question asked at once may not see the newest message yet; context always includes it. In tests and scripts, <code>waitForIdle</code> (<code>wait_for_idle</code> in Python) starts the waiting work at once and returns when it is done.</li>
+    </ul>
+    <p class="guide-next">Next: <a href="/guides/cost-and-speed">Cost and speed</a> · <a href="/guides/modeling">Designing workspaces, peers and sessions</a></p>
+  </article>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="logo" href="/"><svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>Recall</a>
+      <p class="tagline">Memory for AI agents. Hosted in the EU.</p>
+      <p class="muted">Smidt Beheer · KvK 99124254 · VAT NL004444074B96</p>
+    </div>
+    <nav aria-label="Footer">
+      <div><b>Product</b><a href="/#how">How it works</a><a href="/#why">Why Recall</a><a href="/#agents">Integrations</a><a href="/evals">Evals</a><a href="/#pricing">Pricing</a></div>
+      <div><b>Developers</b><a href="/docs#quickstart">Quickstart</a><a href="/guides">Guides</a><a href="/docs#integrations">Integrations</a><a href="/docs#api">API</a><a href="/docs#models">Models</a><a href="https://github.com/recallmem/recall">GitHub</a></div>
+      <div><b>Account</b><a href="/app/login">Sign in</a></div>
+      <div><b>Legal</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/dpa">Data processing</a><a href="/security">Security</a><a href="/support">Support</a></div>
+    </nav>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

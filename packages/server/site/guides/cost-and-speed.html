@@ -1,0 +1,103 @@
+    <h1>Cost and speed</h1>
+    <p class="lede">What Recall costs per user, per ticket or per player each month, how fast each call is, and how to spend less. Prices come from the price list and speeds from our own measurements, and every example shows its arithmetic, so you can redo it with your own numbers.</p>
+
+    <h2 id="pricing">How pricing works</h2>
+    <p>Recall runs on prepaid credit in US dollars, with no subscription; new accounts get $5. You pay for two things, learning from messages and answering questions. Everything else is included.</p>
+    <table>
+      <thead><tr><th>What</th><th>Price</th><th>How it is counted</th></tr></thead>
+      <tbody>
+        <tr><td>Learning from a message</td><td>$1.75 per 1M message tokens</td><td>Each message counts as at least 50 tokens.</td></tr>
+        <tr><td>A message read but not learned from</td><td>$1.75 per 1M tokens read</td><td>Messages from a peer with <code>observeMe: false</code>, or in a session or message with reasoning off. Only what Recall reads counts: at most 200 tokens when it reads the message as context, 600 for a summary, and no 50-token minimum.</td></tr>
+        <tr><td>A question (<code>chat</code>)</td><td>$0.0008 to $0.25</td><td>Per question, by reasoning level (below). An answer from empty memory is free. A cached answer is still billed as one question.</td></tr>
+        <tr><td>Context and <code>turn</code>, search, storage, summaries, the night shift</td><td>Included</td><td>No charge per call.</td></tr>
+      </tbody>
+    </table>
+    <p>So a short message such as "Sounds good, book it" costs 50 × $1.75 / 1M = $0.0000875 to learn from, and a 400-token message 400 × $1.75 / 1M = $0.0007. A 30-token line from a bot you do not observe costs 30 × $1.75 / 1M = $0.0000525. Every stored message comes back with its <code>tokenCount</code>, so you can measure your own averages.</p>
+    <table>
+      <thead><tr><th>Question level</th><th>Per question</th><th>Per 1,000 questions</th></tr></thead>
+      <tbody>
+        <tr><td><code>minimal</code></td><td>$0.0008</td><td>$0.80</td></tr>
+        <tr><td><code>low</code> (default)</td><td>$0.005</td><td>$5</td></tr>
+        <tr><td><code>medium</code></td><td>$0.025</td><td>$25</td></tr>
+        <tr><td><code>high</code></td><td>$0.05</td><td>$50</td></tr>
+        <tr><td><code>max</code></td><td>$0.25</td><td>$250</td></tr>
+      </tbody>
+    </table>
+    <p>The price of a question is taken when the answer starts and given back if no answer comes, so a question never spends credit you do not have. When your credit runs out or you reach your monthly cap, questions answer <code>402</code> and learning pauses; messages are still stored. See <a href="/docs#pricing">Pricing</a>.</p>
+
+    <h2 id="examples">Three monthly examples</h2>
+    <h3 id="assistant">A chat assistant with one daily user</h3>
+    <p>Assumptions: 30 days. The user sends 20 messages a day, each shorter than 50 tokens, so each counts as 50. The assistant sends 20 replies a day of about 150 tokens; it has <code>observeMe: false</code>, so each reply counts at its length, under the 200-token cap. Every reply's prompt comes from <code>turn</code>. Your app asks two questions a day at <code>low</code>, for example to decide what to suggest.</p>
+    <table>
+      <thead><tr><th>Item</th><th>Per month</th></tr></thead>
+      <tbody>
+        <tr><td>User messages: 30 × 20 × 50 tokens × $1.75 / 1M</td><td>$0.0525</td></tr>
+        <tr><td>Assistant replies, read not learned: 30 × 20 × 150 tokens × $1.75 / 1M</td><td>$0.1575</td></tr>
+        <tr><td>Context for 600 replies</td><td>Included</td></tr>
+        <tr><td>Questions at <code>low</code>: 30 × 2 × $0.005</td><td>$0.30</td></tr>
+        <tr><td><b>Total</b></td><td><b>$0.51 per user</b></td></tr>
+      </tbody>
+    </table>
+    <p>Without the questions, reading context instead, the same user costs $0.21 a month.</p>
+
+    <h3 id="support">A support bot with 1,000 tickets a month</h3>
+    <p>Assumptions: each ticket has 6 customer messages of about 60 tokens and 6 bot replies of about 120 tokens; the bot has <code>observeMe: false</code>. Every bot reply is built from context. When a ticket opens, the bot asks one question at <code>low</code> ("what has this customer had trouble with before?"). One ticket in ten goes to a human, with a handoff summary asked at <code>medium</code>.</p>
+    <table>
+      <thead><tr><th>Item</th><th>Per month</th></tr></thead>
+      <tbody>
+        <tr><td>Customer messages: 1,000 × 6 × 60 tokens × $1.75 / 1M</td><td>$0.63</td></tr>
+        <tr><td>Bot replies, read not learned: 1,000 × 6 × 120 tokens × $1.75 / 1M</td><td>$1.26</td></tr>
+        <tr><td>Context for 6,000 replies</td><td>Included</td></tr>
+        <tr><td>Opening question at <code>low</code>: 1,000 × $0.005</td><td>$5.00</td></tr>
+        <tr><td>Handoff summaries at <code>medium</code>: 100 × $0.025</td><td>$2.50</td></tr>
+        <tr><td><b>Total</b></td><td><b>$9.39, about $0.0094 per ticket</b></td></tr>
+      </tbody>
+    </table>
+    <p>Questions are 80% of this bill. Reading the customer's context when a ticket opens, instead of asking, brings it to $4.39.</p>
+
+    <h3 id="game">A game with 10,000 weekly players</h3>
+    <p>Assumptions: the same player as in <a href="/guides/game-npcs">Game NPCs</a>, who plays about two hours a week: 200 lines of their own, each under 50 tokens so counted as 50; 200 NPC lines of about 30 tokens, from NPCs with <code>observeMe: false</code>; 20 game-logic questions at <code>minimal</code>. Every line of dialogue uses <code>turn</code>. A month is 4 weeks.</p>
+    <table>
+      <thead><tr><th>Item</th><th>Per month</th></tr></thead>
+      <tbody>
+        <tr><td>Player lines: 10,000 × 4 × 200 × 50 tokens × $1.75 / 1M</td><td>$700</td></tr>
+        <tr><td>NPC lines, read not learned: 10,000 × 4 × 200 × 30 tokens × $1.75 / 1M</td><td>$420</td></tr>
+        <tr><td>Context for 8,000,000 lines of dialogue</td><td>Included</td></tr>
+        <tr><td>Questions at <code>minimal</code>: 10,000 × 4 × 20 × $0.0008</td><td>$640</td></tr>
+        <tr><td><b>Total</b></td><td><b>$1,760, or $0.176 per player</b></td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="speed">How fast each call is, and when to use it</h2>
+    <table>
+      <thead><tr><th>Call</th><th>Measured</th><th>Price</th><th>Use it for</th></tr></thead>
+      <tbody>
+        <tr><td><code>turn</code> or context</td><td>0.3 to 0.7 s</td><td>Included</td><td>Every prompt: recent messages, a summary of older ones and what is known about the person, within a token budget. <code>turn</code> also stores the new message, in the same round trip.</td></tr>
+        <tr><td>Search</td><td>About 0.9 s</td><td>Included</td><td>Finding what was said, word for word: an order number, a quote to show as a source.</td></tr>
+        <tr><td>Chat at <code>minimal</code> or <code>low</code></td><td>2 to 4.5 s</td><td>$0.0008 or $0.005</td><td>An answer your code needs: a decision, a JSON field, a summary for a person.</td></tr>
+        <tr><td>Chat at <code>medium</code>, <code>high</code> or <code>max</code></td><td>Slower</td><td>$0.025 to $0.25</td><td>Questions that need many facts or several steps. <code>high</code> and <code>max</code> search memory in several rounds.</td></tr>
+        <tr><td>Learning</td><td>In the background, usually within about 20 seconds</td><td>Per message</td><td>Nothing to call: it never holds up a request.</td></tr>
+      </tbody>
+    </table>
+    <p>Measured from Europe against the hosted API in Frankfurt, October 2026; from farther away, add your network round trip. To keep a product fast: build prompts with <code>turn</code>, one request per turn; ask questions before the user needs the answer, when a conversation or scene starts, or stream the answer (<code>chatStream</code>) so the first words show sooner; and never wait for learning in the request path, because context already includes the newest messages. Bursts beyond your rate limit answer <code>429</code> with <code>Retry-After</code>; the SDKs wait and retry for you. <a href="/guides/levels-and-models">Reasoning levels and models</a> covers choosing a level.</p>
+
+    <h2 id="spend-less">Ways to spend less</h2>
+    <p><b>Do not learn from your own agents.</b> With <code>observeMe: false</code> on an assistant, bot or NPC, its lines count only what Recall reads, with no 50-token minimum and at most 200 tokens as context, and memory fills with facts about your users rather than about your prompt. Short lines and long replies save the most.</p>
+    <p><b>Turn reasoning off where you only need context.</b> A chat with a visitor who is not signed in, or a pasted log or document: set <code>reasoning: { enabled: false }</code> in the configuration of the session or of that one message.</p>
+<!-- example: cost-and-speed#settings -->
+    <p><b>Read context instead of asking.</b> If your model writes the reply anyway, context gives it what Recall knows, faster and at no charge.</p>
+    <p><b>Ask at the lowest level that answers well.</b> <code>minimal</code> costs about a sixth of <code>low</code>; <code>max</code> costs 50 times <code>low</code>.</p>
+    <p><b>Keep answers instead of asking again.</b> Recall caches answers until the memory behind them changes, but a cached answer is still billed. Keep the answer in your app for the conversation, and refresh it when a <code>queue.empty</code> <a href="/docs#webhooks">webhook</a> says learning for that session has finished.</p>
+<!-- example: cost-and-speed#calls -->
+    <p><b>Batch messages.</b> Store a turn's messages in one call (<code>turn</code>, or <code>addMessages</code> with several), and store a streamed reply once it is complete, not chunk by chunk. If your users send bursts of short lines ("hi", "quick question", "about my order"), consider joining them into one message: the 50-token minimum applies to each message Recall learns from.</p>
+    <p><b>Set a monthly cap.</b> Under <b>Billing</b>, set a monthly cap so a bug or a leaked key cannot spend more than you planned, and auto top-up so learning does not pause when credit runs low. The dashboard's <b>Usage</b> page shows charges per day.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>Asking on every turn.</b> A question at <code>low</code> per reply adds $0.005 and seconds to every turn. Read context instead and ask only when your code needs an answer.</li>
+      <li><b>Learning from your own bot.</b> Leave <code>observeMe</code> on for an assistant and Recall profiles your prompt, and every "Got it" counts as 50 tokens.</li>
+      <li><b>Storing streamed chunks as messages.</b> Each chunk becomes a message. Store the reply once it is complete.</li>
+      <li><b>Waiting for learning in the request path.</b> <code>waitForIdle</code> is for tests and scripts. In production read context, which includes the newest messages at once.</li>
+      <li><b><code>max</code> by default.</b> It costs 50 times <code>low</code> and is slower. Keep it for the questions that need it.</li>
+      <li><b>No cap on a public app.</b> A retry loop or a leaked key can spend all your credit. Set a monthly cap before launch.</li>
+    </ul>

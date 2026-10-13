@@ -1,0 +1,67 @@
+    <h1>Reasoning levels and models</h1>
+    <p class="lede">Recall gives you three ways to read memory: context, search and chat. Two of them use no model at all. This guide shows which call fits where, what the five chat levels do and cost, and how to choose the models that answer.</p>
+
+    <h2 id="three-ways">Context, search or chat</h2>
+    <table>
+      <thead><tr><th>Call</th><th>Model call</th><th>Speed (measured)</th><th>Price</th><th>Use it for</th></tr></thead>
+      <tbody>
+        <tr><td>Context: <code>session.context</code>, <code>turn</code>, <code>peer.context</code></td><td>No</td><td>0.3 to 0.7 s</td><td>Included</td><td>Building every prompt: recent messages, a summary of older ones, and what is known about the person, within a token budget.</td></tr>
+        <tr><td>Search: <code>search</code> on a peer, session or workspace</td><td>No</td><td>About 0.9 s</td><td>Included</td><td>Finding the messages that match, to show sources or to let your own model read the original words.</td></tr>
+        <tr><td>Chat: <code>peer.chat</code>, <code>recall.chat</code></td><td>Yes</td><td>2 to 4.5 s at <code>minimal</code> and <code>low</code></td><td>Per question, by level</td><td>A written answer from memory: questions, decisions, summaries, structured extraction.</td></tr>
+      </tbody>
+    </table>
+    <p>Measured from Europe against the hosted API in Frankfurt, October 2026. Most products need context on every turn and chat now and then. If your own model is already writing the reply, give it context instead of asking Recall a question first: you save a model call and seconds of waiting.</p>
+<!-- example: levels-and-models#setup -->
+    <p><b>Context.</b> <code>searchQuery</code> adds the facts most relevant to what the user just said; <code>tokens</code> caps the whole result. The SDKs turn it into OpenAI or Anthropic messages.</p>
+<!-- example: levels-and-models#context -->
+    <p><b>Search.</b> Hybrid search over the stored messages, with filters. It returns what was said, not what Recall concluded.</p>
+<!-- example: levels-and-models#search -->
+
+    <h2 id="levels">The five chat levels</h2>
+    <table>
+      <thead><tr><th>Level</th><th>How it answers</th><th>Price per question</th><th>Good for</th></tr></thead>
+      <tbody>
+        <tr><td><code>minimal</code></td><td>One retrieval of up to 8 facts, one call to Recall Loom</td><td>$0.0008</td><td>Single facts: "where does she live?", game and workflow logic</td></tr>
+        <tr><td><code>low</code> (default)</td><td>One retrieval of up to 24 facts, one call to Recall Lumen</td><td>$0.005</td><td>Everyday questions about a person</td></tr>
+        <tr><td><code>medium</code></td><td>One retrieval of up to 32 facts, one call to Recall Lumen that thinks longer</td><td>$0.025</td><td>Questions that combine many facts: plans, summaries, comparisons</td></tr>
+        <tr><td><code>high</code></td><td>Recall Lumen searches memory itself, in up to 3 rounds, then answers</td><td>$0.05</td><td>Multi-step questions across many conversations</td></tr>
+        <tr><td><code>max</code></td><td>Up to 6 rounds of searching by Recall Lumen, with the largest budget</td><td>$0.25</td><td>Rare, hard questions where the answer is worth the wait</td></tr>
+      </tbody>
+    </table>
+    <p>Recall Loom and Recall Lumen are the models of the hosted service (see <a href="#models">which models answer</a>); on your own server each level uses the model you set for it. <code>high</code> and <code>max</code> are slower than the single-call levels, by how many steps the question needs. An answer from empty memory is free. The price is taken when the answer starts and given back if no answer comes.</p>
+<!-- example: levels-and-models#chat -->
+
+    <h2 id="choosing">Choosing a level</h2>
+    <ul>
+      <li><b>Start low, then move up only where it helps.</b> Collect twenty real questions from your product and run them at two levels in the dashboard's Playground, which runs the same engine and shows the evidence behind each answer. Keep the lowest level that answers them correctly.</li>
+      <li><b>Choose per question, not per app.</b> A support bot can look up the plan at <code>minimal</code> and write a handoff summary at <code>medium</code>.</li>
+      <li><b>Counting and timelines are the hard cases.</b> "How many times did I…" and "what happened first" need many facts at once; give those a higher level or read the messages with search.</li>
+      <li><b>Never block a user on a level they do not need.</b> In real-time products (voice, games) read context in the turn and ask questions before or after it.</li>
+    </ul>
+
+    <h2 id="evidence">Evidence and abstaining</h2>
+    <p>With <code>includeEvidence</code> you get the facts and messages the answer used, a confidence between 0 and 1, and <code>abstained</code>: true when memory did not hold the answer and Recall said so instead of guessing. Show the sources to users who need to trust the answer, and handle abstentions in your code rather than passing "I don't know" to a customer.</p>
+<!-- example: levels-and-models#evidence -->
+
+    <h2 id="structured">Structured answers</h2>
+    <p>Give a JSON Schema (or, in Python, a Pydantic model) and the answer comes back as matching JSON, ready for code: profile fields, a list of open issues, a yes or no with a reason.</p>
+<!-- example: levels-and-models#structured -->
+
+    <h2 id="caching">Caching</h2>
+    <p>Answers are cached until the memory they depend on changes, so asking the same question twice returns at once. A cached answer is still billed as one question; the cache saves time, not money. Sending the same <code>Idempotency-Key</code> with the same request returns the first answer again instead of asking a second time, so a retry after a timeout never pays twice; the same key with a different question answers <code>409</code> (see <a href="/docs#idempotency">retries</a>).</p>
+
+    <h2 id="models">Which models answer</h2>
+    <p>Recall sends each kind of work (learning from messages, summaries, peer cards, the night shift, and chat at each level) to a model chosen for it. Each can come from a different provider.</p>
+    <ul>
+      <li><b>On the hosted service</b> we choose the models, test candidates against public long-term memory benchmarks with the memory held fixed before changing one, and publish results on <a href="/evals">Evals</a>. Requests go through OpenRouter only to providers that do not collect the data (see <a href="/privacy">Privacy</a>). <code>GET …/usage</code> shows the tokens of each kind of work by model: Recall Lumen (<code>recall-lumen</code>) answers questions at <code>low</code> to <code>max</code>, Recall Loom (<code>recall-loom</code>) builds memory and answers at <code>minimal</code>, and Recall Embed (<code>recall-embed</code>) computes embeddings.</li>
+      <li><b>When you <a href="/docs#self-host">run Recall yourself</a></b> you set a model per task with environment variables such as <code>RECALL_MODEL_REASONER</code> and <code>RECALL_MODEL_CHAT_LOW</code>, from OpenAI, Anthropic, Gemini, OpenRouter, Groq, xAI, DeepSeek, Together, Fireworks or any OpenAI-compatible server. See <a href="/docs#models">Models and providers</a>.</li>
+    </ul>
+    <p>What we have learned from testing: a stronger answer model helps most on questions about timelines and on questions that combine many conversations, and thinking models can add many seconds per answer. A cheap model is fine for learning, which runs in the background, as long as it extracts dates and changes reliably.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>Asking where reading would do.</b> If your model writes the reply anyway, context gives it the same knowledge without a second model call.</li>
+      <li><b>Using <code>max</code> by default.</b> It costs 50 times <code>low</code> and is slower. Keep it for the questions that need it.</li>
+      <li><b>Treating an abstention as an answer.</b> Check <code>abstained</code> and decide what your product does when memory does not know.</li>
+      <li><b>Asking right after storing.</b> Learning runs in the background and usually takes about 20 seconds, because new messages are read in batches. A question asked at once may not see the newest message yet; context always includes it. In tests and scripts, <code>waitForIdle</code> (<code>wait_for_idle</code> in Python) starts the waiting work at once and returns when it is done.</li>
+    </ul>

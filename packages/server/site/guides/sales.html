@@ -1,0 +1,89 @@
+    <h1>Sales and CRM copilots</h1>
+    <p class="lede">For sales copilots, CRM assistants and call-note tools. Recall remembers what every contact said on calls and in email, keeps each account's and each deal's history together, and turns it into a meeting brief as JSON your UI can lay out.</p>
+
+    <h2 id="what-changes">What memory adds</h2>
+    <p>Without memory, what a prospect said lives in transcripts nobody rereads and in a few CRM fields. With it, the copilot knows the deal:</p>
+    <table>
+      <thead><tr><th></th><th>Without memory</th><th>With Recall</th></tr></thead>
+      <tbody>
+        <tr><td>Preparing the second call</td><td>The rep skims an hour of transcript and their own notes.</td><td>A brief: the CFO wants the month-end close under five days by next quarter, IT requires single sign-on, the budget is approved up to 40k; open question: who signs above that.</td></tr>
+        <tr><td>The Head of IT joins the next call</td><td>The rep pitches features IT has already ruled out.</td><td>"Their last vendor failed the security review on SSO. Start there."</td></tr>
+        <tr><td>The account moves to another rep</td><td>The history leaves with the old rep.</td><td>The new rep asks "What did they object to?" and gets an answer drawn from every call and email thread.</td></tr>
+      </tbody>
+    </table>
+    <p>Recall does not record or transcribe calls, and it does not write emails. Your recorder and your model do that; Recall stores what was said, learns about each contact, and answers questions about them.</p>
+
+    <h2 id="model">How to model it</h2>
+    <table>
+      <thead><tr><th>In your CRM</th><th>In Recall</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Your sales team, or each customer if you sell a CRM</td><td>Workspace, e.g. <code>crm-org-5531</code></td><td>One organisation's prospects never mix with another's.</td></tr>
+        <tr><td>Each contact at a prospect</td><td>Peer <code>contact-2210</code>, your CRM contact id</td><td>Recall learns about each person from what they say, across all calls and threads.</td></tr>
+        <tr><td>Each rep</td><td>Peer <code>rep-104</code> with <code>observeMe: false</code></td><td>Recall learns about prospects, not about your reps; rep lines are read as context and cost less.</td></tr>
+        <tr><td>A call, meeting or email thread</td><td>Session, e.g. <code>call-90211</code>, <code>email-4410</code></td><td>A summary per conversation, and transcripts keep their real times.</td></tr>
+        <tr><td>An account and a deal</td><td>Scopes, e.g. <code>acct-381</code> and <code>deal-7781</code></td><td>Ask across every conversation about the account or the deal. A session can be in several scopes.</td></tr>
+        <tr><td>Title, stage and other CRM fields</td><td>Peer and scope metadata</td><td>For your own code and UI. Recall learns from what people say, not from metadata.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the SDK (<code>npm install @recall-memory/sdk</code> or <code>pip install recall-mem</code>) and set <code>RECALL_API_KEY</code>. Create the contacts, the rep and the scopes.</p>
+<!-- example: sales#setup -->
+    <p><b>Calls: one message per speaker turn, with its time.</b> Most recorders give you a transcript with speakers and timestamps. Add one message per turn, from the person who spoke, with <code>createdAt</code> set to when it was said, so "by next quarter" is reckoned from the call. Put the call in the account's scope when you create it, or add it to a scope later with <code>addSessions</code>.</p>
+<!-- example: sales#call -->
+    <p><b>Email threads and files.</b> An email thread is a session like a call. Files a contact sends you, such as an RFP or a requirements list, go in with <code>uploadFile</code>, from the person who sent them: PDF, text and JSON are understood, and a long file becomes several messages. If your recorder gives you one transcript file for a whole call, split it by speaker first; a file uploaded as one peer makes every line in it, the rep's pitch included, that person's words.</p>
+<!-- example: sales#email -->
+    <p><b>Meeting prep: one structured question.</b> Before a meeting, ask across the deal's scope for the brief you want, as JSON. In TypeScript pass a JSON Schema, or <code>{ jsonSchema, parse }</code> for a typed result; in Python pass a Pydantic model and get an instance back (a JSON Schema dict returns the JSON as a string). <code>medium</code> is still one retrieval and one model call, at $0.025; we have no measured latency for it, so make briefs ahead of the meeting rather than during it.</p>
+<!-- example: sales#brief -->
+    <p><b>Quick questions about one person.</b> Ask the contact's peer. The answer draws on everything they said, in any call or thread, and takes a few seconds at <code>low</code>.</p>
+<!-- example: sales#contact -->
+    <p><b>A contact who asks to be deleted.</b> <code>delete()</code> erases their words and everything learned about them, in every call, thread and scope. The rep's lines in those calls stay; delete the calls too if they must go.</p>
+<!-- example: sales#forget -->
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td>Message <code>createdAt</code></td><td>Every transcript turn and email: when it was said or sent. Imports without it are dated on the day you import them.</td></tr>
+        <tr><td><code>observeMe: false</code> on reps</td><td>Recall reads rep lines as context but learns nothing from them. Give it when you create the handle; the SDKs send it before the rep's first line.</td></tr>
+        <tr><td><code>scope</code> on <code>chat</code> and <code>search</code></td><td>Read only one deal's or account's conversations. Scopes need a workspace-level key.</td></tr>
+        <tr><td><code>responseFormat</code></td><td>A JSON Schema with an object at the root, or a Pydantic model. Keep fields few and plainly named. <code>allOf</code>, <code>not</code> and <code>if</code>/<code>then</code>/<code>else</code> are not supported.</td></tr>
+        <tr><td><code>reasoningLevel</code></td><td><code>medium</code> for a full brief, <code>low</code> (the default) for quick questions. See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+        <tr><td><code>includeEvidence</code></td><td>Returns the facts and messages behind an answer, so a rep can check a claim before repeating it to the customer.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>Measured from Europe against the hosted API (Frankfurt), October 2026: a <code>turn</code> or context call took 0.3 to 0.7 seconds, a search about 0.9 seconds, a question at <code>minimal</code> or <code>low</code> 2 to 4.5 seconds. Learning from a transcript happens in the background, usually within about 20 seconds, and never holds up a call.</p>
+    <p>Context, search, storage, summaries and dreams are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50; a rep's line, which Recall reads without learning from it, counts only what it reads, at most 200 tokens as context. One active deal in a month: three 45-minute calls with about 100 turns per side of about 40 tokens each, an email thread with six emails each way of about 250 tokens, three briefs at <code>medium</code> and ten quick questions at <code>low</code>:</p>
+    <table>
+      <thead><tr><th>Item</th><th>Per month</th></tr></thead>
+      <tbody>
+        <tr><td>Contacts' words: (300 × 50 + 6 × 250) tokens × $1.75 / 1M</td><td>$0.0289</td></tr>
+        <tr><td>Rep's words, read but not learned from: (300 × 40 + 6 × 200) tokens × $1.75 / 1M</td><td>$0.0231</td></tr>
+        <tr><td>Briefs at <code>medium</code>: 3 × $0.025</td><td>$0.0750</td></tr>
+        <tr><td>Questions at <code>low</code>: 10 × $0.005</td><td>$0.0500</td></tr>
+        <tr><td><b>Total</b></td><td><b>about $0.18 per deal</b></td></tr>
+      </tbody>
+    </table>
+    <p>A rep working ten such deals costs about $1.27 a month. Answers are cached until the memory they depend on changes, but a cached answer is still billed as one query, so keep a brief in your own database once it is made. More in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>What prospects say on calls is personal data about them, also in business-to-business sales.</p>
+    <ul>
+      <li><b>Tell people you record.</b> Say at the start of a call that it is recorded and transcribed and that your team keeps notes from it. Rules on consent to recording differ by country and state; check the ones that apply to you (this is not legal advice). If someone declines, do not add their words.</li>
+      <li><b>Keep it to business.</b> Calls drift into family, health and politics. Recall learns from what is said, so trim small talk from transcripts when you can.</li>
+      <li><b>Objections and deletion.</b> A contact who objects to being profiled but stays in touch: set <code>observeMe: false</code> on their peer so Recall stops learning about them, and delete what was learned. A contact who asks to be deleted: <code>contact.delete()</code>, or <code>DELETE /v3/workspaces/{workspace}/peers/{peer}</code>. See <a href="/docs#forget-a-person">Forget a person</a>.</li>
+      <li><b>Retention.</b> Delete the calls and threads of lost deals after the period your policy sets; deleting a session removes its messages and what was learned from it.</li>
+      <li><b>Where data lives:</b> the database and API are in Frankfurt (EU). Text is processed by AI model providers in the US through OpenRouter, restricted to providers that do not collect the data, and customer data is not used to train models. See the <a href="/privacy">privacy policy</a>, the <a href="/dpa">DPA</a> and <a href="/guides/privacy">Privacy, consent and forgetting</a>.</li>
+    </ul>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>One transcript file as one peer.</b> Every line in it, the rep's included, becomes that person's words. Split transcripts by speaker.</li>
+      <li><b>Call notes in the rep's name.</b> Recall does not learn from peers it does not observe, so a rep's notes are stored and searchable, but nothing in them is learned. Write facts you have confirmed as conclusions about the contact.</li>
+      <li><b>No <code>createdAt</code> on imported calls.</b> "Next quarter" is then reckoned from the day you imported them.</li>
+      <li><b>One session for the whole deal.</b> Summaries blur and calls run together. Use a session per call or thread and a scope for the deal.</li>
+      <li><b>Contact ids that change when your CRM merges duplicates.</b> Memory belongs to the id. Decide which id survives before you write, or what you know about the person stays split.</li>
+      <li><b>Treating the brief as a record.</b> It is a model's reading of the conversations. Check figures with <code>includeEvidence</code> before you quote them to the customer.</li>
+    </ul>

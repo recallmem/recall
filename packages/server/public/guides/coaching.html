@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Health, fitness and coaching — Recall guides</title>
+<meta name="description" content="Build a coaching or wellness assistant that remembers goals, progress and setbacks with Recall: model, code, sensitive data, consent and deletion, cost." />
+<meta name="theme-color" content="#0c0b0a" />
+<meta property="og:title" content="Health, fitness and coaching — Recall guides" />
+<meta property="og:description" content="Build a coaching or wellness assistant that remembers goals, progress and setbacks with Recall: model, code, sensitive data, consent and deletion, cost." />
+<meta property="og:type" content="article" />
+<meta property="og:image" content="/og.png" />
+<link rel="canonical" href="https://recallmem.dev/guides/coaching" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="preload" href="/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/departure-mono.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="/site.css" />
+<meta name="recall-api" content="https://api.recallmem.dev" data-site="https://recallmem.dev" />
+</head>
+<body>
+
+<header class="nav scrolled" id="nav">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="Recall home">
+      <svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>
+      Recall<span class="muted nowrap">/guides</span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="/#how">Product</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides">Guides</a>
+      <a href="https://github.com/recallmem/recall">GitHub</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-text" href="/app/login">Sign in</a>
+      <a class="btn btn-primary" href="/app/login">Get API key</a>
+    </div>
+  </div>
+</header>
+
+<div class="docs">
+  <aside class="toc" aria-label="Guides">
+    <details class="toc-box" open>
+      <summary>Guides</summary>
+      <div class="toc-links">
+        <a href="/guides">All guides</a>
+        <b>On this page</b>
+        <a class="sub" href="#what-changes">What memory adds</a>
+        <a class="sub" href="#model">How to model it</a>
+        <a class="sub" href="#build">Build it</a>
+        <a class="sub" href="#settings">Settings that matter</a>
+        <a class="sub" href="#cost-speed">Cost and speed</a>
+        <a class="sub" href="#privacy">Privacy and forgetting</a>
+        <a class="sub" href="#pitfalls">Pitfalls</a>
+        <b>Use cases</b>
+        <a href="/guides/assistants">Personal assistants and companions</a>
+        <a href="/guides/support">Customer support</a>
+        <a href="/guides/coding-agents">Coding agents</a>
+        <a href="/guides/game-npcs">Game NPCs</a>
+        <a href="/guides/sales">Sales and CRM copilots</a>
+        <a href="/guides/multi-agent">Multi-agent systems</a>
+        <a href="/guides/tutoring">Tutoring and education</a>
+        <a href="/guides/community-bots">Discord and Slack bots</a>
+        <a href="/guides/coaching" aria-current="page">Health, fitness and coaching</a>
+        <a href="/guides/voice-agents">Voice agents</a>
+        <a href="/guides/shopping">Shopping assistants</a>
+        <a href="/guides/workplace">Workplace assistants</a>
+        <b>Build well</b>
+        <a href="/guides/modeling">Designing workspaces, peers and sessions</a>
+        <a href="/guides/levels-and-models">Reasoning levels and models</a>
+        <a href="/guides/privacy">Privacy, consent and forgetting</a>
+        <a href="/guides/cost-and-speed">Cost and speed</a>
+        <b>Reference</b>
+        <a href="/docs">Docs</a>
+        <a href="/docs#api">REST API</a>
+      </div>
+    </details>
+  </aside>
+  <script>
+    // On a phone the contents start collapsed; set before first paint so the page does not jump.
+    if (matchMedia("(max-width: 980px)").matches) document.querySelector(".toc-box").open = false;
+  </script>
+
+  <article class="prose guide">
+    <p class="crumbs"><a href="/guides">Guides</a> / Use cases</p>
+<h1>Health, fitness and coaching</h1>
+    <p class="lede">For coaching, fitness and wellness apps: a coach that remembers each client's goals, setbacks and what worked, so every check-in builds on the last one. Recall stores the check-ins, learns about the client in the background and gives your coaching model the right memory. The data is about people's health, so this guide spends as much time on consent and deletion as on code.</p>
+
+    <h2 id="what-changes">What memory adds</h2>
+    <p>Without memory, every check-in starts with "what are your goals?". With it, the coach follows the client's plan:</p>
+    <table>
+      <thead><tr><th></th><th>Without memory</th><th>With Recall</th></tr></thead>
+      <tbody>
+        <tr><td>Week 1, intake form</td><td colspan="2">Goal: a 10 km race in March. Trains on weekday mornings. Knee injury last year, cleared to run.</td></tr>
+        <tr><td>Week 3, check-in</td><td>"Good to hear from you. What are you training for?"</td><td>"Two missed runs, but you kept your Sunday 5 km. Shall we move Thursday's run to the morning, when you usually train?"</td></tr>
+        <tr><td>Week 6, a sore knee</td><td>"Add hill sprints this week to build speed."</td><td>"Let's keep it flat and easy this week, given your knee. An easy week got you back on track in week 4."</td></tr>
+      </tbody>
+    </table>
+    <p>Recall does not give the advice. Your model and your coaching content do; Recall supplies what this client said and did before. It is not a medical device: do not use it for diagnosis or treatment decisions.</p>
+
+    <h2 id="model">How to model it</h2>
+    <table>
+      <thead><tr><th>In your app</th><th>In Recall</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Your app, or each gym or clinic you sell to</td><td>Workspace, e.g. <code>coach-app</code></td><td>A business customer's clients stay apart from everyone else's and can be deleted together.</td></tr>
+        <tr><td>A client</td><td>Peer <code>client-3087</code></td><td>A pseudonymous id from your own system. Recall learns about the client from what they write.</td></tr>
+        <tr><td>Your coach bot</td><td>Peer <code>coach</code>, with <code>observeMe: false</code></td><td>Recall does not learn from the coach's own lines, only reads them as context, so they cost less.</td></tr>
+        <tr><td>A check-in (a daily log, a weekly chat)</td><td>Session, e.g. <code>checkin-71204</code></td><td>Context and summaries per check-in, and one place to delete a conversation from.</td></tr>
+        <tr><td>Answers from an intake form</td><td>Conclusions you write with <code>conclusions.create</code></td><td>The client typed them; no model needs to interpret them.</td></tr>
+        <tr><td>Goals, progress, setbacks, what worked</td><td>Conclusions learned from check-ins, and the peer card</td><td>Learned in the background. A goal that changes is closed and replaced, not duplicated.</td></tr>
+      </tbody>
+    </table>
+    <p>If human coaches also message clients, make each coach a peer with <code>observeMe: false</code> too, so what Recall learns stays about the client.</p>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the SDK (<code>npm install @recall-memory/sdk</code> or <code>pip install recall-mem</code>) and set <code>RECALL_API_KEY</code>. Call Recall from your server. Create the client, the coach and a session per check-in.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>import { Recall } from "@recall-memory/sdk";
+
+const recall = new Recall({ workspaceId: "coach-app" });
+
+const client = recall.peer("client-3087");
+// The coach is your app, so Recall learns about the client, not from the coach's own lines.
+const coach = recall.peer("coach", { configuration: { observeMe: false } });
+// One session per check-in.
+const checkin = recall.session("checkin-71204", { peers: [client, coach] });</code></pre>
+<pre data-panel="py" hidden><code>from pydantic import BaseModel
+
+from recall_memory import PeerConfig, Recall
+
+recall = Recall(workspace_id="coach-app")
+
+client = recall.peer("client-3087")
+# The coach is your app, so Recall learns about the client, not from the coach's own lines.
+coach = recall.peer("coach", configuration=PeerConfig(observe_me=False))
+# One session per check-in.
+checkin = recall.session("checkin-71204", peers=[client, coach])</code></pre>
+</div>
+    <p><b>Intake answers: write them as facts.</b> What the client entered in a form needs no interpretation, so <code>conclusions.create</code> stores each answer as a fact about the client, searchable at once. Write only the fields the client agreed to share, and keep anything safety-critical, such as an injury or a heart condition, in your own records too, where your app shows it every time.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// What the client typed into your intake form is already a fact: write it directly. It is
+// searchable at once, with no model in between. Store only what coaching needs, with consent.
+await client.conclusions.create([
+  "Goal: run a 10 km race in March.",
+  "Trains on weekday mornings, before work.",
+  "Knee injury last year; cleared to run by their physiotherapist.",
+]);</code></pre>
+<pre data-panel="py" hidden><code># What the client typed into your intake form is already a fact: write it directly. It is
+# searchable at once, with no model in between. Store only what coaching needs, with consent.
+client.conclusions.create(
+    [
+        {"content": "Goal: run a 10 km race in March."},
+        {"content": "Trains on weekday mornings, before work."},
+        {"content": "Knee injury last year; cleared to run by their physiotherapist."},
+    ]
+)</code></pre>
+</div>
+    <p><b>Every check-in message: one request.</b> <code>turn</code> stores the message and returns the context for the coach's reply in the same round trip: the intake facts, what Recall learned from earlier check-ins and a summary of older turns. It uses no model, so it is fast and included in the price.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// Each client message: store it and get back what the coach should know, in one request.
+const { context } = await checkin.turn(
+  [client.message("Missed two runs this week, work was brutal. Did my Sunday 5 km though.")],
+  { peerTarget: client, tokens: 2000 },
+);
+const prompt = context.toOpenAI(coach); // intake facts and past check-ins, then this one
+// Your model writes the coach's reply from `prompt`; store it with the check-in.
+await checkin.addMessages([
+  coach.message("Sunday counts. Shall we move Thursday's run to the morning too?"),
+]);</code></pre>
+<pre data-panel="py" hidden><code># Each client message: store it and get back what the coach should know, in one request.
+result = checkin.turn(
+    [client.message("Missed two runs this week, work was brutal. Did my Sunday 5 km though.")],
+    peer_target=client,
+    tokens=2000,
+)
+prompt = result.context.to_openai(assistant=coach)  # intake facts and past check-ins first
+# Your model writes the coach's reply from `prompt`; store it with the check-in.
+checkin.add_messages(
+    [coach.message("Sunday counts. Shall we move Thursday's run to the morning too?")]
+)</code></pre>
+</div>
+    <p><b>The weekly review, as JSON.</b> Ask in plain language with <code>responseFormat</code>, and your app gets fields it can turn into next week's plan. In TypeScript pass a JSON Schema or <code>{ jsonSchema, parse }</code>; in Python a Pydantic class, or a JSON-schema dict (you then get the JSON text). It is one model call of a few seconds: run it from a weekly job and store the result, not while the client waits.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// Once a week: a review as JSON that your app turns into next week's plan.
+// (waitForIdle is for this demo; a weekly job runs long after learning has finished.)
+await recall.waitForIdle();
+type WeeklyReview = { progress: string[]; setbacks: string[]; worked: string[]; focus: string };
+const list = { type: "array", items: { type: "string" } };
+const review = await client.chat(
+  "Review this client's last week against their goals: progress, setbacks, what worked, " +
+    "and the one thing to focus on next week.",
+  {
+    reasoningLevel: "low",
+    responseFormat: {
+      jsonSchema: {
+        type: "object",
+        properties: { progress: list, setbacks: list, worked: list, focus: { type: "string" } },
+        required: ["progress", "setbacks", "worked", "focus"],
+      },
+      parse: (data: unknown) =&gt; data as WeeklyReview, // or a zod schema's parse
+    },
+  },
+);</code></pre>
+<pre data-panel="py" hidden><code># Once a week: a review as JSON that your app turns into next week's plan.
+# (wait_for_idle is for this demo; a weekly job runs long after learning has finished.)
+recall.wait_for_idle()
+
+class WeeklyReview(BaseModel):
+    progress: list[str]
+    setbacks: list[str]
+    worked: list[str]
+    focus: str
+
+review = client.chat(
+    "Review this client's last week against their goals: progress, setbacks, what worked, "
+    "and the one thing to focus on next week.",
+    reasoning_level="low",
+    response_format=WeeklyReview,
+)</code></pre>
+</div>
+    <p><b>Show clients what the coach remembers.</b> Clients should be able to see what is stored about them and remove it. The dashboard's <a href="/docs#dashboard">memory explorer</a> is for you and your team, not for clients; build their page from the conclusions list, with a forget button per fact. The conclusion routes need a workspace key, so serve the page from your backend, never with a key in the browser or app. The list includes facts that later changed, not only current ones, which is the honest answer to "what do you hold about me?"; for a short current profile use the peer card (<code>getCard()</code>, <code>get_card()</code>). Deleting a fact does not delete the messages it came from: to remove those as well, delete the check-in.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// A "what my coach remembers" page for the client, served by your backend: these routes need a
+// workspace key. The list includes facts that have since changed, not only current ones.
+const page = await client.conclusions.list({ size: 50 });
+const remembered = page.items.map((c) =&gt; ({ id: c.id, fact: c.content, learned: c.createdAt }));
+// The client taps "forget" next to a fact:
+const tapped = remembered[0]!.id;
+await client.conclusions.delete(tapped);</code></pre>
+<pre data-panel="py" hidden><code># A "what my coach remembers" page for the client, served by your backend: these routes need a
+# workspace key. The list includes facts that have since changed, not only current ones.
+page = client.conclusions.list(size=50)
+remembered = [{"id": c.id, "fact": c.content, "learned": c.created_at} for c in page.items]
+# The client taps "forget" next to a fact:
+tapped = remembered[0]["id"]
+client.conclusions.delete(tapped)</code></pre>
+</div>
+    <p><b>A client leaves.</b> Delete their check-ins (the coach's replies quote them), then the client: <code>client.delete()</code> erases their messages, every fact and card about them, and cached answers.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// The client deletes their account: their check-ins first (the coach's replies quote them),
+// then the client and everything learned about them.
+for (const s of await (await client.sessions()).toArray()) await s.delete();
+const removed = await client.delete();</code></pre>
+<pre data-panel="py" hidden><code># The client deletes their account: their check-ins first (the coach's replies quote them),
+# then the client and everything learned about them.
+for s in list(client.sessions()):
+    s.delete()
+removed = client.delete()</code></pre>
+</div>
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>observeMe: false</code> on the coach</td><td>Recall learns about the client only. The coach's lines are read as context, not learned from, so they cost less.</td></tr>
+        <tr><td><code>conclusions.create</code></td><td>Intake answers, and corrections the client makes on their "what my coach remembers" page: delete the wrong fact, write the right one.</td></tr>
+        <tr><td>Message <code>configuration: { reasoning: { enabled: false } }</code></td><td>Keep a message in the check-in without learning facts from it, for example text pasted from a report that the coach should read once, not remember.</td></tr>
+        <tr><td>Workspace <code>reasoning.customInstructions</code></td><td>Steer what is learned, for example: "Record training goals, progress, setbacks and what helped. Do not record diagnoses, medication or test results." It is an instruction to the model that learns, not a filter.</td></tr>
+        <tr><td><code>responseFormat</code></td><td>JSON for the weekly review. The root must be an object; <code>allOf</code>, <code>not</code> and conditional keywords are not supported.</td></tr>
+        <tr><td><code>reasoningLevel</code></td><td><code>low</code> (the default) for the weekly review, <code>minimal</code> for quick checks. See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>Measured from Europe against the hosted API (Frankfurt), October 2026: a <code>turn</code> or context call took 0.3 to 0.7 seconds, a search about 0.9 seconds, and a question at <code>minimal</code> or <code>low</code> 2 to 4.5 seconds. Learning happens in the background and does not hold up the check-in.</p>
+    <p>Context, search, storage and summaries are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50, and for questions. Intake facts you write yourself are not messages, so no learning charge applies to them. A client with three check-ins a week (12 a month), each with 8 short messages from the client and 8 coach replies of about 60 tokens, and a weekly review:</p>
+    <table>
+      <thead><tr><th>Item</th><th>Per month</th></tr></thead>
+      <tbody>
+        <tr><td>Client messages: 12 × 8 × 50 tokens × $1.75 / 1M</td><td>$0.0084</td></tr>
+        <tr><td>Coach replies, read but not learned from: 12 × 8 × 60 tokens × $1.75 / 1M</td><td>$0.0101</td></tr>
+        <tr><td>Weekly reviews at <code>low</code>: 4 × $0.005</td><td>$0.0200</td></tr>
+        <tr><td><b>Total</b></td><td><b>about $0.04 per client a month</b></td></tr>
+      </tbody>
+    </table>
+    <p>More in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>This is practical guidance, not legal advice. Check it against the law that applies to you, and see <a href="/guides/privacy">Privacy, consent and forgetting</a>.</p>
+    <ul>
+      <li><b>Health data is special-category data.</b> Under the GDPR, data about a person's health needs an explicit legal ground, usually their explicit consent: ask for it separately from your terms, in plain words, make it as easy to withdraw as to give, and check whether you need a data protection impact assessment. Our <a href="/dpa">DPA</a> asks you to send such data only where the law allows it, with the safeguards it requires.</li>
+      <li><b>Tell clients what is stored.</b> That the coach remembers their goals, progress, setbacks and what they say about their health and training; that the text is stored in the EU (Frankfurt) and processed by AI model providers in the US through OpenRouter, restricted to providers that do not collect the data; that it is not used to train models; and how to see and delete it.</li>
+      <li><b>Store what coaching needs.</b> Ask only for intake fields with a purpose, steer learning with a custom instruction, and leave out what you do not need.</li>
+      <li><b>Let clients see it and delete it.</b> Build the "what my coach remembers" page above, with a delete per fact and a delete-everything button. For an access request, add their check-ins (<code>session.messages()</code>) to the facts; <a href="/docs#export">Export</a> under Settings downloads everything your account stores.</li>
+      <li><b>Crisis content goes to your safety flow, not to memory.</b> If a message suggests a risk to the client or someone else, your app's own safety flow should handle it: your moderation, a person, emergency resources. Check messages before you send them to Recall, and do not rely on Recall to notice.</li>
+      <li><b>Not a medical device.</b> Recall stores and recalls what was said. Its answers come from a model and can miss or misread a fact, so they must not be used to diagnose or to make treatment decisions.</li>
+    </ul>
+    <p>Recall's own terms are in the <a href="/privacy">privacy policy</a>, the <a href="/dpa">DPA</a> and the <a href="/security">security</a> page.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>Safety-critical facts only in memory.</b> An injury, allergy or condition that must never be missed belongs in your own records as well, shown every time. Memory is learned by a model and can miss things.</li>
+      <li><b>Consent buried in the terms.</b> Health data needs explicit consent. Ask separately, say what is stored, and honour a withdrawal by deleting.</li>
+      <li><b>A workspace key in the client's app.</b> The conclusion routes need one, and it reaches every client. Serve the "what my coach remembers" page from your backend.</li>
+      <li><b>Deleting a fact and expecting the words to go.</b> The check-in that mentioned it stays. Delete the session too when the client wants the conversation gone.</li>
+      <li><b>A review on every page load.</b> A review takes seconds and every request is billed, cached or not. Run it on a schedule and store it.</li>
+      <li><b>Expecting Recall to coach.</b> Recall is memory, not the coaching model: bring your own model, your coaching content and your safety flow.</li>
+    </ul>
+    <p class="guide-next">Next: <a href="/guides/privacy">Privacy, consent and forgetting</a> · <a href="/guides/tutoring">Tutoring and education</a></p>
+  </article>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="logo" href="/"><svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>Recall</a>
+      <p class="tagline">Memory for AI agents. Hosted in the EU.</p>
+      <p class="muted">Smidt Beheer · KvK 99124254 · VAT NL004444074B96</p>
+    </div>
+    <nav aria-label="Footer">
+      <div><b>Product</b><a href="/#how">How it works</a><a href="/#why">Why Recall</a><a href="/#agents">Integrations</a><a href="/evals">Evals</a><a href="/#pricing">Pricing</a></div>
+      <div><b>Developers</b><a href="/docs#quickstart">Quickstart</a><a href="/guides">Guides</a><a href="/docs#integrations">Integrations</a><a href="/docs#api">API</a><a href="/docs#models">Models</a><a href="https://github.com/recallmem/recall">GitHub</a></div>
+      <div><b>Account</b><a href="/app/login">Sign in</a></div>
+      <div><b>Legal</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/dpa">Data processing</a><a href="/security">Security</a><a href="/support">Support</a></div>
+    </nav>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

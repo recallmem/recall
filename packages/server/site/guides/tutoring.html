@@ -1,0 +1,92 @@
+    <h1>Tutoring and education</h1>
+    <p class="lede">For tutoring apps, homework helpers and learning platforms: a tutor that knows what each learner has mastered, what they keep mixing up and what they are working towards, across every lesson. Recall stores the lessons, learns about the learner in the background, and gives your tutor and the teacher a learner model your app can use.</p>
+
+    <h2 id="what-changes">What memory adds</h2>
+    <p>Without memory, every lesson starts from the syllabus. With it, the tutor picks up where the learner is:</p>
+    <table>
+      <thead><tr><th></th><th>Without memory</th><th>With Recall</th></tr></thead>
+      <tbody>
+        <tr><td>Week 1, fractions lesson</td><td colspan="2">The learner says 1/8 is bigger than 1/4, "because 8 is bigger than 4".</td></tr>
+        <tr><td>Week 2, homework</td><td>"Let's start with fractions. A fraction has a numerator and a denominator..."</td><td>"Before we start: last week bigger denominators tripped you up. Which is bigger, 1/6 or 1/3?"</td></tr>
+        <tr><td>Week 4, the teacher looks</td><td>Twelve chat logs to read.</td><td>Mastered: comparing unit fractions. Still mixing up: adding fractions with different denominators. Next: common denominators. Search finds the lesson behind each.</td></tr>
+      </tbody>
+    </table>
+    <p>Recall does not teach. Your own model writes the explanations, with your teaching prompt and your safeguards; Recall gives it what this learner knows and gets wrong, and learns from each lesson.</p>
+
+    <h2 id="model">How to model it</h2>
+    <table>
+      <thead><tr><th>In your product</th><th>In Recall</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>A school, per school year</td><td>Workspace, e.g. <code>school-2207-y2026</code></td><td>Each school's data stays apart, and the end of the year is one delete.</td></tr>
+        <tr><td>A learner</td><td>Peer <code>learner-5531</code></td><td>A pseudonymous id from your own system. Recall learns about the learner from what they write.</td></tr>
+        <tr><td>Your tutor</td><td>Peer <code>tutor</code>, with <code>observeMe: false</code></td><td>Recall does not learn from the tutor's own lines, only reads them as context, so they cost less.</td></tr>
+        <tr><td>A lesson or homework session</td><td>Session, e.g. <code>lesson-40817</code></td><td>Context and summaries per lesson; a teacher can see which lesson something came from.</td></tr>
+        <tr><td>A course</td><td>Scope <code>course-math-7</code>, given when each session is created</td><td>The course's own view of the learner, so maths progress is not mixed with French.</td></tr>
+        <tr><td>What the learner knows and gets wrong</td><td>Conclusions and the peer card</td><td>Learned in the background. A fact that stops being true is closed, not lost.</td></tr>
+      </tbody>
+    </table>
+    <p>A consumer app with no school in between uses one workspace for the app and one peer per learner. With a single subject you can skip the scope and ask the learner peer directly.</p>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the SDK (<code>npm install @recall-memory/sdk</code> or <code>pip install recall-mem</code>) and set <code>RECALL_API_KEY</code>. Call Recall from your server, not from the learner's device. Create the learner, the tutor and a session per lesson, filed under its course.</p>
+<!-- example: tutoring#setup -->
+    <p><b>Every learner message: one request.</b> <code>turn</code> stores the message and returns the context for the tutor's reply in the same round trip: the lesson so far, a summary of older turns, and what Recall has learned about the learner in earlier lessons. It uses no model, so it is fast and included in the price.</p>
+<!-- example: tutoring#lesson -->
+    <p><b>The learner model, as JSON.</b> Ask in plain language and pass <code>responseFormat</code>: the answer comes back as JSON that matches your schema, ready for a progress screen or for choosing the next exercise. In TypeScript pass a JSON Schema (you get the parsed object) or <code>{ jsonSchema, parse }</code> for a typed result; in Python pass a Pydantic class (you get an instance) or a JSON-schema dict (you get the JSON text). <code>scope</code> answers from the course's view of the learner. This is one model call of a few seconds, so run it after a lesson and store the result rather than asking on every page view.</p>
+<!-- example: tutoring#learner-model -->
+    <p><b>Misconceptions that get corrected.</b> Facts in Recall have a start and an end. When a later lesson shows the learner now gets it right, Recall closes the old fact ("thinks 1/8 is bigger than 1/4") and starts a new one, the same way it handles someone moving house. Prompt context and the learner model use what holds now. The old fact stays as history, so chat can answer "what has this learner corrected?", and the <a href="/docs#dashboard">dashboard</a>'s memory explorer shows when each fact held.</p>
+<!-- example: tutoring#corrected -->
+    <p><b>The teacher's view.</b> Search finds what the learner wrote about a topic across all their sessions, with the session each message came from, so a teacher can check where a line in the learner model came from. For a written overview of one learner, ask chat as above. Give teachers this view inside your app; they do not need Recall keys.</p>
+<!-- example: tutoring#teacher -->
+    <p><b>A learner leaves, or the school year ends.</b> <code>learner.delete()</code> erases the learner's messages and everything learned about them. The tutor's replies in their lessons stay unless you delete those sessions too, and they often quote the learner, so delete both. With a workspace per school year, the end of the year is one loop.</p>
+<!-- example: tutoring#forget -->
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>observeMe: false</code> on the tutor</td><td>Recall learns about the learner only. The tutor's lines are read as context, not learned from, so they cost less.</td></tr>
+        <tr><td><code>scopes</code> on each session, <code>scope</code> on chat</td><td>A view of the learner built only from one course's sessions. Both need a workspace key, not a key scoped to one learner.</td></tr>
+        <tr><td><code>responseFormat</code></td><td>JSON for the learner model. The root must be an object; <code>allOf</code>, <code>not</code> and conditional keywords are not supported. Field descriptions help the model fill each field.</td></tr>
+        <tr><td><code>reasoningLevel</code></td><td><code>low</code> (the default) for the learner model, <code>minimal</code> for quick checks such as "has this learner met common denominators?". See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+        <tr><td>Workspace <code>reasoning.customInstructions</code></td><td>Keep learning on the subject, for example: "Record what the learner knows, gets wrong and is working on. Do not record family, health or other personal matters." It steers the model that learns; it is not a filter.</td></tr>
+        <tr><td><code>tokens</code></td><td>The context budget for the tutor's prompt. Older turns become a summary, so a long lesson stays within it.</td></tr>
+        <tr><td>Message <code>createdAt</code></td><td>When you import past homework, pass when it was written, so "corrected in week 3" is dated right.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>Measured from Europe against the hosted API (Frankfurt), October 2026: a <code>turn</code> or context call took 0.3 to 0.7 seconds, a search about 0.9 seconds, and a question at <code>minimal</code> or <code>low</code> 2 to 4.5 seconds. Learning happens in the background and does not hold up the lesson.</p>
+    <p>Context, search, storage and summaries are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50, and for questions. A learner with three lessons a week (12 a month), each with 20 short messages of their own and 20 tutor replies of about 80 tokens, a learner model after every lesson and four teacher questions a month:</p>
+    <table>
+      <thead><tr><th>Item</th><th>Per month</th></tr></thead>
+      <tbody>
+        <tr><td>Learner messages: 12 × 20 × 50 tokens × $1.75 / 1M</td><td>$0.0210</td></tr>
+        <tr><td>Tutor replies, read but not learned from: 12 × 20 × 80 tokens × $1.75 / 1M</td><td>$0.0336</td></tr>
+        <tr><td>Learner model at <code>low</code>: 12 × $0.005</td><td>$0.0600</td></tr>
+        <tr><td>Teacher questions at <code>low</code>: 4 × $0.005</td><td>$0.0200</td></tr>
+        <tr><td><b>Total</b></td><td><b>about $0.13 per learner a month</b></td></tr>
+      </tbody>
+    </table>
+    <p>Answers are cached until the memory they depend on changes, but a cached answer is still billed as one query, so store the learner model instead of asking again. More in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>Learners are often children. This is practical guidance, not legal advice: check it against the law that applies to you and to the schools you serve, and see <a href="/guides/privacy">Privacy, consent and forgetting</a>.</p>
+    <ul>
+      <li><b>Know who decides.</b> When a school uses your tutor, the school is usually the controller of its learners' data and you process it on the school's behalf, with Recall as your sub-processor. Sign a data processing agreement with each school that names Recall; our <a href="/dpa">DPA</a> covers this case. Expect the school to ask about a data protection impact assessment.</li>
+      <li><b>Get consent where it is required.</b> If you offer the tutor directly to children and rely on consent, get a parent's consent where the law requires it, before the first lesson is recorded. The age at which a child can consent alone differs by country.</li>
+      <li><b>Store less.</b> Use pseudonymous ids, never names or email addresses, and keep class lists and contact details in your own system. Children overshare: keep learning on the subject with a custom instruction, and do not send messages your tutor does not need, such as a chat about home.</li>
+      <li><b>Tell learners and parents.</b> In plain words: the tutor remembers what the learner worked on and got wrong, to pick up where they left off. The text is stored in the EU (Frankfurt) and processed by AI model providers in the US through OpenRouter, restricted to providers that do not collect the data, and it is not used to train models. Show them the learner model.</li>
+      <li><b>Delete on a schedule.</b> Delete a learner who leaves, and delete the year's workspace when the school's retention period ends. If the school wants a copy first, <a href="/docs#export">export</a> it under Settings.</li>
+    </ul>
+    <p>Recall's own terms are in the <a href="/privacy">privacy policy</a> and the <a href="/dpa">DPA</a>.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>Names as ids.</b> Ids appear in URLs, logs and exports and cannot be renamed. Use your own pseudonymous id.</li>
+      <li><b>Asking on every page view.</b> The learner model takes seconds and every request is billed, cached or not. Compute it after a lesson and store it.</li>
+      <li><b>All subjects in one memory.</b> Without course scopes, "what has this learner mastered?" mixes maths and French. Give each session its course scope when you create it.</li>
+      <li><b>Deleting the learner but not the lessons.</b> The tutor's replies stay and often quote the learner. Delete their sessions too.</li>
+      <li><b>Treating the learner model as a grade.</b> A model writes it from the conversation, and it can be wrong. Let a teacher decide anything that affects grades or placement.</li>
+      <li><b>Expecting Recall to teach.</b> Recall is memory, not the tutor: bring your own model, teaching prompt and safeguards for children.</li>
+    </ul>

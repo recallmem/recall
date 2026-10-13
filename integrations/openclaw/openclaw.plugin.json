@@ -1,0 +1,67 @@
+{
+  "id": "recall-memory",
+  "name": "Recall Memory",
+  "description": "Long-term memory from Recall: adds what it knows about the user to each turn, records conversations so it keeps learning, and adds memory tools.",
+  "version": "0.1.0",
+  "categories": ["memory"],
+  "activation": { "onStartup": true },
+  "contracts": {
+    "tools": ["recall_search", "recall_ask", "recall_remember", "recall_forget"]
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "url": {
+        "type": "string",
+        "description": "Recall server URL (default: RECALL_URL, ~/.recall/config.json, else https://api.recallmem.dev)"
+      },
+      "apiKey": {
+        "type": "string",
+        "description": "Recall API key (default: RECALL_API_KEY or ~/.recall/config.json)"
+      },
+      "workspace": { "type": "string", "description": "Recall workspace (default: default)" },
+      "peer": {
+        "type": "string",
+        "description": "Your peer id in Recall; keep it stable (default: your OS user name)"
+      },
+      "assistantPeer": {
+        "type": "string",
+        "description": "Peer the assistant's replies are recorded as (default: openclaw)"
+      },
+      "lookup": {
+        "type": "string",
+        "enum": ["turn", "first-turn", "off"],
+        "description": "When to add memory to the prompt"
+      },
+      "record": { "type": "boolean", "description": "Record conversations (default: true)" },
+      "recordAutomated": {
+        "type": "boolean",
+        "description": "Also record heartbeat and cron turns (default: false)"
+      },
+      "peerFromSender": {
+        "type": "boolean",
+        "description": "Use the channel sender as the peer, for assistants shared by several people (default: false)"
+      },
+      "contextTokens": {
+        "type": "integer",
+        "minimum": 100,
+        "maximum": 20000,
+        "description": "Size of the memory added to a turn (default: 1200)"
+      },
+      "timeoutMs": {
+        "type": "integer",
+        "minimum": 200,
+        "maximum": 60000,
+        "description": "Timeout for memory lookups and recording (default: 4000)"
+      }
+    }
+  },
+  "uiHints": {
+    "url": { "label": "Recall URL", "placeholder": "https://your-recall.example" },
+    "apiKey": { "label": "API key", "sensitive": true },
+    "workspace": { "label": "Workspace" },
+    "peer": { "label": "Your peer id" },
+    "assistantPeer": { "label": "Assistant peer id" }
+  }
+}

@@ -1,0 +1,91 @@
+    <h1>Health, fitness and coaching</h1>
+    <p class="lede">For coaching, fitness and wellness apps: a coach that remembers each client's goals, setbacks and what worked, so every check-in builds on the last one. Recall stores the check-ins, learns about the client in the background and gives your coaching model the right memory. The data is about people's health, so this guide spends as much time on consent and deletion as on code.</p>
+
+    <h2 id="what-changes">What memory adds</h2>
+    <p>Without memory, every check-in starts with "what are your goals?". With it, the coach follows the client's plan:</p>
+    <table>
+      <thead><tr><th></th><th>Without memory</th><th>With Recall</th></tr></thead>
+      <tbody>
+        <tr><td>Week 1, intake form</td><td colspan="2">Goal: a 10 km race in March. Trains on weekday mornings. Knee injury last year, cleared to run.</td></tr>
+        <tr><td>Week 3, check-in</td><td>"Good to hear from you. What are you training for?"</td><td>"Two missed runs, but you kept your Sunday 5 km. Shall we move Thursday's run to the morning, when you usually train?"</td></tr>
+        <tr><td>Week 6, a sore knee</td><td>"Add hill sprints this week to build speed."</td><td>"Let's keep it flat and easy this week, given your knee. An easy week got you back on track in week 4."</td></tr>
+      </tbody>
+    </table>
+    <p>Recall does not give the advice. Your model and your coaching content do; Recall supplies what this client said and did before. It is not a medical device: do not use it for diagnosis or treatment decisions.</p>
+
+    <h2 id="model">How to model it</h2>
+    <table>
+      <thead><tr><th>In your app</th><th>In Recall</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Your app, or each gym or clinic you sell to</td><td>Workspace, e.g. <code>coach-app</code></td><td>A business customer's clients stay apart from everyone else's and can be deleted together.</td></tr>
+        <tr><td>A client</td><td>Peer <code>client-3087</code></td><td>A pseudonymous id from your own system. Recall learns about the client from what they write.</td></tr>
+        <tr><td>Your coach bot</td><td>Peer <code>coach</code>, with <code>observeMe: false</code></td><td>Recall does not learn from the coach's own lines, only reads them as context, so they cost less.</td></tr>
+        <tr><td>A check-in (a daily log, a weekly chat)</td><td>Session, e.g. <code>checkin-71204</code></td><td>Context and summaries per check-in, and one place to delete a conversation from.</td></tr>
+        <tr><td>Answers from an intake form</td><td>Conclusions you write with <code>conclusions.create</code></td><td>The client typed them; no model needs to interpret them.</td></tr>
+        <tr><td>Goals, progress, setbacks, what worked</td><td>Conclusions learned from check-ins, and the peer card</td><td>Learned in the background. A goal that changes is closed and replaced, not duplicated.</td></tr>
+      </tbody>
+    </table>
+    <p>If human coaches also message clients, make each coach a peer with <code>observeMe: false</code> too, so what Recall learns stays about the client.</p>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the SDK (<code>npm install @recall-memory/sdk</code> or <code>pip install recall-mem</code>) and set <code>RECALL_API_KEY</code>. Call Recall from your server. Create the client, the coach and a session per check-in.</p>
+<!-- example: coaching#setup -->
+    <p><b>Intake answers: write them as facts.</b> What the client entered in a form needs no interpretation, so <code>conclusions.create</code> stores each answer as a fact about the client, searchable at once. Write only the fields the client agreed to share, and keep anything safety-critical, such as an injury or a heart condition, in your own records too, where your app shows it every time.</p>
+<!-- example: coaching#intake -->
+    <p><b>Every check-in message: one request.</b> <code>turn</code> stores the message and returns the context for the coach's reply in the same round trip: the intake facts, what Recall learned from earlier check-ins and a summary of older turns. It uses no model, so it is fast and included in the price.</p>
+<!-- example: coaching#checkin -->
+    <p><b>The weekly review, as JSON.</b> Ask in plain language with <code>responseFormat</code>, and your app gets fields it can turn into next week's plan. In TypeScript pass a JSON Schema or <code>{ jsonSchema, parse }</code>; in Python a Pydantic class, or a JSON-schema dict (you then get the JSON text). It is one model call of a few seconds: run it from a weekly job and store the result, not while the client waits.</p>
+<!-- example: coaching#weekly-review -->
+    <p><b>Show clients what the coach remembers.</b> Clients should be able to see what is stored about them and remove it. The dashboard's <a href="/docs#dashboard">memory explorer</a> is for you and your team, not for clients; build their page from the conclusions list, with a forget button per fact. The conclusion routes need a workspace key, so serve the page from your backend, never with a key in the browser or app. The list includes facts that later changed, not only current ones, which is the honest answer to "what do you hold about me?"; for a short current profile use the peer card (<code>getCard()</code>, <code>get_card()</code>). Deleting a fact does not delete the messages it came from: to remove those as well, delete the check-in.</p>
+<!-- example: coaching#remembers -->
+    <p><b>A client leaves.</b> Delete their check-ins (the coach's replies quote them), then the client: <code>client.delete()</code> erases their messages, every fact and card about them, and cached answers.</p>
+<!-- example: coaching#forget -->
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>observeMe: false</code> on the coach</td><td>Recall learns about the client only. The coach's lines are read as context, not learned from, so they cost less.</td></tr>
+        <tr><td><code>conclusions.create</code></td><td>Intake answers, and corrections the client makes on their "what my coach remembers" page: delete the wrong fact, write the right one.</td></tr>
+        <tr><td>Message <code>configuration: { reasoning: { enabled: false } }</code></td><td>Keep a message in the check-in without learning facts from it, for example text pasted from a report that the coach should read once, not remember.</td></tr>
+        <tr><td>Workspace <code>reasoning.customInstructions</code></td><td>Steer what is learned, for example: "Record training goals, progress, setbacks and what helped. Do not record diagnoses, medication or test results." It is an instruction to the model that learns, not a filter.</td></tr>
+        <tr><td><code>responseFormat</code></td><td>JSON for the weekly review. The root must be an object; <code>allOf</code>, <code>not</code> and conditional keywords are not supported.</td></tr>
+        <tr><td><code>reasoningLevel</code></td><td><code>low</code> (the default) for the weekly review, <code>minimal</code> for quick checks. See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>Measured from Europe against the hosted API (Frankfurt), October 2026: a <code>turn</code> or context call took 0.3 to 0.7 seconds, a search about 0.9 seconds, and a question at <code>minimal</code> or <code>low</code> 2 to 4.5 seconds. Learning happens in the background and does not hold up the check-in.</p>
+    <p>Context, search, storage and summaries are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50, and for questions. Intake facts you write yourself are not messages, so no learning charge applies to them. A client with three check-ins a week (12 a month), each with 8 short messages from the client and 8 coach replies of about 60 tokens, and a weekly review:</p>
+    <table>
+      <thead><tr><th>Item</th><th>Per month</th></tr></thead>
+      <tbody>
+        <tr><td>Client messages: 12 × 8 × 50 tokens × $1.75 / 1M</td><td>$0.0084</td></tr>
+        <tr><td>Coach replies, read but not learned from: 12 × 8 × 60 tokens × $1.75 / 1M</td><td>$0.0101</td></tr>
+        <tr><td>Weekly reviews at <code>low</code>: 4 × $0.005</td><td>$0.0200</td></tr>
+        <tr><td><b>Total</b></td><td><b>about $0.04 per client a month</b></td></tr>
+      </tbody>
+    </table>
+    <p>More in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>This is practical guidance, not legal advice. Check it against the law that applies to you, and see <a href="/guides/privacy">Privacy, consent and forgetting</a>.</p>
+    <ul>
+      <li><b>Health data is special-category data.</b> Under the GDPR, data about a person's health needs an explicit legal ground, usually their explicit consent: ask for it separately from your terms, in plain words, make it as easy to withdraw as to give, and check whether you need a data protection impact assessment. Our <a href="/dpa">DPA</a> asks you to send such data only where the law allows it, with the safeguards it requires.</li>
+      <li><b>Tell clients what is stored.</b> That the coach remembers their goals, progress, setbacks and what they say about their health and training; that the text is stored in the EU (Frankfurt) and processed by AI model providers in the US through OpenRouter, restricted to providers that do not collect the data; that it is not used to train models; and how to see and delete it.</li>
+      <li><b>Store what coaching needs.</b> Ask only for intake fields with a purpose, steer learning with a custom instruction, and leave out what you do not need.</li>
+      <li><b>Let clients see it and delete it.</b> Build the "what my coach remembers" page above, with a delete per fact and a delete-everything button. For an access request, add their check-ins (<code>session.messages()</code>) to the facts; <a href="/docs#export">Export</a> under Settings downloads everything your account stores.</li>
+      <li><b>Crisis content goes to your safety flow, not to memory.</b> If a message suggests a risk to the client or someone else, your app's own safety flow should handle it: your moderation, a person, emergency resources. Check messages before you send them to Recall, and do not rely on Recall to notice.</li>
+      <li><b>Not a medical device.</b> Recall stores and recalls what was said. Its answers come from a model and can miss or misread a fact, so they must not be used to diagnose or to make treatment decisions.</li>
+    </ul>
+    <p>Recall's own terms are in the <a href="/privacy">privacy policy</a>, the <a href="/dpa">DPA</a> and the <a href="/security">security</a> page.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>Safety-critical facts only in memory.</b> An injury, allergy or condition that must never be missed belongs in your own records as well, shown every time. Memory is learned by a model and can miss things.</li>
+      <li><b>Consent buried in the terms.</b> Health data needs explicit consent. Ask separately, say what is stored, and honour a withdrawal by deleting.</li>
+      <li><b>A workspace key in the client's app.</b> The conclusion routes need one, and it reaches every client. Serve the "what my coach remembers" page from your backend.</li>
+      <li><b>Deleting a fact and expecting the words to go.</b> The check-in that mentioned it stays. Delete the session too when the client wants the conversation gone.</li>
+      <li><b>A review on every page load.</b> A review takes seconds and every request is billed, cached or not. Run it on a schedule and store it.</li>
+      <li><b>Expecting Recall to coach.</b> Recall is memory, not the coaching model: bring your own model, your coaching content and your safety flow.</li>
+    </ul>

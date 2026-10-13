@@ -1,0 +1,14 @@
+{
+  "name": "recall",
+  "description": "Plugins that connect AI coding agents to Recall, reasoning memory for stateful agents.",
+  "owner": { "name": "Recall" },
+  "plugins": [
+    {
+      "name": "recall-memory",
+      "source": "./integrations/claude-code",
+      "description": "Long-term memory for Claude Code: recalls what Recall knows about you at session start, records your conversations so it keeps learning, and adds Recall's MCP tools.",
+      "category": "memory",
+      "tags": ["memory", "mcp", "hooks"]
+    }
+  ]
+}

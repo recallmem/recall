@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Multi-agent systems — Recall guides</title>
+<meta name="description" content="Share memory between agents with Recall: agents as peers, private and shared views, scoped keys per agent, webhooks to react to new knowledge, code and cost." />
+<meta name="theme-color" content="#0c0b0a" />
+<meta property="og:title" content="Multi-agent systems — Recall guides" />
+<meta property="og:description" content="Share memory between agents with Recall: agents as peers, private and shared views, scoped keys per agent, webhooks to react to new knowledge, code and cost." />
+<meta property="og:type" content="article" />
+<meta property="og:image" content="/og.png" />
+<link rel="canonical" href="https://recallmem.dev/guides/multi-agent" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="preload" href="/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/departure-mono.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="/site.css" />
+<meta name="recall-api" content="https://api.recallmem.dev" data-site="https://recallmem.dev" />
+</head>
+<body>
+
+<header class="nav scrolled" id="nav">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="Recall home">
+      <svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>
+      Recall<span class="muted nowrap">/guides</span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="/#how">Product</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides">Guides</a>
+      <a href="https://github.com/recallmem/recall">GitHub</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-text" href="/app/login">Sign in</a>
+      <a class="btn btn-primary" href="/app/login">Get API key</a>
+    </div>
+  </div>
+</header>
+
+<div class="docs">
+  <aside class="toc" aria-label="Guides">
+    <details class="toc-box" open>
+      <summary>Guides</summary>
+      <div class="toc-links">
+        <a href="/guides">All guides</a>
+        <b>On this page</b>
+        <a class="sub" href="#what-changes">What memory adds</a>
+        <a class="sub" href="#model">How to model it</a>
+        <a class="sub" href="#build">Build it</a>
+        <a class="sub" href="#settings">Settings that matter</a>
+        <a class="sub" href="#cost-speed">Cost and speed</a>
+        <a class="sub" href="#privacy">Privacy and forgetting</a>
+        <a class="sub" href="#pitfalls">Pitfalls</a>
+        <b>Use cases</b>
+        <a href="/guides/assistants">Personal assistants and companions</a>
+        <a href="/guides/support">Customer support</a>
+        <a href="/guides/coding-agents">Coding agents</a>
+        <a href="/guides/game-npcs">Game NPCs</a>
+        <a href="/guides/sales">Sales and CRM copilots</a>
+        <a href="/guides/multi-agent" aria-current="page">Multi-agent systems</a>
+        <a href="/guides/tutoring">Tutoring and education</a>
+        <a href="/guides/community-bots">Discord and Slack bots</a>
+        <a href="/guides/coaching">Health, fitness and coaching</a>
+        <a href="/guides/voice-agents">Voice agents</a>
+        <a href="/guides/shopping">Shopping assistants</a>
+        <a href="/guides/workplace">Workplace assistants</a>
+        <b>Build well</b>
+        <a href="/guides/modeling">Designing workspaces, peers and sessions</a>
+        <a href="/guides/levels-and-models">Reasoning levels and models</a>
+        <a href="/guides/privacy">Privacy, consent and forgetting</a>
+        <a href="/guides/cost-and-speed">Cost and speed</a>
+        <b>Reference</b>
+        <a href="/docs">Docs</a>
+        <a href="/docs#api">REST API</a>
+      </div>
+    </details>
+  </aside>
+  <script>
+    // On a phone the contents start collapsed; set before first paint so the page does not jump.
+    if (matchMedia("(max-width: 980px)").matches) document.querySelector(".toc-box").open = false;
+  </script>
+
+  <article class="prose guide">
+    <p class="crumbs"><a href="/guides">Guides</a> / Use cases</p>
+<h1>Multi-agent systems</h1>
+    <p class="lede">For systems where several agents work on one job: a planner, a researcher, a writer, a reviewer. Recall gives each agent its own memory of what it saw, a shared memory the team can ask, and a signal when new knowledge is ready, so agents stop passing whole transcripts to each other.</p>
+
+    <h2 id="what-changes">What memory adds</h2>
+    <p>Without memory, what one agent learns reaches another only if your orchestrator copies it into a prompt, and it is gone when the job ends. With it:</p>
+    <table>
+      <thead><tr><th></th><th>Without memory</th><th>With Recall</th></tr></thead>
+      <tbody>
+        <tr><td>The researcher finds that competitor A raised its price</td><td>The planner knows only if the orchestrator pastes the researcher's output into its prompt.</td><td>The planner's own view of the researcher holds it, because both were in the job.</td></tr>
+        <tr><td>A week later, a new job on the same market</td><td>The research starts from zero.</td><td>"What do we know about competitor pricing?" is answered from the team's earlier jobs.</td></tr>
+        <tr><td>The orchestrator crashes and retries step 2</td><td>The findings are stored twice.</td><td>The retry carries the same idempotency key, and nothing is stored twice.</td></tr>
+      </tbody>
+    </table>
+    <p>Recall does not run, route or schedule agents. Your orchestrator decides who speaks and when; Recall keeps what was said and what each agent learned from it.</p>
+
+    <h2 id="model">How to model it</h2>
+    <table>
+      <thead><tr><th>In your system</th><th>In Recall</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>A team of agents, or one deployment</td><td>Workspace, e.g. <code>acme-agents</code></td><td>Agents in it can share memory; nothing crosses into other workspaces.</td></tr>
+        <tr><td>Each agent</td><td>Peer <code>agent-planner</code>, <code>agent-researcher</code></td><td>An agent speaks like anyone else. Leave it observed when what it says is worth learning (findings); set <code>observeMe: false</code> on agents whose output need not be remembered, such as a formatter.</td></tr>
+        <tr><td>The person who gave the job</td><td>Peer <code>user-8412</code></td><td>What the agents learn about the person, and the one id to erase if they ask.</td></tr>
+        <tr><td>A job, task or thread</td><td>Session, e.g. <code>job-58213</code></td><td>The job's messages in order, with a summary of older steps.</td></tr>
+        <tr><td>What one agent knows</td><td>That agent's view: <code>observeOthers: true</code> in the sessions it takes part in</td><td>Built only from jobs the agent was in. Read it with <code>peerPerspective</code>, or ask with <code>chat</code> and <code>target</code>.</td></tr>
+        <tr><td>What the team knows</td><td>A scope, e.g. <code>team-pricing</code>, or the whole workspace</td><td>Ask across every job in the scope with <code>recall.chat</code>.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the SDK (<code>npm install @recall-memory/sdk</code> or <code>pip install recall-mem</code>) and set <code>RECALL_API_KEY</code>. One session per job; each agent that needs its own view gets <code>observeOthers</code>, and the job joins the team's scope.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>import { constructWebhookEvent, Recall } from "@recall-memory/sdk";
+
+const recall = new Recall({ workspaceId: "acme-agents" });
+
+const user = recall.peer("user-8412");
+const planner = recall.peer("agent-planner");
+const researcher = recall.peer("agent-researcher");
+
+// One session per job. Each agent in it builds its own view of the others from what it saw.
+// The job also joins the team's scope, the memory the whole team shares.
+const job = recall.session("job-58213", {
+  peers: {
+    "user-8412": {},
+    "agent-planner": { observeOthers: true },
+    "agent-researcher": { observeOthers: true },
+  },
+  scopes: ["team-pricing"],
+});</code></pre>
+<pre data-panel="py" hidden><code>from recall_memory import Recall, SessionPeerConfig, construct_webhook_event
+
+recall = Recall(workspace_id="acme-agents")
+
+user = recall.peer("user-8412")
+planner = recall.peer("agent-planner")
+researcher = recall.peer("agent-researcher")
+
+# One session per job. Each agent in it builds its own view of the others from what it saw.
+# The job also joins the team's scope, the memory the whole team shares.
+job = recall.session(
+    "job-58213",
+    peers=[
+        user,
+        (planner, SessionPeerConfig(observe_others=True)),
+        (researcher, SessionPeerConfig(observe_others=True)),
+    ],
+    scopes=["team-pricing"],
+)</code></pre>
+</div>
+    <p><b>Record every step, under a key.</b> The SDKs make each write safe to retry within one call. Across processes, after a crash, only a key you choose helps: name the step in it, and a second write with the same key in the same session returns the messages already stored.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// The orchestrator records each step under a key that names it. A retry after a crash or a
+// timeout returns the stored messages instead of storing them twice.
+const step = (n: number) =&gt; ({ idempotencyKey: `job-58213:step-${n}` });
+await job.addMessages(
+  [user.message("Compare our Pro plan with the three biggest competitors by Friday.")],
+  step(1),
+);
+const findings = [
+  researcher.message("Competitor A raised its Pro plan to €49 a month in September."),
+  researcher.message("B and C still charge €39; C gives two months free on yearly plans."),
+  planner.message("Next: draft a price proposal. Researcher, check annual discounts at A."),
+];
+await job.addMessages(findings, step(2));
+await job.addMessages(findings, step(2)); // the retry: nothing is stored twice</code></pre>
+<pre data-panel="py" hidden><code># The orchestrator records each step under a key that names it. A retry after a crash or a
+# timeout returns the stored messages instead of storing them twice.
+def step(n: int) -&gt; str:
+    return f"job-58213:step-{n}"
+
+job.add_messages(
+    [user.message("Compare our Pro plan with the three biggest competitors by Friday.")],
+    idempotency_key=step(1),
+)
+findings = [
+    researcher.message("Competitor A raised its Pro plan to €49 a month in September."),
+    researcher.message("B and C still charge €39; C gives two months free on yearly plans."),
+    planner.message("Next: draft a price proposal. Researcher, check annual discounts at A."),
+]
+job.add_messages(findings, idempotency_key=step(2))
+job.add_messages(findings, idempotency_key=step(2))  # the retry: nothing is stored twice</code></pre>
+</div>
+    <p><b>Each agent reads through its own eyes.</b> "What does agent X know about Y" is a <code>chat</code> from X with <code>target: Y</code>: a few seconds, with a model call. For an agent's next prompt, read context with <code>peerPerspective</code> instead: no model call, a fraction of a second.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// What does the planner know about the researcher's findings? Its own view: only what it saw.
+// (waitForIdle is for this demo; agents rarely block on learning.)
+await recall.waitForIdle();
+const known = await planner.chat("What has the researcher found about competitor prices?", {
+  target: researcher,
+  reasoningLevel: "low",
+});
+// The researcher's view of the user, as prompt context for its next step (no model call).
+const ctx = await job.context({ peerTarget: user, peerPerspective: researcher, tokens: 2000 });
+const prompt = ctx.toOpenAI(researcher);</code></pre>
+<pre data-panel="py" hidden><code># What does the planner know about the researcher's findings? Its own view: only what it saw.
+# (wait_for_idle is for this demo; agents rarely block on learning.)
+recall.wait_for_idle()
+known = planner.chat(
+    "What has the researcher found about competitor prices?",
+    target=researcher,
+    reasoning_level="low",
+)
+# The researcher's view of the user, as prompt context for its next step (no model call).
+ctx = job.context(peer_target=user, peer_perspective=researcher, tokens=2000)
+prompt = ctx.to_openai(assistant=researcher)</code></pre>
+</div>
+    <p><b>Shared memory: ask the team's scope.</b> A question with <code>scope</code> reads every job filed under it, from no single agent's point of view. Leave out <code>scope</code> to ask across the whole workspace.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// Shared team memory: ask across every job in the team's scope, not through one agent's eyes.
+const shared = await recall.chat("What do we know about competitor pricing?", {
+  scope: "team-pricing",
+  reasoningLevel: "low",
+});</code></pre>
+<pre data-panel="py" hidden><code># Shared team memory: ask across every job in the team's scope, not through one agent's eyes.
+shared = recall.chat(
+    "What do we know about competitor pricing?", scope="team-pricing", reasoning_level="low"
+)</code></pre>
+</div>
+    <p><b>React when new knowledge is ready.</b> Learning runs in the background. Instead of polling, register a webhook: Recall sends <code>queue.empty</code> when background work for a session finishes, with the session and the observer whose view changed. Register once per workspace (at most 10 endpoints; private addresses are refused):</p>
+<pre><code>curl $RECALL_URL/v3/workspaces/acme-agents/webhooks \
+  -H "Authorization: Bearer $RECALL_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://agents.example.com/recall-webhook"}'</code></pre>
+    <p>The SDKs do the same with <code>recall.webhooks.create(url)</code>. Each delivery is signed: <code>X-Recall-Signature</code> is the HMAC-SHA256 of the raw body, keyed with your webhook secret (under Settings in the dashboard). Verify it before you trust the event, keep the <code>X-Recall-Event-Id</code> values you have handled to drop retries, and answer 2xx quickly.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// Your HTTP handler for Recall's webhook: verify the raw body before you parse it.
+async function onRecallWebhook(rawBody: string, signature: string | null, secret: string) {
+  const event = await constructWebhookEvent&lt;{ observer: string; session_id: string }&gt;(
+    rawBody,
+    signature,
+    secret,
+  );
+  // queue.empty: learning for this session is done. Wake the agent whose view changed.
+  if (event.type !== "queue.empty" || event.data.observer !== planner.id) return null;
+  return planner.chat("What is new in this job since my last step?", {
+    session: event.data.session_id,
+    reasoningLevel: "minimal",
+  });
+}</code></pre>
+<pre data-panel="py" hidden><code># Your HTTP handler for Recall's webhook: verify the raw body before you parse it.
+def on_recall_webhook(raw_body: bytes, signature: str | None, secret: str) -&gt; str | None:
+    event = construct_webhook_event(raw_body, signature, secret)
+    # queue.empty: learning for this session is done. Wake the agent whose view changed.
+    if event.type != "queue.empty" or event.data.get("observer") != planner.id:
+        return None
+    return planner.chat(
+        "What is new in this job since my last step?",
+        session=event.data["session_id"],
+        reasoning_level="minimal",
+    )</code></pre>
+</div>
+
+    <h3 id="keys">A key per agent</h3>
+    <p>An agent that reads untrusted text can be talked into calling tools it should not. Give each agent a key that reaches no further than it needs:</p>
+    <table>
+      <thead><tr><th>Key scoped to</th><th>It can</th><th>Give it to</th></tr></thead>
+      <tbody>
+        <tr><td>A workspace</td><td>Everything in that workspace: record, read any view, ask a scope, forget a person.</td><td>The orchestrator.</td></tr>
+        <tr><td>A peer</td><td>Ask as that peer (<code>chat</code>, with <code>target</code>), read its card and context, and read the sessions it is a member of. It cannot record messages, ask a scope, or delete a peer (401).</td><td>An agent that only needs to consult its own memory.</td></tr>
+        <tr><td>A session</td><td>Only that session: record in it and read its messages and context. No peer routes, no other sessions.</td><td>A sandboxed worker on one job.</td></tr>
+      </tbody>
+    </table>
+    <p>Create keys under <b>API keys</b> in the dashboard, or mint them in code with an account-wide key. Minted keys are revoked together with the key that minted them, and <code>expiresAt</code> suits short-lived workers:</p>
+<pre><code>// TypeScript
+const plannerKey = await recall.createKey({ workspaceId: "acme-agents", peerId: "agent-planner" });
+const workerKey = await recall.createKey({ workspaceId: "acme-agents", sessionId: "job-58213" });
+
+# Python
+planner_key = recall.create_key(workspace_id="acme-agents", peer_id="agent-planner")
+worker_key = recall.create_key(workspace_id="acme-agents", session_id="job-58213")</code></pre>
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>observeOthers: true</code> per agent, per session</td><td>The agent builds its own view of the others in that job. At most 10 members of a session can have it; give it to the agents that need their own view, not to all.</td></tr>
+        <tr><td><code>observeMe: false</code> on an agent</td><td>Its messages are kept and read, but nothing is learned from them. Use it for agents that only reformat or route.</td></tr>
+        <tr><td><code>peerPerspective</code> on context or <code>turn</code></td><td>Read the target through one agent's eyes. Without it, an agent sees what Recall learned from every job, including ones it was never in.</td></tr>
+        <tr><td><code>target</code> on <code>chat</code></td><td>Ask what one peer knows about another.</td></tr>
+        <tr><td><code>scopes</code> on the session, <code>scope</code> on <code>recall.chat</code></td><td>Shared team memory, limited to the jobs filed under the scope.</td></tr>
+        <tr><td><code>idempotencyKey</code></td><td>Your own key per step, so a retry from a restarted process stores nothing twice.</td></tr>
+        <tr><td><code>reasoningLevel: "minimal"</code></td><td>For quick checks an agent makes often, such as after a webhook. See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>Measured from Europe against the hosted API (Frankfurt), October 2026: a context read took 0.3 to 0.7 seconds, a search about 0.9 seconds, and a question at <code>minimal</code> or <code>low</code> 2 to 4.5 seconds. <code>high</code> and <code>max</code> run a tool loop and are slower. Learning usually finishes within about 20 seconds of a write; the webhook tells you when.</p>
+    <p>Context, search and storage are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50, and for questions. A message is billed once, however many agents observe it. A user who starts 40 jobs a month, each with a 150-token brief, 30 agent messages of about 250 tokens and 4 questions:</p>
+    <table>
+      <thead><tr><th>Item</th><th>Per month</th></tr></thead>
+      <tbody>
+        <tr><td>Briefs: 40 × 150 tokens × $1.75 / 1M</td><td>$0.0105</td></tr>
+        <tr><td>Agent messages: 40 × 30 × 250 tokens × $1.75 / 1M</td><td>$0.525</td></tr>
+        <tr><td>Questions at <code>low</code>: 160 × $0.005</td><td>$0.80</td></tr>
+        <tr><td>Context reads</td><td>included</td></tr>
+        <tr><td><b>Total</b></td><td><b>about $1.34 a month, or 3.3 cents a job</b></td></tr>
+      </tbody>
+    </table>
+    <p>The agents' messages are most of the learning cost. Agents that write long drafts nobody needs remembered are cheaper with <code>observeMe: false</code>: their messages then count only what Recall reads of them. More in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>Agents pass on what users told them, so personal data ends up in agents' messages too. When a user asks to be forgotten, <code>user.delete()</code> erases their messages and every fact about them or from their view, including each agent's view of them. Facts about other peers that merely mention them stay: "the researcher found the user's budget is €20,000" is a fact about the researcher. Delete those by id, or delete the job's sessions. See <a href="/docs#forget-a-person">Forget a person</a>.</p>
+    <p>Do not let agents write credentials or tool output into messages. Webhook deliveries carry ids, not content. Recall stores data in Frankfurt; text is processed by AI model providers in the US through OpenRouter, restricted to providers that do not collect it, and never used for training. See <a href="/guides/privacy">Privacy, consent and forgetting</a> and the <a href="/dpa">DPA</a>.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>Reading without <code>peerPerspective</code>.</b> Every agent then knows what was said in jobs it never took part in.</li>
+      <li><b><code>observeOthers</code> on every agent.</b> More than 10 in a session is refused, and views nobody reads only add work. Turn it on for agents that act on their own view.</li>
+      <li><b>Retrying without your own key.</b> The SDK's key covers retries within one call. A restarted process sends a new one and stores the step again.</li>
+      <li><b>Polling for learning.</b> <code>waitForIdle</code> suits tests and demos. In production, let the <code>queue.empty</code> webhook wake the agent.</li>
+      <li><b>Trusting unverified webhooks.</b> Verify the signature on the raw body, before parsing, and drop event ids you have already handled.</li>
+      <li><b>One account-wide key in every agent.</b> A misled agent could then read every view and delete people. Scope keys to a peer or a session.</li>
+    </ul>
+    <p class="guide-next">Next: <a href="/guides/coding-agents">Coding agents</a> · <a href="/guides/modeling">Designing workspaces, peers and sessions</a></p>
+  </article>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="logo" href="/"><svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>Recall</a>
+      <p class="tagline">Memory for AI agents. Hosted in the EU.</p>
+      <p class="muted">Smidt Beheer · KvK 99124254 · VAT NL004444074B96</p>
+    </div>
+    <nav aria-label="Footer">
+      <div><b>Product</b><a href="/#how">How it works</a><a href="/#why">Why Recall</a><a href="/#agents">Integrations</a><a href="/evals">Evals</a><a href="/#pricing">Pricing</a></div>
+      <div><b>Developers</b><a href="/docs#quickstart">Quickstart</a><a href="/guides">Guides</a><a href="/docs#integrations">Integrations</a><a href="/docs#api">API</a><a href="/docs#models">Models</a><a href="https://github.com/recallmem/recall">GitHub</a></div>
+      <div><b>Account</b><a href="/app/login">Sign in</a></div>
+      <div><b>Legal</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/dpa">Data processing</a><a href="/security">Security</a><a href="/support">Support</a></div>
+    </nav>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

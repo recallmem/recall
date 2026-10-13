@@ -1,0 +1,63 @@
+[
+  {
+    "question_id": "q-degree",
+    "question_type": "single-session-user",
+    "question": "What degree did I graduate with?",
+    "question_date": "2023/05/30 (Tue) 23:40",
+    "answer": "Business Administration",
+    "answer_session_ids": ["answer_1"],
+    "haystack_dates": ["2023/05/21 (Sun) 09:00", "2023/05/20 (Sat) 02:21"],
+    "haystack_session_ids": ["answer_1", "noise_1"],
+    "haystack_sessions": [
+      [
+        {
+          "role": "user",
+          "content": "I graduated with a degree in Business Administration last year.",
+          "has_answer": true
+        },
+        { "role": "assistant", "content": "Congratulations! That is a flexible degree." },
+        { "role": "user", "content": "   " }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "Can you explain how a fox, a chicken and grain cross a river?"
+        },
+        {
+          "role": "assistant",
+          "content": "Take the chicken first, then the fox, bring the chicken back, then the grain."
+        }
+      ]
+    ]
+  },
+  {
+    "question_id": "q-hamster_abs",
+    "question_type": "single-session-user",
+    "question": "What is the name of my hamster?",
+    "question_date": "2023/06/02 (Fri) 10:15",
+    "answer": "You did not mention this information. You mentioned your cat Luna but not your hamster.",
+    "answer_session_ids": [],
+    "haystack_dates": ["2023/06/01 (Thu) 18:30"],
+    "haystack_session_ids": ["s_cat"],
+    "haystack_sessions": [
+      [
+        { "role": "user", "content": "My cat Luna keeps knocking things off the shelf." },
+        { "role": "assistant", "content": "Cats do enjoy testing gravity." }
+      ]
+    ]
+  },
+  {
+    "question_id": "q-update",
+    "question_type": "knowledge-update",
+    "question": "Where do I live now?",
+    "question_date": "2023/07/01 (Sat) 12:00",
+    "answer": 3,
+    "answer_session_ids": ["u2"],
+    "haystack_dates": ["2023/05/01 (Mon) 10:00", "2023/06/15 (Thu) 10:00"],
+    "haystack_session_ids": ["u1", "u2"],
+    "haystack_sessions": [
+      [{ "role": "user", "content": "I live in Utrecht." }],
+      [{ "role": "user", "content": "I moved to Rotterdam last week." }]
+    ]
+  }
+]

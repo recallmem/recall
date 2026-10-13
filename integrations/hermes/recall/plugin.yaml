@@ -1,0 +1,12 @@
+name: recall
+version: 0.1.0
+description: "Recall: long-term memory that learns from your conversations."
+author: Recall
+kind: exclusive
+provides_tools:
+  - recall_search
+  - recall_ask
+  - recall_remember
+  - recall_forget
+hooks:
+  - on_session_end
