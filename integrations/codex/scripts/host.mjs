@@ -36,6 +36,13 @@ export const HOST_INFO = {
     env.PLUGIN_DATA ||
     env.CLAUDE_PLUGIN_DATA ||
     join(codexHome(env), "recall", "state"),
+  /** Recall's config file, as written by `recall init` or install.mjs: ~/.recall/config.json. */
+  configPath: (env) =>
+    env.RECALL_CONFIG_PATH ||
+    join(
+      env.RECALL_CONFIG_DIR || join(env.HOME || env.USERPROFILE || homedir(), ".recall"),
+      "config.json",
+    ),
   /** API key: RECALL_API_KEY, then `apiKey` in ~/.recall/config.json (as written by `recall init` or install.mjs). */
   apiKey: (env, fromFile) => env.RECALL_API_KEY || expand(fromFile("apiKey", "auth.apiKey"), env),
   /** Shown when the server refuses the key. */

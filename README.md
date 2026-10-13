@@ -180,8 +180,8 @@ install steps, its settings and a way to check that it works.
 
 | Agent | How | Where |
 |---|---|---|
-| **Claude Code** | Plugin: recalls what it knows about you when a session starts, records each turn, adds the MCP tools. `/plugin marketplace add RedSix6/recall-plugin`, then `/plugin install recall-memory@recall` | [`integrations/claude-code`](integrations/claude-code/README.md) |
-| **Codex** | Plugin or installer with the same hooks and tools. `codex plugin marketplace add RedSix6/recall-plugin`, then `codex plugin add recall-memory@recall` | [`integrations/codex`](integrations/codex/README.md) |
+| **Claude Code** | Plugin: recalls what it knows about you when a session starts, records each turn, adds the MCP tools. `/plugin marketplace add recallmem/recall-plugin`, then `/plugin install recall-memory@recall` | [`integrations/claude-code`](integrations/claude-code/README.md) |
+| **Codex** | Plugin or installer with the same hooks and tools. `codex plugin marketplace add recallmem/recall-plugin`, then `codex plugin add recall-memory@recall` | [`integrations/codex`](integrations/codex/README.md) |
 | **Claude.ai** (web, desktop, mobile) | Custom connector: Settings, Connectors, Add custom connector, URL `https://api.recallmem.dev/mcp`, then sign in | [docs](https://recallmem.dev/docs#mcp-connector) |
 | **ChatGPT** | Connector in developer mode with the same URL and OAuth sign-in | [docs](https://recallmem.dev/docs#mcp-connector) |
 | **Any MCP client** (Cursor, VS Code, ...) | Remote MCP server at `https://api.recallmem.dev/mcp`: OAuth sign-in, or an API key in a header. Eight memory tools by default, all 40 with `?profile=full` | [docs](https://recallmem.dev/docs#mcp) |

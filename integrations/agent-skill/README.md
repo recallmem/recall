@@ -22,7 +22,7 @@ Copy the `recall-memory` folder to where your agent looks for skills:
 | Hermes Agent | `~/.hermes/skills/`, or add `~/.agents/skills` to its external skill directories |
 
 ```bash
-git clone https://github.com/RedSix6/recall-plugin
+git clone https://github.com/recallmem/recall-plugin
 mkdir -p ~/.agents/skills && cp -r recall-plugin/integrations/agent-skill/recall-memory ~/.agents/skills/
 ```
 

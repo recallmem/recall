@@ -11,7 +11,7 @@ Gives [OpenAI Codex](https://developers.openai.com/codex) long-term memory throu
   `create_conclusions`, `delete_conclusion`, `add_messages_to_session`) lets Codex look things up and correct memory.
 
 It uses Codex [hooks](https://learn.chatgpt.com/docs/hooks) (`SessionStart`, `UserPromptSubmit`, `Stop`) and a stdio
-MCP server. The hook scripts are the same ones the [Claude Code plugin](https://github.com/RedSix6/recall-plugin#readme) runs: fast, quiet
+MCP server. The hook scripts are the same ones the [Claude Code plugin](https://github.com/recallmem/recall-plugin#readme) runs: fast, quiet
 on failure (short timeouts, then Recall is skipped for a minute), and anything that could not be sent is kept (up to
 100 messages) and delivered in order once Recall is back. If Recall is down, Codex behaves as without it.
 
@@ -23,7 +23,7 @@ Pick one of the two routes; installing both handles every turn twice.
 ### As a Codex plugin
 
 ```bash
-codex plugin marketplace add RedSix6/recall-plugin
+codex plugin marketplace add recallmem/recall-plugin
 codex plugin add recall-memory@recall
 ```
 
@@ -35,7 +35,7 @@ hooks until you trust them, so trust the three Recall hooks. Codex keeps the plu
 ### With the installer (no plugin system needed)
 
 ```bash
-git clone https://github.com/RedSix6/recall-plugin
+git clone https://github.com/recallmem/recall-plugin
 node recall-plugin/integrations/codex/install.mjs \
   --url https://your-recall.example --api-key pk_live_... --workspace my-workspace --peer your-name
 ```

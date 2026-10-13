@@ -11,7 +11,7 @@ Recall is run by Smidt Beheer, the Netherlands (KvK 99124254). Data is stored in
 - TypeScript SDK: `npm install @recall-memory/sdk`
 - Python SDK: `pip install recall-mem` (import `recall_memory`)
 - MCP server: https://api.recallmem.dev/mcp
-- Claude Code plugin: `/plugin marketplace add RedSix6/recall-plugin`, then `/plugin install recall-memory@recall`
+- Claude Code plugin: `/plugin marketplace add recallmem/recall-plugin`, then `/plugin install recall-memory@recall`
 - Source code: {{repo_url}} (the server is source-available under the FSL and can be self-hosted; SDKs and integrations are MIT)
 
 ## Docs

@@ -1,0 +1,63 @@
+name: Tag a release
+
+# Creates release tags on the commit it runs on and starts "Release SDKs" for each, for when a tag
+# cannot be pushed from where you work. Same result as pushing the tags by hand (docs/RELEASING.md).
+# Run it from Actions > Tag a release > Run workflow, on main, with e.g. "ai-sdk-v0.1.0 mastra-v0.1.0".
+#
+# A tag pushed with the workflow's own token starts no other workflow, so this job starts the
+# release itself (a workflow_dispatch on the new tag, with publish on).
+
+on:
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: Release tags to create on this commit, separated by spaces (e.g. ai-sdk-v0.1.0 mastra-v0.1.0)
+        type: string
+        required: true
+
+permissions:
+  contents: write # push the tags
+  actions: write # start Release SDKs
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the tags
+        env:
+          TAGS: ${{ inputs.tags }}
+        run: |
+          set -euo pipefail
+          [ -n "${TAGS// }" ] || { echo "::error::No tags given"; exit 1; }
+          for tag in $TAGS; do
+            if ! [[ "$tag" =~ ^(sdk-ts|sdk-py|ai-sdk|langchain|mastra|langchain-recall|openai-agents-recall|crewai-recall)-v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "::error::Not a release tag: $tag"
+              exit 1
+            fi
+            if git ls-remote --exit-code --tags origin "refs/tags/$tag" > /dev/null; then
+              echo "::error::$tag already exists"
+              exit 1
+            fi
+          done
+
+      - name: Tag and start the releases
+        env:
+          TAGS: ${{ inputs.tags }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for tag in $TAGS; do
+            name="${tag%-v*}"
+            case "$name" in
+              sdk-ts) target=npm ;;
+              sdk-py) target=pypi ;;
+              *) target="$name" ;;
+            esac
+            git tag "$tag" "$GITHUB_SHA"
+            git push origin "refs/tags/$tag"
+            gh workflow run release-sdks.yml --ref "$tag" -f target="$target" -f publish=true
+            echo "Tagged $tag at $GITHUB_SHA and started Release SDKs ($target)"
+          done

@@ -36,6 +36,7 @@
       <a href="#pricing">Pricing</a>
       <a href="/guides">Guides</a>
       <a href="/docs">Docs</a>
+      <a href="https://github.com/recallmem/recall">GitHub</a>
     </nav>
     <div class="nav-cta">
       <a class="btn btn-text" href="/app">Log in</a>
@@ -50,6 +51,7 @@
       <a href="#pricing">Pricing</a>
       <a href="/guides">Guides</a>
       <a href="/docs">Docs</a>
+      <a href="https://github.com/recallmem/recall">GitHub</a>
       <a href="/app">Log in</a>
     </nav>
   </div>
@@ -70,8 +72,8 @@
       <a class="proof-line" href="#numbers"><span><b>91.0%</b> LongMemEval-S</span><span><b>0.67</b> BEAM 500K</span><span><b>$0.005</b> per answer</span><i aria-hidden="true">→</i></a>
       <div class="cmd">
         <span class="tag">Claude Code</span>
-        <code>/plugin marketplace add RedSix6/recall-plugin</code>
-        <button type="button" class="copy" data-copy="/plugin marketplace add RedSix6/recall-plugin" aria-label="Copy command">copy</button>
+        <code>/plugin marketplace add recallmem/recall-plugin</code>
+        <button type="button" class="copy" data-copy="/plugin marketplace add recallmem/recall-plugin" aria-label="Copy command">copy</button>
       </div>
     </div>
     <figure class="window demo" aria-label="Example: what Recall knows about Alice, and an answer that cites its source">
@@ -249,13 +251,13 @@ curl https://api.recallmem.dev/v3/workspaces/my-app/peers/alice/chat \
   -H <span class="tk-s">"Content-Type: application/json"</span> \
   -d <span class="tk-s">'{"query":"Where does Alice live?"}'</span></pre>
 <pre data-panel="cc" role="tabpanel" id="code-cc" aria-labelledby="code-tab-cc" hidden><span class="tk-c"># in Claude Code</span>
-/plugin marketplace add RedSix6/recall-plugin
+/plugin marketplace add recallmem/recall-plugin
 /plugin install recall-memory@recall
 
 <span class="tk-c"># paste your API key when asked, then check it:</span>
 /recall-memory:status</pre>
 <pre data-panel="codex" role="tabpanel" id="code-codex" aria-labelledby="code-tab-codex" hidden><span class="tk-c"># in a terminal</span>
-codex plugin marketplace add RedSix6/recall-plugin
+codex plugin marketplace add recallmem/recall-plugin
 codex plugin add recall-memory@recall
 
 <span class="tk-c"># then start Codex and trust the hooks with /hooks</span></pre>
@@ -274,7 +276,8 @@ codex plugin add recall-memory@recall
       <ul class="ticks">
         <li><b>Claude Code and Codex</b><span>plugins: memory at session start, every turn recorded</span></li>
         <li><b>Claude.ai, ChatGPT, Cursor</b><span>add Recall as a connector or MCP server and sign in</span></li>
-        <li><b>OpenClaw, Hermes, any skills host</b><span>open source, MIT, <a href="https://github.com/RedSix6/recall-plugin">on GitHub</a></span></li>
+        <li><b>OpenClaw, Hermes, any skills host</b><span>open source, MIT, <a href="https://github.com/recallmem/recall-plugin">on GitHub</a></span></li>
+        <li><b>Agent frameworks</b><span>Vercel AI SDK, LangChain, Mastra, OpenAI Agents SDK and CrewAI: <a href="/guides#frameworks">guides</a></span></li>
         <li><b>Your own agent</b><span>TypeScript and Python SDKs, or plain HTTP</span></li>
       </ul>
       <p class="more-links"><a href="/docs#integrations">Set-up guides →</a><button type="button" class="link-btn copy-prompt" data-copy-from="setup-prompt" data-done="Copied: paste it into your agent">Copy a setup prompt for your coding agent</button></p>
@@ -516,9 +519,30 @@ codex plugin add recall-memory@recall
         <li><b>DPA ready</b><span><a href="/dpa">Read it</a>; a signed copy on request</span></li>
         <li><b>Export and erase</b><span>download everything, or delete it for good, from the dashboard</span></li>
         <li><b>Never used for training</b><span>your data trains no models</span></li>
-        <li><b>Open-source plugin</b><span>Claude Code plugin, MIT, <a href="https://github.com/RedSix6/recall-plugin">on GitHub</a></span></li>
+        <li><b>Open-source plugin</b><span>Claude Code plugin, MIT, <a href="https://github.com/recallmem/recall-plugin">on GitHub</a></span></li>
       </ul>
       <p class="trust-foot">Rolling Recall out for a team, or need a security review? Write to <a href="mailto:support@recallmem.dev">support@recallmem.dev</a>.</p>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="source">
+  <div class="wrap">
+    <div class="window source reveal">
+      <div class="window-bar"><h2 class="t"><b>[ source ]</b> read the code</h2><a class="r" href="https://github.com/recallmem/recall">GitHub →</a></div>
+      <div class="source-grid">
+        <a class="repo" href="https://github.com/recallmem/recall">
+          <span class="repo-name">recallmem/recall</span>
+          <span class="repo-desc">The server, the TypeScript and Python SDKs, the framework integrations, and the evals harness behind the benchmark numbers on <span class="nowrap">this site.</span></span>
+          <span class="repo-lic">Server source-available (FSL-1.1-ALv2, Apache 2.0 after two years) · SDKs and integrations MIT</span>
+        </a>
+        <a class="repo" href="https://github.com/recallmem/recall-plugin">
+          <span class="repo-name">recallmem/recall-plugin</span>
+          <span class="repo-desc">Plugins for Claude Code, Codex, OpenClaw and Hermes, and a skill for any agent that runs skills.</span>
+          <span class="repo-lic">Open source · MIT</span>
+        </a>
+      </div>
+      <p class="source-foot">Run it yourself with <a href="/docs#self-host">Docker</a>, or install a package: npm <a href="https://www.npmjs.com/package/@recall-memory/sdk">@recall-memory/sdk</a>, <a href="https://www.npmjs.com/package/@recall-memory/ai-sdk">ai-sdk</a>, <a href="https://www.npmjs.com/package/@recall-memory/langchain">langchain</a>, <a href="https://www.npmjs.com/package/@recall-memory/mastra">mastra</a> · PyPI <a href="https://pypi.org/project/recall-mem/">recall-mem</a>, <a href="https://pypi.org/project/langchain-recall/">langchain-recall</a>, <a href="https://pypi.org/project/openai-agents-recall/">openai-agents-recall</a>, <a href="https://pypi.org/project/crewai-recall/">crewai-recall</a>.</p>
     </div>
   </div>
 </section>
@@ -565,6 +589,7 @@ codex plugin add recall-memory@recall
     <nav aria-label="Footer">
       <div><b>Product</b><a href="#how">How it works</a><a href="#agents">Integrations</a><a href="#why">Why Recall</a><a href="/evals">Evals</a><a href="/compare">Compare</a><a href="#pricing">Pricing</a></div>
       <div><b>Developers</b><a href="/docs">Docs</a><a href="/guides">Guides</a><a href="/docs#api">API</a><a href="/docs#integrations">Integrations</a><a href="/docs#models">Models</a><a href="/llms.txt">llms.txt</a><a href="https://github.com/recallmem/recall">GitHub</a></div>
+      <div><b>Compare</b><a href="/compare/honcho">vs Honcho</a><a href="/compare/mem0">vs Mem0</a><a href="/compare/zep">vs Zep</a><a href="/compare/letta">vs Letta</a><a href="/guides/switch-from-honcho">Switch from Honcho</a></div>
       <div><b>Account</b><a href="/app">Log in</a><a href="/app/login">Get API key</a></div>
       <div><b>Legal</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/dpa">Data processing</a><a href="/security">Security</a><a href="/support">Support</a></div>
     </nav>

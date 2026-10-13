@@ -19,6 +19,11 @@ export const HOST_INFO = {
   turnIdKey: "prompt_id",
   /** Where the circuit breaker, the unsent-message spool and the log live. */
   stateDir: (env) => env.CLAUDE_PLUGIN_DATA || join(tmpdir(), "recall-claude-code"),
+  /**
+   * No config file: the plugin reads nothing from the user's machine. Settings come from the
+   * plugin's own settings (/plugin → recall-memory → Configure) and `RECALL_*` variables.
+   */
+  configPath: () => null,
   /** The API key comes only from the plugin's protected `api_key` setting, never from files or the shell. */
   apiKey: (env) => env.CLAUDE_PLUGIN_OPTION_API_KEY,
   /** Shown when the server refuses the key. */

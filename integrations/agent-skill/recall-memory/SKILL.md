@@ -5,7 +5,7 @@ compatibility: Needs network access to a Recall server (RECALL_URL, plus RECALL_
 metadata:
   author: Recall
   version: "0.1.0"
-  homepage: https://github.com/RedSix6/recall-plugin/tree/main/integrations/agent-skill
+  homepage: https://github.com/recallmem/recall-plugin/tree/main/integrations/agent-skill
 ---
 
 # Recall memory

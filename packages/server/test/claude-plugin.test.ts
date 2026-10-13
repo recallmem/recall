@@ -516,22 +516,33 @@ describe("plugin: configuration", () => {
   };
   const apiKey = signToken({ ad: true }, SECRET);
 
-  it("takes the key only from its protected setting, the rest from ~/.recall/config.json", async () => {
-    writeConfig(".recall", { url: s.url, apiKey: "ignored", workspace: "cc", peer: "lucas" });
+  it("reads no file on the user's machine: the key from its protected setting, the rest from its settings", async () => {
+    // A Recall config file with other values is ignored: nothing the plugin uses comes from a file.
+    writeConfig(".recall", {
+      url: "http://127.0.0.1:1",
+      apiKey: "ignored",
+      workspace: "other",
+      peer: "nobody",
+    });
     const env = {
       HOME: home,
       CLAUDE_PLUGIN_DATA: data,
       USER: "someone-else",
       CLAUDE_PLUGIN_OPTION_API_KEY: apiKey,
+      CLAUDE_PLUGIN_OPTION_URL: s.url,
+      CLAUDE_PLUGIN_OPTION_WORKSPACE: "cc",
+      CLAUDE_PLUGIN_OPTION_PEER: "lucas",
     };
     await run(
       "user-prompt-submit.mjs",
-      common("UserPromptSubmit", { session_id: "file", prompt: "from the file" }),
+      common("UserPromptSubmit", { session_id: "file", prompt: "from the settings" }),
       env,
     );
     expect((await messages(s, "cc-file", admin)).map((m) => [m.peer_id, m.content])).toEqual([
-      ["lucas", "from the file"],
+      ["lucas", "from the settings"],
     ]);
+    const status = await run("status.mjs", "", env);
+    expect(status.stdout).toContain("config file     (none found)");
   });
 
   it("never reads Honcho's config or HONCHO_* credentials", async () => {
@@ -546,21 +557,16 @@ describe("plugin: configuration", () => {
     expect(await messages(s, "cc-honcho-v0", admin)).toEqual([]);
   });
 
-  it("lets the hosts.claude-code block and the environment override the file", async () => {
-    writeConfig(".recall", {
-      url: "http://127.0.0.1:1",
-      workspace: "other",
-      peer: "nobody",
-      hosts: {
-        "claude-code": {
-          url: s.url,
-          workspace: "cc",
-          peer: "lucas",
-          assistantPeer: "helper",
-        },
-      },
-    });
-    const env = { HOME: home, CLAUDE_PLUGIN_DATA: data, CLAUDE_PLUGIN_OPTION_API_KEY: apiKey };
+  it("takes the other settings from RECALL_* variables", async () => {
+    const env = {
+      HOME: home,
+      CLAUDE_PLUGIN_DATA: data,
+      CLAUDE_PLUGIN_OPTION_API_KEY: apiKey,
+      CLAUDE_PLUGIN_OPTION_URL: s.url,
+      CLAUDE_PLUGIN_OPTION_WORKSPACE: "cc",
+      CLAUDE_PLUGIN_OPTION_PEER: "lucas",
+      RECALL_ASSISTANT_PEER: "helper",
+    };
     await run(
       "user-prompt-submit.mjs",
       common("UserPromptSubmit", { session_id: "host", prompt: "hosted" }),
@@ -575,20 +581,14 @@ describe("plugin: configuration", () => {
       ["lucas", "hosted"],
       ["helper", "ok"],
     ]);
-    await run(
-      "user-prompt-submit.mjs",
-      common("UserPromptSubmit", { session_id: "host2", prompt: "env wins" }),
-      { ...env, RECALL_PEER_ID: "envpeer" },
-    );
-    expect((await messages(s, "cc-host2", admin))[0]!.peer_id).toBe("envpeer");
   });
 
   it("reports its settings and the server's health", async () => {
-    writeConfig(".recall", { url: s.url, apiKey, workspace: "cc", peer: "lucas" });
     const res = await run("status.mjs", "", {
       HOME: home,
       CLAUDE_PLUGIN_DATA: data,
       CLAUDE_PLUGIN_OPTION_API_KEY: apiKey,
+      CLAUDE_PLUGIN_OPTION_URL: s.url,
     });
     expect(res.code).toBe(0);
     expect(res.stdout).toContain(s.url);

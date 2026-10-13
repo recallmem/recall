@@ -15,9 +15,14 @@ Each image that has a background comes in a dark and a light version; README.md 
 <picture> and prefers-color-scheme. Motion (twinkling stars, the walking elephant) is CSS inside
 the SVG and stops under prefers-reduced-motion.
 
+When the checkout has integrations/public-repo/ (the files only the plugin repository,
+recallmem/recall-plugin, has), the same art is also drawn for that repository's README into
+integrations/public-repo/.github/assets/: the hero with the plugins' title, a card of what a
+plugin does in your agent, and the divider.
+
 Needs Python 3.10+ and Pillow. From the repository root:
 
-    python3 scripts/readme-assets.py           # rewrite .github/assets/*.svg and the README table
+    python3 scripts/readme-assets.py           # rewrite the images and the README table
     python3 scripts/readme-assets.py --check   # exit 1 if any of them is out of date
 """
 
@@ -36,6 +41,8 @@ SITE = ROOT / "packages" / "server" / "scripts" / "site"
 FONTS = ROOT / "packages" / "server" / "public" / "fonts"
 OUT = ROOT / ".github" / "assets"
 README = ROOT / "README.md"
+PLUGIN_REPO = ROOT / "integrations" / "public-repo"
+PLUGIN_OUT = PLUGIN_REPO / ".github" / "assets"
 
 sys.path.insert(0, str(SITE))
 from pages import EVALS  # noqa: E402
@@ -305,7 +312,36 @@ def in_text_box(x, y=None):
     return x0 <= x <= x1 and (y is None or y0 <= y <= y1)
 
 
-def hero(theme, night):
+def recall_words(theme):
+    """The main README's hero text: the wordmark, and the tagline as the site's kicker."""
+    return chunky("RECALL", HERO_W / 2, 38, theme, s=4, anchor="middle") + kicker(
+        "Memory for AI agents", HERO_W / 2, 60, theme
+    )
+
+
+PLUGIN_AGENTS = ["CLAUDE CODE", "CODEX", "OPENCLAW", "HERMES"]
+
+
+def plugin_words(theme):
+    """The plugin repository's hero text: the wordmark a little higher, "plugins" in the kicker,
+    and the agents they are for in a line of capitals with amber dots between them."""
+    cx = HERO_W / 2
+    out = chunky("RECALL", cx, 30, theme, s=4, anchor="middle")
+    out += kicker("Memory plugins for agents", cx, 51, theme)
+    sep, baseline = " · ", 65
+    x = round(cx - (sum(width(n) for n in PLUGIN_AGENTS) + width(sep) * (len(PLUGIN_AGENTS) - 1)) / 2)
+    for i, name in enumerate(PLUGIN_AGENTS):
+        if i:
+            out += text(sep, x, baseline, theme["atext"])
+            x += width(sep)
+        out += text(name, x, baseline, theme["fg"])
+        x += width(name)
+    return out
+
+
+def hero(theme, night, words=recall_words, label="Recall: memory for AI agents"):
+    """The landing page's scene: data towers under a night (or day) sky, and the elephant walking
+    past with its memory. `words(theme)` draws the text, which must stay inside TEXT_BOX."""
     w, h = HERO_W, HERO_H
     rng = random.Random(7)
     sc = NIGHT if night else DAY
@@ -452,16 +488,14 @@ def hero(theme, night):
         ground[(rng.randrange(w), rng.randrange(GROUND + 3, h))] = rng.choice(sc["speck"])
     parts.append(paths(ground))
 
-    # The wordmark, and the tagline as the site's kicker.
-    parts.append(chunky("RECALL", w / 2, 38, theme, s=4, anchor="middle"))
-    parts.append(kicker("Memory for AI agents", w / 2, 60, theme))
+    parts.append(words(theme))
 
     # The elephant (two walk frames) carrying a memory, walking left to right.
     outline = None if night else "#3a2a05"
     frames = "".join(f'<g class="ef{i}">{paths(elephant_grid(i, outline))}</g>' for i in range(2))
     parts.append(f'<g class="walker"><g transform="translate(140 {GROUND - 26})">{frames}</g></g>')
 
-    return svg(w, h, "".join(parts), "Recall: memory for AI agents", HERO_CSS, ".ef1{opacity:0}")
+    return svg(w, h, "".join(parts), label, HERO_CSS, ".ef1{opacity:0}")
 
 
 # -------------------------------------------------------------------------------- how it works
@@ -490,32 +524,28 @@ def window(x, y, w, h, title_no, title, theme):
     return "".join(parts)
 
 
-def how_it_works(theme, dark):
+def flow(theme, dark, panels, label):
+    """Three of the site's windows in a row, joined by arrows with a memory travelling along each.
+    A panel is (number, title, icon, heading lines, lines); the icon is a sprite from sprites.py,
+    drawn three times its size, or "elephant" for the walking elephant with its memory."""
     w, h = 420, 148
     pw, ph, top = 124, 136, 4
     xs = [4, 148, 292]
     parts = []  # transparent: the page shows through around the windows
-    panels = [
-        ("01", "SEND", ["MESSAGES"], ["EACH TURN, FROM", "YOUR APP, AN SDK", "OR A PLUGIN"]),
-        ("02", "LEARN", ["MEMORY"], ["BUILT IN THE", "BACKGROUND: FACTS,", "DATES, SOURCES"]),
-        ("03", "ASK", ["ANSWERS"], ["ASK A QUESTION OR", "PUT CONTEXT IN", "YOUR NEXT PROMPT"]),
-    ]
     icon_mid = top + 20 + 30  # vertical middle of the icon area
-    for x, (no, title, head, lines) in zip(xs, panels):
+    for x, (no, title, icon, head, lines) in zip(xs, panels):
         parts.append(window(x, top, pw, ph, no, title, theme))
         cx = x + pw / 2
-        if no == "01":
-            g = sprite("chat")
-            parts.append(paths(g, round(cx - 24), icon_mid - 15, 3))
-        elif no == "02":
+        if icon == "elephant":
             outline = None if dark else "#3a2a05"
             frames = "".join(
                 f'<g class="ef{i}">{paths(elephant_grid(i, outline), round(cx - 43), icon_mid - 27, 2)}</g>' for i in range(2)
             )
             parts.append(frames)
         else:
-            g = sprite("terminal")
-            parts.append(paths(g, round(cx - 24), icon_mid - 17, 3))
+            rows = S[icon]
+            iw = max(len(r) for r in rows)
+            parts.append(paths(sprite(icon), round(cx - iw * 3 / 2), icon_mid - math.ceil(len(rows) * 3 / 2), 3))
         y = top + 96
         for hl in head:
             parts.append(text(hl, cx, y, theme["fg"], "silkb", anchor="middle"))
@@ -534,13 +564,36 @@ def how_it_works(theme, dark):
                 arrow[(16 - k, j)] = theme["amber"]
         parts.append(paths(arrow, ax, ay))
         parts.append(f'<g class="pk pk{i}">{rect(ax, ay - 1, 3, 3, theme["cyan"])}</g>')
-    return svg(
-        w,
-        h,
-        "".join(parts),
+    return svg(w, h, "".join(parts), label, FLOW_CSS, ".ef1{opacity:0}")
+
+
+def how_it_works(theme, dark):
+    return flow(
+        theme,
+        dark,
+        [
+            ("01", "SEND", "chat", ["MESSAGES"], ["EACH TURN, FROM", "YOUR APP, AN SDK", "OR A PLUGIN"]),
+            ("02", "LEARN", "elephant", ["MEMORY"], ["BUILT IN THE", "BACKGROUND: FACTS,", "DATES, SOURCES"]),
+            ("03", "ASK", "terminal", ["ANSWERS"], ["ASK A QUESTION OR", "PUT CONTEXT IN", "YOUR NEXT PROMPT"]),
+        ],
         "How Recall works: send messages, memory is built in the background, ask or get context",
-        FLOW_CSS,
-        ".ef1{opacity:0}",
+    )
+
+
+def plugin_flow(theme, dark):
+    """What a plugin does in your agent. Claude Code and Codex recall at session start, OpenClaw
+    and Hermes before each turn; all of them record your message and the final reply, never tool
+    calls (see each integration's README)."""
+    return flow(
+        theme,
+        dark,
+        [
+            ("01", "RECALL", "scroll", ["WHAT IT KNOWS"], ["YOUR PEER CARD AND", "FACTS, AT SESSION", "START OR EACH TURN"]),
+            ("02", "RECORD", "chat", ["EVERY TURN"], ["YOUR MESSAGE AND", "THE FINAL REPLY,", "NOT TOOL CALLS"]),
+            ("03", "LEARN", "elephant", ["IN THE BACKGROUND"], ["WHAT IS TRUE ABOUT", "YOU, WITH DATES", "AND SOURCES"]),
+        ],
+        "How a Recall plugin works in your agent: it recalls what it knows about you at session start "
+        "or before each turn, records each turn, and Recall learns in the background",
     )
 
 
@@ -656,15 +709,33 @@ def divider():
 
 
 def files():
+    """Every image, by the path it is written to."""
     out = {
-        "hero-dark.svg": hero(DARK, True),
-        "hero-light.svg": hero(LIGHT, False),
-        "how-it-works-dark.svg": how_it_works(DARK, True),
-        "how-it-works-light.svg": how_it_works(LIGHT, False),
-        "benchmarks-dark.svg": benchmarks(DARK, True),
-        "benchmarks-light.svg": benchmarks(LIGHT, False),
-        "divider.svg": divider(),
+        OUT / name: content
+        for name, content in {
+            "hero-dark.svg": hero(DARK, True),
+            "hero-light.svg": hero(LIGHT, False),
+            "how-it-works-dark.svg": how_it_works(DARK, True),
+            "how-it-works-light.svg": how_it_works(LIGHT, False),
+            "benchmarks-dark.svg": benchmarks(DARK, True),
+            "benchmarks-light.svg": benchmarks(LIGHT, False),
+            "divider.svg": divider(),
+        }.items()
     }
+    if PLUGIN_REPO.is_dir():
+        label = "Recall plugins: memory for Claude Code, Codex, OpenClaw and Hermes"
+        out.update(
+            {
+                PLUGIN_OUT / name: content
+                for name, content in {
+                    "hero-dark.svg": hero(DARK, True, plugin_words, label),
+                    "hero-light.svg": hero(LIGHT, False, plugin_words, label),
+                    "how-it-works-dark.svg": plugin_flow(DARK, True),
+                    "how-it-works-light.svg": plugin_flow(LIGHT, False),
+                    "divider.svg": divider(),
+                }.items()
+            }
+        )
     return out
 
 
@@ -680,13 +751,13 @@ def readme_with_table(readme):
 def main(argv):
     check = "--check" in argv
     stale = []
-    for name, content in files().items():
-        path = OUT / name
+    images = files()
+    for path, content in images.items():
         if check:
             if not path.exists() or path.read_text() != content:
                 stale.append(str(path.relative_to(ROOT)))
         else:
-            OUT.mkdir(parents=True, exist_ok=True)
+            path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(content)
     readme = README.read_text()
     fresh = readme_with_table(readme)
@@ -700,7 +771,8 @@ def main(argv):
         return 0
     if fresh != readme:
         README.write_text(fresh)
-    print(f"wrote {len(files())} files to {OUT.relative_to(ROOT)} and the README table")
+    folders = ", ".join(sorted({str(p.parent.relative_to(ROOT)) for p in images}))
+    print(f"wrote {len(images)} files to {folders} and the README table")
     return 0
 
 

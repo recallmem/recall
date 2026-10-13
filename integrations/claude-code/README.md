@@ -20,11 +20,11 @@ back. If Recall is down, Claude Code behaves exactly as without the plugin.
 Needs Claude Code with plugin support and Node 18+ on your `PATH`.
 
 ```text
-/plugin marketplace add RedSix6/recall-plugin
+/plugin marketplace add recallmem/recall-plugin
 /plugin install recall-memory@recall
 ```
 
-(`claude plugin marketplace add RedSix6/recall-plugin` and `claude plugin install recall-memory@recall` do the same
+(`claude plugin marketplace add recallmem/recall-plugin` and `claude plugin install recall-memory@recall` do the same
 from a shell. Developing locally? `claude --plugin-dir <path to this folder>`.)
 
 When you enable the plugin, Claude Code asks for your **Recall API key** (create one at
@@ -32,8 +32,8 @@ https://app.recallmem.dev/keys). It is stored in your system's secure credential
 server URL, workspace and your name any time under `/plugin` → recall-memory → Configure. The defaults are the hosted
 service at `https://api.recallmem.dev`, workspace `default`, and your OS user name. Self-hosting: set the server URL
 to your own, e.g. `http://localhost:8000` (https://recallmem.dev/docs#self-host); no API key is needed until you turn auth on. The URL,
-workspace and peer can also come from `RECALL_URL`, `RECALL_WORKSPACE_ID`, `RECALL_PEER_ID` or
-`~/.recall/config.json`; the key only ever comes from the plugin setting.
+workspace and peer can also come from `RECALL_URL`, `RECALL_WORKSPACE_ID` and `RECALL_PEER_ID`; the key
+only ever comes from the plugin setting. The plugin reads no files from your machine.
 
 Restart Claude Code (or run `/reload-plugins`), then run `/recall-memory:status`: it prints the settings in use
 and whether the server answers and accepts your key. `/mcp` shows whether the `recall` tools connected.
@@ -51,24 +51,24 @@ In a new session, ask Claude "what do you know about me?": the answer draws on t
 
 ## Configuration
 
-Settings are read, per setting, from the environment (`RECALL_*`), then `~/.recall/config.json`. No other
-service's config or variables are read, so no other service's credentials reach Recall. A `hosts.claude-code` object in the file overrides its top
-level, e.g. `{"hosts": {"claude-code": {"workspace": "coding", "assistantPeer": "claude"}}}`.
+Settings come from the plugin's settings (`/plugin` → recall-memory → Configure) and these environment
+variables, which you can set under `env` in `~/.claude/settings.json` or a project's `.claude/settings.json`. No
+files and no other service's config or variables are read, so no other service's credentials reach Recall.
 
-| Setting (file key / env) | Default | |
+| Setting (plugin setting / env) | Default | |
 |---|---|---|
 | `url` / `RECALL_URL` | `https://api.recallmem.dev` | Server base URL |
 | plugin setting `api_key` | none | API key (only from the plugin's protected setting) |
 | `workspace` / `RECALL_WORKSPACE_ID` | `default` | Where memory lives |
 | `peer` / `RECALL_PEER_ID` | your OS user | You, as Recall knows you. Keep it stable |
-| `assistantPeer` / `RECALL_ASSISTANT_PEER` | `claude` | Peer that Claude's replies are recorded as |
-| `sessionStrategy` / `RECALL_SESSION_STRATEGY` | `per-session` | `per-directory` records every session of a project into one Recall session |
-| `lookup` / `RECALL_LOOKUP` | `session` | `session`: inject at session start. `prompt`: also look up facts related to each prompt. `off` |
-| `record` / `RECALL_RECORD` | `true` | `false` stops recording (lookup still works) |
-| `contextTokens` / `RECALL_CONTEXT_TOKENS` | `1500` | Size of the injected memory |
-| `mcpProfile` / `RECALL_MCP_PROFILE` | `default` | `full` exposes all 40 MCP tools instead of the curated eight |
-| `enabled` / `RECALL_ENABLED` | `true` | `false` turns the plugin's hooks off |
-| `timeoutMs` / `RECALL_HOOK_TIMEOUT_MS` | `3000` | Per-request timeout of the hooks |
+| `RECALL_ASSISTANT_PEER` | `claude` | Peer that Claude's replies are recorded as |
+| `RECALL_SESSION_STRATEGY` | `per-session` | `per-directory` records every session of a project into one Recall session |
+| `RECALL_LOOKUP` | `session` | `session`: inject at session start. `prompt`: also look up facts related to each prompt. `off` |
+| `RECALL_RECORD` | `true` | `false` stops recording (lookup still works) |
+| `RECALL_CONTEXT_TOKENS` | `1500` | Size of the injected memory |
+| `RECALL_MCP_PROFILE` | `default` | `full` exposes all 40 MCP tools instead of the curated eight |
+| `RECALL_ENABLED` | `true` | `false` turns the plugin's hooks off |
+| `RECALL_HOOK_TIMEOUT_MS` | `3000` | Per-request timeout of the hooks |
 
 To switch Recall off for one project, set `RECALL_ENABLED=false` under `env` in that project's
 `.claude/settings.json`.
@@ -77,7 +77,7 @@ To switch Recall off for one project, set `RECALL_ENABLED=false` under `env` in 
 
 Your prompts and Claude's final replies (not tool calls or file contents, and each cut to 24,000 characters) go to the
 Recall server you configured, which analyses them with its language model. Do not point this at a server you do not
-trust, and use `record: false` or `RECALL_ENABLED=false` for work you do not want remembered.
+trust, and set `RECALL_RECORD=false` or `RECALL_ENABLED=false` for work you do not want remembered.
 
 ## Troubleshooting
 
@@ -88,10 +88,10 @@ Hooks never print errors into the session. They log to `hooks.log` in the plugin
 ## Other agents
 
 The same repository has Recall for other agents, each with its own README:
-[Codex](https://github.com/RedSix6/recall-plugin/tree/main/integrations/codex),
-[OpenClaw](https://github.com/RedSix6/recall-plugin/tree/main/integrations/openclaw),
-[Hermes](https://github.com/RedSix6/recall-plugin/tree/main/integrations/hermes) and an
-[Agent Skill](https://github.com/RedSix6/recall-plugin/tree/main/integrations/agent-skill) for any host that loads
+[Codex](https://github.com/recallmem/recall-plugin/tree/main/integrations/codex),
+[OpenClaw](https://github.com/recallmem/recall-plugin/tree/main/integrations/openclaw),
+[Hermes](https://github.com/recallmem/recall-plugin/tree/main/integrations/hermes) and an
+[Agent Skill](https://github.com/recallmem/recall-plugin/tree/main/integrations/agent-skill) for any host that loads
 skills. Any MCP client can also connect to `https://api.recallmem.dev/mcp`.
 
 ## Development

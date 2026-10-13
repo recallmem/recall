@@ -20,7 +20,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/RedSix6/recall-plugin.git",
+    "url": "https://github.com/recallmem/recall-plugin.git",
     "directory": "integrations/openclaw"
   },
   "engines": {

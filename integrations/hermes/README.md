@@ -22,7 +22,7 @@ The provider is the `recall/` folder. Hermes loads user-installed memory provide
 `$HERMES_HOME/plugins/<name>/` (default `~/.hermes/plugins/`):
 
 ```bash
-git clone https://github.com/RedSix6/recall-plugin
+git clone https://github.com/recallmem/recall-plugin
 mkdir -p ~/.hermes/plugins
 cp -r recall-plugin/integrations/hermes/recall ~/.hermes/plugins/recall
 hermes memory setup        # pick "recall" and enter the URL, API key, workspace and your peer id
@@ -33,7 +33,7 @@ hermes memory setup        # pick "recall" and enter the URL, API key, workspace
 configure it as below.
 
 Hermes can also install straight from Git with
-`hermes plugins install RedSix6/recall-plugin/integrations/hermes/recall --enable` (a sub-folder install, per the
+`hermes plugins install recallmem/recall-plugin/integrations/hermes/recall --enable` (a sub-folder install, per the
 Hermes docs). That route has not been tested; the copy above has.
 
 ## Configuration

@@ -28,9 +28,8 @@ describe("integrations: repository references", () => {
       const text = readFileSync(file, "utf8");
       const name = relative(REPO, file);
       expect(mentionsOldName(text), name).toBe(false);
-      for (const m of text.matchAll(/RedSix6\/[\w.-]+/g)) {
-        expect(m[0].replace(/\.git$/, ""), name).toBe("RedSix6/recall-plugin");
-      }
+      // The plugin repository lives in the recallmem organisation: nothing links a personal account.
+      expect(text, name).not.toMatch(/RedSix6\//i);
     }
   });
 });

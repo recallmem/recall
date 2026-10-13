@@ -2722,6 +2722,82 @@ div.step-ui {
   font-size: 15px;
 }
 
+/* ---- source: the public repositories and packages --------------------------------------- */
+.source-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: 20px 22px 4px;
+}
+.repo {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 18px 20px;
+  background: var(--panel-2);
+  border: 1px solid var(--line-2);
+  color: var(--muted);
+  text-decoration: none;
+  transition:
+    border-color 0.15s,
+    transform 0.15s;
+}
+.repo:hover,
+.repo:focus-visible {
+  border-color: var(--amber);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow);
+}
+.repo-name {
+  font-family: var(--mono);
+  font-size: 17px;
+  color: var(--amber);
+}
+.repo-name::before {
+  content: "> ";
+  color: var(--faint);
+}
+.repo-desc {
+  color: var(--fg);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.repo-lic {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--faint);
+}
+.source-foot {
+  margin: 0;
+  padding: 14px 22px 20px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+.source-foot a {
+  color: var(--amber);
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+@media (max-width: 720px) {
+  .source-grid {
+    grid-template-columns: 1fr;
+    padding: 16px 16px 4px;
+  }
+  .source-foot {
+    padding: 12px 16px 18px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .repo {
+    transition: none;
+  }
+  .repo:hover,
+  .repo:focus-visible {
+    transform: none;
+  }
+}
+
 /* ---- horizontal scrollers: a visible hint while there is more to the right (site.js) ------ */
 .hscroll {
   position: relative;

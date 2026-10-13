@@ -24,7 +24,7 @@ Needs OpenClaw 2026.9.9 or later. The plugin is plain JavaScript with no depende
 ClawHub or npm yet, so install it from a checkout:
 
 ```bash
-git clone https://github.com/RedSix6/recall-plugin
+git clone https://github.com/recallmem/recall-plugin
 openclaw plugins install ./recall-plugin/integrations/openclaw --force --accept-capabilities
 ```
 

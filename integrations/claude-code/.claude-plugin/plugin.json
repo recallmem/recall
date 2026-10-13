@@ -10,7 +10,7 @@
   },
   "keywords": ["memory", "recall", "mcp", "hooks", "long-term-memory"],
   "homepage": "https://recallmem.dev",
-  "repository": "https://github.com/RedSix6/recall-plugin",
+  "repository": "https://github.com/recallmem/recall-plugin",
   "license": "MIT",
   "icon": "./.claude-plugin/icon.png",
   "documentationUrl": "https://recallmem.dev/docs#claude-code",

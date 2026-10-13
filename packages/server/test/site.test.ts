@@ -152,17 +152,17 @@ describe("site content", () => {
   it("copies the install commands from the integration READMEs", () => {
     const commands: Record<string, string[]> = {
       "integrations/claude-code/README.md": [
-        "/plugin marketplace add RedSix6/recall-plugin",
+        "/plugin marketplace add recallmem/recall-plugin",
         "/plugin install recall-memory@recall",
-        "claude plugin marketplace add RedSix6/recall-plugin",
+        "claude plugin marketplace add recallmem/recall-plugin",
         "claude plugin install recall-memory@recall",
         "/reload-plugins",
         "/recall-memory:status",
       ],
       "integrations/codex/README.md": [
-        "codex plugin marketplace add RedSix6/recall-plugin",
+        "codex plugin marketplace add recallmem/recall-plugin",
         "codex plugin add recall-memory@recall",
-        "git clone https://github.com/RedSix6/recall-plugin",
+        "git clone https://github.com/recallmem/recall-plugin",
         "node recall-plugin/integrations/codex/install.mjs",
         "codex mcp list",
       ],
@@ -285,11 +285,13 @@ describe("site content", () => {
       "packages/sdk/package.json",
       "sdks/python/pyproject.toml",
     ];
+    // The organisation's only other repository is the plugins' marketplace.
+    const repos = [repo, `${owner}/recall-plugin`];
     for (const file of files) {
       const text = read(file);
       expect(text, file).toContain(repo);
       for (const m of text.matchAll(new RegExp(`${owner.replaceAll(".", "\\.")}/[\\w.-]+`, "g")))
-        expect(m[0].replace(/\.git$/, ""), file).toBe(repo);
+        expect(repos, file).toContain(m[0].replace(/\.git$/, ""));
     }
     expect(home).toContain(`<a href="${repo}">GitHub</a>`);
     expect(docs).toContain(`<a href="${repo}">GitHub</a>`);
@@ -440,7 +442,7 @@ describe("site content", () => {
     for (const file of files) {
       const text = read(file);
       expect(mentionsOldName(text), file).toBe(false);
-      expect(text, file).not.toMatch(/RedSix6\/recall(?!memory|-plugin)/);
+      expect(text, file).not.toMatch(/RedSix6\//i);
       // The template's sprite placeholders are all filled in the published pages.
       if (file.startsWith("packages/server/public/") && file.endsWith(".html"))
         expect(text, file).not.toContain("{{");

@@ -82,6 +82,7 @@ def page(slug, title, desc, body, toc=None, scripts=False, canonical=True, updat
     <div><a class="logo" href="/">{LOGO}Recall</a></div>
     <nav aria-label="Footer">
       <div><b>Recall</b><a href="/">Home</a><a href="/evals">Evals</a><a href="/docs">Docs</a><a href="/compare">Compare</a><span class="muted">Smidt Beheer · KvK 99124254 · VAT NL004444074B96</span></div>
+      <div><b>Compare</b><a href="/compare/honcho">vs Honcho</a><a href="/compare/mem0">vs Mem0</a><a href="/compare/zep">vs Zep</a><a href="/compare/letta">vs Letta</a><a href="/guides/switch-from-honcho">Switch from Honcho</a></div>
       <div><b>Legal</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/dpa">Data processing</a><a href="/security">Security</a></div>
       <div><b>Help</b><a href="/support">Support</a><a href="mailto:support@recallmem.dev">support@recallmem.dev</a></div>
     </nav>
@@ -642,7 +643,7 @@ SECURITY_BODY = """
 </ul>
 
 <h2 id="scope">Scope</h2>
-<p><b>In scope:</b> recallmem.dev (the website), app.recallmem.dev (the dashboard), api.recallmem.dev (the API, MCP server and OAuth), and the source code we publish: the server, SDKs and integrations at <a href="@REPO_URL@">@REPO_HOST_PATH@</a>, and the plugins at <a href="https://github.com/RedSix6/recall-plugin">github.com/RedSix6/recall-plugin</a>.</p>
+<p><b>In scope:</b> recallmem.dev (the website), app.recallmem.dev (the dashboard), api.recallmem.dev (the API, MCP server and OAuth), and the source code we publish: the server, SDKs and integrations at <a href="@REPO_URL@">@REPO_HOST_PATH@</a>, and the plugins at <a href="https://github.com/recallmem/recall-plugin">github.com/recallmem/recall-plugin</a>.</p>
 <p><b>Out of scope:</b></p>
 <ul>
 <li>services run by our providers, such as Stripe's payment pages (pay.recallmem.dev and checkout.stripe.com), Vercel, Neon, OpenRouter, Resend and Cloudflare: please report to them directly;</li>

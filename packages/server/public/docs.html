@@ -216,9 +216,9 @@ recall peer delete alice --yes         # forget a person</code></pre>
 
     <h3 id="claude-code">Claude Code</h3>
     <p>The plugin recalls when a session starts, resumes or is compacted, records each prompt and Claude's final reply in a Recall session named <code>cc-&lt;claude session id&gt;</code>, and adds Recall's MCP tools. It needs Claude Code with plugin support and Node 18+.</p>
-<pre><code>/plugin marketplace add RedSix6/recall-plugin
+<pre><code>/plugin marketplace add recallmem/recall-plugin
 /plugin install recall-memory@recall</code></pre>
-    <p>From a shell, <code>claude plugin marketplace add RedSix6/recall-plugin</code> and <code>claude plugin install recall-memory@recall</code> do the same. When you enable the plugin, Claude Code asks for your Recall API key and keeps it in your system's credential store; change it, the server URL, the workspace and your name under <code>/plugin</code> → recall-memory → Configure. The URL, workspace and peer can also come from <code>RECALL_URL</code>, <code>RECALL_WORKSPACE_ID</code>, <code>RECALL_PEER_ID</code> or <code>~/.recall/config.json</code>; the key only ever comes from the plugin's setting, never from files or the shell.</p>
+    <p>From a shell, <code>claude plugin marketplace add recallmem/recall-plugin</code> and <code>claude plugin install recall-memory@recall</code> do the same. When you enable the plugin, Claude Code asks for your Recall API key and keeps it in your system's credential store; change it, the server URL, the workspace and your name under <code>/plugin</code> → recall-memory → Configure. The URL, workspace and peer can also come from <code>RECALL_URL</code>, <code>RECALL_WORKSPACE_ID</code>, <code>RECALL_PEER_ID</code> or <code>~/.recall/config.json</code>; the key only ever comes from the plugin's setting, never from files or the shell.</p>
     <p>Restart Claude Code (or run <code>/reload-plugins</code>) and run <code>/recall-memory:status</code>: it prints the settings in use and whether the server answers and accepts your key. <code>/mcp</code> shows whether the <code>recall</code> tools connected.</p>
     <table>
       <thead><tr><th>Setting (default)</th><th>What it does</th></tr></thead>
@@ -234,16 +234,16 @@ recall peer delete alice --yes         # forget a person</code></pre>
     <p><b>Check it.</b> Send Claude a prompt, then look at what was recorded, on the dashboard's <b>Memory</b> page or with the <a href="#cli">command line</a>; in a new session ask "what do you know about me?".</p>
 <pre><code>recall session list
 recall session messages cc-&lt;session id&gt; --last 2</code></pre>
-    <p>Hooks never print errors into the session; they log to <code>hooks.log</code> in the plugin's data directory (<code>RECALL_DEBUG=1</code> also prints them to stderr). Full reference: <a href="https://github.com/RedSix6/recall-plugin#readme"><code>integrations/claude-code</code></a>.</p>
+    <p>Hooks never print errors into the session; they log to <code>hooks.log</code> in the plugin's data directory (<code>RECALL_DEBUG=1</code> also prints them to stderr). Full reference: <a href="https://github.com/recallmem/recall-plugin#readme"><code>integrations/claude-code</code></a>.</p>
 
     <h3 id="codex">Codex</h3>
     <p>The Codex integration uses Codex hooks (<code>SessionStart</code>, <code>UserPromptSubmit</code>, <code>Stop</code>) and a stdio MCP server: it adds your peer card and facts at session start (also after <code>/clear</code> or a compaction), records each prompt and Codex's final reply in a session named <code>codex-&lt;codex session id&gt;</code>, and adds the same eight MCP tools. It needs Codex CLI with hooks (tested with 0.162.0) and Node 18+. Pick one of the two routes; installing both handles every turn twice.</p>
     <p><b>As a Codex plugin:</b></p>
-<pre><code>codex plugin marketplace add RedSix6/recall-plugin
+<pre><code>codex plugin marketplace add recallmem/recall-plugin
 codex plugin add recall-memory@recall</code></pre>
     <p>Start Codex and run <code>/hooks</code>: Codex skips new hooks until you trust them, so trust the three Recall hooks.</p>
     <p><b>With the installer</b> (no plugin system needed):</p>
-<pre><code>git clone https://github.com/RedSix6/recall-plugin
+<pre><code>git clone https://github.com/recallmem/recall-plugin
 node recall-plugin/integrations/codex/install.mjs \
   --url <span class="origin">https://api.recallmem.dev</span> --api-key pk_live_... --workspace my-workspace --peer your-name</code></pre>
     <p>It copies the scripts to <code>~/.codex/recall/scripts</code>, adds the three hooks to <code>~/.codex/hooks.json</code> and the <code>recall</code> MCP server to <code>~/.codex/config.toml</code> (in a marked block; your other settings are untouched), and saves the connection to <code>~/.recall/config.json</code>. Run it again to update, or with <code>--uninstall</code> to remove everything it added; then start Codex and trust the hooks with <code>/hooks</code>. Other options: <code>--codex-home DIR</code>, <code>--no-hooks</code>, <code>--no-mcp</code>, <code>--skill</code> (also installs the <a href="#agent-skill">Agent Skill</a>) and <code>--agents-md</code> (adds a short "Recall memory" section to <code>~/.codex/AGENTS.md</code>).</p>
@@ -252,11 +252,11 @@ node recall-plugin/integrations/codex/install.mjs \
 <pre><code>codex mcp list                                # shows the recall server
 codex exec "I prefer pnpm over npm"           # prints "session id: &lt;id&gt;"
 recall session messages codex-&lt;id&gt; --last 2   # your prompt and Codex's reply</code></pre>
-    <p>If nothing is recorded, the hooks are probably not trusted yet: run <code>/hooks</code> in Codex. Full reference: <a href="https://github.com/RedSix6/recall-plugin/blob/main/integrations/codex/README.md"><code>integrations/codex</code></a>.</p>
+    <p>If nothing is recorded, the hooks are probably not trusted yet: run <code>/hooks</code> in Codex. Full reference: <a href="https://github.com/recallmem/recall-plugin/blob/main/integrations/codex/README.md"><code>integrations/codex</code></a>.</p>
 
     <h3 id="openclaw">OpenClaw</h3>
     <p>A plugin that adds what Recall knows about you, focused on the message at hand, before each turn (in a <code>&lt;recall-memory&gt;</code> block marked as background information, not instructions), records your message and the assistant's reply after each turn in a session named <code>oc-&lt;session key&gt;</code>, and gives the assistant four tools: <code>recall_search</code>, <code>recall_ask</code>, <code>recall_remember</code> and <code>recall_forget</code>. It runs next to OpenClaw's own memory and does not take the <code>memory</code> slot. It needs OpenClaw 2026.9.9 or later and is installed from a checkout, because it is not on ClawHub or npm yet.</p>
-<pre><code>git clone https://github.com/RedSix6/recall-plugin
+<pre><code>git clone https://github.com/recallmem/recall-plugin
 openclaw plugins install ./recall-plugin/integrations/openclaw --force --accept-capabilities</code></pre>
     <p>Both hooks read the conversation, which OpenClaw only allows a third-party plugin to do once you grant it. Then say where Recall is:</p>
 <pre><code>openclaw config set plugins.entries.recall-memory.hooks '{"allowConversationAccess":true}' --strict-json --merge
@@ -267,11 +267,11 @@ openclaw config set plugins.entries.recall-memory.config \
 <pre><code>openclaw plugins inspect recall-memory --runtime --json      # lists the four recall_* tools
 openclaw agent --local -m "I moved to Utrecht last month" --session-key agent:main:recall-check
 recall session messages oc-agent-main-recall-check --last 2   # your message and the reply</code></pre>
-    <p>Full reference: <a href="https://github.com/RedSix6/recall-plugin/blob/main/integrations/openclaw/README.md"><code>integrations/openclaw</code></a>.</p>
+    <p>Full reference: <a href="https://github.com/recallmem/recall-plugin/blob/main/integrations/openclaw/README.md"><code>integrations/openclaw</code></a>.</p>
 
     <h3 id="hermes">Hermes Agent</h3>
     <p>A memory provider for <a href="https://hermes-agent.nousresearch.com">Hermes Agent</a>. Hermes' own <code>MEMORY.md</code> and <code>USER.md</code> memory keeps working; Recall is the one external provider next to it. Before each turn it returns your peer card and the facts most related to the message, after each turn it stores the exchange in a session named <code>hermes-&lt;session id&gt;</code>, it copies the facts Hermes' built-in memory saves about you, and it adds the tools <code>recall_search</code>, <code>recall_ask</code>, <code>recall_remember</code> and <code>recall_forget</code>. It uses only the Python standard library.</p>
-<pre><code>git clone https://github.com/RedSix6/recall-plugin
+<pre><code>git clone https://github.com/recallmem/recall-plugin
 mkdir -p ~/.hermes/plugins
 cp -r recall-plugin/integrations/hermes/recall ~/.hermes/plugins/recall
 hermes memory setup        # pick "recall" and enter the URL, API key, workspace and your peer id</code></pre>
@@ -280,12 +280,12 @@ hermes memory setup        # pick "recall" and enter the URL, API key, workspace
 <pre><code>hermes memory status                               # "recall ... ← active"
 hermes chat -q "I moved to Utrecht last month" -Q  # prints session_id: &lt;id&gt;
 recall session messages hermes-&lt;id&gt; --last 2       # your message and the reply</code></pre>
-    <p>Then, in a new chat, ask "where do I live?". Full reference: <a href="https://github.com/RedSix6/recall-plugin/blob/main/integrations/hermes/README.md"><code>integrations/hermes</code></a>.</p>
+    <p>Then, in a new chat, ask "where do I live?". Full reference: <a href="https://github.com/recallmem/recall-plugin/blob/main/integrations/hermes/README.md"><code>integrations/hermes</code></a>.</p>
 
     <h3 id="agent-skill">Agent Skill</h3>
     <p>A portable skill in the <a href="https://agentskills.io">Agent Skills</a> format: a folder with a <code>SKILL.md</code> that teaches any agent that supports skills when and how to use Recall. It looks up what is known about the user, saves facts they state, forgets on request, and records conversations when nothing else does. It works through Recall's MCP tools when they are connected, and otherwise through <code>scripts/recall.mjs</code>, a dependency-free Node 18+ helper. Nothing happens automatically: the agent reads the skill when a task calls for memory and decides what to call. Use it alone or next to an integration; the skill tells the agent not to record messages itself when an integration already does.</p>
     <p>Copy the <code>recall-memory</code> folder to where your agent looks for skills:</p>
-<pre><code>git clone https://github.com/RedSix6/recall-plugin
+<pre><code>git clone https://github.com/recallmem/recall-plugin
 mkdir -p ~/.agents/skills &amp;&amp; cp -r recall-plugin/integrations/agent-skill/recall-memory ~/.agents/skills/</code></pre>
     <table>
       <thead><tr><th>Agent</th><th>Personal skills folder</th></tr></thead>
@@ -300,7 +300,7 @@ mkdir -p ~/.agents/skills &amp;&amp; cp -r recall-plugin/integrations/agent-skil
 <pre><code>node ~/.agents/skills/recall-memory/scripts/recall.mjs status        # health ok, access accepted
 node ~/.agents/skills/recall-memory/scripts/recall.mjs remember "Prefers tea over coffee"
 node ~/.agents/skills/recall-memory/scripts/recall.mjs context --query drinks</code></pre>
-    <p>Then ask your agent "what do you remember about my drinks?". Full reference: <a href="https://github.com/RedSix6/recall-plugin/blob/main/integrations/agent-skill/README.md"><code>integrations/agent-skill</code></a>.</p>
+    <p>Then ask your agent "what do you remember about my drinks?". Full reference: <a href="https://github.com/recallmem/recall-plugin/blob/main/integrations/agent-skill/README.md"><code>integrations/agent-skill</code></a>.</p>
 
     <h2 id="mcp">MCP</h2>
     <p>Recall serves the Model Context Protocol at <code><span class="origin">https://api.recallmem.dev</span>/mcp</code> (streamable HTTP, stateless). By default it exposes eight tools for recording and recalling: <code>chat</code>, <code>search</code>, <code>get_session_context</code>, <code>get_peer_card</code>, <code>list_conclusions</code>, <code>create_conclusions</code>, <code>delete_conclusion</code> and <code>add_messages_to_session</code>. Use <code>/mcp?profile=full</code> (or send <code>x-recall-mcp-profile: full</code>) for all 40 tools (workspaces, peers, sessions, conclusions, scopes). There are two ways to connect: sign in from the app (hosted Recall), or send an API key.</p>
@@ -645,6 +645,7 @@ RECALL_MODEL_CHAT_MAX=anthropic/claude-opus-5-5</code></pre>
     <nav aria-label="Footer">
       <div><b>Product</b><a href="/#how">How it works</a><a href="/#why">Why Recall</a><a href="/#agents">Integrations</a><a href="/evals">Evals</a><a href="/compare">Compare</a><a href="/#pricing">Pricing</a></div>
       <div><b>Developers</b><a href="#quickstart">Quickstart</a><a href="/guides">Guides</a><a href="#integrations">Integrations</a><a href="#api">API</a><a href="#models">Models</a><a href="https://github.com/recallmem/recall">GitHub</a></div>
+      <div><b>Compare</b><a href="/compare/honcho">vs Honcho</a><a href="/compare/mem0">vs Mem0</a><a href="/compare/zep">vs Zep</a><a href="/compare/letta">vs Letta</a><a href="/guides/switch-from-honcho">Switch from Honcho</a></div>
       <div><b>Account</b><a href="/app/login">Sign in</a></div>
       <div><b>Legal</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/dpa">Data processing</a><a href="/security">Security</a><a href="/support">Support</a></div>
     </nav>

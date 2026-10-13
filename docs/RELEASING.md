@@ -73,11 +73,19 @@ reuse it.
    No PyPI token is ever stored in GitHub. After the first release the pending publisher becomes a
    normal trusted publisher of the project. `recall-mem` already exists on PyPI, so add the table's
    publisher under the project's **Settings > Publishing** rather than as a pending publisher.
-3. Add the same pending publisher three more times, once for each framework integration, with
-   **PyPI project name** `langchain-recall`, `openai-agents-recall` and `crewai-recall` (owner,
-   repository, workflow and environment as in the table above). They are new projects, so the
-   pending publisher creates each one on its first release. Check first that the three names are
-   still free on PyPI.
+3. Add a pending publisher for each framework integration, with owner, repository and workflow as
+   in the table above:
+
+   | PyPI project name | Environment name |
+   |---|---|
+   | `langchain-recall` | `pypi` |
+   | `openai-agents-recall` | `pypi-openai-agents-recall` |
+   | `crewai-recall` | `pypi-crewai-recall` |
+
+   PyPI refuses two pending publishers with the same repository, workflow and environment, so each
+   new project gets its own environment (the release job picks it). They are new projects, so the
+   pending publisher creates each one on its first release. Check first that the names are still
+   free on PyPI.
 
 ## Releasing
 
@@ -113,6 +121,10 @@ Do the same for every package; only the file and the tag prefix differ.
    The number after `v` must equal the version in the file you bumped, or the workflow fails before
    publishing. Every package is versioned and released independently; an integration needs the SDK
    version it depends on to be published already.
+
+   Can't push tags from where you work? Run **Actions > Tag a release > Run workflow** on `main`
+   with the tags (e.g. `ai-sdk-v0.1.0 mastra-v0.1.0`). It creates them on that commit and starts
+   the release for each, the same as pushing them.
 5. Watch **Actions > Release SDKs**. For PyPI, approve the `pypi` environment if you made yourself a
    reviewer.
 6. Check the result: <https://www.npmjs.com/package/@recall-memory/sdk> (or `ai-sdk`, `langchain`,

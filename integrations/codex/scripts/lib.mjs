@@ -16,7 +16,7 @@ import {
   statSync,
   writeFileSync,
 } from "node:fs";
-import { homedir, userInfo } from "node:os";
+import { userInfo } from "node:os";
 import { basename, join } from "node:path";
 import { HOST_INFO } from "./host.mjs";
 
@@ -28,7 +28,7 @@ const SPOOL_FLUSH_PER_RUN = 10;
 const LOG_MAX_BYTES = 200_000;
 
 // ---------------------------------------------------------------------------
-// Settings: environment, then ~/.recall/config.json
+// Settings: environment, then the host's config file, if it has one (host.mjs)
 // ---------------------------------------------------------------------------
 
 const str = (v) => (typeof v === "string" && v.trim() !== "" ? v.trim() : undefined);
@@ -54,11 +54,10 @@ function readJson(path) {
 }
 
 function configFile(env) {
-  const home = env.HOME || env.USERPROFILE || homedir();
-  // Only Recall's own config: another memory service's credentials are never read or sent here.
-  const path =
-    env.RECALL_CONFIG_PATH || join(env.RECALL_CONFIG_DIR || join(home, ".recall"), "config.json");
-  const data = readJson(path);
+  // Which file, if any, is the host's decision (host.mjs). Only Recall's own config is ever read:
+  // another memory service's credentials are never read or sent here.
+  const path = HOST_INFO.configPath(env);
+  const data = path ? readJson(path) : null;
   return data ? { path, data } : { path: null, data: {} };
 }
 

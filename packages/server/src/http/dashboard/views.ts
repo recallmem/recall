@@ -510,7 +510,7 @@ print(alice.chat("Where does Alice live?"))`,
     case "claude-code":
       return {
         label: "Claude Code",
-        code: `/plugin marketplace add RedSix6/recall-plugin
+        code: `/plugin marketplace add recallmem/recall-plugin
 /plugin install recall-memory@recall
 
 # paste an API key when asked, then check it:

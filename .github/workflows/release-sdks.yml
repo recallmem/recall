@@ -317,7 +317,10 @@ jobs:
       (github.event_name == 'workflow_dispatch' && endsWith(inputs.target, '-recall'))
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    environment: pypi
+    # PyPI accepts only one pending publisher per (repository, workflow, environment), so each new
+    # package's first release needs its own environment: langchain-recall uses `pypi`, the others
+    # `pypi-<package>`. The PyPI trusted publisher of each project names the same environment.
+    environment: ${{ ((startsWith(github.ref_name, 'openai-agents-recall-v') || inputs.target == 'openai-agents-recall') && 'pypi-openai-agents-recall') || ((startsWith(github.ref_name, 'crewai-recall-v') || inputs.target == 'crewai-recall') && 'pypi-crewai-recall') || 'pypi' }}
     permissions:
       contents: read
       id-token: write # PyPI trusted publishing (no API token stored)
