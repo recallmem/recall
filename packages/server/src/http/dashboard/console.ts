@@ -5,6 +5,7 @@ import { topupStatus } from "../../billing/withdrawal.js";
 import type { AppContext } from "../../context.js";
 import { getAccount } from "../../core/accounts.js";
 import { recentApiKeys, revokeApiKey } from "../../core/apikeys.js";
+import { funnel, funnelPeriod, testEmails } from "../../core/funnel.js";
 import {
   consoleAccounts,
   consoleOverview,
@@ -21,8 +22,9 @@ import type { page } from "./views.js";
 
 /**
  * The operator console, at <dashboard>/admin: business and system health
- * (sign-ups, money, model cost, the job queue), the accounts, and per-account
- * actions (grant credit, revoke a key, suspend, unsuspend).
+ * (sign-ups, money, model cost, the job queue), the activation funnel of
+ * self-serve sign-ups (core/funnel.ts), the accounts, and per-account actions
+ * (grant credit, revoke a key, suspend, unsuspend).
  *
  * Open only to signed-in dashboard users whose email is in RECALL_OPERATOR_EMAILS.
  * Everyone else gets exactly what an unknown dashboard path gets (404), so the
@@ -88,6 +90,20 @@ export function registerConsole(
       title: "Console",
       active: "/admin",
       body: cv.overviewPage({ ...data, billing: ctx.billing.enabled }),
+    });
+  });
+
+  // ---- activation funnel -------------------------------------------------------
+  app.get("/admin/funnel", async (c) => {
+    const op = operatorOf(c);
+    if (!op) return hide(c);
+    await ctx.usage.flush();
+    const days = funnelPeriod(c.req.query("days"));
+    const data = await funnel(ctx.db, { days, testEmails: testEmails(ctx.config.hosted) });
+    return render(c, 200, {
+      title: "Funnel · Console",
+      active: "/admin",
+      body: cv.funnelPage({ ...data, billing: ctx.billing.enabled }),
     });
   });
 

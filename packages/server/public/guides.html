@@ -4,10 +4,10 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Guides — Recall</title>
-<meta name="description" content="How to build with Recall, use case by use case: assistants, customer support, coding agents, game NPCs, sales, multi-agent systems, tutoring, community bots, coaching, voice agents and shopping." />
+<meta name="description" content="How to build with Recall, use case by use case: assistants, customer support, coding agents, game NPCs, sales, multi-agent systems, tutoring, community bots, coaching, voice agents and shopping. And framework by framework: the Vercel AI SDK, LangChain, LangChain.js, Mastra, the OpenAI Agents SDK and CrewAI." />
 <meta name="theme-color" content="#0c0b0a" />
 <meta property="og:title" content="Guides — Recall" />
-<meta property="og:description" content="How to build with Recall, use case by use case: assistants, customer support, coding agents, game NPCs, sales, multi-agent systems, tutoring, community bots, coaching, voice agents and shopping." />
+<meta property="og:description" content="How to build with Recall, use case by use case: assistants, customer support, coding agents, game NPCs, sales, multi-agent systems, tutoring, community bots, coaching, voice agents and shopping. And framework by framework: the Vercel AI SDK, LangChain, LangChain.js, Mastra, the OpenAI Agents SDK and CrewAI." />
 <meta property="og:type" content="article" />
 <meta property="og:image" content="/og.png" />
 <link rel="canonical" href="https://recallmem.dev/guides" />
@@ -56,11 +56,20 @@
         <a href="/guides/voice-agents">Voice agents</a>
         <a href="/guides/shopping">Shopping assistants</a>
         <a href="/guides/workplace">Workplace assistants</a>
+        <b>Switch to Recall</b>
+        <a href="/guides/switch-from-honcho">Switch from Honcho</a>
         <b>Build well</b>
         <a href="/guides/modeling">Designing workspaces, peers and sessions</a>
         <a href="/guides/levels-and-models">Reasoning levels and models</a>
         <a href="/guides/privacy">Privacy, consent and forgetting</a>
         <a href="/guides/cost-and-speed">Cost and speed</a>
+        <b>Frameworks</b>
+        <a href="/guides/vercel-ai-sdk">Vercel AI SDK</a>
+        <a href="/guides/langchain-js">LangChain.js</a>
+        <a href="/guides/mastra">Mastra</a>
+        <a href="/guides/langchain">LangChain and LangGraph</a>
+        <a href="/guides/openai-agents">OpenAI Agents SDK</a>
+        <a href="/guides/crewai">CrewAI</a>
         <b>Reference</b>
         <a href="/docs">Docs</a>
       </div>
@@ -73,8 +82,8 @@
 
   <article class="prose guide">
     <h1>Guides</h1>
-    <p class="lede">One guide per kind of product. Each shows what memory changes for your users, how to map your product onto workspaces, peers and sessions, working code in TypeScript and Python (run against a real Recall server on every change), the settings that matter, what it costs and how fast it is, and how to forget someone.</p>
-    <p>New to Recall? Start with the <a href="/docs#quickstart">quickstart</a> and <a href="/guides/modeling">Designing workspaces, peers and sessions</a>.</p>
+    <p class="lede">One guide per kind of product, and one per agent framework. Each shows what memory changes for your users, how to map your product onto workspaces, peers and sessions, working code (TypeScript and Python, or the framework's own language, all of it run against a real Recall server on every change), the settings that matter, what it costs and how fast it is, and how to forget someone.</p>
+    <p>New to Recall? Start with the <a href="/docs#quickstart">quickstart</a> and <a href="/guides/modeling">Designing workspaces, peers and sessions</a>. Building on an agent framework? The framework guides add Recall to the Vercel AI SDK, LangChain, LangChain.js, Mastra, the OpenAI Agents SDK or CrewAI in a few lines.</p>
 
     <h2 id="use-cases">Use cases</h2>
     <div class="guide-cards">
@@ -92,12 +101,27 @@
       <a class="guide-card" href="/guides/workplace"><b>Workplace assistants</b><span>An assistant for a team that remembers projects, decisions and who owns what.</span></a>
     </div>
 
+    <h2 id="switch-to-recall">Switch to Recall</h2>
+    <div class="guide-cards">
+      <a class="guide-card" href="/guides/switch-from-honcho"><b>Switch from Honcho</b><span>Change the base URL and the key; what stays the same, what Recall adds and what differs.</span></a>
+    </div>
+
     <h2 id="build-well">Build well</h2>
     <div class="guide-cards">
       <a class="guide-card" href="/guides/modeling"><b>Designing workspaces, peers and sessions</b><span>How to map your product onto Recall so memory stays separate where it should.</span></a>
       <a class="guide-card" href="/guides/levels-and-models"><b>Reasoning levels and models</b><span>When to read context, when to ask, and which reasoning level to pick.</span></a>
       <a class="guide-card" href="/guides/privacy"><b>Privacy, consent and forgetting</b><span>What to store, how to tell users, and how to forget a person completely.</span></a>
       <a class="guide-card" href="/guides/cost-and-speed"><b>Cost and speed</b><span>What a user costs per month and how fast each call is, with the arithmetic.</span></a>
+    </div>
+
+    <h2 id="frameworks">Frameworks</h2>
+    <div class="guide-cards">
+      <a class="guide-card" href="/guides/vercel-ai-sdk"><b>Vercel AI SDK</b><span>Memory for generateText, streamText and agents: one middleware and three tools.</span></a>
+      <a class="guide-card" href="/guides/langchain-js"><b>LangChain.js</b><span>A chat history in Recall sessions, a retriever over what Recall knows, and tools.</span></a>
+      <a class="guide-card" href="/guides/mastra"><b>Mastra</b><span>One processor for memory in every run, plus tools the agent can call.</span></a>
+      <a class="guide-card" href="/guides/langchain"><b>LangChain and LangGraph</b><span>Middleware, tools and a retriever that give a LangChain agent memory of each user.</span></a>
+      <a class="guide-card" href="/guides/openai-agents"><b>OpenAI Agents SDK</b><span>A session kept in Recall, memory tools and instructions that know the user.</span></a>
+      <a class="guide-card" href="/guides/crewai"><b>CrewAI</b><span>Tools and task context so a crew remembers the people it works for.</span></a>
     </div>
   </article>
 </div>
@@ -110,7 +134,7 @@
       <p class="muted">Smidt Beheer · KvK 99124254 · VAT NL004444074B96</p>
     </div>
     <nav aria-label="Footer">
-      <div><b>Product</b><a href="/#how">How it works</a><a href="/#why">Why Recall</a><a href="/#agents">Integrations</a><a href="/evals">Evals</a><a href="/#pricing">Pricing</a></div>
+      <div><b>Product</b><a href="/#how">How it works</a><a href="/#why">Why Recall</a><a href="/#agents">Integrations</a><a href="/evals">Evals</a><a href="/compare">Compare</a><a href="/#pricing">Pricing</a></div>
       <div><b>Developers</b><a href="/docs#quickstart">Quickstart</a><a href="/guides">Guides</a><a href="/docs#integrations">Integrations</a><a href="/docs#api">API</a><a href="/docs#models">Models</a><a href="https://github.com/recallmem/recall">GitHub</a></div>
       <div><b>Account</b><a href="/app/login">Sign in</a></div>
       <div><b>Legal</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/dpa">Data processing</a><a href="/security">Security</a><a href="/support">Support</a></div>

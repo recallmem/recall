@@ -25,7 +25,7 @@ Needs Claude Code with plugin support and Node 18+ on your `PATH`.
 ```
 
 (`claude plugin marketplace add RedSix6/recall-plugin` and `claude plugin install recall-memory@recall` do the same
-from a shell. Developing locally? `claude --plugin-dir integrations/claude-code`.)
+from a shell. Developing locally? `claude --plugin-dir <path to this folder>`.)
 
 When you enable the plugin, Claude Code asks for your **Recall API key** (create one at
 https://app.recallmem.dev/keys). It is stored in your system's secure credential store, and you can change it, the

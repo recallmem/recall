@@ -1,8 +1,14 @@
 name: Release SDKs
 
-# Publishes the client SDKs when a release tag is pushed:
-#   sdk-ts-vX.Y.Z  ->  @recall-memory/sdk on npm   (packages/sdk)
-#   sdk-py-vX.Y.Z  ->  recall-memory on PyPI       (sdks/python)
+# Publishes the client SDKs and the framework integrations when a release tag is pushed:
+#   sdk-ts-vX.Y.Z                ->  @recall-memory/sdk on npm        (packages/sdk)
+#   sdk-py-vX.Y.Z                ->  recall-mem on PyPI               (sdks/python)
+#   ai-sdk-vX.Y.Z                ->  @recall-memory/ai-sdk on npm     (packages/ai-sdk)
+#   langchain-vX.Y.Z             ->  @recall-memory/langchain on npm  (packages/langchain)
+#   mastra-vX.Y.Z                ->  @recall-memory/mastra on npm     (packages/mastra)
+#   langchain-recall-vX.Y.Z      ->  langchain-recall on PyPI         (sdks/python-integrations/langchain-recall)
+#   openai-agents-recall-vX.Y.Z  ->  openai-agents-recall on PyPI     (sdks/python-integrations/openai-agents-recall)
+#   crewai-recall-vX.Y.Z         ->  crewai-recall on PyPI            (sdks/python-integrations/crewai-recall)
 # The tag must match the version in package.json / pyproject.toml, or the job stops before
 # publishing. One-time account setup and the release steps are in docs/RELEASING.md.
 #
@@ -13,14 +19,26 @@ on:
     tags:
       - "sdk-ts-v*"
       - "sdk-py-v*"
+      - "ai-sdk-v*"
+      - "langchain-v*"
+      - "mastra-v*"
+      - "langchain-recall-v*"
+      - "openai-agents-recall-v*"
+      - "crewai-recall-v*"
   workflow_dispatch:
     inputs:
       target:
-        description: Which SDK to build and test
+        description: Which package to build and test
         type: choice
         options:
           - npm
           - pypi
+          - ai-sdk
+          - langchain
+          - mastra
+          - langchain-recall
+          - openai-agents-recall
+          - crewai-recall
         required: true
       publish:
         description: Really publish (only from a release tag). Leave off for a dry run.
@@ -108,6 +126,121 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+  # The framework integrations (packages/ai-sdk, packages/langchain, packages/mastra). They depend
+  # on the SDK as "workspace:^", which `pnpm pack` turns into the SDK's version range ("^0.1.0"),
+  # so the tarball is packed with pnpm and published with npm (for provenance).
+  integration:
+    name: Framework integration to npm
+    if: >-
+      startsWith(github.ref, 'refs/tags/ai-sdk-v') ||
+      startsWith(github.ref, 'refs/tags/langchain-v') ||
+      startsWith(github.ref, 'refs/tags/mastra-v') ||
+      (github.event_name == 'workflow_dispatch' &&
+        (inputs.target == 'ai-sdk' || inputs.target == 'langchain' || inputs.target == 'mastra'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      id-token: write # npm provenance (signed build attestation)
+    env:
+      PUBLISH: ${{ github.event_name == 'push' || inputs.publish }}
+      TARGET: ${{ inputs.target }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pick the package
+        id: pkg
+        run: |
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            name="${GITHUB_REF_NAME%-v*}"
+            if [ -n "$TARGET" ] && [ "$TARGET" != "$name" ]; then
+              echo "::error::Started from tag $GITHUB_REF_NAME but the target is $TARGET"
+              exit 1
+            fi
+          else
+            name="$TARGET"
+          fi
+          case "$name" in
+            ai-sdk|langchain|mastra) ;;
+            *) echo "::error::Unknown integration '$name'"; exit 1 ;;
+          esac
+          echo "dir=packages/$name" >> "$GITHUB_OUTPUT"
+          echo "package=@recall-memory/$name" >> "$GITHUB_OUTPUT"
+          echo "prefix=$name-v" >> "$GITHUB_OUTPUT"
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm --filter "${{ steps.pkg.outputs.package }}" typecheck
+
+      # Starts the real server in-process (embedded Postgres, offline mock model) and runs the
+      # framework objects against it with the framework's own test models.
+      - name: Test
+        run: pnpm --filter "${{ steps.pkg.outputs.package }}" test
+
+      - name: Check the tag matches package.json
+        env:
+          DIR: ${{ steps.pkg.outputs.dir }}
+          PREFIX: ${{ steps.pkg.outputs.prefix }}
+        run: |
+          version="$(node -p "require('./$DIR/package.json').version")"
+          if [ "$GITHUB_REF_TYPE" != "tag" ]; then
+            if [ "$PUBLISH" = "true" ]; then
+              echo "::error::Publishing must start from a $PREFIX* tag, not from $GITHUB_REF"
+              exit 1
+            fi
+            echo "Not a tag: dry run of version $version, skipping the tag comparison."
+            exit 0
+          fi
+          tag_version="${GITHUB_REF_NAME#"$PREFIX"}"
+          if [ "$tag_version" != "$version" ]; then
+            echo "::error::Tag says $tag_version but $DIR/package.json says $version"
+            exit 1
+          fi
+          echo "Releasing $DIR $version"
+
+      # Builds the SDK first (the "..." selects the package and its workspace dependencies).
+      - name: Build
+        env:
+          DIR: ${{ steps.pkg.outputs.dir }}
+        run: |
+          pnpm --filter "${{ steps.pkg.outputs.package }}..." build
+          test -f "$DIR/dist/index.js"
+          test -f "$DIR/dist/index.d.ts"
+
+      - name: Pack and show what would be published
+        id: pack
+        env:
+          DIR: ${{ steps.pkg.outputs.dir }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/pack"
+          (cd "$DIR" && pnpm pack --pack-destination "$RUNNER_TEMP/pack")
+          tarball="$(ls "$RUNNER_TEMP"/pack/*.tgz)"
+          tar -tzf "$tarball"
+          tar -xzOf "$tarball" package/package.json > "$RUNNER_TEMP/packed-package.json"
+          if grep -q '"workspace:' "$RUNNER_TEMP/packed-package.json"; then
+            echo "::error::The packed package.json still has a workspace: range"
+            exit 1
+          fi
+          node -e 'const p = require(process.argv[1]); console.log("dependencies:", p.dependencies, "peerDependencies:", p.peerDependencies)' "$RUNNER_TEMP/packed-package.json"
+          echo "tarball=$tarball" >> "$GITHUB_OUTPUT"
+
+      # npm provenance (a signed build record) needs a public repository: added once the repo is public.
+      - name: Publish
+        if: env.PUBLISH == 'true'
+        run: npm publish "${{ steps.pack.outputs.tarball }}" --access public ${{ !github.event.repository.private && '--provenance' || '' }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
   pypi:
     name: recall-memory to PyPI
     if: >-
@@ -170,5 +303,94 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: sdks/python/dist/
+          # Attestations are signed with sigstore's public log, so only for public repositories.
+          attestations: ${{ !github.event.repository.private }}
+
+  # The Python framework integrations, released like recall-mem: one job, the package taken from
+  # the tag (or the "target" input), PyPI trusted publishing from the pypi environment.
+  pypi-integration:
+    name: Python framework integration to PyPI
+    if: >-
+      startsWith(github.ref, 'refs/tags/langchain-recall-v') ||
+      startsWith(github.ref, 'refs/tags/openai-agents-recall-v') ||
+      startsWith(github.ref, 'refs/tags/crewai-recall-v') ||
+      (github.event_name == 'workflow_dispatch' && endsWith(inputs.target, '-recall'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: pypi
+    permissions:
+      contents: read
+      id-token: write # PyPI trusted publishing (no API token stored)
+    env:
+      PUBLISH: ${{ github.event_name == 'push' || inputs.publish }}
+      TARGET: ${{ inputs.target }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Which package
+        id: pkg
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            name="${GITHUB_REF_NAME%-v*}"
+          else
+            name="$TARGET"
+          fi
+          case "$name" in
+            langchain-recall|openai-agents-recall|crewai-recall) ;;
+            *) echo "::error::Unknown package $name"; exit 1 ;;
+          esac
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "dir=sdks/python-integrations/$name" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: ${{ steps.pkg.outputs.dir }}/pyproject.toml
+
+      # Installs against recall-mem from PyPI, as users will.
+      - name: Install
+        run: python -m pip install -e "${{ steps.pkg.outputs.dir }}[dev]" build twine
+
+      # The end-to-end tests need the server and run in CI on every push to main.
+      - name: Test
+        run: python -m pytest "${{ steps.pkg.outputs.dir }}/tests" -q -m "not integration"
+
+      - name: Check the tag matches pyproject.toml
+        env:
+          NAME: ${{ steps.pkg.outputs.name }}
+          DIR: ${{ steps.pkg.outputs.dir }}
+        run: |
+          version="$(python -c "import sys, tomllib; print(tomllib.load(open(sys.argv[1], 'rb'))['project']['version'])" "$DIR/pyproject.toml")"
+          if [ "$GITHUB_REF_TYPE" != "tag" ]; then
+            if [ "$PUBLISH" = "true" ]; then
+              echo "::error::Publishing must start from a $NAME-v* tag, not from $GITHUB_REF"
+              exit 1
+            fi
+            echo "Not a tag: dry run of $NAME $version, skipping the tag comparison."
+            exit 0
+          fi
+          case "$GITHUB_REF_NAME" in
+            "$NAME"-v*) ;;
+            *) echo "::error::Tag $GITHUB_REF_NAME is not a $NAME-v* tag"; exit 1 ;;
+          esac
+          tag_version="${GITHUB_REF_NAME#"$NAME"-v}"
+          if [ "$tag_version" != "$version" ]; then
+            echo "::error::Tag says $tag_version but $DIR/pyproject.toml says $version"
+            exit 1
+          fi
+          echo "Releasing $NAME $version"
+
+      - name: Build
+        run: python -m build "${{ steps.pkg.outputs.dir }}"
+
+      - name: Check the distributions
+        run: twine check --strict ${{ steps.pkg.outputs.dir }}/dist/*
+
+      - name: Publish
+        if: env.PUBLISH == 'true'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: ${{ steps.pkg.outputs.dir }}/dist/
           # Attestations are signed with sigstore's public log, so only for public repositories.
           attestations: ${{ !github.event.repository.private }}

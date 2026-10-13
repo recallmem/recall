@@ -39,6 +39,15 @@ Recall is run by Smidt Beheer, the Netherlands (KvK 99124254). Data is stored in
 - [Reasoning levels and models](https://recallmem.dev/guides/levels-and-models)
 - [Cost and speed](https://recallmem.dev/guides/cost-and-speed)
 - [Privacy, consent and forgetting](https://recallmem.dev/guides/privacy)
+- [Switch from Honcho](https://recallmem.dev/guides/switch-from-honcho): change the base URL and the API key; what stays the same, what Recall adds and what differs
+
+## Compare
+
+- [Compare](https://recallmem.dev/compare): Recall next to other memory systems, with sources for every fact
+- [Recall and Honcho](https://recallmem.dev/compare/honcho): the same v3 API; prices, benchmarks, licences
+- [Recall and Mem0](https://recallmem.dev/compare/mem0): prices, benchmarks, hosting and APIs
+- [Recall and Zep](https://recallmem.dev/compare/zep): prices, benchmarks, hosting and APIs
+- [Recall and Letta](https://recallmem.dev/compare/letta): a memory service next to an agent platform
 
 ## Optional
 

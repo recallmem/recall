@@ -2,6 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import { waitUntil } from "@vercel/functions";
 import { loadConfig } from "./config.js";
 import { type AppContext, createContext } from "./context.js";
+import { sendWeeklyFunnelReport } from "./core/funnel-report.js";
 import { createApp } from "./http/app.js";
 import { queueSignals } from "./queue/events.js";
 import { Worker } from "./queue/worker.js";
@@ -11,7 +12,8 @@ import { Worker } from "./queue/worker.js";
  * worker: one context per function instance serves requests, and queued jobs
  * run after the response through `waitUntil`. `/internal/tick`, called every
  * minute by a scheduler (a Neon Function trigger), runs whatever fell due while
- * no request was around, recovers expired leases and runs the billing sweep.
+ * no request was around, recovers expired leases, runs the billing sweep and
+ * sends the operator's weekly funnel report when it is due.
  */
 
 /** Below the function's maxDuration (300 s), so a drain finishes its running jobs. */
@@ -94,6 +96,9 @@ async function handle(req: Request): Promise<Response> {
       Promise.all([
         drain(ctx),
         ctx.billing.sweep().catch((err) => ctx.log.error({ err }, "billing sweep failed")),
+        sendWeeklyFunnelReport(ctx).catch((err) =>
+          ctx.log.error({ err }, "weekly funnel report check failed"),
+        ),
       ]),
     );
     return json(202, { accepted: true });

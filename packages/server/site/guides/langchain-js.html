@@ -1,0 +1,49 @@
+    <h1>LangChain.js</h1>
+    <p class="lede">For chains and agents built with LangChain.js (<code>@langchain/core</code>, version 1). <code>@recall-memory/langchain</code> plugs Recall into the places LangChain already has for memory: a chat message history stored in Recall sessions, a retriever over what Recall remembers about the user, and tools an agent can call. For Python, see <a href="/guides/langchain">LangChain and LangGraph</a>.</p>
+
+    <h2 id="what-you-get">What you get</h2>
+    <table>
+      <thead><tr><th>Export</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><code>RecallChatMessageHistory</code></td><td>A <code>BaseListChatMessageHistory</code> backed by a Recall session. Human messages are stored as the user's, AI messages as the assistant's, and Recall learns about the user from them. Use it with <code>RunnableWithMessageHistory</code> or on its own.</td></tr>
+        <tr><td><code>RecallRetriever</code></td><td>A <code>BaseRetriever</code> that returns the current facts Recall holds about the user and the messages they wrote that match the query, as documents (facts first).</td></tr>
+        <tr><td><code>recallTools(options)</code></td><td>Three tools: <code>search_memory</code>, <code>ask_memory</code> (a question about the user, answered from memory) and <code>remember_fact</code> (save one fact). Bind them to a model or give them to an agent.</td></tr>
+      </tbody>
+    </table>
+    <p>All three take <code>userId</code> (the person, as a Recall peer) and optionally <code>recall</code> (a client; by default one is made from <code>RECALL_API_KEY</code>). The history also takes the <code>sessionId</code> of the conversation.</p>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the package and the SDK (<code>npm install @recall-memory/langchain @recall-memory/sdk</code>; <code>@langchain/core</code> you already have) and set <code>RECALL_API_KEY</code>. The user is a peer keyed by your own stable user id, and each conversation is a session. Facts from your app's settings can go in directly.</p>
+<!-- example: langchain-js#setup -->
+    <p><b>The conversation: a message history.</b> <code>RunnableWithMessageHistory</code> loads the history before each call and saves the new messages after it. With <code>RecallChatMessageHistory</code> they live in Recall, so the conversation survives restarts and Recall learns about the user as they talk. System and tool messages are not stored.</p>
+<!-- example: langchain-js#history -->
+    <p>Long conversations do not have to go into the prompt whole. Give the history a <code>tokens</code> budget and it returns Recall's context instead: a summary of the older turns as a system message, then the most recent messages.</p>
+    <p><b>What Recall knows: the retriever.</b> The retriever brings in what Recall learned about the user in every earlier conversation, not just this one. It searches facts and messages rather than asking a question, so it is fast enough for every turn.</p>
+<!-- example: langchain-js#retriever -->
+    <p><b>Let an agent use memory: the tools.</b> With the tools an agent looks things up when it needs them and saves what the user shares. They are ordinary LangChain tools, so they work with <code>bindTools</code>, <code>createAgent</code> from the <code>langchain</code> package and LangGraph tool nodes.</p>
+<!-- example: langchain-js#tools -->
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Option</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>userId</code></td><td>Your own stable user id, not an email address. Create the history, retriever and tools per request so each reads the right person's memory.</td></tr>
+        <tr><td><code>assistantId</code> (history)</td><td>The assistant's peer (default <code>assistant</code>). It is created with <code>observeMe: false</code>: Recall reads its replies as context but learns nothing about it.</td></tr>
+        <tr><td><code>tokens</code> (history)</td><td>Return a summary plus the recent messages within this budget instead of the whole conversation.</td></tr>
+        <tr><td><code>k</code>, <code>include</code> (retriever)</td><td>Documents of each kind (default 6), and whether to return <code>"facts"</code>, <code>"messages"</code> or both.</td></tr>
+        <tr><td><code>reasoningLevel</code> (tools)</td><td>The reasoning level for <code>ask_memory</code>. See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>Reading the history and the retriever's search are included in the price, and each takes under a second. Saving messages is one request per call. Recall learns from the user's messages in the background, and that is what you pay for. <code>ask_memory</code> is a question, a model call of a few seconds. Prices are on the <a href="/docs#pricing">pricing</a> page and worked examples in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>Everything the user writes in a conversation with a Recall history is stored and learned from. Tell users in your privacy notice and keep secrets such as passwords and card numbers out of messages. <code>history.clear()</code> deletes the session: its messages and the facts learned from that conversation. To forget a user entirely, delete their peer (<code>recall.peer(userId).delete()</code>) and their sessions; see <a href="/guides/privacy">Privacy, consent and forgetting</a>.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>One session for everything.</b> The summary then mixes every topic. Start a session per conversation; what Recall learns about the user carries over anyway, and the retriever brings it back.</li>
+      <li><b>Expecting <code>clear()</code> to keep what was learned.</b> It deletes the conversation and what Recall learned from it. To start afresh but keep the memory, use a new session id.</li>
+      <li><b>Expecting a fact to show up at once.</b> Recall learns from messages in the background, usually within about 20 seconds. Facts saved with <code>remember_fact</code> are searchable at once.</li>
+    </ul>

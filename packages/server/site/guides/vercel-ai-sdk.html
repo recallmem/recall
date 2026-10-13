@@ -1,0 +1,52 @@
+    <h1>Vercel AI SDK</h1>
+    <p class="lede">For apps and agents built with the Vercel AI SDK (<code>ai</code>, version 7). <code>@recall-memory/ai-sdk</code> gives any model Recall memory in one line: a middleware that adds what Recall knows about the user to each request and stores every turn, and three tools the model can call to search memory, ask it a question and save a fact.</p>
+
+    <h2 id="what-you-get">What you get</h2>
+    <table>
+      <thead><tr><th>Export</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><code>recallMiddleware(options)</code></td><td>Language model middleware for <code>wrapLanguageModel</code>. Before each call it adds what Recall knows about the user, biased towards their latest message, as a system message. After the final step it stores the user's message and the reply in the session.</td></tr>
+        <tr><td><code>recallTools(options)</code></td><td>Tools for <code>tools</code>: <code>searchMemory</code> (facts and messages that match), <code>askMemory</code> (a question about the user, answered from memory) and <code>rememberFact</code> (save one fact).</td></tr>
+        <tr><td><code>recallContext(options)</code></td><td>The same memory block as text, for <code>system</code>, <code>instructions</code> or a <code>prepareCall</code>.</td></tr>
+        <tr><td><code>saveTurn(options, turn)</code></td><td>Stores one exchange by hand, for example from <code>onEnd</code>, when you do not let the middleware store turns.</td></tr>
+      </tbody>
+    </table>
+    <p>Every one of them takes the same options: <code>userId</code> (the person, as a Recall peer), <code>sessionId</code> (the conversation) and optionally <code>recall</code> (a client; by default one is made from <code>RECALL_API_KEY</code>) and <code>assistantId</code>.</p>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the package and the SDK (<code>npm install @recall-memory/ai-sdk @recall-memory/sdk</code>; <code>ai</code> and <code>zod</code> you already have) and set <code>RECALL_API_KEY</code>. Pick the ids: the user is a peer keyed by your own stable user id, and each conversation is a session. Facts from your app's settings can go in directly.</p>
+<!-- example: vercel-ai-sdk#setup -->
+    <p><b>Memory for every request: the middleware.</b> Wrap the model you already use. The middleware reads Recall before the call (a context call, not a question, so it is fast) and stores the turn after the final step, so a tool loop is stored once, with its answer. If Recall cannot be reached, the call goes on without memory and <code>onError</code> is told.</p>
+<!-- example: vercel-ai-sdk#middleware -->
+    <p>The same works with <code>streamText</code>: the turn is stored when the stream ends. <code>wrapLanguageModel</code> takes a model instance, such as one from a provider package or <code>gateway(...)</code>, not a model id string.</p>
+    <p><b>Let the model use memory: the tools.</b> With the tools the model looks things up when it needs them and saves what the user shares, without you deciding when. Give it room for a tool step or two with <code>stopWhen</code>.</p>
+<!-- example: vercel-ai-sdk#tools -->
+    <p><b>Agents.</b> A <code>ToolLoopAgent</code> is usually defined once, while the user and the conversation change per call. Pass them as call options and add memory in <code>prepareCall</code>.</p>
+<!-- example: vercel-ai-sdk#agent -->
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Option</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>userId</code></td><td>Your own stable user id, not an email address. Create the middleware and tools per request, inside your route handler, so every request reads and writes the right person's memory.</td></tr>
+        <tr><td><code>sessionId</code></td><td>One per conversation. The middleware stores turns only when it has one; reading memory does not need it.</td></tr>
+        <tr><td><code>assistantId</code></td><td>The assistant's peer (default <code>assistant</code>). It is created with <code>observeMe: false</code>: Recall reads its replies as context but learns nothing about it.</td></tr>
+        <tr><td><code>context: false</code> / <code>store: false</code></td><td>Middleware that only stores turns, or only reads memory.</td></tr>
+        <tr><td><code>maxConclusions</code></td><td>Most facts in the memory block. Fewer means a shorter prompt.</td></tr>
+        <tr><td><code>reasoningLevel</code> (tools)</td><td>The reasoning level for <code>askMemory</code>. See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>The middleware's read is a context call: it is included in the price and takes under a second. Storing a turn is one request. Recall learns from the user's messages in the background, and that is what you pay for. <code>askMemory</code> is a question, a model call of a few seconds, so the model should reach for <code>searchMemory</code> first. Prices are on the <a href="/docs#pricing">pricing</a> page and worked examples in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>Everything the user writes through a wrapped model is stored and learned from. Tell users in your privacy notice, keep secrets such as passwords and card numbers out of messages, and do not wrap the model for calls that should leave no trace. To forget a user, delete their peer (<code>recall.peer(userId).delete()</code>) and their sessions; see <a href="/guides/privacy">Privacy, consent and forgetting</a>.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>One middleware for every user.</b> The ids are fixed when you create it. Create it per request, or per call in <code>prepareCall</code>.</li>
+      <li><b>Wrapping a model you also use for other work.</b> Summaries, classifications and other internal calls through the wrapped model are stored as turns. Use the plain model for those.</li>
+      <li><b>Both the middleware and <code>saveTurn</code>.</b> Each turn is then stored twice. Use <code>store: false</code> if you store turns yourself.</li>
+      <li><b>Expecting a fact to show up at once.</b> Recall learns from messages in the background, usually within about 20 seconds. Facts saved with <code>rememberFact</code> are searchable at once.</li>
+    </ul>

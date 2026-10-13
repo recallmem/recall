@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vercel AI SDK — Recall guides</title>
+<meta name="description" content="Add Recall memory to the Vercel AI SDK with @recall-memory/ai-sdk: middleware that adds what Recall knows about the user to each request and stores every turn, and tools the model can call." />
+<meta name="theme-color" content="#0c0b0a" />
+<meta property="og:title" content="Vercel AI SDK — Recall guides" />
+<meta property="og:description" content="Add Recall memory to the Vercel AI SDK with @recall-memory/ai-sdk: middleware that adds what Recall knows about the user to each request and stores every turn, and tools the model can call." />
+<meta property="og:type" content="article" />
+<meta property="og:image" content="/og.png" />
+<link rel="canonical" href="https://recallmem.dev/guides/vercel-ai-sdk" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="preload" href="/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/departure-mono.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="/site.css" />
+<meta name="recall-api" content="https://api.recallmem.dev" data-site="https://recallmem.dev" />
+</head>
+<body>
+
+<header class="nav scrolled" id="nav">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="Recall home">
+      <svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>
+      Recall<span class="muted nowrap">/guides</span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="/#how">Product</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides">Guides</a>
+      <a href="https://github.com/recallmem/recall">GitHub</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-text" href="/app/login">Sign in</a>
+      <a class="btn btn-primary" href="/app/login">Get API key</a>
+    </div>
+  </div>
+</header>
+
+<div class="docs">
+  <aside class="toc" aria-label="Guides">
+    <details class="toc-box" open>
+      <summary>Guides</summary>
+      <div class="toc-links">
+        <a href="/guides">All guides</a>
+        <b>On this page</b>
+        <a class="sub" href="#what-you-get">What you get</a>
+        <a class="sub" href="#build">Build it</a>
+        <a class="sub" href="#settings">Settings that matter</a>
+        <a class="sub" href="#cost-speed">Cost and speed</a>
+        <a class="sub" href="#privacy">Privacy and forgetting</a>
+        <a class="sub" href="#pitfalls">Pitfalls</a>
+        <b>Use cases</b>
+        <a href="/guides/assistants">Personal assistants and companions</a>
+        <a href="/guides/support">Customer support</a>
+        <a href="/guides/coding-agents">Coding agents</a>
+        <a href="/guides/game-npcs">Game NPCs</a>
+        <a href="/guides/sales">Sales and CRM copilots</a>
+        <a href="/guides/multi-agent">Multi-agent systems</a>
+        <a href="/guides/tutoring">Tutoring and education</a>
+        <a href="/guides/community-bots">Discord and Slack bots</a>
+        <a href="/guides/coaching">Health, fitness and coaching</a>
+        <a href="/guides/voice-agents">Voice agents</a>
+        <a href="/guides/shopping">Shopping assistants</a>
+        <a href="/guides/workplace">Workplace assistants</a>
+        <b>Switch to Recall</b>
+        <a href="/guides/switch-from-honcho">Switch from Honcho</a>
+        <b>Build well</b>
+        <a href="/guides/modeling">Designing workspaces, peers and sessions</a>
+        <a href="/guides/levels-and-models">Reasoning levels and models</a>
+        <a href="/guides/privacy">Privacy, consent and forgetting</a>
+        <a href="/guides/cost-and-speed">Cost and speed</a>
+        <b>Frameworks</b>
+        <a href="/guides/vercel-ai-sdk" aria-current="page">Vercel AI SDK</a>
+        <a href="/guides/langchain-js">LangChain.js</a>
+        <a href="/guides/mastra">Mastra</a>
+        <a href="/guides/langchain">LangChain and LangGraph</a>
+        <a href="/guides/openai-agents">OpenAI Agents SDK</a>
+        <a href="/guides/crewai">CrewAI</a>
+        <b>Reference</b>
+        <a href="/docs">Docs</a>
+        <a href="/docs#api">REST API</a>
+      </div>
+    </details>
+  </aside>
+  <script>
+    // On a phone the contents start collapsed; set before first paint so the page does not jump.
+    if (matchMedia("(max-width: 980px)").matches) document.querySelector(".toc-box").open = false;
+  </script>
+
+  <article class="prose guide">
+    <p class="crumbs"><a href="/guides">Guides</a> / Frameworks</p>
+<h1>Vercel AI SDK</h1>
+    <p class="lede">For apps and agents built with the Vercel AI SDK (<code>ai</code>, version 7). <code>@recall-memory/ai-sdk</code> gives any model Recall memory in one line: a middleware that adds what Recall knows about the user to each request and stores every turn, and three tools the model can call to search memory, ask it a question and save a fact.</p>
+
+    <h2 id="what-you-get">What you get</h2>
+    <table>
+      <thead><tr><th>Export</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><code>recallMiddleware(options)</code></td><td>Language model middleware for <code>wrapLanguageModel</code>. Before each call it adds what Recall knows about the user, biased towards their latest message, as a system message. After the final step it stores the user's message and the reply in the session.</td></tr>
+        <tr><td><code>recallTools(options)</code></td><td>Tools for <code>tools</code>: <code>searchMemory</code> (facts and messages that match), <code>askMemory</code> (a question about the user, answered from memory) and <code>rememberFact</code> (save one fact).</td></tr>
+        <tr><td><code>recallContext(options)</code></td><td>The same memory block as text, for <code>system</code>, <code>instructions</code> or a <code>prepareCall</code>.</td></tr>
+        <tr><td><code>saveTurn(options, turn)</code></td><td>Stores one exchange by hand, for example from <code>onEnd</code>, when you do not let the middleware store turns.</td></tr>
+      </tbody>
+    </table>
+    <p>Every one of them takes the same options: <code>userId</code> (the person, as a Recall peer), <code>sessionId</code> (the conversation) and optionally <code>recall</code> (a client; by default one is made from <code>RECALL_API_KEY</code>) and <code>assistantId</code>.</p>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the package and the SDK (<code>npm install @recall-memory/ai-sdk @recall-memory/sdk</code>; <code>ai</code> and <code>zod</code> you already have) and set <code>RECALL_API_KEY</code>. Pick the ids: the user is a peer keyed by your own stable user id, and each conversation is a session. Facts from your app's settings can go in directly.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button></div>
+<pre data-panel="ts"><code>import { recallMiddleware, recallTools } from "@recall-memory/ai-sdk";
+import { Recall } from "@recall-memory/sdk";
+import { generateText, isStepCount, ToolLoopAgent, wrapLanguageModel } from "ai";
+import { z } from "zod";
+
+const recall = new Recall({ workspaceId: "my-app" });
+
+// Who the memory is about (your own stable user id) and the conversation it belongs to.
+const userId = "user-8412";
+const sessionId = "chat-20261013-a91f";
+// A fact from your app's settings, stored as given and searchable at once.
+await recall.peer(userId).conclusions.create("Is vegetarian.");</code></pre>
+</div>
+    <p><b>Memory for every request: the middleware.</b> Wrap the model you already use. The middleware reads Recall before the call (a context call, not a question, so it is fast) and stores the turn after the final step, so a tool loop is stored once, with its answer. If Recall cannot be reached, the call goes on without memory and <code>onError</code> is told.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button></div>
+<pre data-panel="ts"><code>// `model` is any AI SDK language model. The middleware adds what Recall knows about the user to
+// the request, then stores the user's message and the reply in the session.
+const { text: dinner } = await generateText({
+  model: wrapLanguageModel({
+    model,
+    middleware: recallMiddleware({ recall, userId, sessionId }),
+  }),
+  system: "You are a helpful assistant.",
+  prompt: "My parents visit on Saturday. Can you plan a dinner for four?",
+});</code></pre>
+</div>
+    <p>The same works with <code>streamText</code>: the turn is stored when the stream ends. <code>wrapLanguageModel</code> takes a model instance, such as one from a provider package or <code>gateway(...)</code>, not a model id string.</p>
+    <p><b>Let the model use memory: the tools.</b> With the tools the model looks things up when it needs them and saves what the user shares, without you deciding when. Give it room for a tool step or two with <code>stopWhen</code>.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button></div>
+<pre data-panel="ts"><code>// Tools let the model look things up (searchMemory, askMemory) and save what the user shares
+// (rememberFact) on its own.
+const { text: answer } = await generateText({
+  model,
+  tools: recallTools({ recall, userId }),
+  stopWhen: isStepCount(5),
+  prompt: "What do I eat, again?",
+});</code></pre>
+</div>
+    <p><b>Agents.</b> A <code>ToolLoopAgent</code> is usually defined once, while the user and the conversation change per call. Pass them as call options and add memory in <code>prepareCall</code>.</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button></div>
+<pre data-panel="ts"><code>// An agent defined once, with memory per call: who and which conversation come in as call options.
+const agent = new ToolLoopAgent({
+  model,
+  instructions: "You are a helpful assistant.",
+  callOptionsSchema: z.object({ userId: z.string(), sessionId: z.string() }),
+  prepareCall: ({ options, ...settings }) =&gt; ({
+    ...settings,
+    model: wrapLanguageModel({ model, middleware: recallMiddleware({ recall, ...options }) }),
+    tools: recallTools({ recall, userId: options.userId }),
+  }),
+});
+const { text: reply } = await agent.generate({
+  prompt: "Remember that my sister Ana is coming too.",
+  options: { userId, sessionId },
+});</code></pre>
+</div>
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Option</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>userId</code></td><td>Your own stable user id, not an email address. Create the middleware and tools per request, inside your route handler, so every request reads and writes the right person's memory.</td></tr>
+        <tr><td><code>sessionId</code></td><td>One per conversation. The middleware stores turns only when it has one; reading memory does not need it.</td></tr>
+        <tr><td><code>assistantId</code></td><td>The assistant's peer (default <code>assistant</code>). It is created with <code>observeMe: false</code>: Recall reads its replies as context but learns nothing about it.</td></tr>
+        <tr><td><code>context: false</code> / <code>store: false</code></td><td>Middleware that only stores turns, or only reads memory.</td></tr>
+        <tr><td><code>maxConclusions</code></td><td>Most facts in the memory block. Fewer means a shorter prompt.</td></tr>
+        <tr><td><code>reasoningLevel</code> (tools)</td><td>The reasoning level for <code>askMemory</code>. See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>The middleware's read is a context call: it is included in the price and takes under a second. Storing a turn is one request. Recall learns from the user's messages in the background, and that is what you pay for. <code>askMemory</code> is a question, a model call of a few seconds, so the model should reach for <code>searchMemory</code> first. Prices are on the <a href="/docs#pricing">pricing</a> page and worked examples in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>Everything the user writes through a wrapped model is stored and learned from. Tell users in your privacy notice, keep secrets such as passwords and card numbers out of messages, and do not wrap the model for calls that should leave no trace. To forget a user, delete their peer (<code>recall.peer(userId).delete()</code>) and their sessions; see <a href="/guides/privacy">Privacy, consent and forgetting</a>.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>One middleware for every user.</b> The ids are fixed when you create it. Create it per request, or per call in <code>prepareCall</code>.</li>
+      <li><b>Wrapping a model you also use for other work.</b> Summaries, classifications and other internal calls through the wrapped model are stored as turns. Use the plain model for those.</li>
+      <li><b>Both the middleware and <code>saveTurn</code>.</b> Each turn is then stored twice. Use <code>store: false</code> if you store turns yourself.</li>
+      <li><b>Expecting a fact to show up at once.</b> Recall learns from messages in the background, usually within about 20 seconds. Facts saved with <code>rememberFact</code> are searchable at once.</li>
+    </ul>
+    <p class="guide-next">Next: <a href="/guides/langchain-js">LangChain.js</a> · <a href="/guides/mastra">Mastra</a></p>
+  </article>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="logo" href="/"><svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>Recall</a>
+      <p class="tagline">Memory for AI agents. Hosted in the EU.</p>
+      <p class="muted">Smidt Beheer · KvK 99124254 · VAT NL004444074B96</p>
+    </div>
+    <nav aria-label="Footer">
+      <div><b>Product</b><a href="/#how">How it works</a><a href="/#why">Why Recall</a><a href="/#agents">Integrations</a><a href="/evals">Evals</a><a href="/compare">Compare</a><a href="/#pricing">Pricing</a></div>
+      <div><b>Developers</b><a href="/docs#quickstart">Quickstart</a><a href="/guides">Guides</a><a href="/docs#integrations">Integrations</a><a href="/docs#api">API</a><a href="/docs#models">Models</a><a href="https://github.com/recallmem/recall">GitHub</a></div>
+      <div><b>Account</b><a href="/app/login">Sign in</a></div>
+      <div><b>Legal</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/dpa">Data processing</a><a href="/security">Security</a><a href="/support">Support</a></div>
+    </nav>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

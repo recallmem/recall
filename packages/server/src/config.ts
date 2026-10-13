@@ -289,6 +289,11 @@ const EnvSchema = z.object({
    * <dashboard>/admin. Unset: nobody (the console answers 404 like any unknown page).
    */
   RECALL_OPERATOR_EMAILS: z.string().optional(),
+  /**
+   * Weekly activation-funnel email to the operator (Mondays from 08:00 Europe/Amsterdam): to
+   * RECALL_ALERT_EMAIL, else to RECALL_OPERATOR_EMAILS. `false` turns it off.
+   */
+  RECALL_FUNNEL_REPORT_ENABLED: bool.default(true),
   /** Top-up amounts offered as buttons, comma-separated USD. */
   RECALL_TOPUP_AMOUNTS_USD: z.string().default("10,25,50,100"),
   /** $10: below it, Stripe's fixed fee per payment is a large share of the top-up. */
@@ -414,6 +419,8 @@ export interface HostedConfig {
   reviewer: { email: string; passwordHash: string } | null;
   /** Signed-in dashboard users allowed into the operator console (lower-cased emails). */
   operatorEmails: string[];
+  /** The weekly activation-funnel email to the operator (RECALL_FUNNEL_REPORT_ENABLED). */
+  funnelReport: boolean;
   /** Key for session cookies and CSRF tokens (32 bytes). */
   sessionSecret: Buffer;
   sessionTtlMs: number;
@@ -633,6 +640,7 @@ export function hostedConfig(env: Env): HostedConfig {
         ? { email: env.RECALL_REVIEWER_EMAIL, passwordHash: env.RECALL_REVIEWER_PASSWORD_HASH }
         : null,
     operatorEmails: parseEmailList(env.RECALL_OPERATOR_EMAILS),
+    funnelReport: env.RECALL_FUNNEL_REPORT_ENABLED,
     sessionSecret: createHmac("sha256", keyMaterial).update("recall-dashboard-v1").digest(),
     sessionTtlMs: Math.max(1, env.RECALL_SESSION_TTL_DAYS) * 86_400_000,
     email: {

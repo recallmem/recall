@@ -36,6 +36,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@honcho-ai/sdk": "2.5.1",
     "@types/node": "^22.20.5",
     "@types/pg": "^8.23.1",
     "drizzle-kit": "^0.31.11",

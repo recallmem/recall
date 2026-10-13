@@ -4,6 +4,16 @@ import { formatUsd, type LedgerEntryOut } from "../../billing/ledger.js";
 import type { TopupStatus } from "../../billing/withdrawal.js";
 import type { AccountOut } from "../../core/accounts.js";
 import type { ApiKeyOut } from "../../core/apikeys.js";
+import {
+  FUNNEL_PERIODS,
+  FUNNEL_STEPS,
+  type Funnel,
+  type FunnelGroup,
+  type FunnelStep,
+  formatDuration,
+  percent,
+  STEP_LABELS,
+} from "../../core/funnel.js";
 import type { AccountSummary, ConsoleOverview, MemberRow, TaskUsage } from "../../core/operator.js";
 import { dashPath } from "./paths.js";
 import {
@@ -57,9 +67,10 @@ function status(a: { suspendedAt: string | null; billed: boolean }): H {
     : html`<span class="badge">unbilled (operator)</span>`;
 }
 
-function tabs(active: "overview" | "accounts"): H {
+function tabs(active: "overview" | "funnel" | "accounts"): H {
   return html`<nav class="tabs" aria-label="Console">
   <a href="${dashPath("/admin")}"${active === "overview" ? html` aria-current="page"` : ""}>Overview</a>
+  <a href="${dashPath("/admin/funnel")}"${active === "funnel" ? html` aria-current="page"` : ""}>Funnel</a>
   <a href="${dashPath("/admin/accounts")}"${active === "accounts" ? html` aria-current="page"` : ""}>Accounts</a>
 </nav>`;
 }
@@ -121,6 +132,77 @@ ${table(
   "The queue is empty.",
 )}
 <p class="muted small">Pending jobs that are not yet due are scheduled for later (debounced reasoning, retries, or accounts out of credit).</p>`;
+}
+
+// ---------------------------------------------------------------------------
+// Activation funnel
+
+const STEP_SHORT: Record<FunnelStep, string> = {
+  signed_up: "signed up",
+  connected: "key or app",
+  message: "message",
+  answer: "answer",
+  topup: "top-up",
+  active: "active",
+};
+
+const accountsCount = (count: number, kind: string) =>
+  `${n(count)} ${kind} account${count === 1 ? "" : "s"}`;
+
+/** A step's count with its share of the group's sign-ups. */
+const shareCell = (count: number, of: number): H =>
+  html`<td class="num">${n(count)} <span class="faint">(${percent(count, of)})</span></td>`;
+
+export function funnelPage(d: Funnel & { billing: boolean }): H {
+  const t = d.total;
+  const steps = FUNNEL_STEPS.filter((s) => s !== "signed_up");
+  const period = (days: number) =>
+    html`<a href="${dashPath(`/admin/funnel?days=${days}`)}"${days === d.days ? html` aria-current="page"` : ""}>Last ${days} days</a>`;
+  const groupRow = (g: FunnelGroup, label: H | string) =>
+    html`<tr><td>${label}</td><td class="num">${n(g.signups)}</td>${steps.map((s) => shareCell(g.reached[s], g.signups))}<td class="num">${formatDuration(g.medianAnswerMs)}</td></tr>`;
+  const left = d.leftOut.operatorCreated + d.leftOut.test;
+  return html`${head("Funnel", "Self-serve sign-ups and how far each got. Weeks are UTC, from Monday.")}
+${tabs("funnel")}
+<div class="filters"><nav class="segmented" aria-label="Sign-up period">${FUNNEL_PERIODS.map(period)}</nav></div>
+<div class="stats compact">
+  <div class="stat"><span class="label">Signed up</span><span class="value">${n(t.signups)}</span><span class="sub">since ${when(d.since.toISOString())} UTC</span></div>
+  ${steps.map(
+    (s) =>
+      html`<div class="stat"><span class="label">${STEP_LABELS[s]}</span><span class="value">${n(t.reached[s])}</span><span class="sub">${percent(t.reached[s], t.signups)} of sign-ups</span></div>`,
+  )}
+  <div class="stat"><span class="label">Median to first answer</span><span class="value">${formatDuration(t.medianAnswerMs)}</span><span class="sub">from sign-up, over ${n(t.reached.answer)} answered</span></div>
+</div>
+${d.billing ? "" : html`<p class="muted">Billing is not enabled on this server: nobody can top up.</p>`}
+<h2>By sign-up week</h2>
+${table(
+  ["Week of (UTC)", "Signed up", ...steps.map((s) => STEP_LABELS[s]), "Median to first answer"],
+  [
+    ...d.weeks.map((w) => groupRow(w, w.key)),
+    groupRow(t, html`<strong>All ${d.days} days</strong>`),
+  ],
+)}
+<p class="muted small">Each step counts on its own, as of now, as a share of the sign-ups. API key or app: an API key created or an app connected over OAuth. First message: a message stored. First chat answer: a chat that got an answer (one from empty memory, without a model call, does not count). Paid top-up: credit bought, not welcome credit or grants. Active: an API key or connected app used, or a model call made for the account, in the last 7 days (dashboard sign-ins alone do not count). The oldest and the current week are partial.</p>
+<h2>Recent sign-ups</h2>
+${table(
+  ["Account", "Owner", "Signed up", "Furthest step", "Reached"],
+  d.recent.map(
+    (r) =>
+      html`<tr><td><a class="table-link" href="${accountHref(r.id)}"><bdi>${r.name}</bdi></a>${r.suspended ? html` <span class="badge contradiction">suspended</span>` : ""}</td>
+<td>${r.email ?? "—"}</td><td>${when(r.createdAt)}</td><td>${STEP_LABELS[r.furthest]}</td>
+<td>${
+        r.reached
+          .filter((s) => s !== "signed_up")
+          .map((s) => STEP_SHORT[s])
+          .join(" · ") || "—"
+      }</td></tr>`,
+  ),
+  "No self-serve sign-ups in this period.",
+)}
+<p class="muted small">Left out: ${
+    left
+      ? `${accountsCount(d.leftOut.operatorCreated, "operator-created")} and ${accountsCount(d.leftOut.test, "test")} created in this period`
+      : "no accounts in this period"
+  }. Test accounts were signed up with or are owned by an operator or app-directory reviewer address, are benchmark accounts (metadata <code>llm_key: "eval"</code>), or are marked with metadata <code>test_account: true</code> through the admin API.</p>`;
 }
 
 // ---------------------------------------------------------------------------

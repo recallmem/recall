@@ -124,7 +124,7 @@ export RECALL_API_KEY=pk_live_...</code></pre>
     <div class="callout"><svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="10" cy="10" r="7"/><path d="M10 6.5v4M10 13.5h.01"/></svg><span>Facts are bi-temporal. When Alice says she moved, "lives in Amsterdam" is closed and "lives in Utrecht" starts — at ingest, with relative dates like "last week" anchored to when the message was written.</span></div>
 
     <h2 id="migrate">Switching to Recall</h2>
-    <p>Recall implements the v3 memory REST API (workspaces, peers, sessions, messages, chat and context), so a client written for it keeps working: point its base URL at Recall and use a Recall key. Nothing else changes.</p>
+    <p>Recall implements the v3 memory REST API (workspaces, peers, sessions, messages, chat and context), so a client written for it keeps working: point its base URL at Recall and use a Recall key. Nothing else changes in your code. The <a href="/guides/switch-from-honcho">switching guide</a> lists the few differences in behaviour and a checklist.</p>
 <pre><code># the two settings to change in your existing client
 base URL  https://api.recallmem.dev
 API key   your Recall key (pk_live_...)</code></pre>
@@ -643,7 +643,7 @@ RECALL_MODEL_CHAT_MAX=anthropic/claude-opus-5-5</code></pre>
       <p class="muted">Smidt Beheer · KvK 99124254 · VAT NL004444074B96</p>
     </div>
     <nav aria-label="Footer">
-      <div><b>Product</b><a href="/#how">How it works</a><a href="/#why">Why Recall</a><a href="/#agents">Integrations</a><a href="/evals">Evals</a><a href="/#pricing">Pricing</a></div>
+      <div><b>Product</b><a href="/#how">How it works</a><a href="/#why">Why Recall</a><a href="/#agents">Integrations</a><a href="/evals">Evals</a><a href="/compare">Compare</a><a href="/#pricing">Pricing</a></div>
       <div><b>Developers</b><a href="#quickstart">Quickstart</a><a href="/guides">Guides</a><a href="#integrations">Integrations</a><a href="#api">API</a><a href="#models">Models</a><a href="https://github.com/recallmem/recall">GitHub</a></div>
       <div><b>Account</b><a href="/app/login">Sign in</a></div>
       <div><b>Legal</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/dpa">Data processing</a><a href="/security">Security</a><a href="/support">Support</a></div>

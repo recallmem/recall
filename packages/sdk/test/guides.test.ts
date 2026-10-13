@@ -4,9 +4,14 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { Recall } from "../src/index.js";
 import { startTestServer, type TestServer } from "./harness.js";
 
-/** Every TypeScript sample in the guides (recallmem.dev/guides) runs here, end to end. */
+/**
+ * Every TypeScript sample in the guides (recallmem.dev/guides) runs here, end to end. The samples
+ * of the framework guides have no Python twin; they run in their integration's own tests
+ * (packages/ai-sdk, packages/langchain, packages/mastra), which have the framework installed.
+ */
 const DIR = fileURLToPath(new URL("../../../examples/guides/", import.meta.url));
-const files = readdirSync(DIR).filter((f) => f.endsWith(".ts"));
+const all = readdirSync(DIR);
+const files = all.filter((f) => f.endsWith(".ts") && all.includes(f.replace(/\.ts$/, ".py")));
 
 let server: TestServer;
 beforeAll(async () => {

@@ -4,6 +4,7 @@ import type { OAuthConfig } from "../config.js";
 import { type Db, rows } from "../db/client.js";
 import { accountSuspended, unauthorized } from "../lib/errors.js";
 import { newId } from "../lib/ids.js";
+import { markFirstApp } from "./milestones.js";
 import { OAuthError, textArray } from "./oauth-clients.js";
 import { sha256hex } from "./users.js";
 
@@ -273,6 +274,8 @@ export async function exchangeCode(
     await tx.execute(
       sql`UPDATE oauth_clients SET last_used_at = now() WHERE id = ${code.client_id}`,
     );
+    // The account's first connected app, for the operator's activation funnel (grants are purged later).
+    await markFirstApp(tx, code.account_id);
     return { tokens: await issueTokens(tx, grantId, code.scope, cfg), grantId };
   });
 }

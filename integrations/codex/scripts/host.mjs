@@ -4,6 +4,12 @@
 import { homedir } from "node:os";
 import { join } from "node:path";
 
+/** A `${VAR}` placeholder in a config value reads that environment variable. */
+const expand = (value, env) => {
+  const m = typeof value === "string" ? value.match(/^\$\{([A-Za-z_][A-Za-z0-9_]*)\}$/) : null;
+  return m ? env[m[1]] : value;
+};
+
 const codexHome = (env) =>
   env.CODEX_HOME || join(env.HOME || env.USERPROFILE || homedir(), ".codex");
 
@@ -31,7 +37,7 @@ export const HOST_INFO = {
     env.CLAUDE_PLUGIN_DATA ||
     join(codexHome(env), "recall", "state"),
   /** API key: RECALL_API_KEY, then `apiKey` in ~/.recall/config.json (as written by `recall init` or install.mjs). */
-  apiKey: (env, fromFile) => env.RECALL_API_KEY || fromFile("apiKey", "auth.apiKey"),
+  apiKey: (env, fromFile) => env.RECALL_API_KEY || expand(fromFile("apiKey", "auth.apiKey"), env),
   /** Shown when the server refuses the key. */
   keyHint: "Set RECALL_API_KEY, or apiKey in ~/.recall/config.json.",
 };

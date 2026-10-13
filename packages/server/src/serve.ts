@@ -56,8 +56,10 @@ async function launch(
 
   if (config.role !== "api") {
     const { startWorker } = await import("./queue/worker.js");
+    const { startFunnelReports } = await import("./core/funnel-report.js");
     stops.push(await startWorker(ctx));
     stops.push(ctx.billing.startSweeper());
+    stops.push(startFunnelReports(ctx));
   }
 
   return {

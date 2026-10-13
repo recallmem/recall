@@ -1,0 +1,73 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "langchain-recall"
+version = "0.1.0"
+description = "LangChain and LangGraph integration for Recall, long-term memory for AI agents: chat history, retriever, tools and agent middleware."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+keywords = ["langchain", "langgraph", "agents", "memory", "llm", "recall"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Typing :: Typed",
+]
+dependencies = [
+  "recall-mem>=0.1.1,<0.2",
+  "langchain-core>=1.1,<2",
+]
+
+[project.optional-dependencies]
+agents = ["langchain>=1.1,<2"]
+dev = [
+  "langchain>=1.1,<2",
+  "pytest>=8",
+  "pytest-asyncio>=0.24",
+  "ruff>=0.6",
+  "mypy>=1.11",
+]
+
+[project.urls]
+Homepage = "https://recallmem.dev"
+Documentation = "https://recallmem.dev/guides/langchain"
+Repository = "https://github.com/recallmem/recall"
+Issues = "https://github.com/recallmem/recall/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/langchain_recall"]
+
+[tool.hatch.build.targets.sdist]
+include = ["/src", "/README.md", "/LICENSE", "/pyproject.toml"]
+exclude = ["__pycache__", "*.pyc"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+markers = [
+  "integration: starts the real Recall server (needs node, npx and tsx)",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+ignore = ["E501", "B904", "SIM108", "RUF012", "RUF022"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+files = ["src"]
+plugins = ["pydantic.mypy"]

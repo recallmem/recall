@@ -1,0 +1,64 @@
+    <h1>Switch from Honcho</h1>
+    <p class="lede">Recall implements Honcho's v3 REST API. Code written for Honcho keeps working after you change two settings: the base URL and the API key. This guide lists what changes, what stays the same, what Recall adds, the differences that matter, and a checklist.</p>
+
+    <h2 id="what-changes">What changes</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>On Recall</th></tr></thead>
+      <tbody>
+        <tr><td>Base URL</td><td><code>https://api.recallmem.dev</code>, or the URL of <a href="/docs#self-host">your own server</a>.</td></tr>
+        <tr><td>API key</td><td>A Recall key, <code>pk_live_…</code>: <a href="/app/login">sign in</a> and open <b>API keys</b> in the dashboard. New accounts get free credit, no card needed.</td></tr>
+        <tr><td>Workspace</td><td>Keep your workspace ids. Names are unique within your Recall account, so <code>default</code> or <code>my-app</code> is yours to use. A key limited to one workspace works only there; a <b>Whole account</b> key works for every workspace and can also list them.</td></tr>
+      </tbody>
+    </table>
+    <p>In Honcho's own clients, that is the constructor:</p>
+<pre><code># Python: honcho-ai
+honcho = Honcho(base_url="https://api.recallmem.dev", api_key="pk_live_...", workspace_id="my-app")
+
+// TypeScript: @honcho-ai/sdk
+const honcho = new Honcho({ baseURL: "https://api.recallmem.dev", apiKey: "pk_live_...", workspaceId: "my-app" });</code></pre>
+    <p>Both clients also read their settings from the environment, so an app that configures them that way needs no code change at all:</p>
+<pre><code>HONCHO_URL=https://api.recallmem.dev
+HONCHO_API_KEY=pk_live_...
+HONCHO_WORKSPACE_ID=my-app</code></pre>
+
+    <h2 id="same">What stays the same</h2>
+    <p>The REST paths, request and response bodies, status codes, error bodies (<code>{"detail": …}</code>), pagination and filters; workspaces, peers, sessions, messages, conclusions, peer cards, representations, session context, summaries, scopes and dreams; the reasoning levels <code>minimal</code> to <code>max</code>, with <code>low</code> as the default; streaming, structured output and evidence on chat; webhooks signed with <code>X-Honcho-Signature</code>; and the 40 MCP tools with their names (at <code>/mcp?profile=full</code>).</p>
+    <p>We checked this with Honcho's published clients, version 2.5.1 of both, against a Recall server with authentication on and a <code>pk_live_</code> key, as on the hosted service. With only the base URL and key changed, a whole app ran: creating peers and sessions, adding messages and files, context in OpenAI and Anthropic form, chat (plain, streamed, with a level, with evidence, about another peer, structured, workspace-wide), search at every level, peer cards, representations, conclusions, metadata, clones, scopes, dreams, queue status, and the clients' own error classes for a wrong key, a missing message and a workspace that still has sessions. The TypeScript run is a test in the repository (<code>packages/server/test/honcho-client.test.ts</code>) and runs on every change.</p>
+    <p>You can also move to Recall's own SDKs, <code>npm install @recall-memory/sdk</code> or <code>pip install recall-mem</code>. They have the same objects and calls, plus Recall's additions, retries and idempotent writes. Change the import and the constructor (<code>new Recall({ workspaceId })</code>, <code>Recall(workspace_id=...)</code>); they take their settings from options or from <code>RECALL_URL</code>, <code>RECALL_API_KEY</code> and <code>RECALL_WORKSPACE_ID</code>, never from another product's variables. The usual calls:</p>
+<!-- example: switch-from-honcho#same -->
+
+    <h2 id="adds">What Recall adds</h2>
+    <ul>
+      <li><b>Answers you can check.</b> With evidence on, chat also returns <code>citations</code>, a <code>confidence</code> and <code>abstained</code>, which is true when memory did not hold the answer and Recall said so instead of guessing.</li>
+      <li><b>Facts with a history.</b> When something stops being true, the old fact is closed when the new message is learned, not later. Conclusions carry <code>valid_from</code>, <code>valid_to</code>, <code>superseded_by</code> and the ids of the messages they came from, and you can filter on <code>current</code>.</li>
+      <li><b>Safe retries.</b> An <a href="/docs#idempotency"><code>Idempotency-Key</code></a> header on messages, turns and chat: a retried request is not stored or charged twice.</li>
+      <li><b>One request per turn.</b> <code>POST …/sessions/{id}/turn</code> stores the new messages and returns the context for the reply.</li>
+      <li><b>Forgetting a person.</b> <code>DELETE …/peers/{peer}</code> removes their messages, the facts about them and their peer cards (<a href="/docs#forget-a-person">details</a>).</li>
+      <li><b>Reads that never create.</b> <code>GET</code> for one workspace, peer or session answers <code>404</code> for a typo instead of creating it.</li>
+      <li><b>Operations.</b> Usage by task and model at <code>GET /v3/usage</code>; webhook deliveries retried with backoff, each with a stable <code>X-Recall-Event-Id</code>; <code>wait_ms</code> on queue status to wait until learning is done.</li>
+      <li><b>Where it runs.</b> The hosted service stores data in Frankfurt (EU). The server is source-available and you can <a href="/docs#self-host">run it yourself</a>; the SDKs and integrations are MIT.</li>
+      <li><b>Integrations.</b> Plugins for Claude Code, Codex and OpenClaw, a memory provider for Hermes, and an MCP server that Claude, ChatGPT and Cursor connect to by signing in (<a href="/docs#integrations">integrations</a>).</li>
+    </ul>
+<!-- example: switch-from-honcho#extras -->
+
+    <h2 id="differences">Differences that matter</h2>
+    <ul>
+      <li><b>Chat does not create.</b> On Recall, chat about a workspace or peer that does not exist answers <code>404</code>, where Honcho creates them; reading the card of an unknown peer is a <code>404</code> too. Honcho's clients create a peer when you call <code>peer()</code>, so this only shows in raw REST calls: create the peer first with <code>POST …/peers</code>, or turn on <code>autoCreate</code> (<code>auto_create</code> in Python) in Recall's SDKs.</li>
+      <li><b>Your data does not move by itself.</b> Recall does not import from Honcho. Send the conversations you want remembered through <code>POST …/sessions/{id}/messages</code>, with <code>created_at</code> to keep their original dates, and Recall learns from them; learning is billed per message token (<a href="/#pricing">pricing</a>). Facts you want kept word for word go in through <code>POST …/conclusions</code>, and peer cards through <code>PUT …/peers/{peer}/card</code>.</li>
+      <li><b>Different models, different answers.</b> The level names are the same, but each level is Recall's own plan, answered by Recall's models (see <a href="/guides/levels-and-models">levels and models</a>). Answers will not match Honcho's word for word. Run your most common questions in the dashboard's Playground before you switch traffic.</li>
+      <li><b>Peer cards have limits.</b> Up to 500 entries of up to 4,000 characters. Setting a card about a peer that does not exist yet creates that peer.</li>
+      <li><b>Webhooks can arrive twice.</b> Recall retries a failed delivery, so drop repeats by <code>X-Recall-Event-Id</code>. On the hosted service, verify signatures with your account's <code>webhook_secret</code> from <code>GET /v3/account</code>.</li>
+      <li><b>Self-hosting is set up differently.</b> A server of your own is configured with <code>RECALL_*</code> environment variables, not Honcho's configuration file. It runs as one process with Postgres and pgvector (or an embedded database) and no Redis. Size limits are Honcho's defaults and cannot be changed. Clients authenticate with tokens from <code>recall token</code> (<a href="/docs#self-host">self-hosting</a>).</li>
+    </ul>
+    <p>For prices and published benchmark results side by side, see <a href="/compare/honcho">Recall and Honcho compared</a>.</p>
+
+    <h2 id="checklist">Checklist</h2>
+    <ol>
+      <li><a href="/app/login">Sign in</a> and create a key under <b>API keys</b>: <b>Whole account</b>, or limited to the workspace your app uses.</li>
+      <li>Set the base URL and key in your client, or <code>HONCHO_URL</code> and <code>HONCHO_API_KEY</code> in its environment. Keep your workspace ids.</li>
+      <li>Send the conversations you want remembered, with their original <code>created_at</code>. Add hand-written facts and peer cards if you kept them.</li>
+      <li>If you call the REST API directly, create peers before you read or chat about them.</li>
+      <li>Point webhooks at your endpoint again, verify them with your <code>webhook_secret</code>, and drop repeated <code>X-Recall-Event-Id</code>s.</li>
+      <li>For MCP clients, use <code>https://api.recallmem.dev/mcp</code>; add <code>?profile=full</code> for Honcho's 40 tools.</li>
+      <li>Ask your most common questions in the Playground, choose a level per question, and check the cost under Usage.</li>
+    </ol>

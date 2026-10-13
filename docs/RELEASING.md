@@ -1,15 +1,31 @@
 # Releasing the client SDKs
 
-Two packages are published from this repository by `.github/workflows/release-sdks.yml`:
+Eight packages are published from this repository by `.github/workflows/release-sdks.yml`:
 
-| SDK | Registry | Package | Source | Tag |
+| Package | Registry | Name | Source | Tag |
 |---|---|---|---|---|
-| TypeScript | npm | `@recall-memory/sdk` | `packages/sdk` | `sdk-ts-vX.Y.Z` |
-| Python | PyPI | `recall-mem` (import `recall_memory`) | `sdks/python` | `sdk-py-vX.Y.Z` |
+| TypeScript SDK | npm | `@recall-memory/sdk` | `packages/sdk` | `sdk-ts-vX.Y.Z` |
+| Python SDK | PyPI | `recall-mem` (import `recall_memory`) | `sdks/python` | `sdk-py-vX.Y.Z` |
+| Vercel AI SDK integration | npm | `@recall-memory/ai-sdk` | `packages/ai-sdk` | `ai-sdk-vX.Y.Z` |
+| LangChain.js integration | npm | `@recall-memory/langchain` | `packages/langchain` | `langchain-vX.Y.Z` |
+| Mastra integration | npm | `@recall-memory/mastra` | `packages/mastra` | `mastra-vX.Y.Z` |
+| LangChain / LangGraph integration | PyPI | `langchain-recall` (import `langchain_recall`) | `sdks/python-integrations/langchain-recall` | `langchain-recall-vX.Y.Z` |
+| OpenAI Agents SDK integration | PyPI | `openai-agents-recall` (import `openai_agents_recall`) | `sdks/python-integrations/openai-agents-recall` | `openai-agents-recall-vX.Y.Z` |
+| CrewAI integration | PyPI | `crewai-recall` (import `crewai_recall`) | `sdks/python-integrations/crewai-recall` | `crewai-recall-vX.Y.Z` |
 
-Pushing a tag is the whole release. The workflow tests the SDK, checks that the tag matches the
+The three Python integrations depend on `recall-mem` (`>=0.1.1,<0.2`), so release a new
+`recall-mem` first when an integration needs something it adds.
+
+Pushing a tag is the whole release. The workflow tests the package, checks that the tag matches the
 version in `package.json` / `pyproject.toml`, builds, and publishes. Nothing is published from a
 branch or by hand.
+
+The three framework integrations depend on the TypeScript SDK. In the repository that dependency is
+`"@recall-memory/sdk": "workspace:^"`; the release job packs the integration with `pnpm pack`, which
+writes the SDK's current version range (for example `^0.1.0`) into the published `package.json`,
+and checks that no `workspace:` range is left. So **release the SDK first** when an integration
+needs SDK changes that are not on npm yet. The frameworks themselves (`ai`, `@langchain/core`,
+`@mastra/core`) and `zod` are peer dependencies: the app brings its own.
 
 ## One-time setup (the owner does this once)
 
@@ -57,41 +73,63 @@ reuse it.
    No PyPI token is ever stored in GitHub. After the first release the pending publisher becomes a
    normal trusted publisher of the project. `recall-mem` already exists on PyPI, so add the table's
    publisher under the project's **Settings > Publishing** rather than as a pending publisher.
+3. Add the same pending publisher three more times, once for each framework integration, with
+   **PyPI project name** `langchain-recall`, `openai-agents-recall` and `crewai-recall` (owner,
+   repository, workflow and environment as in the table above). They are new projects, so the
+   pending publisher creates each one on its first release. Check first that the three names are
+   still free on PyPI.
 
 ## Releasing
 
-Do the same for either SDK; only the file and the tag prefix differ.
+Do the same for every package; only the file and the tag prefix differ.
 
-1. Make sure CI is green on `main`. The release job runs the SDK's unit tests again, but the
-   end-to-end tests only run in CI.
+1. Make sure CI is green on `main`. The release job runs the package's tests again (for the SDK
+   only its unit tests; its end-to-end tests run in CI).
 2. **Bump the version** (it must be a new version; a published version can never be replaced):
-   * TypeScript: `version` in `packages/sdk/package.json` **and** `VERSION` in
+   * TypeScript SDK: `version` in `packages/sdk/package.json` **and** `VERSION` in
      `packages/sdk/src/version.ts` (a test fails if they differ).
-   * Python: `version` in `sdks/python/pyproject.toml` **and** `__version__` in
+   * Python SDK: `version` in `sdks/python/pyproject.toml` **and** `__version__` in
      `sdks/python/src/recall_memory/_version.py` (a test fails if they differ).
+   * TypeScript integrations: `version` in `packages/ai-sdk/package.json`,
+     `packages/langchain/package.json` or `packages/mastra/package.json`.
+   * Python integrations: `version` in `sdks/python-integrations/<name>/pyproject.toml`
+     **and** `__version__` in its `src/<module>/_version.py` (its `test_package.py` fails if they
+     differ).
 3. Commit and merge to `main`.
 4. **Tag that commit and push the tag**:
 
    ```bash
    git checkout main && git pull
-   git tag sdk-ts-v0.1.1 && git push origin sdk-ts-v0.1.1   # TypeScript SDK -> npm
-   git tag sdk-py-v0.1.1 && git push origin sdk-py-v0.1.1   # Python SDK -> PyPI
+   git tag sdk-ts-v0.1.1 && git push origin sdk-ts-v0.1.1         # TypeScript SDK -> npm
+   git tag sdk-py-v0.1.1 && git push origin sdk-py-v0.1.1         # Python SDK -> PyPI
+   git tag ai-sdk-v0.1.0 && git push origin ai-sdk-v0.1.0         # @recall-memory/ai-sdk -> npm
+   git tag langchain-v0.1.0 && git push origin langchain-v0.1.0   # @recall-memory/langchain -> npm
+   git tag mastra-v0.1.0 && git push origin mastra-v0.1.0         # @recall-memory/mastra -> npm
+   git tag langchain-recall-v0.1.0 && git push origin langchain-recall-v0.1.0          # -> PyPI
+   git tag openai-agents-recall-v0.1.0 && git push origin openai-agents-recall-v0.1.0  # -> PyPI
+   git tag crewai-recall-v0.1.0 && git push origin crewai-recall-v0.1.0                # -> PyPI
    ```
 
    The number after `v` must equal the version in the file you bumped, or the workflow fails before
-   publishing. The two SDKs are versioned and released independently.
+   publishing. Every package is versioned and released independently; an integration needs the SDK
+   version it depends on to be published already.
 5. Watch **Actions > Release SDKs**. For PyPI, approve the `pypi` environment if you made yourself a
    reviewer.
-6. Check the result: <https://www.npmjs.com/package/@recall-memory/sdk> and
-   <https://pypi.org/project/recall-mem/>, then try it in a clean directory:
+6. Check the result: <https://www.npmjs.com/package/@recall-memory/sdk> (or `ai-sdk`, `langchain`,
+   `mastra`) and <https://pypi.org/project/recall-mem/>, then try it in a clean directory:
    `npm install @recall-memory/sdk` / `pip install recall-mem`.
+
+The first release of each integration creates its package inside the `recall-memory` npm
+organisation with the same `NPM_TOKEN`; nothing else needs setting up.
 
 ### Dry run
 
-**Actions > Release SDKs > Run workflow**, pick `npm` or `pypi`, leave **publish** off. It installs,
-tests, builds and prints what would be published (`npm pack --dry-run`, `twine check`), and publishes
-nothing. Run it on a release tag with **publish** ticked only to retry a release whose publish step
-failed; it will refuse to publish from a branch.
+**Actions > Release SDKs > Run workflow**, pick `npm`, `pypi` or one of the integrations (`ai-sdk`,
+`langchain`, `mastra`, `langchain-recall`, `openai-agents-recall`, `crewai-recall`), leave
+**publish** off. It installs, tests, builds and prints what would be published (`npm pack --dry-run`,
+the packed tarball's files and dependencies, `twine check`), and publishes nothing. Run it on a
+release tag with **publish** ticked only to retry a release whose publish step failed; it will refuse
+to publish from a branch.
 
 ### If something goes wrong
 
@@ -107,11 +145,19 @@ failed; it will refuse to publish from a branch.
 
 ## What gets published
 
-Both packages are checked by tests (`packages/sdk/test/publish.test.ts`,
-`sdks/python/tests/test_publish.py`) so they never name another product.
+Every package is checked by tests (`packages/*/test/publish.test.ts`,
+`sdks/python/tests/test_publish.py`, `sdks/python-integrations/*/tests/test_package.py`) so it
+never names another product.
 
 * npm: `dist/` (compiled JavaScript, `.d.ts` types, source maps), `README.md`, `LICENSE` (MIT) and
-  `package.json`. Check locally with `cd packages/sdk && pnpm build && npm pack --dry-run`.
+  `package.json`. Check locally with `cd packages/sdk && pnpm build && npm pack --dry-run`; for an
+  integration, `pnpm --filter @recall-memory/ai-sdk... build && cd packages/ai-sdk && pnpm pack` and
+  look inside the tarball (its `package.json` must name an SDK version range, not `workspace:`).
 * PyPI: the wheel holds `recall_memory/` (including `py.typed`) and the MIT `LICENSE`; the
   source distribution adds `README.md` and `pyproject.toml` and leaves out the tests. Check locally
   with `python -m build sdks/python` and list the archives.
+* PyPI, framework integrations: the same layout, with `langchain_recall/`, `openai_agents_recall/`
+  or `crewai_recall/`. Check locally with `python -m build sdks/python-integrations/<name>`. Their
+  end-to-end tests (`sdks/python-integrations/<name>/tests`, run in CI on every push) start the
+  real server and drive each framework with a scripted model; the release job runs only the tests
+  that need no server.

@@ -44,7 +44,9 @@ describe("site", () => {
     );
     expect(anchors.length).toBeGreaterThan(10);
     expect(anchors.filter((id) => !docsIds.has(id))).toEqual([]);
-    for (const m of text.matchAll(/https:\/\/recallmem\.dev\/(guides\/[\w-]+|[a-z]+)\)/g))
+    for (const m of text.matchAll(
+      /https:\/\/recallmem\.dev\/((?:guides|compare)\/[\w-]+|[a-z]+)\)/g,
+    ))
       expect((await s.app.request(`/${m[1]}`)).status, m[1]).toBe(200);
     // On Vercel the CDN serves it from public/ with the site's headers.
     const vercel = read("packages/server/vercel.json");
@@ -396,11 +398,16 @@ describe("site content", () => {
       expect(docs, stale).not.toContain(stale);
   });
 
-  it("names other memory systems only in the sourced comparison charts", () => {
+  it("names other memory systems only in the sourced comparison charts and pages", () => {
     const dir = join(REPO, "packages/server/public");
     const chart = /<figure class="cmp [\s\S]*?<\/figure>/g;
+    // Links to the comparison pages and the switching guide may name the product they are about
+    // (the guides index and its nav, llms.txt); the comparison pages are checked below.
+    const dedicated =
+      /<a [^>]*href="\/(?:compare\/[\w-]+|guides\/switch-from-honcho)"[^>]*>[\s\S]*?<\/a>|^.*https:\/\/recallmem\.dev\/(?:compare\/[\w-]+|guides\/switch-from-honcho)\).*$/gm;
     for (const file of readdirSync(dir).filter((f) => /\.(html|js|css|txt|xml)$/.test(f))) {
-      const text = read(`packages/server/public/${file}`);
+      if (file === "compare.html") continue;
+      const text = read(`packages/server/public/${file}`).replace(dedicated, "");
       const charts = text.match(chart) ?? [];
       if (file === "evals.html") expect(charts.length).toBeGreaterThanOrEqual(2);
       if (file === "home.html") expect(charts.length).toBe(1);
@@ -420,8 +427,10 @@ describe("site content", () => {
       ...readdirSync(join(REPO, "packages/server/public")).filter((f) =>
         /\.(html|css|js|txt)$/.test(f),
       ),
+      ...readdirSync(join(REPO, "packages/server/public/compare")).map((f) => `compare/${f}`),
     ].map((f) => `packages/server/public/${f}`);
     files.push(
+      "packages/server/scripts/site/versus.py",
       "packages/server/scripts/site/index.tpl.html",
       "packages/server/scripts/site/build.py",
       "packages/server/scripts/site/sprites.py",
@@ -542,6 +551,7 @@ describe("legal pages and security.txt", () => {
 describe("guides", () => {
   const manifest = JSON.parse(read("packages/server/site/guides/manifest.json")) as {
     slug: string;
+    languages?: string[];
   }[];
   const pages = new Map<string, string>();
   beforeAll(async () => {
@@ -576,7 +586,10 @@ describe("guides", () => {
 
   it("link only to pages and anchors that exist", () => {
     const sitePages = new Set(
-      readdirSync(join(REPO, "packages/server/public"))
+      [
+        ...readdirSync(join(REPO, "packages/server/public")),
+        ...readdirSync(join(REPO, "packages/server/public/compare")).map((f) => `compare/${f}`),
+      ]
         .filter((f) => f.endsWith(".html"))
         .map((f) => `/${f.replace(/\.html$/, "")}`),
     );
@@ -597,21 +610,144 @@ describe("guides", () => {
     expect(missing).toEqual([]);
   });
 
-  it("only show code that CI runs, in both languages", () => {
+  it("only show code that CI runs, in both languages (framework guides: the framework's language)", () => {
     const dir = join(REPO, "examples/guides");
-    const ts = readdirSync(dir).filter((f) => f.endsWith(".ts"));
-    for (const f of ts) expect(readdirSync(dir), f).toContain(f.replace(/\.ts$/, ".py"));
+    // A framework guide (manifest `languages: ["ts"]` or `["py"]`) has no twin in the other
+    // language; its examples run in the integration package's own tests.
+    const single = new Map(
+      manifest.filter((g) => g.languages?.length === 1).map((g) => [g.slug, g.languages![0]!]),
+    );
+    const singleExamples = new Set(
+      [...single].flatMap(([slug, lang]) =>
+        [
+          ...read(`packages/server/site/guides/${slug}.html`).matchAll(
+            /<!-- example: ([a-z0-9-]+)#/g,
+          ),
+        ].map((m) => `${m[1]}.${lang}`),
+      ),
+    );
+    const testsIn = (root: string, sub: string) =>
+      readdirSync(join(REPO, root))
+        .filter((p) => existsSync(join(REPO, root, p, sub)))
+        .flatMap((p) =>
+          readdirSync(join(REPO, root, p, sub))
+            .filter((t) => /\.(ts|py)$/.test(t))
+            .map((t) => read(`${root}/${p}/${sub}/${t}`)),
+        );
+    const packageTests = [
+      ...testsIn("packages", "test"),
+      ...testsIn("sdks/python-integrations", "tests"),
+    ];
+    for (const f of singleExamples) {
+      const tested = packageTests.some(
+        (source) => source.includes(`examples/guides/${f}`) || source.includes(`"${f}"`),
+      );
+      expect(tested, `${f} is run by a package's tests`).toBe(true);
+    }
+    const files = readdirSync(dir).filter((f) => !singleExamples.has(f));
+    for (const f of files.filter((f) => f.endsWith(".ts")))
+      expect(files, f).toContain(f.replace(/\.ts$/, ".py"));
+    for (const f of files.filter((f) => f.endsWith(".py")))
+      expect(files, f).toContain(f.replace(/\.py$/, ".ts"));
     for (const [path, html] of pages) {
       if (!path.startsWith("/guides/")) continue;
       // Code windows come from examples/guides; free-standing blocks are REST/shell/engine snippets.
-      expect(html.match(/data-panel="ts"/g)?.length ?? 0, path).toBe(
-        html.match(/data-panel="py"/g)?.length ?? 0,
-      );
+      const tsPanels = html.match(/data-panel="ts"/g)?.length ?? 0;
+      const pyPanels = html.match(/data-panel="py"/g)?.length ?? 0;
+      const lang = single.get(path.slice("/guides/".length));
+      if (lang === "ts") {
+        expect(tsPanels, path).toBeGreaterThan(0);
+        expect(pyPanels, path).toBe(0);
+      } else if (lang === "py") {
+        expect(pyPanels, path).toBeGreaterThan(0);
+        expect(tsPanels, path).toBe(0);
+      } else expect(tsPanels, path).toBe(pyPanels);
     }
   });
 
   it("are linked from the docs and the home page", () => {
     expect(hrefsOf(pages.get("/docs")!)).toContain("/guides");
     expect(hrefsOf(pages.get("/home")!)).toContain("/guides");
+  });
+});
+
+describe("comparison pages", () => {
+  // Written by scripts/site/pages.py from scripts/site/versus.py.
+  const SLUGS = ["honcho", "mem0", "zep", "letta"];
+  const pages = new Map<string, string>();
+  beforeAll(async () => {
+    for (const path of ["/compare", ...SLUGS.map((slug) => `/compare/${slug}`)]) {
+      const res = await s.app.request(path);
+      expect(res.status, path).toBe(200);
+      expect(res.headers.get("content-security-policy"), path).toContain("default-src 'none'");
+      pages.set(path, await res.text());
+    }
+  });
+
+  it("are dated, canonical, and cite a listed source for every fact about another product", () => {
+    for (const [path, html] of pages) {
+      expect(html, path).toContain(`<link rel="canonical" href="https://recallmem.dev${path}" />`);
+      expect(html, path).toMatch(/Read on \d{1,2} [A-Z][a-z]+ 2026\./);
+      expect(html, path).not.toContain("[[");
+      expect(html, path).not.toContain('style="');
+      const cited = new Set(
+        [...html.matchAll(/<sup class="src"><a href="#source-(\d+)">\1<\/a><\/sup>/g)].map(
+          (m) => m[1],
+        ),
+      );
+      const listed = new Set(
+        [...html.matchAll(/<li id="source-(\d+)"><a href="https:\/\/[^"]+" rel="noopener">/g)].map(
+          (m) => m[1],
+        ),
+      );
+      expect(cited.size, path).toBeGreaterThan(0);
+      expect(cited, path).toEqual(listed);
+    }
+    const index = hrefsOf(pages.get("/compare")!);
+    for (const slug of SLUGS) expect(index, slug).toContain(`/compare/${slug}`);
+  });
+
+  it("show Recall's published figures and the configured prices", () => {
+    const { prices, signupCreditMicros } = loadConfig({ RECALL_DATA_DIR: "memory" }).hosted.billing;
+    const usd = (micros: number) => {
+      const s = String(Number((micros / 1e6).toFixed(4)));
+      return `$${/\.\d$/.test(s) ? `${s}0` : s}`;
+    };
+    for (const slug of SLUGS) {
+      const html = pages.get(`/compare/${slug}`)!;
+      expect(html, slug).toContain(">91.0%</a> (455 of 500)");
+      expect(html, slug).toContain(usd(prices.ingestPerMTokMicros));
+      expect(html, slug).toContain(`${usd(signupCreditMicros)} of credit`);
+      // No other LongMemEval percentage is attributed to Recall.
+      expect(html, slug).not.toMatch(/8[68]\.[04]%/);
+    }
+    const honcho = pages.get("/compare/honcho")!;
+    for (const micros of Object.values(prices.chatMicros))
+      expect(honcho).toContain(`<td class="n">${usd(micros)}</td>`);
+    expect(honcho).toContain(">0.683</a>");
+    expect(honcho).toContain(">0.670</a>");
+    expect(honcho).toContain('href="/guides/switch-from-honcho"');
+  });
+
+  it("are linked from the footers, llms.txt and the switching guide", async () => {
+    for (const path of ["/", "/docs", "/evals", "/guides", "/privacy"]) {
+      const html = await (await s.app.request(path)).text();
+      expect(hrefsOf(html), path).toContain("/compare");
+    }
+    const llms = await (await s.app.request("/llms.txt")).text();
+    for (const slug of SLUGS) expect(llms).toContain(`https://recallmem.dev/compare/${slug})`);
+    const guide = await (await s.app.request("/guides/switch-from-honcho")).text();
+    expect(hrefsOf(guide)).toContain("/compare/honcho");
+    // The home page links them from the footer only, not from the hero.
+    const home = await (await s.app.request("/")).text();
+    const hero = /<section class="hero">[\s\S]*?<\/section>/.exec(home)?.[0] ?? "";
+    expect(hero).not.toContain("/compare");
+    // On Vercel the CDN serves them with the site's headers.
+    const vercel = JSON.parse(read("packages/server/vercel.json")) as {
+      headers: { source: string }[];
+    };
+    const sources = vercel.headers.map((r) => r.source);
+    expect(sources.find((r) => r.startsWith("/:page("))).toMatch(/[(|]compare[|)]/);
+    expect(sources).toContain("/compare/:slug");
   });
 });

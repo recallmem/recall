@@ -189,6 +189,14 @@ install steps, its settings and a way to check that it works.
 | **Hermes Agent** | Memory provider (`memory.provider: recall`) with prefetch, turn sync and tools | [`integrations/hermes`](integrations/hermes/README.md) |
 | **Any agent with Agent Skills** | A `SKILL.md` that teaches when and how to recall and record, with a helper script | [`integrations/agent-skill`](integrations/agent-skill/README.md) |
 
+Building on an agent framework? These packages add Recall in a few lines:
+
+| Framework | Package | What you get |
+|---|---|---|
+| **Vercel AI SDK** | [`@recall-memory/ai-sdk`](packages/ai-sdk/README.md) | Middleware that adds memory to each request and stores every turn, and memory tools ([guide](https://recallmem.dev/guides/vercel-ai-sdk)) |
+| **LangChain.js** | [`@recall-memory/langchain`](packages/langchain/README.md) | A chat message history in Recall sessions, a retriever and memory tools ([guide](https://recallmem.dev/guides/langchain-js)) |
+| **Mastra** | [`@recall-memory/mastra`](packages/mastra/README.md) | A processor that adds memory to each run and stores every turn, and memory tools ([guide](https://recallmem.dev/guides/mastra)) |
+
 There is also a command-line client, `recall` (`recall init`, `recall peer chat "Where do I live?"`,
 `recall doctor`). It comes with the server rather than from npm: it is on the `PATH` in the Docker image
 and at `packages/server/dist/cli.js` in a build of this repository; see [the docs](https://recallmem.dev/docs#cli).
@@ -289,8 +297,9 @@ offering it to others as a competing memory service. See [Licence](#licence).
 | [`packages/server`](packages/server/) | The server: REST API, background worker (reasoning, summaries, the night shift), hybrid search and answers, MCP, CLI, dashboard | FSL-1.1-ALv2 |
 | [`packages/sdk`](packages/sdk/) | TypeScript SDK, [`@recall-memory/sdk`](https://www.npmjs.com/package/@recall-memory/sdk) | MIT |
 | [`sdks/python`](sdks/python/) | Python SDK, [`recall-mem`](https://pypi.org/project/recall-mem/) (import `recall_memory`) | MIT |
+| [`packages/ai-sdk`](packages/ai-sdk/), [`packages/langchain`](packages/langchain/), [`packages/mastra`](packages/mastra/) | Framework integrations: `@recall-memory/ai-sdk`, `@recall-memory/langchain`, `@recall-memory/mastra` | MIT |
 | [`integrations`](integrations/) | Claude Code and Codex plugins, OpenClaw, Hermes, Agent Skill, MCP registry and connector manifests | MIT |
-| [`examples`](examples/) | The code of every [guide](https://recallmem.dev/guides), in TypeScript and Python, run against a real server in CI | MIT |
+| [`examples`](examples/) | The code of every [guide](https://recallmem.dev/guides), in TypeScript and Python (TypeScript only for the TypeScript frameworks), run against a real server in CI | MIT |
 | [`evals`](evals/) | The benchmark harness: LongMemEval-S, BEAM and LoCoMo against any compatible URL, with metered cost and latency | MIT |
 | [`docs`](docs/) | [Architecture](docs/ARCHITECTURE.md) and [releasing the SDKs](docs/RELEASING.md) | MIT |
 

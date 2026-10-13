@@ -1,0 +1,63 @@
+    <h1>CrewAI</h1>
+    <p class="lede">For CrewAI developers whose crews work for people: travellers, customers, students. <code>crewai-recall</code> puts what Recall knows about the person into the task and gives agents tools to look things up and save what they learn.</p>
+
+    <h2 id="what-changes">What memory adds</h2>
+    <table>
+      <thead><tr><th></th><th>Without memory</th><th>With Recall</th></tr></thead>
+      <tbody>
+        <tr><td>A request from a returning traveller</td><td>The crew asks again about diet, budget and flight times.</td><td>The task starts with the traveller's peer card and the facts that relate to the request.</td></tr>
+        <tr><td>"I hate early flights," mentioned once</td><td>Gone after the kickoff.</td><td>Saved by an agent with <code>recall_remember</code>, or learned from the recorded request.</td></tr>
+        <tr><td>"What did we book in Porto last spring?"</td><td>Nobody knows.</td><td><code>recall_ask</code> answers from earlier conversations.</td></tr>
+      </tbody>
+    </table>
+    <p>Recall is memory, not the crew: CrewAI still plans, delegates and runs the tools.</p>
+
+    <h2 id="model">How it maps onto Recall</h2>
+    <table>
+      <thead><tr><th>In CrewAI</th><th>In Recall</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Your app</td><td>Workspace, from <code>RECALL_WORKSPACE_ID</code></td><td>Memory stays inside it.</td></tr>
+        <tr><td>The person the crew works for</td><td>Peer <code>user-8412</code></td><td>Recall learns about this person; the tools read and write their memory.</td></tr>
+        <tr><td>The crew</td><td>Peer <code>travel-crew</code>, not learned about</td><td>Its answers are stored as context; facts are learned about the person.</td></tr>
+        <tr><td>A request and its answer</td><td>Session, e.g. <code>trip-lisbon</code></td><td>What Recall learns from, in order.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the package with <code>pip install crewai-recall</code> and set <code>RECALL_API_KEY</code> (create one at <a href="https://app.recallmem.dev/keys">app.recallmem.dev/keys</a>), or <code>RECALL_URL</code> for a server of your own.</p>
+    <p><b>Agents with memory tools.</b> <code>recall_tools(user_id)</code> gives an agent <code>recall_search</code>, <code>recall_ask</code> and <code>recall_remember</code> for one person. A <code>{memory}</code> placeholder in the task takes what Recall knows.</p>
+<!-- example: crewai#setup -->
+    <p><b>Each kickoff.</b> <code>recall_context</code> reads the person's card and the facts that relate to the request, with no model call, and goes in with the inputs.</p>
+<!-- example: crewai#run -->
+    <p><b>Record the conversation.</b> Recall learns from conversations, so store the request and the crew's answer with the SDK:</p>
+<!-- example: crewai#record -->
+
+    <h3 id="crew-memory">CrewAI's own memory</h3>
+    <p>CrewAI's <code>Memory</code> accepts a custom storage backend, but that interface is a vector store: CrewAI computes the embeddings and the backend stores and searches vectors. Recall learns from text and searches it itself, so it is offered as tools and task context instead. You can leave CrewAI's memory on for what agents learn while working; Recall keeps what matters about the people they work for, across crews and apps.</p>
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>recall_tools(user_id, ...)</code></td><td>One set of tools per person. Build them per kickoff when one crew definition serves many people.</td></tr>
+        <tr><td><code>recall_context(query=...)</code></td><td>The request, so the facts that matter for it come first. Without it you get the most frequent facts.</td></tr>
+        <tr><td><code>max_conclusions</code></td><td>Most facts in the context (20 by default).</td></tr>
+        <tr><td><code>k</code>, <code>reasoning_level</code></td><td>Results per search, and how hard <code>recall_ask</code> thinks: <code>low</code> by default. See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p><code>recall_context</code> is a context read with no model call: context reads took 0.3 to 0.7 seconds, measured from Europe against the hosted API (Frankfurt), October 2026, small next to a crew's own model calls. <code>recall_search</code> searches facts and messages without a model call, in about a second. <code>recall_ask</code> is one model call of 2 to 4.5 seconds at <code>low</code>. Learning from recorded conversations runs in the background.</p>
+    <p>Context, search and storage are included. Learning and questions are charged; see <a href="/docs#pricing">pricing</a> and <a href="/guides/cost-and-speed">Cost and speed</a> for worked examples.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>The tools send queries, questions and the facts an agent saves to Recall; what you record is up to you. Record the person's request and the crew's answer, not tool output or intermediate steps. To forget someone:</p>
+<!-- example: crewai#forget -->
+    <p>See <a href="/docs#forget-a-person">Forget a person</a> and <a href="/guides/privacy">Privacy, consent and forgetting</a>.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>One set of tools for everyone.</b> Tools are bound to one person. Reusing them across people mixes memories; build them per kickoff.</li>
+      <li><b>Never recording.</b> Tools and context only read and save facts. Recall learns from conversations you store.</li>
+      <li><b>Agents saving guesses.</b> Tell agents to save what the person stated, not their own conclusions about them.</li>
+    </ul>

@@ -1,5 +1,17 @@
 {
+  "name": "@recall-memory/examples",
   "private": true,
   "license": "MIT",
-  "type": "module"
+  "type": "module",
+  "description": "The code samples of recallmem.dev/guides. CI runs every one against a real Recall server.",
+  "devDependencies": {
+    "@langchain/core": "^1.2.17",
+    "@mastra/core": "^1.76.0",
+    "@recall-memory/ai-sdk": "workspace:*",
+    "@recall-memory/langchain": "workspace:*",
+    "@recall-memory/mastra": "workspace:*",
+    "@recall-memory/sdk": "workspace:*",
+    "ai": "^7.0.138",
+    "zod": "^4.6.7"
+  }
 }

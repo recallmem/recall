@@ -3060,3 +3060,29 @@ h1.display .amber {
     transition: none;
   }
 }
+
+/* Comparison pages (/compare): wide tables scroll sideways on a phone, numbers align right, and
+   each [n] links to the page's list of sources. */
+.prose .table-scroll {
+  overflow-x: auto;
+  margin: 18px 0;
+}
+.prose .table-scroll table {
+  margin: 0;
+  min-width: 600px;
+}
+.prose td.n {
+  white-space: nowrap;
+  font-family: var(--code);
+}
+.prose sup.src {
+  font-size: 10px;
+  line-height: 0;
+  margin-left: 2px;
+}
+.prose sup.src a {
+  text-decoration: none;
+}
+.prose ol.sources li {
+  font-size: 14px;
+}

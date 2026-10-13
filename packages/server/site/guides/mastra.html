@@ -1,0 +1,46 @@
+    <h1>Mastra</h1>
+    <p class="lede">For agents built with Mastra (<code>@mastra/core</code>, version 1). <code>@recall-memory/mastra</code> gives an agent Recall memory through processors, Mastra's own place for memory: one <code>RecallMemory</code> adds what Recall knows about the user to each run and stores every turn, and three tools let the agent search memory, ask it a question and save a fact.</p>
+
+    <h2 id="what-you-get">What you get</h2>
+    <table>
+      <thead><tr><th>Export</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><code>RecallMemory</code></td><td>A processor. In <code>inputProcessors</code> it adds what Recall knows about the user, biased towards their message, as a system message. In <code>outputProcessors</code> it stores the user's message and the agent's reply in the session. Use the same instance in both.</td></tr>
+        <tr><td><code>recallTools(options)</code></td><td>Tools for the agent's <code>tools</code>: <code>searchMemory</code> (facts and messages that match), <code>askMemory</code> (a question about the user, answered from memory) and <code>rememberFact</code> (save one fact).</td></tr>
+      </tbody>
+    </table>
+    <p>Both take optional <code>recall</code> (a client; by default one is made from <code>RECALL_API_KEY</code>), <code>userId</code> and <code>sessionId</code>. Without ids they use the run's: the resource is the user and the thread is the conversation.</p>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the package and the SDK (<code>npm install @recall-memory/mastra @recall-memory/sdk</code>; <code>@mastra/core</code> you already have) and set <code>RECALL_API_KEY</code>. The user is a Recall peer keyed by your own stable user id, and each conversation is a session. Facts from your app's settings can go in directly.</p>
+<!-- example: mastra#setup -->
+    <p><b>An agent with memory.</b> Put one <code>RecallMemory</code> in both processor lists, and add the tools if the agent should use memory on its own. The agent is defined once; who it talks to comes with each run.</p>
+<!-- example: mastra#agent -->
+    <p><b>Each run: who and which conversation.</b> Set the run's resource and thread in the request context. In a Mastra server your auth middleware usually sets the resource from the signed-in user, so one user can never read another's memory. If the agent also has Mastra memory, <code>memory: { resource, thread }</code> on the call works too.</p>
+<!-- example: mastra#run -->
+    <p>If Recall cannot be reached, the run goes on without memory and <code>onError</code> is told. To take the ids from somewhere else, pass functions: <code>new RecallMemory({ userId: ({ requestContext }) =&gt; requestContext?.get("userId") })</code>.</p>
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Option</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>userId</code>, <code>sessionId</code></td><td>A fixed id, a function of the request context, or (the default) the run's resource and thread. Use your own stable user id, not an email address.</td></tr>
+        <tr><td><code>assistantId</code></td><td>The assistant's peer (default <code>assistant</code>). It is created with <code>observeMe: false</code>: Recall reads its replies as context but learns nothing about it.</td></tr>
+        <tr><td><code>context: false</code> / <code>store: false</code></td><td>A processor that only stores turns, or only reads memory.</td></tr>
+        <tr><td><code>maxConclusions</code></td><td>Most facts in the memory block. Fewer means a shorter prompt.</td></tr>
+        <tr><td><code>reasoningLevel</code> (tools)</td><td>The reasoning level for <code>askMemory</code>. See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>Reading memory at the start of a run is a context call: it is included in the price and takes under a second. Storing the turn is one request at the end. Recall learns from the user's messages in the background, and that is what you pay for. <code>askMemory</code> is a question, a model call of a few seconds. Prices are on the <a href="/docs#pricing">pricing</a> page and worked examples in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>Everything the user writes to an agent with <code>RecallMemory</code> is stored and learned from. Tell users in your privacy notice and keep secrets such as passwords and card numbers out of messages. Take the user id from your authentication, never from the request body. To forget a user, delete their peer (<code>recall.peer(userId).delete()</code>) and their sessions; see <a href="/guides/privacy">Privacy, consent and forgetting</a>.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>The processor in one list only.</b> In <code>inputProcessors</code> alone it reads but never stores; in <code>outputProcessors</code> alone it stores but the agent never sees the memory.</li>
+      <li><b>No resource on the run.</b> Without a user id the processor does nothing and the tools fail with a clear error. Set the resource, or pass <code>userId</code>.</li>
+      <li><b>Expecting a fact to show up at once.</b> Recall learns from messages in the background, usually within about 20 seconds. Facts saved with <code>rememberFact</code> are searchable at once.</li>
+    </ul>

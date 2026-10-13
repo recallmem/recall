@@ -3,7 +3,10 @@
 // site/guides/<slug>.html fragments and site/guides/manifest.json. Code samples are not written
 // in the fragments: a `<!-- example: NAME#REGION -->` line is replaced by a TypeScript/Python
 // window cut from examples/guides/NAME.ts and NAME.py, the same files CI runs against a real
-// server (packages/sdk/test/guides.test.ts, sdks/python/tests/test_guides.py).
+// server (packages/sdk/test/guides.test.ts, sdks/python/tests/test_guides.py). A framework guide
+// shows one language, named in its manifest entry: `"languages": ["ts"]` for a TypeScript
+// framework (its examples run in packages/ai-sdk, langchain, mastra) or `["py"]` for a Python one
+// (they run in sdks/python-integrations/*/tests/test_guide.py).
 // The header, footer and contents script come from public/docs.html, so the guides stay in step.
 //
 //   node scripts/site/guides.mjs           write the pages
@@ -102,20 +105,23 @@ function prelude(text, lang, file) {
   return `${importBlock(text, lang)}\n\nrecall = ${client[1]}\n\n`;
 }
 
-function codeWindow(name, regionName, shown) {
+const LANGUAGES = [
+  ["ts", "ts", "TypeScript"],
+  ["py", "py", "Python"],
+];
+
+function codeWindow(name, regionName, shown, languages) {
   const tabs = [];
   const panels = [];
-  for (const [lang, ext, label] of [
-    ["ts", "ts", "TypeScript"],
-    ["py", "py", "Python"],
-  ]) {
+  const shownLanguages = LANGUAGES.filter(([lang]) => languages.includes(lang));
+  for (const [lang, ext, label] of shownLanguages) {
     const file = join(EXAMPLES, `${name}.${ext}`);
     if (!existsSync(file)) throw new Error(`missing example ${file}`);
     const text = readFileSync(file, "utf8");
     const first = !shown.has(`${name}.${ext}`);
     shown.add(`${name}.${ext}`);
     const code = (first ? prelude(text, lang, file) : "") + region(text, regionName, file);
-    const selected = lang === "ts";
+    const selected = lang === shownLanguages[0][0];
     tabs.push(
       `<button type="button" class="tab" role="tab" aria-selected="${selected}" data-tab="${lang}">${label}</button>`,
     );
@@ -183,8 +189,11 @@ function page(g) {
   const file = join(SRC, `${g.slug}.html`);
   let body = readFileSync(file, "utf8").trim();
   const shown = new Set();
+  const languages = g.languages ?? ["ts", "py"];
+  if (!languages.length || languages.some((l) => !LANGUAGES.some(([lang]) => lang === l)))
+    throw new Error(`${g.slug}: languages must be some of ts, py`);
   body = body.replace(/^[ \t]*<!-- example: ([a-z0-9-]+)#([a-z0-9-]+) -->[ \t]*$/gm, (_, name, r) =>
-    codeWindow(name, r, shown),
+    codeWindow(name, r, shown, languages),
   );
   if (body.includes("<!-- example:")) throw new Error(`${file}: malformed example marker`);
   const sections = [...body.matchAll(/<h2 id="([a-z0-9-]+)">(.*?)<\/h2>/g)];
@@ -242,7 +251,7 @@ ${manifest
     )
     .join("\n\n");
   const description =
-    "How to build with Recall, use case by use case: assistants, customer support, coding agents, game NPCs, sales, multi-agent systems, tutoring, community bots, coaching, voice agents and shopping.";
+    "How to build with Recall, use case by use case: assistants, customer support, coding agents, game NPCs, sales, multi-agent systems, tutoring, community bots, coaching, voice agents and shopping. And framework by framework: the Vercel AI SDK, LangChain, LangChain.js, Mastra, the OpenAI Agents SDK and CrewAI.";
   return `${head("Guides — Recall", description, "/guides")}
 <div class="docs">
   <aside class="toc" aria-label="Guides">
@@ -259,8 +268,8 @@ ${tocScript}
 
   <article class="prose guide">
     <h1>Guides</h1>
-    <p class="lede">One guide per kind of product. Each shows what memory changes for your users, how to map your product onto workspaces, peers and sessions, working code in TypeScript and Python (run against a real Recall server on every change), the settings that matter, what it costs and how fast it is, and how to forget someone.</p>
-    <p>New to Recall? Start with the <a href="/docs#quickstart">quickstart</a> and <a href="/guides/modeling">Designing workspaces, peers and sessions</a>.</p>
+    <p class="lede">One guide per kind of product, and one per agent framework. Each shows what memory changes for your users, how to map your product onto workspaces, peers and sessions, working code (TypeScript and Python, or the framework's own language, all of it run against a real Recall server on every change), the settings that matter, what it costs and how fast it is, and how to forget someone.</p>
+    <p>New to Recall? Start with the <a href="/docs#quickstart">quickstart</a> and <a href="/guides/modeling">Designing workspaces, peers and sessions</a>. Building on an agent framework? The framework guides add Recall to the Vercel AI SDK, LangChain, LangChain.js, Mastra, the OpenAI Agents SDK or CrewAI in a few lines.</p>
 
 ${cards}
   </article>

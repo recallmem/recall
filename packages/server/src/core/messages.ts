@@ -11,6 +11,7 @@ import { countTokens } from "../lib/tokens.js";
 import { scheduleMessageProcessing, scheduleSummaries } from "../reasoner/schedule.js";
 import { type Obj, resolveSettings, type ServerDefaults } from "./configuration.js";
 import type { MemberConfig } from "./members.js";
+import { firstMessageKnown, markFirstMessage, rememberFirstMessage } from "./milestones.js";
 import { upsertSession } from "./sessions.js";
 import { type WsKey, wsIs } from "./tenancy.js";
 import { ensureWorkspace } from "./workspaces.js";
@@ -109,9 +110,12 @@ export async function createMessages(
     reasoningEnabled: ctx.config.reasoner.enabled,
     summariesEnabled: ctx.config.features.summaries,
   };
+  const account = args.workspace.account;
+  // The account's first stored message, for the operator's activation funnel (core/milestones.ts).
+  const markFirst = !firstMessageKnown(ctx.db, account);
 
   try {
-    return await ctx.db.transaction(async (tx) => {
+    const result = await ctx.db.transaction(async (tx) => {
       const { row: ws } = await ensureWorkspace(tx, args.workspace);
       const authors = [...new Set(prepared.map((m) => m.peer_id))];
       const { session } = await upsertSession(tx, ws, {
@@ -201,6 +205,7 @@ export async function createMessages(
       await tx.execute(
         sql`UPDATE sessions SET next_seq = ${String(baseSeq + createdRows.length)}::bigint WHERE id = ${session.internal_id}`,
       );
+      if (markFirst && createdRows.length) await markFirstMessage(tx, account);
 
       // Background work, in the same transaction as the data it depends on.
       await scheduleMessageProcessing(tx, {
@@ -237,6 +242,10 @@ export async function createMessages(
         replayed: false,
       };
     });
+    // Committed: the mark is set (by this batch or an earlier one).
+    if (markFirst && !result.replayed && result.messages.length)
+      rememberFirstMessage(ctx.db, account);
+    return result;
   } catch (err) {
     if (isLockTimeout(err)) {
       throw conflict("Another request is writing to this session; retry shortly");

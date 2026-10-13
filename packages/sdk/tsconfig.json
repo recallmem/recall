@@ -6,5 +6,11 @@
     "noEmit": true,
     "paths": { "@recall-memory/sdk": ["./src/index.ts"] }
   },
-  "include": ["src", "test", "vitest.config.ts", "../../examples/guides/*.ts"]
+  "include": ["src", "test", "vitest.config.ts", "../../examples/guides/*.ts"],
+  // The framework guides' examples are typechecked and run by their own packages.
+  "exclude": [
+    "../../examples/guides/vercel-ai-sdk.ts",
+    "../../examples/guides/langchain-js.ts",
+    "../../examples/guides/mastra.ts"
+  ]
 }

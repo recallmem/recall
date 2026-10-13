@@ -1,0 +1,67 @@
+{
+  "name": "@recall-memory/langchain",
+  "version": "0.1.0",
+  "description": "Recall memory for LangChain.js: a chat message history backed by Recall sessions, a retriever over what Recall remembers, and tools for agents.",
+  "keywords": [
+    "langchain",
+    "langchainjs",
+    "agents",
+    "memory",
+    "chat-history",
+    "retriever",
+    "llm",
+    "recall"
+  ],
+  "license": "MIT",
+  "homepage": "https://recallmem.dev/docs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/recallmem/recall.git",
+    "directory": "packages/langchain"
+  },
+  "bugs": {
+    "url": "https://github.com/recallmem/recall/issues"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@recall-memory/sdk": "workspace:^"
+  },
+  "peerDependencies": {
+    "@langchain/core": "^1.0.0",
+    "zod": "^3.25.76 || ^4"
+  },
+  "devDependencies": {
+    "@langchain/core": "^1.2.17",
+    "@types/node": "^22.20.5",
+    "typescript": "7.0.2",
+    "vitest": "^5.0.3",
+    "zod": "^4.6.7"
+  }
+}

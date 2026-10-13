@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["es2023", "dom"],
+    "types": ["node"],
+    "noEmit": true,
+    "paths": {
+      "@recall-memory/sdk": ["../sdk/src/index.ts"],
+      "@recall-memory/mastra": ["./src/index.ts"]
+    }
+  },
+  "include": ["src", "test", "vitest.config.ts", "../../examples/guides/mastra.ts"]
+}

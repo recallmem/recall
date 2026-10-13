@@ -62,12 +62,6 @@ function configFile(env) {
   return data ? { path, data } : { path: null, data: {} };
 }
 
-/** A `${VAR}` placeholder in a config value reads that environment variable. */
-const expand = (value, env) => {
-  const m = typeof value === "string" ? value.match(/^\$\{([A-Za-z_][A-Za-z0-9_]*)\}$/) : null;
-  return m ? str(env[m[1]]) : value;
-};
-
 export function loadSettings(env = process.env) {
   const { path, data } = configFile(env);
   // The file's `hosts["<host>"]` block (e.g. `hosts["claude-code"]`) overrides its root.
@@ -103,7 +97,9 @@ export function loadSettings(env = process.env) {
     configPath: path,
     enabled: !(off(env.RECALL_ENABLED) || pickFile("enabled") === false),
     url: url.replace(/\/+$/, ""),
-    apiKey: str(HOST_INFO.apiKey(env, (...keys) => expand(pickFile(...keys), env))),
+    // Where the key may come from is the host's decision (host.mjs): the Claude Code plugin reads
+    // only its protected setting, never files or the shell.
+    apiKey: str(HOST_INFO.apiKey(env, pickFile)),
     workspace: safeId(
       fromEnv("CLAUDE_PLUGIN_OPTION_WORKSPACE", "RECALL_WORKSPACE_ID", "RECALL_WORKSPACE") ??
         str(pickFile("workspace", "workspaceId")) ??

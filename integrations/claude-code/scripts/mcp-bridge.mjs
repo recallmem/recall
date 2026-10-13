@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Stdio MCP server that forwards every JSON-RPC message to Recall's /mcp endpoint.
-// It exists so the server's URL, API key, workspace and user come from the user's
-// Recall config (~/.recall/config.json) or environment, not from the agent's
-// config files. Recall's MCP endpoint is stateless, so forwarding is all there is to it.
+// It exists so the server's URL, API key, workspace and user come from the host's
+// settings (for Claude Code: the plugin's settings, the key from its protected
+// api_key option), not from the agent's config files. Recall's MCP endpoint is stateless, so forwarding is all there is to it.
 
 import { createInterface } from "node:readline";
 import { HOST_INFO } from "./host.mjs";

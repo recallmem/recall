@@ -34,6 +34,10 @@ export const accounts = pgTable("accounts", {
   createdAt: ts("created_at").notNull().defaultNow(),
   suspendedAt: ts("suspended_at"),
   suspendedReason: text("suspended_reason"),
+  /** First app connected over OAuth, for the operator's activation funnel (0018_activation_funnel.sql). */
+  firstAppAt: ts("first_app_at"),
+  /** When the first message was stored (not its client-set created_at), 0018_activation_funnel.sql. */
+  firstMessageAt: ts("first_message_at"),
 });
 
 export const apiKeys = pgTable("api_keys", {
@@ -364,6 +368,18 @@ export const accountAlerts = pgTable("account_alerts", {
   budget100SentFor: text("budget_100_sent_for"),
   updatedAt: ts("updated_at").notNull().defaultNow(),
 });
+
+// Operator reports sent, one row per report and period (0018_activation_funnel.sql): the weekly
+// funnel email claims its week here before it goes out, so it is sent once (src/core/funnel-report.ts).
+export const operatorReports = pgTable(
+  "operator_reports",
+  {
+    report: text("report").notNull(),
+    period: text("period").notNull(),
+    sentAt: ts("sent_at").notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.report, t.period] })],
+);
 
 // ---------------------------------------------------------------------------
 // OAuth 2.1 for the hosted MCP endpoint (0008_oauth.sql). Secrets are stored as SHA-256 only.

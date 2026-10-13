@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Switch from Honcho — Recall guides</title>
+<meta name="description" content="Move an app from Honcho to Recall: change the base URL and API key, what stays the same, what Recall adds, the differences that matter, and a checklist. Checked with Honcho's own clients." />
+<meta name="theme-color" content="#0c0b0a" />
+<meta property="og:title" content="Switch from Honcho — Recall guides" />
+<meta property="og:description" content="Move an app from Honcho to Recall: change the base URL and API key, what stays the same, what Recall adds, the differences that matter, and a checklist. Checked with Honcho's own clients." />
+<meta property="og:type" content="article" />
+<meta property="og:image" content="/og.png" />
+<link rel="canonical" href="https://recallmem.dev/guides/switch-from-honcho" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="preload" href="/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/fonts/departure-mono.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="/site.css" />
+<meta name="recall-api" content="https://api.recallmem.dev" data-site="https://recallmem.dev" />
+</head>
+<body>
+
+<header class="nav scrolled" id="nav">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="Recall home">
+      <svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>
+      Recall<span class="muted nowrap">/guides</span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="/#how">Product</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/guides">Guides</a>
+      <a href="https://github.com/recallmem/recall">GitHub</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-text" href="/app/login">Sign in</a>
+      <a class="btn btn-primary" href="/app/login">Get API key</a>
+    </div>
+  </div>
+</header>
+
+<div class="docs">
+  <aside class="toc" aria-label="Guides">
+    <details class="toc-box" open>
+      <summary>Guides</summary>
+      <div class="toc-links">
+        <a href="/guides">All guides</a>
+        <b>On this page</b>
+        <a class="sub" href="#what-changes">What changes</a>
+        <a class="sub" href="#same">What stays the same</a>
+        <a class="sub" href="#adds">What Recall adds</a>
+        <a class="sub" href="#differences">Differences that matter</a>
+        <a class="sub" href="#checklist">Checklist</a>
+        <b>Use cases</b>
+        <a href="/guides/assistants">Personal assistants and companions</a>
+        <a href="/guides/support">Customer support</a>
+        <a href="/guides/coding-agents">Coding agents</a>
+        <a href="/guides/game-npcs">Game NPCs</a>
+        <a href="/guides/sales">Sales and CRM copilots</a>
+        <a href="/guides/multi-agent">Multi-agent systems</a>
+        <a href="/guides/tutoring">Tutoring and education</a>
+        <a href="/guides/community-bots">Discord and Slack bots</a>
+        <a href="/guides/coaching">Health, fitness and coaching</a>
+        <a href="/guides/voice-agents">Voice agents</a>
+        <a href="/guides/shopping">Shopping assistants</a>
+        <a href="/guides/workplace">Workplace assistants</a>
+        <b>Switch to Recall</b>
+        <a href="/guides/switch-from-honcho" aria-current="page">Switch from Honcho</a>
+        <b>Build well</b>
+        <a href="/guides/modeling">Designing workspaces, peers and sessions</a>
+        <a href="/guides/levels-and-models">Reasoning levels and models</a>
+        <a href="/guides/privacy">Privacy, consent and forgetting</a>
+        <a href="/guides/cost-and-speed">Cost and speed</a>
+        <b>Frameworks</b>
+        <a href="/guides/vercel-ai-sdk">Vercel AI SDK</a>
+        <a href="/guides/langchain-js">LangChain.js</a>
+        <a href="/guides/mastra">Mastra</a>
+        <a href="/guides/langchain">LangChain and LangGraph</a>
+        <a href="/guides/openai-agents">OpenAI Agents SDK</a>
+        <a href="/guides/crewai">CrewAI</a>
+        <b>Reference</b>
+        <a href="/docs">Docs</a>
+        <a href="/docs#api">REST API</a>
+      </div>
+    </details>
+  </aside>
+  <script>
+    // On a phone the contents start collapsed; set before first paint so the page does not jump.
+    if (matchMedia("(max-width: 980px)").matches) document.querySelector(".toc-box").open = false;
+  </script>
+
+  <article class="prose guide">
+    <p class="crumbs"><a href="/guides">Guides</a> / Switch to Recall</p>
+<h1>Switch from Honcho</h1>
+    <p class="lede">Recall implements Honcho's v3 REST API. Code written for Honcho keeps working after you change two settings: the base URL and the API key. This guide lists what changes, what stays the same, what Recall adds, the differences that matter, and a checklist.</p>
+
+    <h2 id="what-changes">What changes</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>On Recall</th></tr></thead>
+      <tbody>
+        <tr><td>Base URL</td><td><code>https://api.recallmem.dev</code>, or the URL of <a href="/docs#self-host">your own server</a>.</td></tr>
+        <tr><td>API key</td><td>A Recall key, <code>pk_live_…</code>: <a href="/app/login">sign in</a> and open <b>API keys</b> in the dashboard. New accounts get free credit, no card needed.</td></tr>
+        <tr><td>Workspace</td><td>Keep your workspace ids. Names are unique within your Recall account, so <code>default</code> or <code>my-app</code> is yours to use. A key limited to one workspace works only there; a <b>Whole account</b> key works for every workspace and can also list them.</td></tr>
+      </tbody>
+    </table>
+    <p>In Honcho's own clients, that is the constructor:</p>
+<pre><code># Python: honcho-ai
+honcho = Honcho(base_url="https://api.recallmem.dev", api_key="pk_live_...", workspace_id="my-app")
+
+// TypeScript: @honcho-ai/sdk
+const honcho = new Honcho({ baseURL: "https://api.recallmem.dev", apiKey: "pk_live_...", workspaceId: "my-app" });</code></pre>
+    <p>Both clients also read their settings from the environment, so an app that configures them that way needs no code change at all:</p>
+<pre><code>HONCHO_URL=https://api.recallmem.dev
+HONCHO_API_KEY=pk_live_...
+HONCHO_WORKSPACE_ID=my-app</code></pre>
+
+    <h2 id="same">What stays the same</h2>
+    <p>The REST paths, request and response bodies, status codes, error bodies (<code>{"detail": …}</code>), pagination and filters; workspaces, peers, sessions, messages, conclusions, peer cards, representations, session context, summaries, scopes and dreams; the reasoning levels <code>minimal</code> to <code>max</code>, with <code>low</code> as the default; streaming, structured output and evidence on chat; webhooks signed with <code>X-Honcho-Signature</code>; and the 40 MCP tools with their names (at <code>/mcp?profile=full</code>).</p>
+    <p>We checked this with Honcho's published clients, version 2.5.1 of both, against a Recall server with authentication on and a <code>pk_live_</code> key, as on the hosted service. With only the base URL and key changed, a whole app ran: creating peers and sessions, adding messages and files, context in OpenAI and Anthropic form, chat (plain, streamed, with a level, with evidence, about another peer, structured, workspace-wide), search at every level, peer cards, representations, conclusions, metadata, clones, scopes, dreams, queue status, and the clients' own error classes for a wrong key, a missing message and a workspace that still has sessions. The TypeScript run is a test in the repository (<code>packages/server/test/honcho-client.test.ts</code>) and runs on every change.</p>
+    <p>You can also move to Recall's own SDKs, <code>npm install @recall-memory/sdk</code> or <code>pip install recall-mem</code>. They have the same objects and calls, plus Recall's additions, retries and idempotent writes. Change the import and the constructor (<code>new Recall({ workspaceId })</code>, <code>Recall(workspace_id=...)</code>); they take their settings from options or from <code>RECALL_URL</code>, <code>RECALL_API_KEY</code> and <code>RECALL_WORKSPACE_ID</code>, never from another product's variables. The usual calls:</p>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>import { Recall } from "@recall-memory/sdk";
+
+const recall = new Recall({ workspaceId: "my-app" });
+
+// The same objects and calls as before: peers, sessions, messages, context and chat.
+const alice = recall.peer("alice");
+const assistant = recall.peer("assistant");
+const session = recall.session("support-42");
+await session.addPeers([alice, assistant]);
+await session.addMessages([
+  alice.message("We moved from Amsterdam to Utrecht last week."),
+  assistant.message("Congratulations on the move!"),
+]);
+const context = await session.context({ tokens: 2000, peerTarget: alice });
+const messages = context.toOpenAI(assistant);
+await recall.waitForIdle(); // for this demo only: real apps do not wait for learning
+const city = await alice.chat("Where does alice live now?", { reasoningLevel: "low" });
+const hits = await alice.search("Utrecht");</code></pre>
+<pre data-panel="py" hidden><code>from recall_memory import Recall
+
+recall = Recall(workspace_id="my-app")
+
+# The same objects and calls as before: peers, sessions, messages, context and chat.
+alice = recall.peer("alice")
+assistant = recall.peer("assistant")
+session = recall.session("support-42")
+session.add_peers([alice, assistant])
+session.add_messages(
+    [
+        alice.message("We moved from Amsterdam to Utrecht last week."),
+        assistant.message("Congratulations on the move!"),
+    ]
+)
+context = session.context(tokens=2000, peer_target=alice)
+messages = context.to_openai(assistant=assistant)
+recall.wait_for_idle()  # for this demo only: real apps do not wait for learning
+city = alice.chat("Where does alice live now?", reasoning_level="low")
+hits = alice.search("Utrecht")</code></pre>
+</div>
+
+    <h2 id="adds">What Recall adds</h2>
+    <ul>
+      <li><b>Answers you can check.</b> With evidence on, chat also returns <code>citations</code>, a <code>confidence</code> and <code>abstained</code>, which is true when memory did not hold the answer and Recall said so instead of guessing.</li>
+      <li><b>Facts with a history.</b> When something stops being true, the old fact is closed when the new message is learned, not later. Conclusions carry <code>valid_from</code>, <code>valid_to</code>, <code>superseded_by</code> and the ids of the messages they came from, and you can filter on <code>current</code>.</li>
+      <li><b>Safe retries.</b> An <a href="/docs#idempotency"><code>Idempotency-Key</code></a> header on messages, turns and chat: a retried request is not stored or charged twice.</li>
+      <li><b>One request per turn.</b> <code>POST …/sessions/{id}/turn</code> stores the new messages and returns the context for the reply.</li>
+      <li><b>Forgetting a person.</b> <code>DELETE …/peers/{peer}</code> removes their messages, the facts about them and their peer cards (<a href="/docs#forget-a-person">details</a>).</li>
+      <li><b>Reads that never create.</b> <code>GET</code> for one workspace, peer or session answers <code>404</code> for a typo instead of creating it.</li>
+      <li><b>Operations.</b> Usage by task and model at <code>GET /v3/usage</code>; webhook deliveries retried with backoff, each with a stable <code>X-Recall-Event-Id</code>; <code>wait_ms</code> on queue status to wait until learning is done.</li>
+      <li><b>Where it runs.</b> The hosted service stores data in Frankfurt (EU). The server is source-available and you can <a href="/docs#self-host">run it yourself</a>; the SDKs and integrations are MIT.</li>
+      <li><b>Integrations.</b> Plugins for Claude Code, Codex and OpenClaw, a memory provider for Hermes, and an MCP server that Claude, ChatGPT and Cursor connect to by signing in (<a href="/docs#integrations">integrations</a>).</li>
+    </ul>
+<div class="code guide-code" data-tabbox>
+  <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
+<pre data-panel="ts"><code>// What Recall adds. An answer with its sources, a confidence and an honest "I don't know".
+const answer = await alice.chat("Where does alice live now?", { includeEvidence: true });
+const reply = answer.abstained ? "I'm not sure yet." : answer.content;
+const sources = answer.citations;
+// One request that stores a message and returns the context for the reply.
+const { context: next } = await session.turn([alice.message("Any good cafés near me?")], {
+  peerTarget: alice,
+  tokens: 2000,
+});
+// Forget a person: her messages, the facts about her and her peer cards.
+const erased = await alice.delete();</code></pre>
+<pre data-panel="py" hidden><code># What Recall adds. An answer with its sources, a confidence and an honest "I don't know".
+answer = alice.chat("Where does alice live now?", include_evidence=True)
+reply = "I'm not sure yet." if answer.abstained else answer.content
+sources = answer.citations
+# One request that stores a message and returns the context for the reply.
+result = session.turn(
+    [alice.message("Any good cafés near me?")], peer_target=alice, tokens=2000
+)
+# Forget a person: her messages, the facts about her and her peer cards.
+erased = alice.delete()</code></pre>
+</div>
+
+    <h2 id="differences">Differences that matter</h2>
+    <ul>
+      <li><b>Chat does not create.</b> On Recall, chat about a workspace or peer that does not exist answers <code>404</code>, where Honcho creates them; reading the card of an unknown peer is a <code>404</code> too. Honcho's clients create a peer when you call <code>peer()</code>, so this only shows in raw REST calls: create the peer first with <code>POST …/peers</code>, or turn on <code>autoCreate</code> (<code>auto_create</code> in Python) in Recall's SDKs.</li>
+      <li><b>Your data does not move by itself.</b> Recall does not import from Honcho. Send the conversations you want remembered through <code>POST …/sessions/{id}/messages</code>, with <code>created_at</code> to keep their original dates, and Recall learns from them; learning is billed per message token (<a href="/#pricing">pricing</a>). Facts you want kept word for word go in through <code>POST …/conclusions</code>, and peer cards through <code>PUT …/peers/{peer}/card</code>.</li>
+      <li><b>Different models, different answers.</b> The level names are the same, but each level is Recall's own plan, answered by Recall's models (see <a href="/guides/levels-and-models">levels and models</a>). Answers will not match Honcho's word for word. Run your most common questions in the dashboard's Playground before you switch traffic.</li>
+      <li><b>Peer cards have limits.</b> Up to 500 entries of up to 4,000 characters. Setting a card about a peer that does not exist yet creates that peer.</li>
+      <li><b>Webhooks can arrive twice.</b> Recall retries a failed delivery, so drop repeats by <code>X-Recall-Event-Id</code>. On the hosted service, verify signatures with your account's <code>webhook_secret</code> from <code>GET /v3/account</code>.</li>
+      <li><b>Self-hosting is set up differently.</b> A server of your own is configured with <code>RECALL_*</code> environment variables, not Honcho's configuration file. It runs as one process with Postgres and pgvector (or an embedded database) and no Redis. Size limits are Honcho's defaults and cannot be changed. Clients authenticate with tokens from <code>recall token</code> (<a href="/docs#self-host">self-hosting</a>).</li>
+    </ul>
+    <p>For prices and published benchmark results side by side, see <a href="/compare/honcho">Recall and Honcho compared</a>.</p>
+
+    <h2 id="checklist">Checklist</h2>
+    <ol>
+      <li><a href="/app/login">Sign in</a> and create a key under <b>API keys</b>: <b>Whole account</b>, or limited to the workspace your app uses.</li>
+      <li>Set the base URL and key in your client, or <code>HONCHO_URL</code> and <code>HONCHO_API_KEY</code> in its environment. Keep your workspace ids.</li>
+      <li>Send the conversations you want remembered, with their original <code>created_at</code>. Add hand-written facts and peer cards if you kept them.</li>
+      <li>If you call the REST API directly, create peers before you read or chat about them.</li>
+      <li>Point webhooks at your endpoint again, verify them with your <code>webhook_secret</code>, and drop repeated <code>X-Recall-Event-Id</code>s.</li>
+      <li>For MCP clients, use <code>https://api.recallmem.dev/mcp</code>; add <code>?profile=full</code> for Honcho's 40 tools.</li>
+      <li>Ask your most common questions in the Playground, choose a level per question, and check the cost under Usage.</li>
+    </ol>
+    <p class="guide-next">Next: <a href="/guides/levels-and-models">Reasoning levels and models</a> · <a href="/guides/cost-and-speed">Cost and speed</a></p>
+  </article>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="logo" href="/"><svg class="sprite" aria-hidden="true" viewBox="0 0 41 25" shape-rendering="crispEdges"><rect x="25" y="0" width="3" height="1" fill="#ffcb4d"/><rect x="23" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="25" y="1" width="3" height="1" fill="#ffb000"/><rect x="28" y="1" width="2" height="1" fill="#ffcb4d"/><rect x="23" y="2" width="7" height="1" fill="#ffb000"/><rect x="30" y="2" width="1" height="1" fill="#ffcb4d"/><rect x="22" y="3" width="2" height="1" fill="#c98b00"/><rect x="24" y="3" width="1" height="1" fill="#ffcb4d"/><rect x="25" y="3" width="6" height="1" fill="#ffb000"/><rect x="31" y="3" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="4" width="11" height="1" fill="#ffcb4d"/><rect x="21" y="4" width="5" height="1" fill="#c98b00"/><rect x="26" y="4" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="4" width="6" height="1" fill="#ffb000"/><rect x="7" y="5" width="2" height="1" fill="#ffcb4d"/><rect x="9" y="5" width="11" height="1" fill="#ffb000"/><rect x="20" y="5" width="6" height="1" fill="#c98b00"/><rect x="26" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="5" width="3" height="1" fill="#ffb000"/><rect x="30" y="5" width="1" height="1" fill="#120d02"/><rect x="31" y="5" width="2" height="1" fill="#ffb000"/><rect x="33" y="5" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="6" width="12" height="1" fill="#ffb000"/><rect x="19" y="6" width="8" height="1" fill="#c98b00"/><rect x="27" y="6" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="6" width="2" height="1" fill="#ffb000"/><rect x="30" y="6" width="1" height="1" fill="#120d02"/><rect x="31" y="6" width="3" height="1" fill="#ffb000"/><rect x="5" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="6" y="7" width="13" height="1" fill="#ffb000"/><rect x="19" y="7" width="8" height="1" fill="#c98b00"/><rect x="27" y="7" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="7" width="6" height="1" fill="#ffb000"/><rect x="3" y="8" width="2" height="1" fill="#ffcb4d"/><rect x="5" y="8" width="14" height="1" fill="#ffb000"/><rect x="19" y="8" width="8" height="1" fill="#c98b00"/><rect x="27" y="8" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="8" width="6" height="1" fill="#ffb000"/><rect x="3" y="9" width="16" height="1" fill="#ffb000"/><rect x="19" y="9" width="8" height="1" fill="#c98b00"/><rect x="27" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="9" width="6" height="1" fill="#ffb000"/><rect x="34" y="9" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="3" y="10" width="16" height="1" fill="#ffb000"/><rect x="19" y="10" width="8" height="1" fill="#c98b00"/><rect x="27" y="10" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="10" width="7" height="1" fill="#ffb000"/><rect x="2" y="11" width="17" height="1" fill="#ffb000"/><rect x="19" y="11" width="1" height="1" fill="#7a5300"/><rect x="20" y="11" width="7" height="1" fill="#c98b00"/><rect x="27" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="28" y="11" width="7" height="1" fill="#ffb000"/><rect x="35" y="11" width="1" height="1" fill="#ffcb4d"/><rect x="1" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="2" y="12" width="18" height="1" fill="#ffb000"/><rect x="20" y="12" width="6" height="1" fill="#c98b00"/><rect x="26" y="12" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="12" width="4" height="1" fill="#ffb000"/><rect x="31" y="12" width="1" height="1" fill="#7a5300"/><rect x="32" y="12" width="4" height="1" fill="#ffb000"/><rect x="1" y="13" width="1" height="1" fill="#ffb000"/><rect x="2" y="13" width="2" height="1" fill="#7a5300"/><rect x="4" y="13" width="16" height="1" fill="#ffb000"/><rect x="20" y="13" width="1" height="1" fill="#7a5300"/><rect x="21" y="13" width="5" height="1" fill="#c98b00"/><rect x="26" y="13" width="1" height="1" fill="#ffcb4d"/><rect x="27" y="13" width="2" height="1" fill="#ffb000"/><rect x="29" y="13" width="1" height="1" fill="#7a5300"/><rect x="30" y="13" width="2" height="1" fill="#efe9dc"/><rect x="32" y="13" width="4" height="1" fill="#ffb000"/><rect x="38" y="13" width="1" height="1" fill="#5fd7ff"/><rect x="1" y="14" width="1" height="1" fill="#ffb000"/><rect x="4" y="14" width="1" height="1" fill="#7a5300"/><rect x="5" y="14" width="16" height="1" fill="#ffb000"/><rect x="21" y="14" width="4" height="1" fill="#7a5300"/><rect x="25" y="14" width="1" height="1" fill="#ffcb4d"/><rect x="26" y="14" width="3" height="1" fill="#7a5300"/><rect x="32" y="14" width="2" height="1" fill="#efe9dc"/><rect x="34" y="14" width="2" height="1" fill="#ffb000"/><rect x="38" y="14" width="1" height="1" fill="#5fd7ff"/><rect x="0" y="15" width="2" height="1" fill="#7a5300"/><rect x="5" y="15" width="1" height="1" fill="#7a5300"/><rect x="6" y="15" width="17" height="1" fill="#ffb000"/><rect x="23" y="15" width="1" height="1" fill="#7a5300"/><rect x="32" y="15" width="4" height="1" fill="#ffb000"/><rect x="36" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="38" y="15" width="1" height="1" fill="#efe9dc"/><rect x="39" y="15" width="2" height="1" fill="#5fd7ff"/><rect x="1" y="16" width="2" height="1" fill="#7a5300"/><rect x="6" y="16" width="1" height="1" fill="#7a5300"/><rect x="7" y="16" width="15" height="1" fill="#ffb000"/><rect x="22" y="16" width="1" height="1" fill="#7a5300"/><rect x="24" y="16" width="4" height="1" fill="#c98b00"/><rect x="32" y="16" width="4" height="1" fill="#ffb000"/><rect x="38" y="16" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="17" width="15" height="1" fill="#ffb000"/><rect x="24" y="17" width="4" height="1" fill="#c98b00"/><rect x="32" y="17" width="1" height="1" fill="#7a5300"/><rect x="33" y="17" width="3" height="1" fill="#ffb000"/><rect x="38" y="17" width="1" height="1" fill="#5fd7ff"/><rect x="7" y="18" width="3" height="1" fill="#ffb000"/><rect x="10" y="18" width="1" height="1" fill="#c98b00"/><rect x="11" y="18" width="2" height="1" fill="#ffb000"/><rect x="13" y="18" width="5" height="1" fill="#7a5300"/><rect x="18" y="18" width="3" height="1" fill="#ffb000"/><rect x="21" y="18" width="1" height="1" fill="#c98b00"/><rect x="24" y="18" width="4" height="1" fill="#c98b00"/><rect x="33" y="18" width="3" height="1" fill="#ffb000"/><rect x="7" y="19" width="3" height="1" fill="#ffb000"/><rect x="10" y="19" width="3" height="1" fill="#c98b00"/><rect x="18" y="19" width="3" height="1" fill="#ffb000"/><rect x="21" y="19" width="1" height="1" fill="#c98b00"/><rect x="24" y="19" width="4" height="1" fill="#c98b00"/><rect x="33" y="19" width="3" height="1" fill="#ffb000"/><rect x="38" y="19" width="1" height="1" fill="#ffcb4d"/><rect x="7" y="20" width="3" height="1" fill="#ffb000"/><rect x="10" y="20" width="3" height="1" fill="#c98b00"/><rect x="18" y="20" width="3" height="1" fill="#ffb000"/><rect x="21" y="20" width="1" height="1" fill="#c98b00"/><rect x="24" y="20" width="4" height="1" fill="#c98b00"/><rect x="33" y="20" width="1" height="1" fill="#7a5300"/><rect x="34" y="20" width="2" height="1" fill="#ffb000"/><rect x="36" y="20" width="2" height="1" fill="#ffcb4d"/><rect x="38" y="20" width="1" height="1" fill="#ffb000"/><rect x="7" y="21" width="3" height="1" fill="#ffb000"/><rect x="10" y="21" width="3" height="1" fill="#c98b00"/><rect x="18" y="21" width="3" height="1" fill="#ffb000"/><rect x="21" y="21" width="1" height="1" fill="#c98b00"/><rect x="24" y="21" width="4" height="1" fill="#c98b00"/><rect x="34" y="21" width="1" height="1" fill="#7a5300"/><rect x="35" y="21" width="3" height="1" fill="#ffb000"/><rect x="38" y="21" width="1" height="1" fill="#7a5300"/><rect x="7" y="22" width="3" height="1" fill="#ffb000"/><rect x="10" y="22" width="3" height="1" fill="#c98b00"/><rect x="18" y="22" width="3" height="1" fill="#ffb000"/><rect x="21" y="22" width="1" height="1" fill="#c98b00"/><rect x="24" y="22" width="4" height="1" fill="#c98b00"/><rect x="35" y="22" width="3" height="1" fill="#7a5300"/><rect x="7" y="23" width="1" height="1" fill="#ffb000"/><rect x="8" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="9" y="23" width="1" height="1" fill="#ffb000"/><rect x="10" y="23" width="1" height="1" fill="#ffcb4d"/><rect x="11" y="23" width="2" height="1" fill="#c98b00"/><rect x="18" y="23" width="3" height="1" fill="#ffb000"/><rect x="21" y="23" width="1" height="1" fill="#c98b00"/><rect x="24" y="23" width="4" height="1" fill="#c98b00"/><rect x="9" y="24" width="4" height="1" fill="#c98b00"/><rect x="18" y="24" width="1" height="1" fill="#ffb000"/><rect x="19" y="24" width="1" height="1" fill="#ffcb4d"/><rect x="20" y="24" width="1" height="1" fill="#ffb000"/><rect x="21" y="24" width="1" height="1" fill="#ffcb4d"/></svg>Recall</a>
+      <p class="tagline">Memory for AI agents. Hosted in the EU.</p>
+      <p class="muted">Smidt Beheer · KvK 99124254 · VAT NL004444074B96</p>
+    </div>
+    <nav aria-label="Footer">
+      <div><b>Product</b><a href="/#how">How it works</a><a href="/#why">Why Recall</a><a href="/#agents">Integrations</a><a href="/evals">Evals</a><a href="/compare">Compare</a><a href="/#pricing">Pricing</a></div>
+      <div><b>Developers</b><a href="/docs#quickstart">Quickstart</a><a href="/guides">Guides</a><a href="/docs#integrations">Integrations</a><a href="/docs#api">API</a><a href="/docs#models">Models</a><a href="https://github.com/recallmem/recall">GitHub</a></div>
+      <div><b>Account</b><a href="/app/login">Sign in</a></div>
+      <div><b>Legal</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/dpa">Data processing</a><a href="/security">Security</a><a href="/support">Support</a></div>
+    </nav>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

@@ -96,6 +96,14 @@
     "next": ["multi-agent", "community-bots"]
   },
   {
+    "slug": "switch-from-honcho",
+    "group": "Switch to Recall",
+    "title": "Switch from Honcho",
+    "short": "Change the base URL and the key; what stays the same, what Recall adds and what differs.",
+    "description": "Move an app from Honcho to Recall: change the base URL and API key, what stays the same, what Recall adds, the differences that matter, and a checklist. Checked with Honcho's own clients.",
+    "next": ["levels-and-models", "cost-and-speed"]
+  },
+  {
     "slug": "modeling",
     "group": "Build well",
     "title": "Designing workspaces, peers and sessions",
@@ -126,5 +134,59 @@
     "short": "What a user costs per month and how fast each call is, with the arithmetic.",
     "description": "Estimate what Recall costs per user per month and how fast each call is, with worked examples, measured latencies and ways to spend less.",
     "next": ["levels-and-models", "voice-agents"]
+  },
+  {
+    "slug": "vercel-ai-sdk",
+    "group": "Frameworks",
+    "title": "Vercel AI SDK",
+    "short": "Memory for generateText, streamText and agents: one middleware and three tools.",
+    "description": "Add Recall memory to the Vercel AI SDK with @recall-memory/ai-sdk: middleware that adds what Recall knows about the user to each request and stores every turn, and tools the model can call.",
+    "languages": ["ts"],
+    "next": ["langchain-js", "mastra"]
+  },
+  {
+    "slug": "langchain-js",
+    "group": "Frameworks",
+    "title": "LangChain.js",
+    "short": "A chat history in Recall sessions, a retriever over what Recall knows, and tools.",
+    "description": "Add Recall memory to LangChain.js with @recall-memory/langchain: a chat message history stored in Recall sessions, a retriever over the user's facts and messages, and tools for agents.",
+    "languages": ["ts"],
+    "next": ["vercel-ai-sdk", "langchain"]
+  },
+  {
+    "slug": "mastra",
+    "group": "Frameworks",
+    "title": "Mastra",
+    "short": "One processor for memory in every run, plus tools the agent can call.",
+    "description": "Add Recall memory to Mastra agents with @recall-memory/mastra: a processor that adds what Recall knows about the user to each run and stores every turn, and tools the agent can call.",
+    "languages": ["ts"],
+    "next": ["vercel-ai-sdk", "langchain-js"]
+  },
+  {
+    "slug": "langchain",
+    "group": "Frameworks",
+    "title": "LangChain and LangGraph",
+    "short": "Middleware, tools and a retriever that give a LangChain agent memory of each user.",
+    "description": "Add Recall memory to LangChain and LangGraph agents with langchain-recall: middleware for create_agent that recalls and records, memory tools, a retriever, chat history, settings and privacy.",
+    "languages": ["py"],
+    "next": ["openai-agents", "langchain-js"]
+  },
+  {
+    "slug": "openai-agents",
+    "group": "Frameworks",
+    "title": "OpenAI Agents SDK",
+    "short": "A session kept in Recall, memory tools and instructions that know the user.",
+    "description": "Add Recall memory to OpenAI Agents SDK agents with openai-agents-recall: a Recall-backed session, instructions with what Recall knows, memory tools, settings and privacy.",
+    "languages": ["py"],
+    "next": ["langchain", "modeling"]
+  },
+  {
+    "slug": "crewai",
+    "group": "Frameworks",
+    "title": "CrewAI",
+    "short": "Tools and task context so a crew remembers the people it works for.",
+    "description": "Add Recall memory to CrewAI crews with crewai-recall: memory tools, what Recall knows as task context, recording conversations, settings and privacy.",
+    "languages": ["py"],
+    "next": ["multi-agent", "modeling"]
   }
 ]

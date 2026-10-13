@@ -1,0 +1,77 @@
+    <h1>LangChain and LangGraph</h1>
+    <p class="lede">For LangChain and LangGraph developers who want an agent to remember each user across threads. <code>langchain-recall</code> adds Recall as middleware for <code>create_agent</code>, as tools, as a retriever and as a chat history, in a few lines. This guide is for Python; for TypeScript see <a href="/guides/langchain-js">LangChain.js</a>.</p>
+
+    <h2 id="what-changes">What memory adds</h2>
+    <p>A checkpointer keeps one thread's state. Everything the user said in other threads is out of reach. With Recall:</p>
+    <table>
+      <thead><tr><th></th><th>Checkpointer only</th><th>With Recall</th></tr></thead>
+      <tbody>
+        <tr><td>A new thread</td><td>The agent starts from the system prompt.</td><td>The system prompt already holds the user's peer card and the facts that relate to their first message.</td></tr>
+        <tr><td>"I'm vegetarian," said once</td><td>Gone when the thread ends.</td><td>Learned in the background from the recorded conversation, or saved at once by the model with <code>recall_remember</code>.</td></tr>
+        <tr><td>"What did we decide about the hotel?"</td><td>Only if it is in this thread.</td><td><code>recall_ask</code> answers from every earlier conversation with the user.</td></tr>
+      </tbody>
+    </table>
+    <p>Recall is memory, not the agent: it does not run tools or replace your checkpointer. Keep the checkpointer for graph state and use Recall for what the agent should remember about people.</p>
+
+    <h2 id="model">How it maps onto Recall</h2>
+    <table>
+      <thead><tr><th>In LangChain</th><th>In Recall</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Your app</td><td>Workspace, from <code>RECALL_WORKSPACE_ID</code></td><td>Memory stays inside it.</td></tr>
+        <tr><td>The user, <code>context={"user_id": ...}</code></td><td>Peer <code>user-8412</code></td><td>Recall learns about this person. Use your own stable user id, not an email address.</td></tr>
+        <tr><td>The agent</td><td>Peer <code>assistant</code>, not learned about</td><td>Its answers are read as context, but facts are learned about the user, not from the agent's own statements.</td></tr>
+        <tr><td>A thread, <code>thread_id</code></td><td>Session with the same id</td><td>Each thread's exchanges in order. Thread ids with characters other than letters, digits, <code>_</code> and <code>-</code> are made valid with a short hash.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="build">Build it</h2>
+    <p>Install the package with <code>pip install "langchain-recall[agents]"</code> and set <code>RECALL_API_KEY</code> (create one at <a href="https://app.recallmem.dev/keys">app.recallmem.dev/keys</a>), or <code>RECALL_URL</code> for a server of your own.</p>
+    <h3 id="agent">An agent with memory</h3>
+    <p>One agent serves every user. <code>RecallMiddleware</code> reads memory before each run and records the exchange after it; the toolkit gives the model <code>recall_search</code>, <code>recall_ask</code> and <code>recall_remember</code>. Both read the user from the run's context.</p>
+<!-- example: langchain#setup -->
+    <p><b>Each run.</b> The middleware adds the user's peer card and the facts that relate to the new message to the system prompt, then stores the user's message and the final answer in the thread's Recall session. Tool calls and their results are not recorded.</p>
+<!-- example: langchain#run -->
+    <p><b>Another thread.</b> The checkpointer has nothing for a new thread, but Recall has the user:</p>
+<!-- example: langchain#later -->
+
+    <h3 id="components">Tools, retriever and chat history</h3>
+    <p>Each component also works on its own, in a chain or a graph node: give it <code>user_id</code>, or leave it out inside a LangGraph run with a <code>context</code>.</p>
+    <table>
+      <thead><tr><th>Component</th><th>Use it for</th></tr></thead>
+      <tbody>
+        <tr><td><code>RecallToolkit</code></td><td><code>recall_search</code> (facts and the user's messages, no model call), <code>recall_ask</code> (an answer from memory), <code>recall_remember</code> (save facts the user stated, searchable at once).</td></tr>
+        <tr><td><code>RecallRetriever</code></td><td>Facts (<code>source="facts"</code>), messages or both as <code>Document</code>s, for retrieval in a chain.</td></tr>
+        <tr><td><code>RecallChatMessageHistory</code></td><td>A <code>BaseChatMessageHistory</code> kept in a Recall session, for code that still uses one. LangChain deprecates that interface in favour of LangGraph persistence, so prefer the middleware for new agents.</td></tr>
+      </tbody>
+    </table>
+<!-- example: langchain#retriever -->
+    <p><b>Why no store or checkpointer.</b> LangGraph's <code>BaseStore</code> is a key-value document store and a checkpointer saves graph state. Recall is neither: it learns from conversations and answers with what it learned, so it plugs in as middleware, tools and a retriever instead.</p>
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Setting</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><code>user_id</code> or <code>context={"user_id": ...}</code></td><td>Whose memory. Fixed for one user, or per run for many (<code>user_id_key</code> changes the context key).</td></tr>
+        <tr><td><code>session_id</code> or <code>thread_id</code></td><td>Where the middleware records. Without either it refuses to run, unless <code>record=False</code>.</td></tr>
+        <tr><td><code>recall=False</code>, <code>record=False</code></td><td>Only record, or only recall.</td></tr>
+        <tr><td><code>max_conclusions</code></td><td>Most facts in the prompt (20 by default).</td></tr>
+        <tr><td><code>k</code>, <code>reasoning_level</code></td><td>Results per search, and how hard <code>recall_ask</code> thinks: <code>low</code> by default. See <a href="/guides/levels-and-models">Reasoning levels and models</a>.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>The middleware reads memory once per run, with a context request and no model call: context reads took 0.3 to 0.7 seconds, measured from Europe against the hosted API (Frankfurt), October 2026. <code>recall_search</code> and the retriever search facts and messages without a model call, in about a second. <code>recall_ask</code> is one model call of 2 to 4.5 seconds at <code>low</code>. Recording returns at once; learning runs in the background.</p>
+    <p>Context, search and storage are included. Learning from the recorded messages and answering questions are charged; see <a href="/docs#pricing">pricing</a> and <a href="/guides/cost-and-speed">Cost and speed</a> for worked examples.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>The middleware sends the user's message and the agent's final answer to Recall, not tool calls or tool output. <code>RecallChatMessageHistory</code> stores every message you give it, tool messages included, but Recall learns only from the user's. Tell users what the agent remembers. To forget someone:</p>
+<!-- example: langchain#forget -->
+    <p>See <a href="/docs#forget-a-person">Forget a person</a> and <a href="/guides/privacy">Privacy, consent and forgetting</a>.</p>
+
+    <h2 id="pitfalls">Pitfalls</h2>
+    <ul>
+      <li><b>No user on the run.</b> With <code>user_id</code> left out, a run without <code>context={"user_id": ...}</code> fails rather than guess whose memory to use.</li>
+      <li><b>Thread ids shared between users.</b> Each thread is one Recall session; reuse across users mixes their conversations. Give every user their own threads.</li>
+      <li><b>Dropping the checkpointer.</b> Recall does not save graph state. Keep both.</li>
+      <li><b>Saving everything with <code>recall_remember</code>.</b> Facts the user states are worth saving; the rest Recall learns from the conversation anyway.</li>
+    </ul>

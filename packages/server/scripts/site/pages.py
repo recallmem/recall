@@ -1,4 +1,5 @@
-"""Renders the site's secondary pages into public/: evals.html, dpa.html, security.html and 404.html.
+"""Renders the site's secondary pages into public/: evals.html, dpa.html, security.html, 404.html,
+and the comparison pages (compare.html, compare/<slug>.html; content in versus.py).
 
 They share the legal pages' layout (header, table of contents, footer). Benchmark figures live in
 EVALS below; each one is the result of a recorded run of the harness in evals/.
@@ -16,6 +17,7 @@ sys.path.insert(0, str(HERE))
 from scene import elephant, runs  # noqa: E402
 from sprites import svg  # noqa: E402
 import compare  # noqa: E402
+import versus  # noqa: E402
 
 LOGO = svg("logo")
 # The hosted models' public names (CODENAMES in src/llm/codenames.ts).
@@ -79,7 +81,7 @@ def page(slug, title, desc, body, toc=None, scripts=False, canonical=True, updat
   <div class="wrap">
     <div><a class="logo" href="/">{LOGO}Recall</a></div>
     <nav aria-label="Footer">
-      <div><b>Recall</b><a href="/">Home</a><a href="/evals">Evals</a><a href="/docs">Docs</a><span class="muted">Smidt Beheer · KvK 99124254 · VAT NL004444074B96</span></div>
+      <div><b>Recall</b><a href="/">Home</a><a href="/evals">Evals</a><a href="/docs">Docs</a><a href="/compare">Compare</a><span class="muted">Smidt Beheer · KvK 99124254 · VAT NL004444074B96</span></div>
       <div><b>Legal</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/dpa">Data processing</a><a href="/security">Security</a></div>
       <div><b>Help</b><a href="/support">Support</a><a href="mailto:support@recallmem.dev">support@recallmem.dev</a></div>
     </nav>
@@ -726,10 +728,12 @@ def main():
         "dpa.html": dpa_page(),
         "security.html": security_page(),
         "404.html": not_found_page(),
+        **versus.render(page, EVALS, REPO_URL),
     }
     for name, text in out.items():
         if "{{" in text or "style=" in text:
             raise SystemExit(f"{name}: placeholder or inline style left (the CSP allows no inline style)")
+        (PUBLIC / name).parent.mkdir(parents=True, exist_ok=True)
         (PUBLIC / name).write_text(text)
     print("written:", ", ".join(out))
 
