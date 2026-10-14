@@ -5,7 +5,14 @@ import type { AppContext } from "../context.js";
 import type { WsKey } from "../core/tenancy.js";
 import { rows } from "../db/client.js";
 import type { AuthState } from "../http/auth.js";
-import { conflict, notFound, paymentRequired, unauthorized, unprocessable } from "../lib/errors.js";
+import {
+  conflict,
+  notFound,
+  outOfCreditMessage,
+  paymentRequired,
+  unauthorized,
+  unprocessable,
+} from "../lib/errors.js";
 import { countTokens, truncateTokens } from "../lib/tokens.js";
 import type { LlmMessage, LlmRequest, LlmResult, ToolCall, Usage } from "../llm/types.js";
 import { answerCache, type ChatResult } from "./cache.js";
@@ -307,10 +314,7 @@ function chunks(text: string, size = 48): string[] {
   return out;
 }
 
-const outOfCredit = (ctx: AppContext) => {
-  const url = ctx.config.server.publicUrl?.replace(/\/+$/, "");
-  return `Out of credit: add credits${url ? ` at ${url}/app/billing` : ""} to continue`;
-};
+const outOfCredit = (ctx: AppContext) => outOfCreditMessage(ctx.config.server.publicUrl);
 
 /**
  * Ledger key of a chat that carries a billing key (Idempotency-Key, playground nonce): bound to

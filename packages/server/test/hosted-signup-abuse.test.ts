@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { getBillingRow, ledgerDrift } from "../src/billing/ledger.js";
-import { signupCreditSkipReason } from "../src/billing/signup.js";
+import { pendingSignupCreditMicros, signupCreditSkipReason } from "../src/billing/signup.js";
 import { hostedConfig, loadConfig } from "../src/config.js";
 import { DISPOSABLE_DOMAINS, isDisposableEmail, parseDomainList } from "../src/core/disposable.js";
 import { eraseAccount } from "../src/core/erase.js";
@@ -149,11 +149,11 @@ describe("sign-up limits: config", () => {
     return hostedConfig({ ...config.env, RECALL_HOSTED: true });
   };
 
-  it("defaults to one credit per network, a $50 daily cap and no extra domains", () => {
+  it("defaults to one credit per network, a $250 daily cap and no extra domains", () => {
     const h = hosted();
     expect(h.billing.signupCreditMicros).toBe(CREDIT);
     expect(h.billing.signupCreditPerIp).toBe(1);
-    expect(h.billing.signupCreditDailyCapMicros).toBe(50_000_000);
+    expect(h.billing.signupCreditDailyCapMicros).toBe(250_000_000);
     expect(h.signupBlockedDomains).toEqual([]);
   });
 
@@ -173,7 +173,7 @@ describe("sign-up limits: config", () => {
       RECALL_SIGNUP_BLOCKED_DOMAINS: "",
     });
     expect(empty.billing.signupCreditPerIp).toBe(1);
-    expect(empty.billing.signupCreditDailyCapMicros).toBe(50_000_000);
+    expect(empty.billing.signupCreditDailyCapMicros).toBe(250_000_000);
     expect(empty.signupBlockedDomains).toEqual([]);
   });
 
@@ -443,6 +443,8 @@ describe("daily cap", () => {
     expect(skipLogs(s).map((l) => l.reason)).toEqual(["daily_cap", "daily_cap"]);
     expect(skipLogs(s)[0]).toMatchObject({ account: third.accountId, level: 30 });
     expect(await grants(s)).toBe(2);
+    // Their credit waits for a later day.
+    expect(await pendingSignupCreditMicros(s.ctx.db, third.accountId!)).toBe(CREDIT);
   });
 
   it("counts sign-ups whose network is unknown", async () => {
@@ -474,6 +476,99 @@ describe("daily cap", () => {
       sql`SELECT sum(amount_micros) AS micros FROM signup_credit_grants WHERE created_at >= ${startOfUtcDay}`,
     );
     expect(Number(total!.micros)).toBe(2 * CREDIT);
+  });
+});
+
+// ---------------------------------------------------------------------------
+describe("credits held back by the daily cap", () => {
+  let s: HostedServer;
+  beforeAll(async () => {
+    // $10 a day = two welcome credits.
+    s = await createHostedServer({ env: { RECALL_SIGNUP_CREDIT_DAILY_CAP_USD: "10" } });
+    s.ctx.log.level = "info";
+  });
+  afterAll(async () => {
+    await s.close();
+  });
+  const pendingCount = async () =>
+    (
+      await rows<{ n: number }>(s.ctx.db, sql`SELECT count(*)::int AS n FROM signup_credit_pending`)
+    )[0]!.n;
+  const toYesterday = () =>
+    s.ctx.db.execute(
+      sql`UPDATE signup_credit_grants SET created_at = ${startOfUtcDay} - interval '1 second'`,
+    );
+
+  it("are granted on a later day, oldest first, up to that day's cap", async () => {
+    expect(await signUp(s, "h1@example.com", "192.0.2.21")).toMatchObject({ credited: true });
+    expect(await signUp(s, "h2@example.com", "192.0.2.22")).toMatchObject({ credited: true });
+    const waiting = [
+      await signUp(s, "h3@example.com", "192.0.2.23"),
+      await signUp(s, "h4@example.com", "192.0.2.24"),
+      await signUp(s, "h5@example.com", "192.0.2.25"),
+      // A second account from h3's network waits too, but only one of the two may get a credit.
+      await signUp(s, "h6@example.com", "192.0.2.23"),
+    ];
+    for (const a of waiting) expect(a).toMatchObject({ credited: false, balance: 0 });
+    expect(await pendingCount()).toBe(4);
+
+    // The dashboard says the credit is coming, not that the account is out of credit.
+    const b = new Browser(s.app, "192.0.2.23");
+    await b.signIn(s, "h3@example.com");
+    const home = await b.get("/app");
+    expect(home.html).toContain("of free credit is on its way");
+    expect(home.html).not.toContain("Out of credit");
+    expect((await b.get("/app/billing")).html).toContain("of free credit is on its way");
+
+    // Same day: the cap still holds.
+    expect(await s.ctx.billing.grantPendingSignupCredits()).toBe(0);
+    expect(await pendingCount()).toBe(4);
+
+    // Next day: the two oldest are granted, which fills that day's cap; the others wait.
+    await toYesterday();
+    expect(await s.ctx.billing.grantPendingSignupCredits()).toBe(2);
+    expect(await accountState(s, "h3@example.com")).toMatchObject({
+      credited: true,
+      balance: CREDIT,
+    });
+    expect(await accountState(s, "h4@example.com")).toMatchObject({
+      credited: true,
+      balance: CREDIT,
+    });
+    expect(await pendingCount()).toBe(2);
+    expect((await b.get("/app")).html).not.toContain("on its way");
+
+    // The day after, from the billing sweep: h5 is granted; h6's network already got h3's
+    // credit, so h6's is dropped.
+    await toYesterday();
+    const dropped = metrics.signupCreditDeferred.get({ outcome: "dropped" });
+    await s.ctx.billing.sweep();
+    expect(await accountState(s, "h5@example.com")).toMatchObject({
+      credited: true,
+      balance: CREDIT,
+    });
+    expect(await accountState(s, "h6@example.com")).toMatchObject({ credited: false, balance: 0 });
+    expect(await pendingCount()).toBe(0);
+    expect(metrics.signupCreditDeferred.get({ outcome: "dropped" })).toBe(dropped + 1);
+    expect(s.logs.some((l) => l.includes("pending sign-up credit granted"))).toBe(true);
+  });
+
+  it("go with the account when it is deleted", async () => {
+    await toYesterday();
+    await signUp(s, "i1@example.com", "192.0.2.31");
+    await signUp(s, "i2@example.com", "192.0.2.32");
+    const waiting = await signUp(s, "i3@example.com", "192.0.2.33");
+    expect(await pendingSignupCreditMicros(s.ctx.db, waiting.accountId!)).toBe(CREDIT);
+    await eraseAccount(s.ctx, waiting.accountId!);
+    expect(await pendingCount()).toBe(0);
+  });
+
+  it("are not kept for a credit withheld by the per-network limit", async () => {
+    await toYesterday();
+    await signUp(s, "j1@example.com", "192.0.2.41");
+    const second = await signUp(s, "j2@example.com", "192.0.2.41");
+    expect(second).toMatchObject({ credited: false });
+    expect(await pendingSignupCreditMicros(s.ctx.db, second.accountId!)).toBeNull();
   });
 });
 

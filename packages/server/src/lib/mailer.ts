@@ -11,6 +11,10 @@ export interface MailMessage {
   subject: string;
   text: string;
   html: string;
+  /** Where replies go, when not to the sender (RECALL_EMAIL_FROM). */
+  replyTo?: string;
+  /** Extra headers, e.g. List-Unsubscribe. */
+  headers?: Record<string, string>;
 }
 
 export interface Mailer {
@@ -36,6 +40,8 @@ export class ResendMailer implements Mailer {
         subject: msg.subject,
         text: msg.text,
         html: msg.html,
+        ...(msg.replyTo ? { reply_to: msg.replyTo } : {}),
+        ...(msg.headers ? { headers: msg.headers } : {}),
       }),
       signal: AbortSignal.timeout(10_000),
     });

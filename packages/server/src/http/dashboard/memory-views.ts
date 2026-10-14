@@ -5,6 +5,7 @@ import { type ChatLevel, LEVELS } from "../../recall/prompts.js";
 import type { ConclusionRow } from "../../recall/search.js";
 import type {
   AskOutcome,
+  CardSource,
   Checklist,
   ContextParams,
   ContextResult,
@@ -80,12 +81,59 @@ const avatar = (name: string) =>
 
 const shortId = (id: string) => id.slice(0, 7);
 
-/** A peer-card line; "PREFIX: Label: value" and "Label: value" lines get a muted label. */
-function cardLine(line: string): H {
+/** A peer-card line's text; "PREFIX: Label: value" and "Label: value" lines get a muted label. */
+function cardText(line: string): H {
   const m = line.match(/^(?:[A-Z][A-Z_ ]{1,20}:\s+)?([^:]{1,32}):\s+(.+)$/);
-  return m
-    ? html`<li><span class="card-key">${m[1]}</span><span>${m[2]}</span></li>`
-    : html`<li>${line}</li>`;
+  return m ? html`<span class="card-key">${m[1]}</span><span>${m[2]}</span>` : html`${line}`;
+}
+function cardLine(line: string): H {
+  return html`<li>${cardText(line)}</li>`;
+}
+
+/** Facts listed under a card line that start ticked for deletion: all of them when this few. */
+const CARD_SOURCES_PRECHECK = 5;
+
+/**
+ * One line of the peer's own card with the facts it rests on, and (owners and admins) a form
+ * that removes the line and deletes the ticked facts, so the line does not come back from them.
+ */
+function cardLineWithSources(
+  ws: string,
+  peer: string,
+  src: CardSource,
+  edit: MemoryEdit | null,
+): H {
+  const n = src.facts.length;
+  const label = src.isName ? "the name" : n ? plural(n, "fact") : "no stored fact";
+  const precheck = n <= CARD_SOURCES_PRECHECK;
+  const list = html`<ul class="card-src-list">${src.facts.map(
+    (f) =>
+      html`<li>${
+        edit
+          ? html`<label><input type="checkbox" name="fact_${f.id}" value="1"${precheck ? html` checked` : ""} /> <span>${f.content}</span></label>`
+          : html`<span>${f.content}</span>`
+      } <a class="faint small" href="${factHref(ws, { id: f.id, observed: peer, observer: peer })}">since ${day(f.at)}</a></li>`,
+  )}</ul>`;
+  const why = src.isName
+    ? html`<p class="hint">This line is ${peer}'s name, which every fact mentions, so no single fact is listed.</p>`
+    : n
+      ? html`<p class="hint">The facts in ${peer}'s own memory that name this value${n >= 20 ? " (the 20 newest)" : ""}.</p>`
+      : html`<p class="hint">No current fact names this value: it came straight from a conversation, or its facts were deleted.</p>`;
+  const form = edit
+    ? html`<form method="post" action="${peerHref(ws, peer)}/card/remove">${csrfField(edit.csrf)}
+    <input type="hidden" name="entry" value="${src.entry}" />
+    ${n ? list : ""}
+    <p class="hint">${
+      n
+        ? html`Removes this line from the card and deletes the ticked facts for good. Answers stop using them at once, and the line comes back only if ${peer} says it again.${precheck ? "" : " Tick the facts to delete."}`
+        : "Removes this line from the card."
+    }</p>
+    <div class="buttons"><button class="danger small">${n ? "Remove line and delete ticked facts" : "Remove line"}</button></div>
+  </form>`
+    : n
+      ? list
+      : "";
+  return html`<li class="card-row"><span class="card-line">${cardText(src.entry)}</span><details class="card-src"><summary>From ${label}</summary>${why}${form}</details></li>`;
 }
 const clip = (s: string, max: number) => (s.length > max ? `${s.slice(0, max - 1)}…` : s);
 
@@ -756,7 +804,8 @@ export type PeerFlash =
   | { kind: "fact_deleted"; text: string; observer: string }
   | { kind: "fact_corrected"; before: string; after: string }
   | { kind: "fact_added"; text: string; observer: string }
-  | { kind: "card_saved"; entries: number };
+  | { kind: "card_saved"; entries: number }
+  | { kind: "card_line_removed"; entry: string; facts: number };
 
 function peerFlash(peer: string, f: PeerFlash): H {
   const whose = (observer: string) =>
@@ -768,6 +817,8 @@ function peerFlash(peer: string, f: PeerFlash): H {
       return html`<div class="flash" role="status"><p class="eyebrow">Corrected</p><blockquote class="gone">${f.before}</blockquote><blockquote>${f.after}</blockquote><p class="hint">The old text stays under All as history, superseded today.</p></div>`;
     case "fact_added":
       return html`<div class="flash" role="status"><p class="eyebrow">Added</p><p>Saved to ${whose(f.observer)}:</p><blockquote>${f.text}</blockquote></div>`;
+    case "card_line_removed":
+      return html`<div class="flash" role="status"><p class="eyebrow">Removed from the card</p><blockquote class="gone">${f.entry}</blockquote><p class="hint">${f.facts ? `${plural(f.facts, "fact")} behind it deleted for good. ` : ""}Answers stop using ${f.facts ? "them" : "it"} right away.</p></div>`;
     case "card_saved":
       return html`<div class="flash" role="status"><p class="eyebrow">Peer card saved</p><p>${plural(f.entries, "entry", "entries")}. Recall keeps the card up to date as it learns; your edits are its starting point.</p></div>`;
   }
@@ -855,7 +906,12 @@ ${pager(f.page, f.pages, (x) => `${q({ page: x })}#facts`)}`
   <h2>Peer card</h2>
   ${
     p.card?.length
-      ? html`<ul class="card-list">${p.card.map(cardLine)}</ul>`
+      ? html`<ul class="card-list">${p.card.map((line, i) => {
+          const src = p.cardSources[i];
+          return src && src.entry === line
+            ? cardLineWithSources(d.ws, p.name, src, edit)
+            : cardLine(line);
+        })}</ul>`
       : html`<p class="muted small">No card yet. Recall keeps a short card of stable facts (name, home, work…) as it learns them.</p>`
   }
   ${

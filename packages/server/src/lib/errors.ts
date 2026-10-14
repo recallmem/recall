@@ -35,6 +35,11 @@ export const unauthorized = (detail = "JWT not permissioned for this resource") 
 export const tooManyRequests = (retryAfterS: number, detail = "Rate limit exceeded") =>
   new ApiError(429, detail, { "Retry-After": String(Math.max(1, Math.ceil(retryAfterS))) });
 export const paymentRequired = (detail = "Monthly budget exceeded") => new ApiError(402, detail);
+/** 402 for a billed account without credit, pointing at the dashboard's billing page. */
+export const outOfCreditMessage = (publicUrl: string | null | undefined) => {
+  const url = publicUrl?.replace(/\/+$/, "");
+  return `Out of credit: add credits${url ? ` at ${url}/app/billing` : ""} to continue`;
+};
 
 /** What a suspended account's credentials (API keys, OAuth tokens, dashboard sessions) are told. */
 export const SUSPENDED_DETAIL = "This account is suspended. Contact support@recallmem.dev.";

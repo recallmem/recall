@@ -297,6 +297,49 @@ describe("POST /v3/keys with an account-admin API key", () => {
     expect((await s.request("POST", "/v3/keys", undefined, bearer(adminKey))).status).toBe(422);
   });
 
+  it("never mints a key that outlives or outpaces the key that minted it", async () => {
+    const expires = new Date(Date.now() + 60 * 60_000);
+    const parent = (
+      await json(
+        s.request(
+          "POST",
+          `/admin/v1/accounts/${account}/keys`,
+          { mode: "test", rate_limit_per_min: 7, expires_at: expires.toISOString() },
+          op,
+        ),
+        201,
+      )
+    ).key;
+    const later = new Date(expires.getTime() + 24 * 60 * 60_000).toISOString();
+    for (const query of [
+      "workspace_id=w",
+      `workspace_id=w&expires_at=${encodeURIComponent(later)}`,
+    ]) {
+      const minted = await json(s.request("POST", `/v3/keys?${query}`, undefined, bearer(parent)));
+      const [row] = await rows<{ expires_at: Date; rate_limit_per_min: number }>(
+        s.ctx.db,
+        sql`SELECT expires_at, rate_limit_per_min FROM api_keys WHERE key_hash = ${hashApiKey(minted.key)}`,
+      );
+      expect(new Date(row!.expires_at).getTime()).toBe(expires.getTime());
+      expect(row!.rate_limit_per_min).toBe(7);
+    }
+    // An earlier expiry than the parent's is kept.
+    const sooner = new Date(Date.now() + 5 * 60_000);
+    const short = await json(
+      s.request(
+        "POST",
+        `/v3/keys?workspace_id=w&expires_at=${encodeURIComponent(sooner.toISOString())}`,
+        undefined,
+        bearer(parent),
+      ),
+    );
+    const [row] = await rows<{ expires_at: Date }>(
+      s.ctx.db,
+      sql`SELECT expires_at FROM api_keys WHERE key_hash = ${hashApiKey(short.key)}`,
+    );
+    expect(new Date(row!.expires_at).getTime()).toBe(sooner.getTime());
+  });
+
   it("revokes the keys a key minted when that key is revoked", async () => {
     const parent = await json(
       s.request("POST", `/admin/v1/accounts/${account}/keys`, { mode: "test" }, op),

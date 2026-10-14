@@ -207,6 +207,10 @@ export async function scheduleManualDream(
 
 /** The least time between two requested (schedule_dream) dreams of one collection. */
 const MANUAL_DREAM_GAP_MS = 10 * 60_000;
+/** Requested dreams one account may run in an hour, across its collections (they are free). */
+export const MANUAL_DREAMS_PER_HOUR = 30;
+/** Longest fact text a card refresh reads: cards hold short entries, and the input stays bounded. */
+const CARD_FACT_CHARS = 400;
 
 interface CollectionState {
   id: string;
@@ -308,6 +312,16 @@ export async function handleConsolidate(ctx: AppContext, job: ClaimedJob): Promi
           LIMIT 1`,
     );
     if (recent) return { payload: { skipped: "dreamed recently" } };
+    const [count] = await rows<{ n: number }>(
+      ctx.db,
+      sql`SELECT count(*)::int AS n FROM jobs j
+          WHERE j.kind = 'dream' AND j.status = 'done' AND j.payload->>'manual' = 'true'
+            AND NOT j.payload ? 'skipped' AND j.finished_at > now() - interval '1 hour'
+            AND j.workspace_id IN (SELECT id FROM workspaces WHERE account_id =
+              (SELECT account_id FROM workspaces WHERE id = ${job.workspaceId}))`,
+    );
+    if ((count?.n ?? 0) >= MANUAL_DREAMS_PER_HOUR)
+      return { payload: { skipped: "too many requested dreams this hour" } };
     if (type === "omni" && col.last_dream_at && col.new_since_dream <= 0)
       return { payload: { skipped: "nothing new since the last dream" } };
   }
@@ -693,7 +707,8 @@ async function refreshCard(
     created_at: Date | string;
   }>(
     ctx.db,
-    sql`SELECT c.content, c.valid_from, c.created_at FROM conclusions c WHERE c.collection_id = ${col.id} AND ${CURRENT}
+    sql`SELECT left(c.content, ${CARD_FACT_CHARS}) AS content, c.valid_from, c.created_at
+        FROM conclusions c WHERE c.collection_id = ${col.id} AND ${CURRENT}
           AND c.level IN ('explicit', 'deductive')
         ORDER BY (c.category IN ('identity', 'relationship', 'instruction')) DESC, c.importance DESC,
                  c.times_derived DESC, c.created_at DESC

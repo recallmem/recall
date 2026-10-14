@@ -33,7 +33,7 @@
   </aside>
   <article class="prose">
 <h1>Privacy policy</h1>
-<p class="muted">Last updated: 13 October 2026 · Version 2.5</p>
+<p class="muted">Last updated: 14 October 2026 · Version 2.8</p>
 <p>This policy explains which personal data Recall processes, why, how long we keep it and what your rights are. Recall is memory for AI agents: it stores what you or your software send it, so an agent can remember people across conversations.</p>
 
 <h2 id="who">Who we are</h2>
@@ -51,8 +51,8 @@
 <table>
 <thead><tr><th>Category</th><th>What it includes</th><th>Where it comes from</th></tr></thead>
 <tbody>
-<tr><td>Account data</td><td>The email address of each member of an account, the account name, roles, workspace names, settings, the names and first characters of API keys (never the keys themselves), and which version of our terms each member accepted and when.</td><td>You</td></tr>
-<tr><td>Sign-in data</td><td>Sign-in links (stored only as a hash), dashboard sessions, and the MCP clients you connect with OAuth.</td><td>You and your devices</td></tr>
+<tr><td>Account data</td><td>The email address of each member of an account, the account name, roles, workspace names, settings, the names and first characters of API keys (never the keys themselves), which version of our terms each member accepted and when, and when we sent the account our getting-started emails or it turned them off.</td><td>You</td></tr>
+<tr><td>Sign-in data</td><td>Sign-in links (stored only as a hash), dashboard sessions, and the MCP clients you connect with OAuth. If you sign in with GitHub or connect it in Settings: your GitHub account's numeric id and username, which tie the sign-in to you, and, when GitHub creates your account, its verified email address. We keep nothing else from GitHub, not even the GitHub access token.</td><td>You and your devices; GitHub, if you sign in with it</td></tr>
 <tr><td>Billing data</td><td>Credit balance, top-ups, usage charges, refunds, auto top-up settings, your consent to start each purchase at once (with the version of the terms and the time) and your customer reference at Stripe. Your name, billing address, VAT number and card are entered at Stripe Checkout. We never see your full card number.</td><td>You, Stripe</td></tr>
 <tr><td>Usage data</td><td>Number of requests, tokens and charges per task, with timestamps, and when your account first created an API key or connected an app and first stored a message.</td><td>Your use of the service</td></tr>
 <tr><td>Technical and security data</td><td>IP address and request details, used to answer requests and enforce rate limits. For the sign-in and welcome-credit limits we store a keyed hash of your network address, never the address itself; for the welcome credit also a keyed hash of your email address.</td><td>Your device</td></tr>
@@ -72,6 +72,7 @@
 <tr><td>See where new accounts get stuck while setting up, so we can improve the service: counts of accounts that reached each first step (an API key, a first message, a first answer, a first top-up), seen only by us</td><td>Account, usage, billing</td><td>Legitimate interest (f): improving the service</td></tr>
 <tr><td>Keep the service secure and prevent abuse: rate limits, refusing disposable email addresses, one welcome credit per email address and per network</td><td>Technical and security, account</td><td>Legitimate interest (f): a safe service and fair use of free credit</td></tr>
 <tr><td>Send service messages: sign-in links, purchase confirmations, payment and auto top-up notices, changes to our terms or sub-processors</td><td>Account, billing</td><td>Contract (b); legal obligation (c) for purchase confirmations to consumers; legitimate interest (f) in informing customers</td></tr>
+<tr><td>Help new accounts get started: a welcome email after sign-up, and one reminder if nothing has used the account two days later (no message stored, no app connected, no API key used). At most two emails, never to accounts older than 14 days, and each has a link to turn them off</td><td>Account, usage</td><td>Legitimate interest (f): helping new customers start using the service they signed up for</td></tr>
 <tr><td>Record that you accepted our terms and asked us to start purchases at once</td><td>Account, billing</td><td>Contract (b); legitimate interest (f) in proving the agreement</td></tr>
 <tr><td>Answer your questions, support requests and security reports</td><td>Communications, account</td><td>Legitimate interest (f); contract (b) where it concerns your account</td></tr>
 <tr><td>Handle notices of illegal content and requests from authorities</td><td>Communications, account</td><td>Legal obligation (c), including the EU Digital Services Act</td></tr>
@@ -79,7 +80,7 @@
 </tbody>
 </table>
 <p>Where we rely on a legitimate interest, we have weighed it against your interests, and you can object (see <a href="#rights">your rights</a>).</p>
-<p>We do not sell personal data, show ads, use third-party analytics or tracking, or use your content to train AI models. We do not send marketing email. If that changes, we will only do it as the law allows, and you can always opt out.</p>
+<p>We do not sell personal data, show ads, use third-party analytics or tracking, or use your content to train AI models. We do not send marketing email: besides service messages, new accounts only get the two getting-started emails above, which you can turn off in each of them. If that changes, we will only do it as the law allows, and you can always opt out.</p>
 
 <h2 id="content">Content you send</h2>
 <p>Recall stores the messages and files you send and builds memory from them. All of it is stored in our database in Frankfurt (EU). To read messages, build memory and answer questions, Recall sends text to AI models through OpenRouter (see <a href="#recipients">who receives data</a>). We look at customer content only when that is needed to give support you ask for, to investigate abuse or a security incident, or when the law requires it.</p>
@@ -98,6 +99,7 @@
 <li><b>Stripe Payments Europe, Ltd.</b> (Ireland) handles payments, invoices and tax calculation. Stripe also processes some payment data as a controller in its own right, for example to prevent fraud; see Stripe's privacy policy.</li>
 <li><b>Cloudflare</b> provides DNS for our domains. It does not receive the content of your requests.</li>
 </ul>
+<p>If you choose "Continue with GitHub", you sign in at <b>GitHub, Inc.</b> (USA), which then tells us your GitHub account's id, username and verified email address. GitHub processes that sign-in as a controller in its own right, under its own privacy statement. We do not send GitHub anything about your use of Recall.</p>
 <p>We also share personal data, where needed, with our email provider (for messages to support@recallmem.dev), our accountant or tax adviser (billing data, for our bookkeeping), authorities and courts when the law requires it, and a buyer or successor of Recall's business, who must respect this policy.</p>
 
 <h2 id="transfers">International transfers</h2>

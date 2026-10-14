@@ -38,6 +38,14 @@ export const accounts = pgTable("accounts", {
   firstAppAt: ts("first_app_at"),
   /** When the first message was stored (not its client-set created_at), 0018_activation_funnel.sql. */
   firstMessageAt: ts("first_message_at"),
+  /**
+   * Onboarding emails (0019_onboarding_emails.sql, src/core/onboarding.ts): when the welcome and
+   * the "not used yet" reminder were claimed, each once; accounts that existed before 0019 are
+   * marked as sent. Set when the account turned these emails off with the link in them.
+   */
+  welcomeEmailAt: ts("welcome_email_at"),
+  nudgeEmailAt: ts("nudge_email_at"),
+  onboardingEmailsOffAt: ts("onboarding_emails_off_at"),
 });
 
 export const apiKeys = pgTable("api_keys", {
@@ -262,6 +270,9 @@ export const users = pgTable("users", {
   lastLoginAt: ts("last_login_at"),
   termsVersion: text("terms_version"),
   termsAcceptedAt: ts("terms_accepted_at"),
+  /** The GitHub account this user signs in with (unique when set). */
+  githubId: bigint("github_id", { mode: "number" }),
+  githubLogin: text("github_login"),
 });
 
 export const accountMembers = pgTable(
@@ -347,6 +358,16 @@ export const stripeEvents = pgTable("stripe_events", {
 // address only; deliberately not tied to the account.
 export const signupCreditGrants = pgTable("signup_credit_grants", {
   id: bigserial("id", { mode: "number" }).primaryKey(),
+  ipHash: text("ip_hash"),
+  emailHash: text("email_hash"),
+  amountMicros: bigint("amount_micros", { mode: "number" }).notNull(),
+  createdAt: ts("created_at").notNull().defaultNow(),
+});
+
+// Welcome credits held back by the daily cap, granted by the billing sweep on a later day
+// (0020_signup_credit_pending.sql). One row per account; deleted with the account.
+export const signupCreditPending = pgTable("signup_credit_pending", {
+  accountId: text("account_id").primaryKey(),
   ipHash: text("ip_hash"),
   emailHash: text("email_hash"),
   amountMicros: bigint("amount_micros", { mode: "number" }).notNull(),

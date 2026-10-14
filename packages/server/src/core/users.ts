@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import { sql } from "drizzle-orm";
-import { type Db, rows } from "../db/client.js";
+import { type Db, isUniqueViolation, rows } from "../db/client.js";
 import type { MemberRole } from "../db/schema.js";
 import { newId } from "../lib/ids.js";
 import { createAccount } from "./accounts.js";
@@ -15,9 +15,15 @@ type Executor = Pick<Db, "execute">;
 type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
 
 export const LOGIN_TOKEN_TTL_MS = 15 * 60_000;
-/** Magic links per email per 15 minutes, and per client IP per hour. */
-export const LOGIN_LIMIT_PER_EMAIL = 5;
-export const LOGIN_LIMIT_PER_IP = 20;
+/**
+ * Sign-in links. Per address the limits count per requesting network, so one network asking for
+ * someone else's address cannot lock the owner out from theirs; a daily total per address caps
+ * how many links anyone can make it receive.
+ */
+export const LOGIN_LIMIT_PER_EMAIL = 3; // per address and network, 15 minutes
+export const LOGIN_LIMIT_PER_EMAIL_NETWORK_DAY = 6; // per address and network, 24 hours
+export const LOGIN_LIMIT_PER_EMAIL_DAY = 30; // per address, all networks, 24 hours
+export const LOGIN_LIMIT_PER_IP = 20; // per network, all addresses, 1 hour
 
 export const sha256hex = (s: string) => createHash("sha256").update(s, "utf8").digest("hex");
 const randomToken = () => randomBytes(32).toString("base64url");
@@ -46,16 +52,25 @@ export async function issueLoginToken(
   /** Which browser asked (see `browserBinding`): only it is sent on to `next`. */
   browser: string | null = null,
 ): Promise<IssueResult> {
-  const [counts] = await rows<{ by_email: number; by_ip: number }>(
+  // An unknown network counts as one network of its own for the per-address limits.
+  const sameNetwork = ipHash === null ? sql`ip_hash IS NULL` : sql`ip_hash = ${ipHash}`;
+  const [counts] = await rows<{ recent: number; day_here: number; day: number; by_ip: number }>(
     db,
     sql`SELECT
-          (SELECT count(*)::int FROM login_tokens
-             WHERE email = ${email} AND created_at > now() - interval '15 minutes') AS by_email,
+          count(*) FILTER (WHERE ${sameNetwork} AND created_at > now() - interval '15 minutes')::int AS recent,
+          count(*) FILTER (WHERE ${sameNetwork})::int AS day_here,
+          count(*)::int AS day,
           (SELECT count(*)::int FROM login_tokens
              WHERE ${ipHash}::text IS NOT NULL AND ip_hash = ${ipHash}
-               AND created_at > now() - interval '1 hour') AS by_ip`,
+               AND created_at > now() - interval '1 hour') AS by_ip
+        FROM login_tokens WHERE email = ${email} AND created_at > now() - interval '24 hours'`,
   );
-  if ((counts?.by_email ?? 0) >= LOGIN_LIMIT_PER_EMAIL) return { limited: "email" };
+  if (
+    (counts?.recent ?? 0) >= LOGIN_LIMIT_PER_EMAIL ||
+    (counts?.day_here ?? 0) >= LOGIN_LIMIT_PER_EMAIL_NETWORK_DAY ||
+    (counts?.day ?? 0) >= LOGIN_LIMIT_PER_EMAIL_DAY
+  )
+    return { limited: "email" };
   if ((counts?.by_ip ?? 0) >= LOGIN_LIMIT_PER_IP) return { limited: "ip" };
   const token = randomToken();
   await db.execute(
@@ -64,6 +79,17 @@ export async function issueLoginToken(
                 ${new Date(Date.now() + ttlMs)}, ${next}, ${next ? browser : null})`,
   );
   return { token };
+}
+
+/** The address a sign-in link is for, without using it up; null when unknown, used or expired. */
+export async function peekLogin(db: Executor, token: string): Promise<string | null> {
+  if (!token || token.length > 200) return null;
+  const [r] = await rows<{ email: string }>(
+    db,
+    sql`SELECT email FROM login_tokens
+        WHERE token_hash = ${sha256hex(token)} AND used_at IS NULL AND expires_at > now()`,
+  );
+  return r?.email ?? null;
 }
 
 /** Marks a token used and returns its email and where to continue; null when unknown, used or expired. */
@@ -79,11 +105,6 @@ export async function consumeLogin(
         RETURNING email, next_path, next_browser`,
   );
   return r ? { email: r.email, next: r.next_path, browser: r.next_browser } : null;
-}
-
-/** Marks a token used and returns its email; null when unknown, used or expired. */
-export async function consumeLoginToken(db: Executor, token: string): Promise<string | null> {
-  return (await consumeLogin(db, token))?.email ?? null;
 }
 
 /** True when `email` already belongs to a user with an account, so signing in will not create one. */
@@ -116,6 +137,8 @@ export async function signIn(
     onNewAccount?: (tx: Tx, accountId: string) => Promise<void>;
     /** The terms version the person agreed to by continuing; recorded when it changes. */
     termsVersion?: string;
+    /** The GitHub account that signs a new user up; tied to the user it creates. */
+    github?: GithubIdentity;
   },
 ): Promise<SignIn | null> {
   const terms = opts.termsVersion ?? null;
@@ -143,8 +166,9 @@ export async function signIn(
     if (!user) {
       [user] = await rows<{ id: string }>(
         tx,
-        sql`INSERT INTO users (id, email, last_login_at, terms_version, terms_accepted_at)
-            VALUES (${`usr_${newId()}`}, ${email}, now(), ${terms}, ${terms ? sql`now()` : null})
+        sql`INSERT INTO users (id, email, last_login_at, terms_version, terms_accepted_at, github_id, github_login)
+            VALUES (${`usr_${newId()}`}, ${email}, now(), ${terms}, ${terms ? sql`now()` : null},
+                    ${opts.github?.id ?? null}, ${opts.github?.login ?? null})
             RETURNING id`,
       );
     } else if (terms) {
@@ -160,6 +184,77 @@ export async function signIn(
     await opts.onNewAccount?.(tx, account.id);
     return { userId: user!.id, accountId: account.id, created: true };
   });
+}
+
+/** A GitHub account tied to a user: its numeric id (what sign-in goes by) and username. */
+export interface GithubIdentity {
+  id: number;
+  login: string;
+}
+
+/** The user a GitHub account is tied to, with the username GitHub reports now (kept up to date). */
+export async function userByGithub(
+  db: Executor,
+  github: GithubIdentity,
+): Promise<{ id: string; email: string } | null> {
+  const [u] = await rows<{ id: string; email: string }>(
+    db,
+    sql`UPDATE users SET github_login = ${github.login} WHERE github_id = ${github.id}
+        RETURNING id, email`,
+  );
+  return u ?? null;
+}
+
+/** The user of an email address, and whether a GitHub account is tied to them. */
+export async function userByEmail(
+  db: Executor,
+  email: string,
+): Promise<{ id: string; githubLinked: boolean } | null> {
+  const [u] = await rows<{ id: string; linked: boolean }>(
+    db,
+    sql`SELECT id, github_id IS NOT NULL AS linked FROM users WHERE email = ${email}`,
+  );
+  return u ? { id: u.id, githubLinked: u.linked } : null;
+}
+
+/** The GitHub account tied to a user, if any. */
+export async function githubOf(db: Executor, userId: string): Promise<GithubIdentity | null> {
+  const [u] = await rows<{ id: string | number | null; login: string | null }>(
+    db,
+    sql`SELECT github_id AS id, github_login AS login FROM users WHERE id = ${userId}`,
+  );
+  return u?.id != null ? { id: Number(u.id), login: u.login ?? "" } : null;
+}
+
+/**
+ * Ties a GitHub account to a user (replacing one tied before). "taken" when it is tied to another
+ * user already: one GitHub account signs in as one user.
+ */
+export async function connectGithub(
+  db: Db,
+  userId: string,
+  github: GithubIdentity,
+): Promise<"connected" | "taken"> {
+  try {
+    const [other] = await rows<{ id: string }>(
+      db,
+      sql`SELECT id FROM users WHERE github_id = ${github.id} AND id <> ${userId}`,
+    );
+    if (other) return "taken";
+    await db.execute(
+      sql`UPDATE users SET github_id = ${github.id}, github_login = ${github.login} WHERE id = ${userId}`,
+    );
+    return "connected";
+  } catch (err) {
+    if (isUniqueViolation(err)) return "taken";
+    throw err;
+  }
+}
+
+export async function disconnectGithub(db: Executor, userId: string): Promise<void> {
+  await db.execute(
+    sql`UPDATE users SET github_id = NULL, github_login = NULL WHERE id = ${userId}`,
+  );
 }
 
 export async function addMember(

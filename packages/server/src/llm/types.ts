@@ -1,5 +1,3 @@
-import type { z } from "zod";
-
 /** Provider-neutral message format. Providers translate to their native shapes. */
 export type LlmMessage =
   | { role: "user"; content: string }
@@ -133,5 +131,3 @@ export class LlmError extends Error {
     this.name = "LlmError";
   }
 }
-
-export type Parsed<T extends z.ZodType> = { data: z.infer<T>; result: LlmResult };

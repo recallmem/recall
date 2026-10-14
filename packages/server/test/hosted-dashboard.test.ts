@@ -56,6 +56,8 @@ describe("magic-link sign-up", () => {
     // GET shows a button only (mail scanners cannot use the link up).
     const confirm = await b.get(`/app/auth/verify?token=${token}`);
     expect(confirm.res.status).toBe(200);
+    // It names the address the link signs into, so someone else's link cannot pass unnoticed.
+    expect(confirm.html).toContain("This link signs you in as <b>ada@example.com</b>");
     expect(confirm.res.headers.get("referrer-policy")).toBe("same-origin");
     expect(
       await rows(s.ctx.db, sql`SELECT 1 FROM users WHERE email = 'ada@example.com'`),
@@ -94,9 +96,12 @@ describe("magic-link sign-up", () => {
     ]);
     expect(await ledgerDrift(s.ctx.db, accountId)).toBe(0);
 
-    // The link is single-use.
+    // The link is single-use: the page says so, and posting it anyway signs nobody in.
     const again = new Browser(s.app, "203.0.113.8");
-    await again.get(`/app/auth/verify?token=${token}`);
+    const page = await again.get(`/app/auth/verify?token=${token}`);
+    expect(page.res.status).toBe(400);
+    expect(page.html).toContain("expired");
+    await again.get("/app/login");
     const reused = await again.post("/app/auth/verify", { token });
     expect(reused.res.status).toBe(400);
     expect(reused.html).toContain("expired");
@@ -129,7 +134,18 @@ describe("magic-link sign-up", () => {
   it("rate-limits links per email and per IP", async () => {
     const b = new Browser(s.app, "198.51.100.1");
     await b.get("/app/login");
-    for (let i = 0; i < 5; i++)
+    for (let i = 0; i < 3; i++)
+      expect((await b.post("/app/login", { email: "spam@example.com" })).res.status).toBe(200);
+    expect((await b.post("/app/login", { email: "spam@example.com" })).res.status).toBe(429);
+    // The limit counts per network: someone flooding an address does not lock its owner out.
+    const owner = new Browser(s.app, "203.0.113.50");
+    await owner.get("/app/login");
+    expect((await owner.post("/app/login", { email: "spam@example.com" })).res.status).toBe(200);
+    // Over a day, one network gets 6 links for an address and all networks together 30.
+    await s.ctx.db.execute(
+      sql`UPDATE login_tokens SET created_at = now() - interval '1 hour' WHERE email = 'spam@example.com'`,
+    );
+    for (let i = 0; i < 3; i++)
       expect((await b.post("/app/login", { email: "spam@example.com" })).res.status).toBe(200);
     expect((await b.post("/app/login", { email: "spam@example.com" })).res.status).toBe(429);
 

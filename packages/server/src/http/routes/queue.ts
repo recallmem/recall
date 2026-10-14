@@ -15,8 +15,9 @@ import { customerUsage, modelNamer } from "../redact.js";
 import { parseBody, parseQuery } from "../validate.js";
 
 /**
- * Background-work routes (component B):
+ * Background-work routes:
  * - GET  /v3/workspaces/{id}/queue/status  (+ extension `wait_ms`: flush and long-poll until idle; adds `idle`)
+ * - POST /v3/workspaces/{id}/queue/retry   (extension: retry a failed unit of work)
  * - POST /v3/workspaces/{id}/schedule_dream
  * - GET  /deriver/metrics
  * - GET  /v3/workspaces/{id}/usage          (extension: model calls and tokens by task and model;
@@ -29,6 +30,9 @@ import { parseBody, parseQuery } from "../validate.js";
  */
 
 const MAX_WAIT_MS = 60_000;
+/** Long-polls (wait_ms) one workspace may hold open at once in a process. */
+const MAX_WAITS_PER_WORKSPACE = 3;
+const waiters = new Map<string, number>();
 const emptyToUndef = (v: unknown) => (v === "" ? undefined : v);
 
 const StatusQuery = z.object({
@@ -233,9 +237,23 @@ export function register(app: App, ctx: AppContext): void {
     let settled: boolean | undefined;
     if (q.wait_ms) {
       await flush(ctx, ws, sessionId);
-      const deadline = Date.now() + Math.min(q.wait_ms, MAX_WAIT_MS);
-      while (!(await idle(ctx, ws, sessionId)) && Date.now() < deadline) {
-        await nextSignal(Math.min(250, Math.max(1, deadline - Date.now())));
+      // A few waits per workspace at a time (per process); more answer at once instead of
+      // holding a request and polling the database. The poll interval backs off to 2 s.
+      const waiting = waiters.get(ws) ?? 0;
+      if (waiting < MAX_WAITS_PER_WORKSPACE) {
+        waiters.set(ws, waiting + 1);
+        try {
+          const deadline = Date.now() + Math.min(q.wait_ms, MAX_WAIT_MS);
+          let pause = 250;
+          while (!(await idle(ctx, ws, sessionId)) && Date.now() < deadline) {
+            await nextSignal(Math.min(pause, Math.max(1, deadline - Date.now())));
+            pause = Math.min(pause * 1.5, 2000);
+          }
+        } finally {
+          const left = (waiters.get(ws) ?? 1) - 1;
+          if (left > 0) waiters.set(ws, left);
+          else waiters.delete(ws);
+        }
       }
       settled = await idle(ctx, ws, sessionId);
     }

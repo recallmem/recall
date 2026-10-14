@@ -4,7 +4,7 @@
  */
 
 /** Version printed at the top of public/terms.html and public/dpa.html (a test keeps them equal). */
-export const TERMS_VERSION = "2.0";
+export const TERMS_VERSION = "2.1";
 
 export interface LegalLinks {
   terms: string;

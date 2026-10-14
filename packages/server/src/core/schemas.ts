@@ -125,7 +125,6 @@ export const sessionPeerConfig = z.looseObject({
   observe_me: z.boolean().nullish(),
   observe_others: z.boolean().nullish(),
 });
-export type SessionPeerConfigInput = z.infer<typeof sessionPeerConfig>;
 
 /** Body of add/set peers: peer id -> membership config. */
 export const peersMap = z.record(z.string().min(1), sessionPeerConfig);

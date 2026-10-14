@@ -148,6 +148,10 @@ export const metrics = {
     "recall_signup_credit_skipped_total",
     "Welcome credits withheld from new accounts, by reason (email_limit, ip_limit, daily_cap).",
   ),
+  signupCreditDeferred: new Counter(
+    "recall_signup_credit_deferred_total",
+    "Welcome credits held back by the daily cap and settled on a later day, by outcome (granted, dropped).",
+  ),
 };
 
 const startedAt = Date.now();

@@ -4,7 +4,13 @@ import { rows } from "../db/client.js";
 import { compileFilters } from "../http/filters.js";
 import { createdAtKeys, type Page, type Paging, paginate } from "../http/pagination.js";
 import { CONCLUSION_COLS, type ConclusionRow, conclusionOut } from "../http/serialize.js";
-import { ApiError, notFound, unprocessable } from "../lib/errors.js";
+import {
+  ApiError,
+  notFound,
+  outOfCreditMessage,
+  paymentRequired,
+  unprocessable,
+} from "../lib/errors.js";
 import { newId } from "../lib/ids.js";
 import { countTokens } from "../lib/tokens.js";
 import { LlmError } from "../llm/types.js";
@@ -44,6 +50,30 @@ async function embed(ctx: AppContext, texts: string[], workspaceId: string): Pro
   }
 }
 
+/** Embedding tokens an account may spend in an hour before it can add no more facts itself. */
+export const EXPLICIT_EMBED_TOKENS_PER_HOUR = 2_000_000;
+
+/**
+ * Facts added through the API are embedded at once and are not billed per token, so on a billed
+ * account they need credit (like chat), and an account's embedding in the last hour is capped.
+ */
+async function guardEmbedding(ctx: AppContext, workspace: WsKey, items: NewConclusion[]) {
+  const block = await ctx.tenancy.budget.blocked(workspace.account);
+  if (block === "credit") throw paymentRequired(outOfCreditMessage(ctx.config.server.publicUrl));
+  if (block) throw paymentRequired();
+  if (!ctx.config.tenancy.hosted) return;
+  const adding = items.reduce((n, i) => n + countTokens(i.content), 0);
+  const [r] = await rows<{ tokens: string | number }>(
+    ctx.db,
+    sql`SELECT COALESCE(sum(u.input_tokens), 0) AS tokens FROM llm_usage u
+        JOIN workspaces w ON w.id = u.workspace_id
+        WHERE w.account_id = ${workspace.account} AND u.task = 'embedding'
+          AND u.created_at > now() - interval '1 hour'`,
+  );
+  if (Number(r?.tokens ?? 0) + adding > EXPLICIT_EMBED_TOKENS_PER_HOUR)
+    throw new ApiError(429, "Too many facts added in the last hour. Try again later.");
+}
+
 export type ConclusionOut = ReturnType<typeof conclusionOut>;
 
 /** Creates explicit conclusions (POST /conclusions); see `storeConclusions`. */
@@ -69,8 +99,8 @@ export async function storeConclusions(
   items: NewConclusion[],
   opts: { ignore?: readonly string[] } = {},
 ): Promise<{ conclusion: ConclusionOut; existing: boolean }[]> {
-  for (const item of items) {
-    const tokens = countTokens(item.content);
+  const tokenCounts = items.map((i) => countTokens(i.content));
+  for (const tokens of tokenCounts) {
     if (tokens > EMBED_MAX_TOKENS) {
       throw unprocessable(
         `Content exceeds maximum embedding token limit of ${EMBED_MAX_TOKENS} (got ${tokens} tokens)`,
@@ -107,6 +137,7 @@ export async function storeConclusions(
     for (const name of sessionNames) if (!sessionIds.has(name)) throw notFound(`Session ${name}`);
   }
 
+  await guardEmbedding(ctx, workspace, items);
   const vectors = await embed(
     ctx,
     items.map((i) => i.content),
@@ -208,6 +239,14 @@ export async function storeConclusions(
           )}) AS v(id, n)
           WHERE collections.id = v.id`,
     );
+
+    // Every item was embedded, so every item is charged as stored, once for this call.
+    await ctx.billing.debitStore(tx, {
+      workspaceId: ws.internal_id,
+      source: "conclusions",
+      keyIds: [newId()],
+      tokenCounts,
+    });
 
     const ids = [...new Set([...factOf.values()].map((f) => f.id))];
     const saved = await rows<ConclusionRow>(

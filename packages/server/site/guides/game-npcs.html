@@ -67,7 +67,7 @@ var res = await http.SendAsync(req);   // { "messages": [...], "context": { ... 
 
     <h2 id="cost-speed">Cost and speed</h2>
     <p>Measured from Europe against the hosted API (Frankfurt), October 2026: a <code>turn</code> or context call took 0.3 to 0.7 seconds, a question at <code>minimal</code> or <code>low</code> 2 to 4.5 seconds. Learning happens in the background and does not hold up the call.</p>
-    <p>Context, search and storage are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50, and for questions. A player who plays two hours a week, with 200 lines of their own and 200 NPC lines of about 30 tokens, and 20 game-logic questions:</p>
+    <p>Context and search are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50, and for questions. A player who plays two hours a week, with 200 lines of their own and 200 NPC lines of about 30 tokens, and 20 game-logic questions:</p>
     <table>
       <thead><tr><th>Item</th><th>Per week</th></tr></thead>
       <tbody>

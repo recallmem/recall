@@ -370,6 +370,19 @@ describe("out of credit", () => {
     expect(denied.status).toBe(402);
     expect((await denied.json()).detail).toContain("Out of credit");
     expect((await b.get("/app")).html).toContain("Out of credit");
+    // Adding facts embeds them at once (a model call), so it needs credit too.
+    const fact = await s.api(
+      "POST",
+      "/v3/workspaces/main/conclusions",
+      {
+        conclusions: [
+          { content: "alice likes jasmine tea", observer_id: "alice", observed_id: "alice" },
+        ],
+      },
+      auth,
+    );
+    expect(fact.status).toBe(402);
+    expect((await fact.json()).detail).toContain("Out of credit");
 
     // Ingest is still accepted; reasoning waits.
     expect((await addMessages("I adopted a grey cat named Pixel last week.")).status).toBe(201);

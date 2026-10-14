@@ -248,22 +248,6 @@ export function guard(app: AppContext, policy: RoutePolicy = {}): MiddlewareHand
   };
 }
 
-/** For self-authorizing handlers: may this request act on `workspace` (and optionally a peer/session id)? */
-export function assertScope(
-  c: Context<AppEnv>,
-  workspace: string,
-  opts: { peer?: string; session?: string } = {},
-) {
-  const { admin, claims } = c.get("auth");
-  if (admin) return;
-  if (claims.w !== workspace) throw unauthorized();
-  if (claims.s) {
-    if (opts.session !== claims.s) throw unauthorized();
-    return;
-  }
-  if (claims.p && opts.peer !== claims.p) throw unauthorized();
-}
-
 const sha256 = (s: string) => createHash("sha256").update(s, "utf8").digest();
 
 /** Constant-time string comparison (hashing first makes the lengths equal). */

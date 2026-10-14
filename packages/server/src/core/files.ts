@@ -4,6 +4,7 @@ import { Worker } from "node:worker_threads";
 import { ApiError, unprocessable } from "../lib/errors.js";
 import { newId } from "../lib/ids.js";
 import { stripNul } from "../lib/json.js";
+import { pdfInflation } from "./pdf-guard.js";
 import { type PdfText, readPdfText } from "./pdf-text.js";
 import { MAX_MESSAGE_CHARS } from "./schemas.js";
 
@@ -60,7 +61,30 @@ function decodeText(bytes: Uint8Array): string {
 }
 
 /** Limits on what one uploaded PDF may make the server read. */
-export const PDF_LIMITS = { maxPages: 500, maxChars: 2_000_000, timeoutMs: 20_000, memoryMb: 256 };
+export const PDF_LIMITS = {
+  maxPages: 500,
+  maxChars: 2_000_000,
+  timeoutMs: 20_000,
+  memoryMb: 256,
+  /** Decompressed size of the streams text extraction reads (see pdf-guard.ts). */
+  maxInflatedBytes: 100 * 1024 * 1024,
+  /** PDFs read at once per process; more wait their turn. */
+  concurrency: 2,
+};
+
+/** A small counting semaphore: PDF reads beyond `PDF_LIMITS.concurrency` wait for a slot. */
+let reading = 0;
+const waiting: (() => void)[] = [];
+async function pdfSlot<T>(fn: () => Promise<T>): Promise<T> {
+  if (reading >= PDF_LIMITS.concurrency) await new Promise<void>((r) => waiting.push(r));
+  reading++;
+  try {
+    return await fn();
+  } finally {
+    reading--;
+    waiting.shift()?.();
+  }
+}
 
 /**
  * Reads a PDF in a worker thread with a deadline and a memory cap, so a file built to inflate
@@ -68,6 +92,20 @@ export const PDF_LIMITS = { maxPages: 500, maxChars: 2_000_000, timeoutMs: 20_00
  * available (tests run from source), the same limits apply in process.
  */
 async function extractPdf(bytes: Uint8Array): Promise<string> {
+  // pdf.js keeps decoded streams outside the worker's heap limit: refuse a file that would
+  // inflate past the limit before it is read at all.
+  const inflation = pdfInflation(bytes, PDF_LIMITS.maxInflatedBytes);
+  if (!inflation.ok)
+    throw inflation.reason === "lzw"
+      ? unprocessable("Could not read PDF: it uses LZW compression, which is not supported")
+      : new ApiError(
+          413,
+          `The PDF decompresses to more than ${PDF_LIMITS.maxInflatedBytes / 1024 / 1024} MB`,
+        );
+  return pdfSlot(() => readPdf(bytes));
+}
+
+async function readPdf(bytes: Uint8Array): Promise<string> {
   let read: PdfText;
   try {
     const worker = new URL("./pdf-worker.js", import.meta.url);

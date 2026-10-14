@@ -43,6 +43,8 @@ OUT = ROOT / ".github" / "assets"
 README = ROOT / "README.md"
 PLUGIN_REPO = ROOT / "integrations" / "public-repo"
 PLUGIN_OUT = PLUGIN_REPO / ".github" / "assets"
+ACTION_REPO = ROOT / "integrations" / "github-action"
+ACTION_OUT = ACTION_REPO / ".github" / "assets"
 
 sys.path.insert(0, str(SITE))
 from pages import EVALS  # noqa: E402
@@ -320,23 +322,32 @@ def recall_words(theme):
 
 
 PLUGIN_AGENTS = ["CLAUDE CODE", "CODEX", "OPENCLAW", "HERMES"]
+ACTION_ITEMS = ["PULL REQUESTS", "REVIEWS", "ISSUES", "COMMITS"]
 
 
-def plugin_words(theme):
-    """The plugin repository's hero text: the wordmark a little higher, "plugins" in the kicker,
-    and the agents they are for in a line of capitals with amber dots between them."""
-    cx = HERO_W / 2
-    out = chunky("RECALL", cx, 30, theme, s=4, anchor="middle")
-    out += kicker("Memory plugins for agents", cx, 51, theme)
-    sep, baseline = " · ", 65
-    x = round(cx - (sum(width(n) for n in PLUGIN_AGENTS) + width(sep) * (len(PLUGIN_AGENTS) - 1)) / 2)
-    for i, name in enumerate(PLUGIN_AGENTS):
-        if i:
-            out += text(sep, x, baseline, theme["atext"])
-            x += width(sep)
-        out += text(name, x, baseline, theme["fg"])
-        x += width(name)
-    return out
+def listed_words(tagline, items):
+    """Hero text for a repository of integrations: the wordmark a little higher, `tagline` as the
+    kicker, and `items` in a line of capitals with amber dots between them."""
+
+    def words(theme):
+        cx = HERO_W / 2
+        out = chunky("RECALL", cx, 30, theme, s=4, anchor="middle")
+        out += kicker(tagline, cx, 51, theme)
+        sep, baseline = " · ", 65
+        x = round(cx - (sum(width(n) for n in items) + width(sep) * (len(items) - 1)) / 2)
+        for i, name in enumerate(items):
+            if i:
+                out += text(sep, x, baseline, theme["atext"])
+                x += width(sep)
+            out += text(name, x, baseline, theme["fg"])
+            x += width(name)
+        return out
+
+    return words
+
+
+plugin_words = listed_words("Memory plugins for agents", PLUGIN_AGENTS)
+action_words = listed_words("Memory for your repository", ACTION_ITEMS)
 
 
 def hero(theme, night, words=recall_words, label="Recall: memory for AI agents"):
@@ -597,6 +608,22 @@ def plugin_flow(theme, dark):
     )
 
 
+def action_flow(theme, dark):
+    """What the GitHub Action does: `remember` on each event, Recall learns, `ask` answers in a
+    workflow or as a comment on a new issue or pull request (see integrations/github-action)."""
+    return flow(
+        theme,
+        dark,
+        [
+            ("01", "REMEMBER", "nodes", ["EVERY EVENT"], ["PULL REQUESTS,", "REVIEWS, ISSUES", "AND COMMITS"]),
+            ("02", "LEARN", "elephant", ["DECISIONS"], ["WHAT WAS DECIDED,", "BY WHOM AND WHY,", "WITH DATES"]),
+            ("03", "ASK", "chat", ["ANSWERS"], ["IN A WORKFLOW, OR", "AS A COMMENT ON", "A NEW ISSUE"]),
+        ],
+        "How the Recall GitHub Action works: it remembers pull requests, reviews, issues and commits, "
+        "Recall learns what was decided and why, and the action answers questions in a workflow or on a new issue",
+    )
+
+
 # ---------------------------------------------------------------------------------- benchmarks
 
 
@@ -732,6 +759,20 @@ def files():
                     "hero-light.svg": hero(LIGHT, False, plugin_words, label),
                     "how-it-works-dark.svg": plugin_flow(DARK, True),
                     "how-it-works-light.svg": plugin_flow(LIGHT, False),
+                    "divider.svg": divider(),
+                }.items()
+            }
+        )
+    if ACTION_REPO.is_dir():
+        label = "Recall repo memory: a GitHub Action that remembers pull requests, reviews, issues and commits"
+        out.update(
+            {
+                ACTION_OUT / name: content
+                for name, content in {
+                    "hero-dark.svg": hero(DARK, True, action_words, label),
+                    "hero-light.svg": hero(LIGHT, False, action_words, label),
+                    "how-it-works-dark.svg": action_flow(DARK, True),
+                    "how-it-works-light.svg": action_flow(LIGHT, False),
                     "divider.svg": divider(),
                 }.items()
             }

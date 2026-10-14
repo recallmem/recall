@@ -1,0 +1,66 @@
+name: Recall repo memory
+description: "Memory for your repository: remembers pull requests, reviews, issues and commits, and answers what was decided and why."
+author: Recall
+branding:
+  icon: database
+  color: orange
+
+inputs:
+  api-key:
+    description: A Recall API key, from a secret. Create one at https://app.recallmem.dev/keys (a key for one workspace is enough).
+    required: true
+  mode:
+    description: "remember: store what the triggering event says. ask: answer a question from the repository's memory."
+    default: remember
+  workspace:
+    description: The Recall workspace that holds this memory. Several repositories can share one.
+    default: github
+  scope:
+    description: "The scope that groups this repository's sessions, and that ask answers from. Default: owner-repo."
+    default: ""
+  question:
+    description: "ask: the question. On an issue or pull request event without one, it asks which earlier work relates to that issue or pull request."
+    default: ""
+  reasoning-level:
+    description: "ask: minimal, low, medium, high or max (more thorough answers cost more)."
+    default: low
+  post-comment:
+    description: "ask: post the answer as a comment on the triggering issue or pull request, unless nothing relevant is known. Needs issues: write and pull-requests: write."
+    default: "false"
+  github-token:
+    description: "ask with post-comment: the token that posts the comment."
+    default: ${{ github.token }}
+  include-bots:
+    description: "remember: also store what bots (Dependabot, Renovate and others) write."
+    default: "false"
+  text:
+    description: "remember: store this text instead of the event, for example a note from a scheduled or manual run."
+    default: ""
+  thread:
+    description: "remember with text: the thread (session) it goes in."
+    default: notes
+  peer:
+    description: "remember with text: who says it. Default: the account that started the run."
+    default: ""
+  base-url:
+    description: A Recall server of your own. Default the hosted service.
+    default: https://api.recallmem.dev
+  fail-on-error:
+    description: Fail the step when Recall cannot be reached or refuses a request. By default that is a warning, so memory never blocks your pipeline.
+    default: "false"
+
+outputs:
+  remembered:
+    description: "remember: how many messages were stored (0 when the event had nothing to remember)."
+  session:
+    description: "remember: the Recall session they were stored in."
+  answer:
+    description: "ask: the answer."
+  abstained:
+    description: "ask: true when nothing relevant is remembered."
+  confidence:
+    description: "ask: how sure the answer is, from 0 to 1."
+
+runs:
+  using: node24
+  main: index.mjs

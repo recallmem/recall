@@ -23,7 +23,15 @@ import {
   type PostResult,
   postEntry,
 } from "./ledger.js";
-import { purgeSignupGrants, recordSignupGrant, signupCreditSkipReason } from "./signup.js";
+import {
+  claimPendingSignupCredit,
+  deferSignupCredit,
+  dropPendingSignupCredit,
+  expirePendingSignupCredits,
+  purgeSignupGrants,
+  recordSignupGrant,
+  signupCreditSkipReason,
+} from "./signup.js";
 
 /**
  * Prepaid billing for the hosted service (RECALL_HOSTED=true with Stripe
@@ -218,6 +226,42 @@ export class Billing {
   }
 
   /**
+   * Debits keeping items no reasoning call learns from: messages marked reasoned without a model
+   * call, or facts added through the API. `keyIds` name the charge: the same ids are charged once.
+   */
+  async debitStore(
+    tx: Executor,
+    batch: {
+      workspaceId: string;
+      sessionId?: string;
+      source: "messages" | "conclusions";
+      keyIds: string[];
+      /** One per item kept. */
+      tokenCounts: number[];
+    },
+  ): Promise<void> {
+    if (!this.enabled || !batch.keyIds.length || !batch.tokenCounts.length) return;
+    const billed = this.billedTokens(batch.tokenCounts);
+    const micros = Math.ceil((billed * this.cfg.prices.storePerMTokMicros) / 1_000_000);
+    if (micros <= 0) return;
+    const ids = [...batch.keyIds].sort();
+    const r = await postEntry(tx, {
+      account: sql`SELECT account_id FROM workspaces WHERE id = ${batch.workspaceId}`,
+      amountMicros: -micros,
+      kind: "store",
+      key: `store:${createHash("sha256").update(ids.join(",")).digest("hex").slice(0, 40)}`,
+      detail: {
+        workspace_id: batch.workspaceId,
+        ...(batch.sessionId ? { session_id: batch.sessionId } : {}),
+        [batch.source]: batch.tokenCounts.length,
+        tokens: batch.tokenCounts.reduce((n, t) => n + t, 0),
+        billed_tokens: billed,
+      },
+    });
+    if (r) this.afterDebit(r, 500);
+  }
+
+  /**
    * Takes one chat request's price before the answer is made, refusing it when the balance does
    * not cover it (so concurrent requests cannot spend credit that is not there). `key` names the
    * request: a second reservation under the same key is refused as a duplicate. A request that
@@ -324,8 +368,26 @@ export class Billing {
     if (skipped) {
       metrics.signupCreditSkipped.inc({ reason: skipped });
       this.deps.log.info({ account: accountId, reason: skipped }, "sign-up credit skipped");
+      // Only the day's cap stood in the way: the credit waits for a later day (the sweep).
+      if (skipped === "daily_cap")
+        await deferSignupCredit(tx, {
+          account_id: accountId,
+          ip_hash: ipHash,
+          email_hash: emailHash,
+          amount_micros: amountMicros,
+        });
       return;
     }
+    await this.grantSignupCredit(tx, accountId, amountMicros, ipHash, emailHash);
+  }
+
+  private async grantSignupCredit(
+    tx: Executor,
+    accountId: string,
+    amountMicros: number,
+    ipHash: string | null,
+    emailHash: string | null,
+  ): Promise<boolean> {
     const r = await postEntry(tx, {
       account: accountId,
       amountMicros,
@@ -333,6 +395,68 @@ export class Billing {
       key: `signup:${accountId}`,
     });
     if (r?.applied) await recordSignupGrant(tx, ipHash, amountMicros, emailHash);
+    return !!r?.applied;
+  }
+
+  /**
+   * Grants welcome credits the daily cap held back, oldest first, until today's cap is reached
+   * (billing sweep). Each one passes the same checks as at sign-up, so a credit whose address or
+   * network got one since is dropped instead. Returns how many were granted.
+   */
+  async grantPendingSignupCredits(max = 500): Promise<number> {
+    if (!this.enabled) return 0;
+    // An offer that has ended (credit set to 0) or a wait past PENDING_CREDIT_DAYS pays nothing.
+    await expirePendingSignupCredits(this.deps.db, this.cfg.signupCreditMicros <= 0);
+    if (this.cfg.signupCreditMicros <= 0) return 0;
+    let granted = 0;
+    for (let i = 0; i < max; i++) {
+      let outcome = "none" as "none" | "cap" | "granted" | "dropped";
+      let accountId = "";
+      await this.deps.db.transaction(async (tx) => {
+        const p = await claimPendingSignupCredit(tx);
+        if (!p) return;
+        accountId = p.account_id;
+        const skipped = await signupCreditSkipReason(tx, {
+          ipHash: p.ip_hash,
+          emailHash: p.email_hash,
+          perIp: this.cfg.signupCreditPerIp,
+          dailyCapMicros: this.cfg.signupCreditDailyCapMicros,
+        });
+        if (skipped === "daily_cap") {
+          outcome = "cap";
+          return;
+        }
+        await dropPendingSignupCredit(tx, p.account_id);
+        if (skipped) {
+          outcome = "dropped";
+          metrics.signupCreditDeferred.inc({ outcome: "dropped" });
+          this.deps.log.info(
+            { account: p.account_id, reason: skipped },
+            "pending sign-up credit dropped",
+          );
+          return;
+        }
+        await ensureBillingAccount(tx, p.account_id);
+        // Not applied: the account already has its welcome credit (its ledger key is taken).
+        outcome = (await this.grantSignupCredit(
+          tx,
+          p.account_id,
+          Math.min(p.amount_micros, this.cfg.signupCreditMicros),
+          p.ip_hash,
+          p.email_hash,
+        ))
+          ? "granted"
+          : "dropped";
+      });
+      if (outcome === "none" || outcome === "cap") break;
+      if (outcome === "granted") {
+        granted++;
+        metrics.signupCreditDeferred.inc({ outcome: "granted" });
+        this.deps.log.info({ account: accountId }, "pending sign-up credit granted");
+        await this.credited(accountId);
+      }
+    }
+    return granted;
   }
 
   /**
@@ -840,6 +964,9 @@ export class Billing {
     if (this.deps.config.dashboard) {
       await purgeExpiredLogins(this.deps.db);
       await purgeSignupGrants(this.deps.db);
+      await this.grantPendingSignupCredits().catch((err) =>
+        this.deps.log.error({ err }, "pending sign-up credits failed"),
+      );
       await this.alerts
         .sweep()
         .catch((err) => this.deps.log.error({ err }, "spend alert sweep failed"));

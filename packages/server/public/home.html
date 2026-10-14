@@ -495,13 +495,14 @@ codex plugin add recall-memory@recall
           <thead><tr><th scope="col">Usage</th><th scope="col" class="right">Price</th></tr></thead>
           <tbody>
             <tr><td>Learning from messages<small>per 1M message tokens; a message counts as at least 50 tokens</small></td><td class="n">$1.75</td></tr>
+            <tr><td>Storing without learning<small>per 1M tokens: messages no reasoning call reads (a session with reasoning off) and facts you add yourself; each counts as at least 50 tokens</small></td><td class="n">$0.25</td></tr>
             <tr class="incl-row"><td>Context and search<small>recent messages, a summary and what is known, for every prompt</small></td><td class="n">included</td></tr>
             <tr><td>Chat · minimal<small>single facts: "where does she live?"</small></td><td class="n">$0.0008</td></tr>
             <tr><td>Chat · low <span class="pill">default</span><small>everyday questions about a person, one model call</small></td><td class="n">$0.005</td></tr>
             <tr><td>Chat · medium<small>plans, summaries and comparisons across many facts</small></td><td class="n">$0.025</td></tr>
             <tr><td>Chat · high<small>multi-step questions: searches memory in up to 3 rounds</small></td><td class="n">$0.05</td></tr>
             <tr><td>Chat · max<small>rare, hard questions: up to 6 rounds of searching</small></td><td class="n">$0.25</td></tr>
-            <tr class="incl"><td colspan="2">Chat prices are per question. Storage, summaries and the night shift are included too. A message Recall only reads for context counts what it reads, and a cached answer still counts as one question. Prices are in US dollars; VAT is added at checkout where it applies.</td></tr>
+            <tr class="incl"><td colspan="2">Chat prices are per question. Summaries and the night shift are included too, and storing a message Recall learns from is part of its learning price. A message Recall only reads for context counts what it reads, and a cached answer still counts as one question. Prices are in US dollars; VAT is added at checkout where it applies.</td></tr>
           </tbody>
         </table>
       </div>

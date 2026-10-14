@@ -300,7 +300,7 @@ client.on("messageCreate", async (msg) =&gt; {
 
     <h2 id="cost-speed">Cost and speed</h2>
     <p>Measured from Europe against the hosted API (Frankfurt), October 2026: a <code>turn</code> or context call took 0.3 to 0.7 seconds, and a question at <code>minimal</code> or <code>low</code> 2 to 4.5 seconds. Learning runs in the background and never holds up a reply. When you go over the rate limit (counted per API key), Recall answers <code>429</code> with <code>Retry-After</code>; the SDKs wait that long and retry, but batching is what keeps you under it.</p>
-    <p>Context, search and storage are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50, and for questions. Members who only read cost nothing. An active member who posts 200 short messages a month, gets 40 replies from the bot of about 80 tokens, and runs <code>/memory</code> 5 times:</p>
+    <p>Context and search are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50, and for questions. Members who only read cost nothing. An active member who posts 200 short messages a month, gets 40 replies from the bot of about 80 tokens, and runs <code>/memory</code> 5 times:</p>
     <table>
       <thead><tr><th>Item</th><th>Per month</th></tr></thead>
       <tbody>

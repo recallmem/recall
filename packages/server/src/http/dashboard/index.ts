@@ -9,7 +9,7 @@ import {
   saveAlertSettings,
 } from "../../billing/alerts.js";
 import { chargesSince, getBillingRow, ledgerHistory, usageCharges } from "../../billing/ledger.js";
-import { mailboxKey } from "../../billing/signup.js";
+import { mailboxKey, pendingSignupCreditMicros } from "../../billing/signup.js";
 import { type ClientIpConfig, siteHome } from "../../config.js";
 import type { AppContext } from "../../context.js";
 import { accountUsage, getAccount, monthStart, updateAccount } from "../../core/accounts.js";
@@ -18,20 +18,28 @@ import { isDisposableEmail } from "../../core/disposable.js";
 import { eraseAccount } from "../../core/erase.js";
 import { exportAccount } from "../../core/export.js";
 import { listGrants, revokeGrant, setAutoRemember } from "../../core/oauth.js";
+import { stopOnboardingEmails, verifyUnsubscribeToken } from "../../core/onboarding.js";
 import { selectPeerRow } from "../../core/peers.js";
 import { selectSessionRow } from "../../core/sessions.js";
 import { wsKey } from "../../core/tenancy.js";
 import {
   accountMembers,
+  connectGithub,
   consumeLogin,
   createSession,
+  disconnectGithub,
+  githubOf,
   hasAccount,
   issueLoginToken,
   normalizeEmail,
+  peekLogin,
   revokeSession,
   signIn,
+  userByEmail,
+  userByGithub,
 } from "../../core/users.js";
 import { findWorkspace } from "../../core/workspaces.js";
+import { isUniqueViolation } from "../../db/client.js";
 import { renderEmail } from "../../lib/email.js";
 import { ApiError } from "../../lib/errors.js";
 import { NAME_MAX, NAME_PATTERN } from "../../lib/ids.js";
@@ -40,9 +48,12 @@ import { networkKey } from "../../lib/network.js";
 import { verifyPassword } from "../../lib/passwords.js";
 import { clientIp } from "../common.js";
 import { modelNamer } from "../redact.js";
+import { STYLESHEET } from "./app-css.js";
+import { SCRIPT } from "./app-js.js";
 import { isConsolePath, registerConsole } from "./console.js";
 import { checklist, dailyActivity, usageReport, workspaceNames } from "./explorer.js";
 import { setFlash, takeFlash } from "./flash.js";
+import * as gh from "./github.js";
 import { registerMemory } from "./memory.js";
 import { dashboardBase, dashboardLink, dashPath, withDashboardBase } from "./paths.js";
 import {
@@ -168,17 +179,46 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
     }),
   );
   app.get("/static/app.css", (c) =>
-    c.body(v.STYLESHEET, 200, {
+    c.body(STYLESHEET, 200, {
       "Content-Type": "text/css; charset=utf-8",
       "Cache-Control": "public, max-age=3600",
     }),
   );
   app.get("/static/app.js", (c) =>
-    c.body(v.SCRIPT, 200, {
+    c.body(SCRIPT, 200, {
       "Content-Type": "text/javascript; charset=utf-8",
       "Cache-Control": "public, max-age=3600",
     }),
   );
+  // Turning off onboarding emails (core/onboarding.ts), before sign-in and CSRF: the signed token
+  // in the link is the only credential, so it works signed out, and the mail client's one-click
+  // POST (RFC 8058, List-Unsubscribe-Post) needs no cookie or form token. A GET only shows the
+  // button, so link scanners that open every link in an email unsubscribe nobody.
+  const unsubscribe = (c: C, state: "ask" | "done" | "invalid", token = "") =>
+    c.html(
+      v.page({
+        site,
+        legal,
+        title: "Email preferences",
+        dash: null,
+        body: v.unsubscribePage(state, token),
+      }),
+      state === "invalid" ? 400 : 200,
+    );
+  app.get("/unsubscribe", (c) => {
+    const token = (c.req.query("t") ?? "").slice(0, 200);
+    return unsubscribe(c, verifyUnsubscribeToken(secret, token) ? "ask" : "invalid", token);
+  });
+  app.post("/unsubscribe", async (c) => {
+    const body = await c.req.parseBody().catch(() => ({}) as Record<string, unknown>);
+    const field = typeof body.t === "string" ? body.t : "";
+    const accountId = verifyUnsubscribeToken(secret, c.req.query("t") ?? field);
+    if (!accountId) return unsubscribe(c, "invalid");
+    await stopOnboardingEmails(ctx.db, accountId);
+    ctx.log.info({ account: accountId }, "onboarding emails turned off");
+    return unsubscribe(c, "done");
+  });
+
   app.use("*", loadDash(ctx));
   // A suspended account's members see only a notice; they can still sign out (or in, as
   // someone else). Operators keep their console. For anyone else a console path answers
@@ -187,7 +227,14 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
   const base = dashboardBase(ctx.config);
   // A suspended account can still sign in and out, and download its data (the right of access
   // does not end with a suspension); deleting it goes through support meanwhile.
-  const SIGN_IN_PATHS = new Set(["/logout", "/login", "/auth/verify", "/settings/export"]);
+  const SIGN_IN_PATHS = new Set([
+    "/logout",
+    "/login",
+    "/auth/verify",
+    "/auth/github",
+    "/auth/github/callback",
+    "/settings/export",
+  ]);
   const splitHost = ctx.config.server.splitDashboard;
   app.use(
     "*",
@@ -224,6 +271,13 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
       ? raw
       : null;
 
+  // "Continue with GitHub" needs an absolute callback URL, so the dashboard's own URL.
+  const github = cfg.github && ctx.config.server.dashboardUrl ? cfg.github : null;
+  const githubCallback = dashboardLink(ctx.config, "/auth/github/callback");
+  /** Where the GitHub button starts, carrying `next`; null when GitHub sign-in is off. */
+  const githubHref = (next: string | null | undefined) =>
+    github ? dashPath(`/auth/github${next ? `?next=${encodeURIComponent(next)}` : ""}`) : null;
+
   // ---- sign-in -------------------------------------------------------------
   app.get("/login", (c) => {
     const next = safeNext(c.req.query("next"));
@@ -237,6 +291,7 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
         signup: cfg.signup,
         next,
         reviewer: !!cfg.reviewer,
+        github: githubHref(next),
       }),
     });
   });
@@ -255,6 +310,7 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
           signup: cfg.signup,
           email: form.email,
           next,
+          github: githubHref(next),
         }),
       });
     // Counted per network, not per address: one IPv6 host has a whole /64 to rotate through.
@@ -278,6 +334,7 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
           signup: cfg.signup,
           email: form.email,
           next,
+          github: githubHref(next),
         }),
       });
     }
@@ -293,7 +350,14 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
       return render(c, 429, {
         title: "Too many requests",
         error: "Too many sign-in links were requested. Wait a few minutes and try again.",
-        body: v.loginPage(csrfToken(c), { site, legal, signup: cfg.signup, email, next }),
+        body: v.loginPage(csrfToken(c), {
+          site,
+          legal,
+          signup: cfg.signup,
+          email,
+          next,
+          github: githubHref(next),
+        }),
       });
     // On the dashboard's own host when it has one (RECALL_DASHBOARD_URL), else under /app.
     const link = dashboardLink(
@@ -318,19 +382,34 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
       return render(c, 503, {
         title: "Sign in",
         error: "We could not send the email right now. Try again in a minute.",
-        body: v.loginPage(csrfToken(c), { site, legal, signup: cfg.signup, email, next }),
+        body: v.loginPage(csrfToken(c), {
+          site,
+          legal,
+          signup: cfg.signup,
+          email,
+          next,
+          github: githubHref(next),
+        }),
       });
     }
     return render(c, 200, { title: "Check your email", body: v.checkEmailPage() });
   });
 
   // A GET only shows a button: mail scanners that prefetch links cannot use the token up.
-  app.get("/auth/verify", (c) =>
-    render(c, 200, {
+  app.get("/auth/verify", async (c) => {
+    const token = (c.req.query("token") ?? "").slice(0, 200);
+    // Name the address the link is for, so a link someone else requested for their own account
+    // cannot quietly sign this browser into it.
+    const email = await peekLogin(ctx.db, token);
+    if (!email) return render(c, 400, { title: "Link expired", body: v.linkInvalidPage() });
+    return render(c, 200, {
       title: "Sign in",
-      body: v.verifyPage(csrfToken(c), (c.req.query("token") ?? "").slice(0, 200), legal),
-    }),
-  );
+      body: v.verifyPage(csrfToken(c), token, legal, {
+        email,
+        current: c.get("dash")?.email ?? null,
+      }),
+    });
+  });
 
   app.post("/auth/verify", async (c) => {
     const login = await consumeLogin(ctx.db, c.get("form").token ?? "");
@@ -361,6 +440,196 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
     // The link continues to its page only in the browser that asked for it.
     const sameBrowser = !!login.browser && login.browser === browserBinding(c, secret);
     return c.redirect((sameBrowser && safeNext(login.next ?? undefined)) || dashPath("/"), 303);
+  });
+
+  // ---- "Continue with GitHub" (RECALL_GITHUB_CLIENT_ID/_SECRET; see ./github.ts) ------------
+  const githubFailed = (c: C, status: number, error: string, next: string | null) =>
+    render(c, status, {
+      title: "Sign in",
+      error,
+      body: v.loginPage(csrfToken(c), {
+        site,
+        legal,
+        signup: cfg.signup,
+        next,
+        reviewer: !!cfg.reviewer,
+        github: githubHref(next),
+      }),
+    });
+
+  /** Failed GitHub code exchanges per minute per client network (IPv6 /48). */
+  const GITHUB_FAILURES_PER_MIN = 10;
+  app.get("/auth/github", (c) => {
+    if (!github) return c.notFound();
+    const next = safeNext(c.req.query("next"));
+    if (c.get("dash")) return c.redirect(next ?? dashPath("/"), 303);
+    // The state is bound to this browser's sign-in cookie, which the sign-in page sets first.
+    const binding = browserBinding(c, secret);
+    if (!binding)
+      return c.redirect(dashPath(`/login${next ? `?next=${encodeURIComponent(next)}` : ""}`), 303);
+    return c.redirect(
+      gh.authorizeUrl(github, githubCallback, gh.signState(secret, binding, next)),
+      302,
+    );
+  });
+
+  app.get("/auth/github/callback", async (c) => {
+    if (!github) return c.notFound();
+    const query = c.req.query("state");
+    const dash = c.get("dash");
+    // A sign-in state is bound to this browser; a connect state to the session that asked.
+    let state = gh.verifyState(secret, browserBinding(c, secret), query);
+    if (state?.link) state = undefined;
+    if (!state && dash) {
+      const linking = gh.verifyState(secret, gh.linkBinding(dash.sessionId), query);
+      if (linking?.link) state = linking;
+    }
+    if (!state)
+      return githubFailed(
+        c,
+        400,
+        "That GitHub sign-in expired or was started in another browser. Try again.",
+        null,
+      );
+    const next = safeNext(state.next ?? undefined);
+    const code = c.req.query("code");
+    // The person pressed Cancel on GitHub (error=access_denied), or GitHub sent no code.
+    if (!code) {
+      if (state.link) return c.redirect(dashPath("/settings?msg=github_cancelled#signin"), 303);
+      return githubFailed(c, 400, "GitHub sign-in was cancelled.", next);
+    }
+    // Failed exchanges are throttled per client network, like the reviewer sign-in.
+    const failureKey = `github:${networkHash(c, secret, ctx.config.server.clientIp, true) ?? "unknown"}`;
+    if (ctx.tenancy.failures.peek(failureKey, GITHUB_FAILURES_PER_MIN) > 0)
+      return githubFailed(c, 429, "Too many attempts. Wait a minute and try again.", next);
+    let found: gh.GithubUser | { error: "exchange" };
+    try {
+      found = await gh.githubUser(github, code.slice(0, 200), githubCallback);
+    } catch (err) {
+      ctx.log.warn({ err }, "GitHub sign-in failed");
+      found = { error: "exchange" };
+    }
+    if ("error" in found) {
+      ctx.tenancy.failures.take(failureKey, GITHUB_FAILURES_PER_MIN);
+      ctx.log.warn("GitHub sign-in: code exchange failed");
+      if (state.link) return c.redirect(dashPath("/settings?msg=github_failed#signin"), 303);
+      return githubFailed(
+        c,
+        502,
+        "GitHub sign-in did not work. Try again, or sign in with an email link.",
+        next,
+      );
+    }
+    const identity = { id: found.id, login: found.login };
+
+    // Connecting GitHub to the signed-in user (from Settings).
+    if (state.link) {
+      // Operators sign in with an email link only (see below).
+      if (!dash || dash.operator)
+        return c.redirect(dashPath("/settings?msg=github_failed#signin"), 303);
+      const r = await connectGithub(ctx.db, dash.userId, identity);
+      ctx.log.info({ user: dash.userId, result: r }, "GitHub connect");
+      return c.redirect(
+        dashPath(`/settings?msg=${r === "connected" ? "github_connected" : "github_taken"}#signin`),
+        303,
+      );
+    }
+
+    // Signing in: by the user this GitHub account is tied to, whatever address GitHub reports.
+    let email: string | null;
+    let signUp = false;
+    const tied = await userByGithub(ctx.db, identity);
+    if (tied) email = tied.email;
+    else {
+      email = found.email ? normalizeEmail(found.email) : null;
+      if (!email)
+        return githubFailed(
+          c,
+          422,
+          "Your GitHub account has no verified email address. Verify one on GitHub, or sign in with an email link.",
+          next,
+        );
+      // An address that has a Recall user opens it only once that user connects GitHub, so an
+      // address still verified on a GitHub account after its owner lost the mailbox does not.
+      const existing = await userByEmail(ctx.db, email);
+      if (existing)
+        return githubFailed(
+          c,
+          409,
+          existing.githubLinked
+            ? "Your Recall sign-in for this address is connected to a different GitHub account."
+            : "There is already a Recall account for your GitHub email address. Sign in with an email link, then connect GitHub under Settings.",
+          next,
+        );
+      signUp = true;
+    }
+    // Operators sign in with an email link only: a verified address on someone's GitHub account
+    // outlives the mailbox, and the console must not.
+    if (ctx.config.hosted.operatorEmails.includes(email))
+      return githubFailed(c, 403, "This address signs in with an email link only.", next);
+    // The same rule as the email form: throwaway domains cannot create an account.
+    if (signUp && cfg.signup && isDisposableEmail(email, cfg.signupBlockedDomains))
+      return githubFailed(
+        c,
+        422,
+        "Use a personal or work email address on GitHub; disposable addresses can't sign up.",
+        next,
+      );
+    const ipHash = networkHash(c, secret, ctx.config.server.clientIp, true);
+    const emailHash = createHmac("sha256", secret)
+      .update(`email:${mailboxKey(email)}`)
+      .digest("hex");
+    let result: Awaited<ReturnType<typeof signIn>>;
+    try {
+      result = await signIn(ctx.db, email, {
+        allowSignup: cfg.signup && signUp,
+        ...terms,
+        ...(signUp ? { github: identity } : {}),
+        onNewAccount: (tx, accountId) => ctx.billing.onSignup(tx, accountId, { ipHash, emailHash }),
+      });
+    } catch (err) {
+      // The same GitHub account finishing two sign-ups at once: the other one won.
+      if (!isUniqueViolation(err)) throw err;
+      result = null;
+    }
+    if (!result)
+      return githubFailed(
+        c,
+        403,
+        signUp
+          ? "There is no account for your GitHub email address, and sign-up is closed."
+          : "Your GitHub account is not a member of any Recall account. Sign in with an email link.",
+        null,
+      );
+    if (dash) await revokeSession(ctx.db, dash.sessionId);
+    const session = await createSession(ctx.db, result.userId, result.accountId, cfg.sessionTtlMs);
+    setSessionCookie(c, secret, session.token, session.expiresAt);
+    ctx.log.info(
+      { account: result.accountId, created: result.created },
+      "dashboard sign-in (GitHub)",
+    );
+    return c.redirect(next ?? dashPath("/"), 303);
+  });
+
+  // Connecting GitHub to the signed-in user, and disconnecting it, from Settings. A POST, so
+  // another site cannot start it; the settings page allows the form's redirect to GitHub.
+  app.post("/settings/github", (c) => {
+    if (!github) return c.notFound();
+    const dash = user(c);
+    if (dash.operator) throw new ApiError(403, "This address signs in with an email link only");
+    return c.redirect(
+      gh.authorizeUrl(
+        github,
+        githubCallback,
+        gh.signState(secret, gh.linkBinding(dash.sessionId), null, Date.now(), true),
+      ),
+      303,
+    );
+  });
+  app.post("/settings/github/disconnect", async (c) => {
+    const dash = user(c);
+    await disconnectGithub(ctx.db, dash.userId);
+    return c.redirect(dashPath("/settings?msg=github_disconnected#signin"), 303);
   });
 
   // ---- password sign-in for the app-directory reviewer (RECALL_REVIEWER_*) ----------------
@@ -469,6 +738,9 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
         billing: !!billingRow,
         unbilledHosted: ctx.config.tenancy.hosted && !billingRow,
         balanceMicros: billingRow?.balance_micros ?? null,
+        pendingCreditMicros: billingRow
+          ? await pendingSignupCreditMicros(ctx.db, dash.accountId)
+          : null,
         blocked: await ctx.tenancy.budget.blocked(dash.accountId),
         charges: billingRow
           ? await usageCharges(ctx.db, dash.accountId, { since: monthStart() })
@@ -739,6 +1011,7 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
         serverBilling: ctx.billing.enabled,
         taxed: b.tax,
         balanceMicros: row?.balance_micros ?? 0,
+        pendingCreditMicros: row ? await pendingSignupCreditMicros(ctx.db, dash.accountId) : null,
         amounts: b.topupAmountsMicros,
         minMicros: b.topupMinMicros,
         maxMicros: b.topupMaxMicros,
@@ -819,6 +1092,8 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
     const members = await accountMembers(ctx.db, dash.accountId);
     const billingRow = ctx.billing.enabled ? await getBillingRow(ctx.db, dash.accountId) : null;
     const msg = c.req.query("msg");
+    // "Connect GitHub" posts here and is redirected on to GitHub.
+    if (github) c.set("formAction", "https://github.com");
     return render(c, 200, {
       title: "Settings",
       active: "/settings",
@@ -836,6 +1111,9 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
         alerts: await getAlertSettings(ctx.db, dash.accountId),
         billed: !!billingRow,
         autoTopup: !!billingRow?.auto_topup_enabled,
+        email: dash.email,
+        github:
+          github && !dash.operator ? { connected: await githubOf(ctx.db, dash.userId) } : null,
       }),
     });
   });

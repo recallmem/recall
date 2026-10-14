@@ -181,7 +181,7 @@ recall.session("trip-lisbon").add_messages(
 
     <h2 id="cost-speed">Cost and speed</h2>
     <p><code>recall_context</code> is a context read with no model call: context reads took 0.3 to 0.7 seconds, measured from Europe against the hosted API (Frankfurt), October 2026, small next to a crew's own model calls. <code>recall_search</code> searches facts and messages without a model call, in about a second. <code>recall_ask</code> is one model call of 2 to 4.5 seconds at <code>low</code>. Learning from recorded conversations runs in the background.</p>
-    <p>Context, search and storage are included. Learning and questions are charged; see <a href="/docs#pricing">pricing</a> and <a href="/guides/cost-and-speed">Cost and speed</a> for worked examples.</p>
+    <p>Context and search are included. Learning and questions are charged; see <a href="/docs#pricing">pricing</a> and <a href="/guides/cost-and-speed">Cost and speed</a> for worked examples.</p>
 
     <h2 id="privacy">Privacy and forgetting</h2>
     <p>The tools send queries, questions and the facts an agent saves to Recall; what you record is up to you. Record the person's request and the crew's answer, not tool output or intermediate steps. To forget someone:</p>

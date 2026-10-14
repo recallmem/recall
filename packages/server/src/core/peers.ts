@@ -312,23 +312,6 @@ export async function listPeerSessions(
 // ---------------------------------------------------------------------------
 // Collections and peer cards
 
-/** Get-or-creates the (observer, observed) collection and returns its id. */
-export async function ensureCollection(
-  db: Executor,
-  wsId: string,
-  observerId: string,
-  observedId: string,
-): Promise<string> {
-  const [row] = await rows<{ id: string }>(
-    db,
-    sql`INSERT INTO collections (id, workspace_id, observer_id, observed_id)
-        VALUES (${newId()}, ${wsId}, ${observerId}, ${observedId})
-        ON CONFLICT (observer_id, observed_id) DO UPDATE SET observer_id = EXCLUDED.observer_id
-        RETURNING id`,
-  );
-  return row!.id;
-}
-
 /** Get-or-creates several collections in one statement. Keys are `${observerId}\u0000${observedId}`. */
 export async function ensureCollections(
   db: Executor,

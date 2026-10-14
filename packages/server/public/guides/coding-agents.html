@@ -298,7 +298,7 @@ dev.delete()</code></pre>
 
     <h2 id="cost-speed">Cost and speed</h2>
     <p>Measured from Europe against the hosted API (Frankfurt), October 2026: a context read took 0.3 to 0.7 seconds, so memory at session start adds well under a second. A question at <code>low</code> took 2 to 4.5 seconds. Learning runs in the background and never holds up a turn.</p>
-    <p>Context, search and storage are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50, and for questions. A developer who works 20 days a month, with 30 prompts a day of about 100 tokens, the agent's 30 replies (long, but read only as context, at most 200 tokens each), and 40 questions about past decisions:</p>
+    <p>Context and search are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50, and for questions. A developer who works 20 days a month, with 30 prompts a day of about 100 tokens, the agent's 30 replies (long, but read only as context, at most 200 tokens each), and 40 questions about past decisions:</p>
     <table>
       <thead><tr><th>Item</th><th>Per month</th></tr></thead>
       <tbody>

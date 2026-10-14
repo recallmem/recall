@@ -189,8 +189,10 @@ describe("memory explorer", () => {
     expect(old).toContain(`/app/memory/notes/sessions/chat-1?at=${amsterdam}#m-${amsterdam}`);
 
     const filtered = await A.b.get("/app/memory/notes/peers/alice?state=all&q=dog");
-    expect(filtered.html).toContain("Rover");
-    expect(filtered.html).not.toContain("alice lives in Utrecht");
+    // The filter narrows the fact list (the card above it keeps listing its own sources).
+    const list = filtered.html.slice(filtered.html.indexOf('id="facts"'));
+    expect(list).toContain("Rover");
+    expect(list).not.toContain("alice lives in Utrecht");
 
     // The default view is the peer's own memory; other observers' views are one click away.
     expect(current.html).not.toContain("seen by");

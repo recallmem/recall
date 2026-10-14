@@ -373,6 +373,13 @@ class BilledLearning(_Base):
     billed_usd: float = 0.0
 
 
+class BilledStorage(_Base):
+    """Tokens stored without learning (messages no reasoning call reads, facts you add) and their charge."""
+
+    tokens: int = 0
+    billed_usd: float = 0.0
+
+
 class BilledChat(BilledQuestions):
     """Questions answered, in all and per reasoning level."""
 
@@ -382,9 +389,10 @@ class BilledChat(BilledQuestions):
 class UsageBilled(_Base):
     """What an account on prepaid credit (the hosted service) was charged, with the billable units."""
 
-    #: Learning and chat together, in USD. Charges given back are left out.
+    #: Learning, storage and chat together, in USD. Charges given back are left out.
     billed_usd: float = 0.0
     learning: BilledLearning = Field(default_factory=BilledLearning)
+    storage: BilledStorage = Field(default_factory=BilledStorage)
     chat: BilledChat = Field(default_factory=BilledChat)
 
 

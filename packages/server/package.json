@@ -14,8 +14,7 @@
     "start": "node dist/main.js",
     "build": "tsc -p tsconfig.build.json && cp -r src/db/migrations dist/db/",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run",
-    "db:generate": "drizzle-kit generate"
+    "test": "vitest run"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.132.1",
@@ -39,9 +38,9 @@
     "@honcho-ai/sdk": "2.5.1",
     "@types/node": "^22.20.5",
     "@types/pg": "^8.23.1",
-    "drizzle-kit": "^0.31.11",
     "tsx": "^4.23.15",
     "typescript": "7.0.2",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.3",
+    "yaml": "^2.9.1"
   }
 }

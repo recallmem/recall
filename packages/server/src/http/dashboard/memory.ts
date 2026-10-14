@@ -25,6 +25,7 @@ import {
   accountWorkspace,
   ask,
   type ContextParams,
+  cardSources,
   contextPreview,
   type FactQuery,
   factsByIds,
@@ -75,7 +76,13 @@ type Render = (
 
 const LEVELS: ChatLevel[] = ["minimal", "low", "medium", "high", "max"];
 const MANAGE_ROLES = new Set(["owner", "admin"]);
-const PEER_FLASHES = ["fact_deleted", "fact_corrected", "fact_added", "card_saved"] as const;
+const PEER_FLASHES = [
+  "fact_deleted",
+  "fact_corrected",
+  "fact_added",
+  "card_saved",
+  "card_line_removed",
+] as const;
 /** Longest fact typed in the dashboard (the API takes longer ones). */
 const FACT_MAX = 2000;
 /** The API's peer card limits (PUT …/peers/{id}/card). */
@@ -418,6 +425,40 @@ export function registerMemory(
       throw new ApiError(422, `Each card entry is at most ${CARD_ENTRY_MAX} characters.`);
     await setPeerCard(ctx, ws.key, peer.name, undefined, lines);
     setFlash(c, secret, dash.sessionId, { kind: "card_saved", entries: lines.length });
+    return c.redirect(mv.peerHref(ws.name, peer.name), 303);
+  });
+
+  // One card line out, with the facts it rests on that the person ticked: deleting those facts
+  // keeps the night shift's card refresh from writing the line back.
+  app.post("/memory/:ws/peers/:peer/card/remove", async (c) => {
+    const { dash, ws } = await manageWs(c);
+    const peer = await peerView(ctx, ws, c.req.param("peer"));
+    if (peer.isScope) throw new ApiError(422, "A scope has no peer card.");
+    const form = c.get("form");
+    const entry = (form.entry ?? "").trim();
+    const card = peer.card ?? [];
+    if (!entry || !card.includes(entry))
+      throw new ApiError(409, "This line is no longer on the card. Reload the page and try again.");
+    // Only facts listed under this line can be deleted from here.
+    const [src] = await cardSources(ctx, ws, peer.internalId, peer.name, [entry]);
+    const chosen = (src?.facts ?? []).filter((f) => form[`fact_${f.id}`] === "1");
+    await setPeerCard(
+      ctx,
+      ws.key,
+      peer.name,
+      undefined,
+      card.filter((l) => l !== entry),
+    );
+    for (const f of chosen) await deleteConclusion(ctx, ws.key, f.id);
+    ctx.log.info(
+      { workspace: ws.name, peer: peer.name, facts: chosen.length },
+      "peer card line removed",
+    );
+    setFlash(c, secret, dash.sessionId, {
+      kind: "card_line_removed",
+      entry: clip(entry),
+      facts: chosen.length,
+    });
     return c.redirect(mv.peerHref(ws.name, peer.name), 303);
   });
 

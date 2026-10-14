@@ -139,12 +139,6 @@ export async function requireSession(
   return session!;
 }
 
-export const needPeer = (value: string | undefined | null): string =>
-  value ??
-  fail(
-    "peer_id is required: pass the person this is about, or reconnect Recall and fill in Default peer.",
-  );
-
 /** The person a call is about when nothing names one and the workspace has nobody yet. */
 export const DEFAULT_PERSON = "user";
 

@@ -408,9 +408,9 @@ describe("migration 0018", () => {
       await x.execute(sql`INSERT INTO credit_ledger (account_id, amount_micros, kind, idempotency_key, balance_after_micros, created_at)
         VALUES ('a_billed', -10, 'ingest', 'ingest:1', 0, '2026-05-04T00:00:00Z')`);
 
-      expect(await migrate(d.db, config.embedding.dimensions)).toEqual([
+      expect((await migrate(d.db, config.embedding.dimensions))[0]).toBe(
         "0018_activation_funnel.sql",
-      ]);
+      );
       const got = await rows<{
         id: string;
         first_app_at: Date | null;

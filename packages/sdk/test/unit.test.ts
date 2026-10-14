@@ -521,6 +521,7 @@ describe("wire conversion", () => {
     expect(usage.billed).toEqual({
       billedUsd: 0.205,
       learning: { messageTokens: 200_000, billedUsd: 0.2 },
+      storage: { tokens: 0, billedUsd: 0 },
       chat: {
         questions: 1,
         billedUsd: 0.005,

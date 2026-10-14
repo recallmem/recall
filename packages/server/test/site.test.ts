@@ -285,8 +285,8 @@ describe("site content", () => {
       "packages/sdk/package.json",
       "sdks/python/pyproject.toml",
     ];
-    // The organisation's only other repository is the plugins' marketplace.
-    const repos = [repo, `${owner}/recall-plugin`];
+    // The organisation's other repositories: the plugins' marketplace and the GitHub Action.
+    const repos = [repo, `${owner}/recall-plugin`, `${owner}/memory-action`];
     for (const file of files) {
       const text = read(file);
       expect(text, file).toContain(repo);

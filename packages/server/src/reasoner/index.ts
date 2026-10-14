@@ -279,14 +279,30 @@ interface WindowResult {
 }
 
 /**
- * Marks messages reasoned without a model call. They are tagged unbilled: a summary that later
- * reads them charges for what it reads (see the summarize job).
+ * Marks messages reasoned without a model call, charging for keeping them (they were embedded).
+ * They are also tagged unbilled: a summary that later reads them charges for what it reads (see
+ * the summarize job).
  */
-async function markReasoned(ctx: AppContext, ids: string[]): Promise<void> {
-  await ctx.db.execute(
-    sql`UPDATE messages SET reasoned_at = now(), internal = internal || '{"unbilled": true}'::jsonb
-        WHERE id = ANY(${textArray(ids)})`,
-  );
+async function markReasoned(
+  ctx: AppContext,
+  session: SessionInfo,
+  messages: PendingMessage[],
+): Promise<void> {
+  const ids = messages.map((m) => m.id);
+  const kept = messages.filter((m) => m.content.trim());
+  await ctx.db.transaction(async (tx) => {
+    await tx.execute(
+      sql`UPDATE messages SET reasoned_at = now(), internal = internal || '{"unbilled": true}'::jsonb
+          WHERE id = ANY(${textArray(ids)})`,
+    );
+    await ctx.billing.debitStore(tx, {
+      workspaceId: session.workspaceId,
+      sessionId: session.id,
+      source: "messages",
+      keyIds: kept.map((m) => m.id),
+      tokenCounts: kept.map((m) => m.tokenCount),
+    });
+  });
 }
 
 async function previousMessage(
@@ -312,10 +328,7 @@ async function processWindow(
   const cfg = session.config;
   const targets = window.filter(isTarget);
   if (!targets.some((m) => !isTrivial(m.content))) {
-    await markReasoned(
-      ctx,
-      window.map((m) => m.id),
-    );
+    await markReasoned(ctx, session, window);
     return empty;
   }
 

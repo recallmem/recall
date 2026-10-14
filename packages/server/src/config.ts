@@ -154,6 +154,11 @@ const EnvSchema = z.object({
   RECALL_COMPAT_API_KEY: z.string().optional(),
 
   RECALL_WORKER_CONCURRENCY: int(4),
+  /**
+   * Hosted mode: jobs one account may have running at once, across all workers, so one account's
+   * backlog cannot hold up everyone else's background work; 0 = no limit.
+   */
+  RECALL_QUEUE_MAX_RUNNING_PER_ACCOUNT: int(4),
   RECALL_WORKER_POLL_MS: int(1000),
   RECALL_QUEUE_MAX_ATTEMPTS: int(5),
   /** A claimed job's lease; the worker extends it while the job runs, and expired leases are reclaimed. */
@@ -194,6 +199,12 @@ const EnvSchema = z.object({
    * link (Anthropic and OpenAI reviewers need that). Set both; the hash comes from
    * `node scripts/hash-password.mjs`. The account must already exist.
    */
+  /**
+   * "Continue with GitHub" on the dashboard's sign-in page: a GitHub OAuth app's client ID and
+   * secret (set both). Its callback URL is <dashboard>/auth/github/callback.
+   */
+  RECALL_GITHUB_CLIENT_ID: z.string().trim().min(1).optional(),
+  RECALL_GITHUB_CLIENT_SECRET: z.string().trim().min(1).optional(),
   RECALL_REVIEWER_EMAIL: z.string().trim().toLowerCase().email().optional(),
   RECALL_REVIEWER_PASSWORD_HASH: z
     .string()
@@ -265,6 +276,12 @@ const EnvSchema = z.object({
    * however short it is, so very short messages would otherwise be billed below cost.
    */
   RECALL_PRICE_INGEST_MIN_TOKENS: z.coerce.number().int().min(0).default(50),
+  /**
+   * Keeping what is not learned from: messages of sessions with reasoning off (and acknowledgements
+   * no reasoning call reads), and facts added through the API. Each is embedded and stored; each
+   * counts as at least RECALL_PRICE_INGEST_MIN_TOKENS.
+   */
+  RECALL_PRICE_STORE_PER_MTOK_USD: z.coerce.number().min(0).default(0.25),
   RECALL_PRICE_CHAT_MINIMAL_USD: z.coerce.number().min(0).default(0.0008),
   RECALL_PRICE_CHAT_LOW_USD: z.coerce.number().min(0).default(0.005),
   RECALL_PRICE_CHAT_MEDIUM_USD: z.coerce.number().min(0).default(0.025),
@@ -277,10 +294,13 @@ const EnvSchema = z.object({
     (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
     z.coerce.number().int().min(0).default(1),
   ),
-  /** Most welcome credit granted per UTC day across all sign-ups, USD; 0 = no cap. */
+  /**
+   * Most welcome credit granted per UTC day across all sign-ups, USD; 0 = no cap. Sign-ups past
+   * it get their credit on a later day (signup_credit_pending), not never.
+   */
   RECALL_SIGNUP_CREDIT_DAILY_CAP_USD: z.preprocess(
     (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
-    z.coerce.number().min(0).default(50),
+    z.coerce.number().min(0).default(250),
   ),
   /** Extra email domains (comma-separated, subdomains included) refused for new sign-ups, besides the built-in disposable list. */
   RECALL_SIGNUP_BLOCKED_DOMAINS: z.string().optional(),
@@ -294,6 +314,12 @@ const EnvSchema = z.object({
    * RECALL_ALERT_EMAIL, else to RECALL_OPERATOR_EMAILS. `false` turns it off.
    */
   RECALL_FUNNEL_REPORT_ENABLED: bool.default(true),
+  /**
+   * Onboarding emails to new self-serve accounts: a welcome email after sign-up and one reminder
+   * 48 hours later if the account is still unused (needs the dashboard and RESEND_API_KEY).
+   * `false` turns them off.
+   */
+  RECALL_ONBOARDING_EMAILS_ENABLED: bool.default(true),
   /** Top-up amounts offered as buttons, comma-separated USD. */
   RECALL_TOPUP_AMOUNTS_USD: z.string().default("10,25,50,100"),
   /** $10: below it, Stripe's fixed fee per payment is a large share of the top-up. */
@@ -383,6 +409,8 @@ export interface Config {
     maxAttempts: number;
     leaseMs: number;
     retryBaseMs: number;
+    /** Hosted mode only: jobs one account may have running at once (0 = no limit). */
+    maxRunningPerAccount: number;
     /** Serverless: bearer token for POST /internal/tick; null disables the endpoint. */
     cronSecret: string | null;
   };
@@ -417,10 +445,14 @@ export interface HostedConfig {
   legal: LegalLinks | null;
   /** The app-directory reviewer who may sign in with a password, if configured. */
   reviewer: { email: string; passwordHash: string } | null;
+  /** The GitHub OAuth app for "Continue with GitHub", if configured. */
+  github: { clientId: string; clientSecret: string } | null;
   /** Signed-in dashboard users allowed into the operator console (lower-cased emails). */
   operatorEmails: string[];
   /** The weekly activation-funnel email to the operator (RECALL_FUNNEL_REPORT_ENABLED). */
   funnelReport: boolean;
+  /** Welcome and "not used yet" emails to new accounts (RECALL_ONBOARDING_EMAILS_ENABLED). */
+  onboardingEmails: boolean;
   /** Key for session cookies and CSRF tokens (32 bytes). */
   sessionSecret: Buffer;
   sessionTtlMs: number;
@@ -444,8 +476,9 @@ export interface HostedConfig {
     /** Integer micro-USD (1 USD = 1,000,000). */
     prices: {
       ingestPerMTokMicros: number;
-      /** Minimum billed tokens per message. */
+      /** Minimum billed tokens per message (and per stored fact). */
       ingestMinTokens: number;
+      storePerMTokMicros: number;
       chatMicros: Record<ChatLevel, number>;
     };
     signupCreditMicros: number;
@@ -639,8 +672,13 @@ export function hostedConfig(env: Env): HostedConfig {
       env.RECALL_REVIEWER_EMAIL && env.RECALL_REVIEWER_PASSWORD_HASH
         ? { email: env.RECALL_REVIEWER_EMAIL, passwordHash: env.RECALL_REVIEWER_PASSWORD_HASH }
         : null,
+    github:
+      env.RECALL_GITHUB_CLIENT_ID && env.RECALL_GITHUB_CLIENT_SECRET
+        ? { clientId: env.RECALL_GITHUB_CLIENT_ID, clientSecret: env.RECALL_GITHUB_CLIENT_SECRET }
+        : null,
     operatorEmails: parseEmailList(env.RECALL_OPERATOR_EMAILS),
     funnelReport: env.RECALL_FUNNEL_REPORT_ENABLED,
+    onboardingEmails: env.RECALL_ONBOARDING_EMAILS_ENABLED,
     sessionSecret: createHmac("sha256", keyMaterial).update("recall-dashboard-v1").digest(),
     sessionTtlMs: Math.max(1, env.RECALL_SESSION_TTL_DAYS) * 86_400_000,
     email: {
@@ -662,6 +700,7 @@ export function hostedConfig(env: Env): HostedConfig {
       prices: {
         ingestPerMTokMicros: usdToMicros(env.RECALL_PRICE_INGEST_PER_MTOK_USD),
         ingestMinTokens: env.RECALL_PRICE_INGEST_MIN_TOKENS,
+        storePerMTokMicros: usdToMicros(env.RECALL_PRICE_STORE_PER_MTOK_USD),
         chatMicros: {
           minimal: usdToMicros(env.RECALL_PRICE_CHAT_MINIMAL_USD),
           low: usdToMicros(env.RECALL_PRICE_CHAT_LOW_USD),
@@ -841,6 +880,8 @@ export function loadConfig(source: Record<string, string | undefined> = process.
   if (env.RECALL_ADMIN_TOKEN !== undefined && env.RECALL_ADMIN_TOKEN.length < 24) {
     throw new Error("RECALL_ADMIN_TOKEN must be at least 24 characters");
   }
+  if (!!env.RECALL_GITHUB_CLIENT_ID !== !!env.RECALL_GITHUB_CLIENT_SECRET)
+    throw new Error("Set both RECALL_GITHUB_CLIENT_ID and RECALL_GITHUB_CLIENT_SECRET, or neither");
   if (env.RECALL_HOSTED) {
     if (!env.RECALL_AUTH_ENABLED)
       throw new Error("RECALL_HOSTED=true requires RECALL_AUTH_ENABLED=true");
@@ -954,6 +995,7 @@ export function loadConfig(source: Record<string, string | undefined> = process.
       maxAttempts: env.RECALL_QUEUE_MAX_ATTEMPTS,
       leaseMs: env.RECALL_WORKER_LEASE_MS,
       retryBaseMs: env.RECALL_WORKER_RETRY_BASE_MS,
+      maxRunningPerAccount: env.RECALL_QUEUE_MAX_RUNNING_PER_ACCOUNT,
       cronSecret: env.RECALL_CRON_SECRET ?? null,
     },
     reasoner: {

@@ -2,17 +2,18 @@
     <p class="lede">What Recall costs per user, per ticket or per player each month, how fast each call is, and how to spend less. Prices come from the price list and speeds from our own measurements, and every example shows its arithmetic, so you can redo it with your own numbers.</p>
 
     <h2 id="pricing">How pricing works</h2>
-    <p>Recall runs on prepaid credit in US dollars, with no subscription; new accounts get $5. You pay for two things, learning from messages and answering questions. Everything else is included.</p>
+    <p>Recall runs on prepaid credit in US dollars, with no subscription; new accounts get $5. You pay for learning from messages and answering questions, and a little for storing what Recall does not learn from. Everything else is included.</p>
     <table>
       <thead><tr><th>What</th><th>Price</th><th>How it is counted</th></tr></thead>
       <tbody>
         <tr><td>Learning from a message</td><td>$1.75 per 1M message tokens</td><td>Each message counts as at least 50 tokens.</td></tr>
         <tr><td>A message read but not learned from</td><td>$1.75 per 1M tokens read</td><td>Messages from a peer with <code>observeMe: false</code>, or in a session or message with reasoning off. Only what Recall reads counts: at most 200 tokens when it reads the message as context, 600 for a summary, and no 50-token minimum.</td></tr>
+        <tr><td>A message stored but not learned from, or a fact you add</td><td>$0.25 per 1M tokens</td><td>A message no reasoning call reads (in a session with reasoning off, or a run of only acknowledgements such as "ok, thanks"), and each fact added with <code>create_conclusions</code>. Each counts as at least 50 tokens. Charged once, when it is stored and indexed for search; a summary that reads the message later counts what it reads, as above.</td></tr>
         <tr><td>A question (<code>chat</code>)</td><td>$0.0008 to $0.25</td><td>Per question, by reasoning level (below). An answer from empty memory is free. A cached answer is still billed as one question.</td></tr>
-        <tr><td>Context and <code>turn</code>, search, storage, summaries, the night shift</td><td>Included</td><td>No charge per call.</td></tr>
+        <tr><td>Context and <code>turn</code>, search, summaries, the night shift</td><td>Included</td><td>No charge per call.</td></tr>
       </tbody>
     </table>
-    <p>So a short message such as "Sounds good, book it" costs 50 × $1.75 / 1M = $0.0000875 to learn from, and a 400-token message 400 × $1.75 / 1M = $0.0007. A 30-token line from a bot you do not observe costs 30 × $1.75 / 1M = $0.0000525. Every stored message comes back with its <code>tokenCount</code>, so you can measure your own averages.</p>
+    <p>So a short message such as "Sounds good, book it" costs 50 × $1.75 / 1M = $0.0000875 to learn from, and a 400-token message 400 × $1.75 / 1M = $0.0007. A 30-token line from a bot you do not observe costs 30 × $1.75 / 1M = $0.0000525. Keeping the same line in a session with reasoning off costs 50 × $0.25 / 1M = $0.0000125. Every stored message comes back with its <code>tokenCount</code>, so you can measure your own averages.</p>
     <table>
       <thead><tr><th>Question level</th><th>Per question</th><th>Per 1,000 questions</th></tr></thead>
       <tbody>

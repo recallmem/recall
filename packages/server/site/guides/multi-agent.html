@@ -78,7 +78,7 @@ worker_key = recall.create_key(workspace_id="acme-agents", session_id="job-58213
 
     <h2 id="cost-speed">Cost and speed</h2>
     <p>Measured from Europe against the hosted API (Frankfurt), October 2026: a context read took 0.3 to 0.7 seconds, a search about 0.9 seconds, and a question at <code>minimal</code> or <code>low</code> 2 to 4.5 seconds. <code>high</code> and <code>max</code> run a tool loop and are slower. Learning usually finishes within about 20 seconds of a write; the webhook tells you when.</p>
-    <p>Context, search and storage are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50, and for questions. A message is billed once, however many agents observe it. A user who starts 40 jobs a month, each with a 150-token brief, 30 agent messages of about 250 tokens and 4 questions:</p>
+    <p>Context and search are included. You pay for learning, $1.75 per million message tokens with every message counting as at least 50, and for questions. A message is billed once, however many agents observe it. A user who starts 40 jobs a month, each with a 150-token brief, 30 agent messages of about 250 tokens and 4 questions:</p>
     <table>
       <thead><tr><th>Item</th><th>Per month</th></tr></thead>
       <tbody>

@@ -179,7 +179,7 @@ later = await Runner.run(
 
     <h2 id="cost-speed">Cost and speed</h2>
     <p>Loading a session lists its messages, 100 per request. The instructions read memory with a context request and no model call: context reads took 0.3 to 0.7 seconds, measured from Europe against the hosted API (Frankfurt), October 2026. The SDK builds instructions before every model call, so a run with tool calls reads more than once. <code>recall_search</code> searches facts and messages without a model call, in about a second; <code>recall_ask</code> is one model call of 2 to 4.5 seconds at <code>low</code>. Learning runs in the background.</p>
-    <p>Context, search and storage are included. Learning from the user's messages and answering questions are charged; see <a href="/docs#pricing">pricing</a> and <a href="/guides/cost-and-speed">Cost and speed</a> for worked examples.</p>
+    <p>Context and search are included. Learning from the user's messages and answering questions are charged; see <a href="/docs#pricing">pricing</a> and <a href="/guides/cost-and-speed">Cost and speed</a> for worked examples.</p>
 
     <h2 id="privacy">Privacy and forgetting</h2>
     <p>A <code>RecallSession</code> stores every item of the conversation in Recall, tool results included (Recall does not learn from those). If a tool returns data you must not keep, use a session store of your own for the history and keep Recall for the instructions and tools. Tell users what the agent remembers. To forget someone:</p>

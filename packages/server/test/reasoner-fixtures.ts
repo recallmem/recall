@@ -7,8 +7,8 @@ import { resolveConfig } from "../src/reasoner/config.js";
 import { scheduleMessageProcessing, scheduleSummaries } from "../src/reasoner/schedule.js";
 
 /**
- * Direct-SQL fixtures for component B tests: workspaces, peers, sessions and
- * messages inserted the way message creation does it (contract 1): observers
+ * Direct-SQL fixtures for the reasoner tests: workspaces, peers, sessions and
+ * messages inserted the way message creation does it: observers
  * and reasoning resolved into `messages.internal`, and the reason/summary jobs
  * scheduled in the same transaction.
  */

@@ -109,3 +109,12 @@ export async function migrate(db: Db, embeddingDimensions: number): Promise<stri
     return pending;
   });
 }
+
+/** A Postgres unique violation (23505), possibly wrapped by the driver or the query builder. */
+export function isUniqueViolation(err: unknown): boolean {
+  for (let e: unknown = err, depth = 0; e && depth < 5; depth++) {
+    if ((e as { code?: string }).code === "23505") return true;
+    e = (e as { cause?: unknown }).cause;
+  }
+  return false;
+}

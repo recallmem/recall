@@ -58,6 +58,7 @@
         <a class="sub" href="#openclaw">OpenClaw</a>
         <a class="sub" href="#hermes">Hermes Agent</a>
         <a class="sub" href="#agent-skill">Agent Skill</a>
+        <a class="sub" href="#github-action">GitHub Action</a>
         <a href="#mcp">MCP</a>
         <a class="sub" href="#mcp-connector">Add as a connector</a>
         <a href="#webhooks">Webhooks</a>
@@ -205,6 +206,7 @@ recall peer delete alice --yes         # forget a person</code></pre>
         <tr><td><a href="#openclaw">OpenClaw</a></td><td>Plugin</td><td>before each turn</td></tr>
         <tr><td><a href="#hermes">Hermes Agent</a></td><td>Memory provider</td><td>before each turn</td></tr>
         <tr><td><a href="#agent-skill">Agent Skill</a></td><td>A <code>SKILL.md</code> the agent reads</td><td>when the agent decides to look</td></tr>
+        <tr><td><a href="#github-action">GitHub Action</a></td><td>A workflow step</td><td>as an answer or a comment on a new issue</td></tr>
         <tr><td>Any MCP client</td><td><a href="#mcp">MCP server</a></td><td>when the model calls a tool</td></tr>
       </tbody>
     </table>
@@ -301,6 +303,23 @@ mkdir -p ~/.agents/skills &amp;&amp; cp -r recall-plugin/integrations/agent-skil
 node ~/.agents/skills/recall-memory/scripts/recall.mjs remember "Prefers tea over coffee"
 node ~/.agents/skills/recall-memory/scripts/recall.mjs context --query drinks</code></pre>
     <p>Then ask your agent "what do you remember about my drinks?". Full reference: <a href="https://github.com/recallmem/recall-plugin/blob/main/integrations/agent-skill/README.md"><code>integrations/agent-skill</code></a>.</p>
+
+    <h3 id="github-action">GitHub Action</h3>
+    <p>Long-term memory for a repository. <code>recallmem/memory-action</code> stores each pull request, review, comment, issue, release and commit message in a session for its thread (<code>owner-repo-pr-12</code>, <code>owner-repo-issue-7</code>), said by the GitHub account that wrote it (<code>gh-&lt;login&gt;</code>), with all of a repository's sessions in one <a href="#concepts">scope</a>. With <code>mode: ask</code> it answers a question from that memory as a step output, and on a new issue it can comment with the earlier work that relates to it. Bots are left out, and a run that cannot reach Recall only warns. Add the key as the secret <code>RECALL_API_KEY</code>, then:</p>
+<pre><code>on:
+  pull_request: { types: [opened, reopened, closed] }
+  pull_request_review: { types: [submitted] }
+  issues: { types: [opened, reopened, closed] }
+  issue_comment: { types: [created] }
+  push: { branches: [main] }
+jobs:
+  remember:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: recallmem/memory-action@v1
+        with:
+          api-key: $&#123;&#123; secrets.RECALL_API_KEY &#125;&#125;</code></pre>
+    <p>Ask the same memory from an agent with <code>workspace_chat</code> and <code>scope: owner-repo</code> (the <a href="#mcp">MCP server's</a> full tool set). Full reference: <a href="https://github.com/recallmem/memory-action#readme"><code>recallmem/memory-action</code></a>, listed on the <a href="https://github.com/marketplace/actions/recall-repo-memory">GitHub Marketplace</a>.</p>
 
     <h2 id="mcp">MCP</h2>
     <p>Recall serves the Model Context Protocol at <code><span class="origin">https://api.recallmem.dev</span>/mcp</code> (streamable HTTP, stateless). By default it exposes eight tools for recording and recalling: <code>chat</code>, <code>search</code>, <code>get_session_context</code>, <code>get_peer_card</code>, <code>list_conclusions</code>, <code>create_conclusions</code>, <code>delete_conclusion</code> and <code>add_messages_to_session</code>. Use <code>/mcp?profile=full</code> (or send <code>x-recall-mcp-profile: full</code>) for all 40 tools (workspaces, peers, sessions, conclusions, scopes). There are two ways to connect: sign in from the app (hosted Recall), or send an API key.</p>
@@ -613,11 +632,11 @@ RECALL_MODEL_CHAT_MAX=anthropic/claude-opus-5-5</code></pre>
 
     <h3 id="metering">Cost metering</h3>
     <p>Every model and embedding call is recorded with its tokens and cost, by workspace, task and model. <code>GET /v3/workspaces/{id}/usage</code> and <code>GET /v3/usage</code> report <code>calls</code>, <code>input_tokens</code> and <code>output_tokens</code> (the workspace usage also <code>cache_read_tokens</code> and <code>cache_write_tokens</code>), in <code>total</code>, <code>by_task</code> and by model or workspace.</p>
-    <p>On the hosted service there is no <code>cost_usd</code>: our provider cost is not what you pay. The workspace usage names the hosted models Recall Lumen (<code>recall-lumen</code>, answers at <code>low</code> to <code>max</code>), Recall Loom (<code>recall-loom</code>, builds memory and answers at <code>minimal</code>) and Recall Embed (<code>recall-embed</code>, embeddings). On prepaid credit, what you were charged is in <code>billed</code>, for the period and, at <code>GET /v3/usage</code>, for each workspace: <code>billed_usd</code> in all, <code>learning</code> (<code>message_tokens</code> billed, each message counting as at least 50, and their <code>billed_usd</code>) and <code>chat</code> (<code>questions</code> and <code>billed_usd</code>, in all and <code>by_level</code>). Charges given back are left out, so it matches the credit history under <b>Billing</b>.</p>
+    <p>On the hosted service there is no <code>cost_usd</code>: our provider cost is not what you pay. The workspace usage names the hosted models Recall Lumen (<code>recall-lumen</code>, answers at <code>low</code> to <code>max</code>), Recall Loom (<code>recall-loom</code>, builds memory and answers at <code>minimal</code>) and Recall Embed (<code>recall-embed</code>, embeddings). On prepaid credit, what you were charged is in <code>billed</code>, for the period and, at <code>GET /v3/usage</code>, for each workspace: <code>billed_usd</code> in all, <code>learning</code> (<code>message_tokens</code> billed, each message counting as at least 50, and their <code>billed_usd</code>), <code>storage</code> (<code>tokens</code> billed for messages kept without learning and facts you add, and their <code>billed_usd</code>) and <code>chat</code> (<code>questions</code> and <code>billed_usd</code>, in all and <code>by_level</code>). Charges given back are left out, so it matches the credit history under <b>Billing</b>.</p>
     <p>On a server of your own, <code>cost_usd</code> is the provider cost and <code>unpriced_calls</code> counts calls to models with no known price; there is no <code>billed</code>. OpenRouter reports what it charged for each call and Recall records exactly that; on your own provider key (BYOK) it adds the upstream provider's charge OpenRouter reports, and prices the call's tokens at list price when that charge is missing. For other providers the cost is the call's tokens at list price, cache reads and writes included; override prices with <code>RECALL_PRICING_JSON</code>. OpenRouter models missing from Recall's price table are priced from OpenRouter's public catalog (turn that off with <code>RECALL_OPENROUTER_LIVE_PRICES=false</code>).</p>
 
     <h2 id="pricing">Pricing</h2>
-    <p>Prepaid credit, no subscription. New accounts get $5. Learning from messages costs <b>$1.75 per 1M message tokens</b>, a message counting as at least 50 tokens. A message Recall reads without learning from it (from a peer you do not observe, or in a session with reasoning off) counts only what it reads: at most 200 tokens as context, 600 for a summary. Chat costs <b>$0.0008</b> (minimal), <b>$0.005</b> (low), <b>$0.025</b> (medium), <b>$0.05</b> (high) or <b>$0.25</b> (max) per query. The price is taken when the answer starts, so it never spends credit you do not have; it is given back when no answer comes, and an answer from empty memory is free. On chat, an <code>Idempotency-Key</code> makes a retry free: the same key with the same request returns the first answer again (see <a href="#idempotency">retries</a>). Context, search, storage, summaries and dreams are included. Set a monthly cap and auto top-up under <b>Billing</b>. Credit is in US dollars; Checkout charges its euro amount at the European Central Bank's daily rate (or your own currency where Stripe offers it) and takes cards, iDEAL, Bancontact and other local methods.</p>
+    <p>Prepaid credit, no subscription. New accounts get $5. Learning from messages costs <b>$1.75 per 1M message tokens</b>, a message counting as at least 50 tokens. A message Recall reads without learning from it (from a peer you do not observe, or in a session with reasoning off) counts only what it reads: at most 200 tokens as context, 600 for a summary. Storing a message no reasoning call reads (in a session with reasoning off, or a run of only acknowledgements) costs <b>$0.25 per 1M tokens</b>, each counting as at least 50, and so does each fact you add yourself with <code>create_conclusions</code>. Chat costs <b>$0.0008</b> (minimal), <b>$0.005</b> (low), <b>$0.025</b> (medium), <b>$0.05</b> (high) or <b>$0.25</b> (max) per query. The price is taken when the answer starts, so it never spends credit you do not have; it is given back when no answer comes, and an answer from empty memory is free. On chat, an <code>Idempotency-Key</code> makes a retry free: the same key with the same request returns the first answer again (see <a href="#idempotency">retries</a>). Context, search, summaries and dreams are included. Set a monthly cap and auto top-up under <b>Billing</b>. Credit is in US dollars; Checkout charges its euro amount at the European Central Bank's daily rate (or your own currency where Stripe offers it) and takes cards, iDEAL, Bancontact and other local methods.</p>
 
     <h2 id="benchmarks">Benchmarks</h2>
     <p>Full runs of two public long-term memory benchmarks against the hosted service at the default <code>low</code> level, with Recall Lumen answering, Recall Loom building memory and one model call per answer. <a href="https://arxiv.org/abs/2410.10813">LongMemEval-S</a> gives each question its own chat history of about 100,000 tokens; <a href="https://arxiv.org/abs/2510.27246">BEAM</a> asks 20 questions about each long conversation, across ten abilities, at about 125,000 tokens (100K) and 500,000 tokens (500K). One workspace per LongMemEval-S question and per BEAM conversation; the memory was built on 10 October 2026 and every question asked on 11 October.</p>

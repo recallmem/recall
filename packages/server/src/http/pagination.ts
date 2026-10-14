@@ -67,7 +67,7 @@ export interface CursorPage<T> {
 export type Page<T> = OffsetPage<T> | CursorPage<T>;
 
 const PagingQuery = z.looseObject({
-  page: z.coerce.number().int().min(1).default(1),
+  page: z.coerce.number().int().min(1).max(1_000_000).default(1),
   size: z.coerce.number().int().min(1).max(100).default(50),
   reverse: boolParam.optional(),
 });

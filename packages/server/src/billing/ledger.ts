@@ -25,10 +25,11 @@ export type LedgerKind =
   | "grant"
   | "refund"
   | "ingest"
+  | "store"
   | `chat_${"minimal" | "low" | "medium" | "high" | "max"}`;
 
 /** Kinds that count as spend against a monthly budget. */
-export const USAGE_KINDS_SQL = sql`(kind = 'ingest' OR kind LIKE 'chat\\_%')`;
+export const USAGE_KINDS_SQL = sql`(kind IN ('ingest', 'store') OR kind LIKE 'chat\\_%')`;
 
 export interface PostResult {
   /** False when the idempotency key was already used, or a guarded debit found too little credit. */
@@ -198,23 +199,23 @@ export async function ledgerEntries(
   }));
 }
 
-/** One line of the credit history: a single entry, or a UTC day's ingest charges added up. */
+/** One line of the credit history: a single entry, or a UTC day's ingest or storage charges added up. */
 export interface LedgerLine {
   kind: string;
-  /** Entries in this line: 1, or the number of ingest batches charged that day. */
+  /** Entries in this line: 1, or the number of batches of that kind charged that day. */
   entries: number;
   amount_micros: number;
   /** The balance after the line's last entry. */
   balance_after_micros: number;
   /** The last entry's time (a day's group: its latest charge). */
   created_at: string;
-  /** "YYYY-MM-DD" when the line groups a day's ingest charges, else null. */
+  /** "YYYY-MM-DD" when the line groups a day's charges of one kind, else null. */
   day: string | null;
 }
 
 /**
- * The credit history, newest first, a page at a time. Ingest charges (one per reasoning batch,
- * often hundreds a day) are added up per UTC day; every other entry is its own line. A day's
+ * The credit history, newest first, a page at a time. Ingest and storage charges (one per batch,
+ * often hundreds a day) are added up per kind and UTC day; every other entry is its own line. A day's
  * line sits where its last charge does and shows the balance after it.
  */
 export async function ledgerHistory(
@@ -223,8 +224,8 @@ export async function ledgerHistory(
   page: number,
   size = 50,
 ): Promise<{ items: LedgerLine[]; page: number; pages: number; total: number }> {
-  const grouped = sql`SELECT CASE WHEN kind = 'ingest'
-            THEN 'd:' || to_char(date_trunc('day', created_at AT TIME ZONE 'UTC'), 'YYYY-MM-DD')
+  const grouped = sql`SELECT CASE WHEN kind IN ('ingest', 'store')
+            THEN 'd:' || to_char(date_trunc('day', created_at AT TIME ZONE 'UTC'), 'YYYY-MM-DD') || ':' || kind
             ELSE 'e:' || id::text END AS grp,
           id, kind, amount_micros, balance_after_micros, created_at
         FROM credit_ledger WHERE account_id = ${accountId}`;
@@ -257,7 +258,7 @@ export async function ledgerHistory(
       amount_micros: Number(r.amount),
       balance_after_micros: Number(r.balance),
       created_at: new Date(r.created_at).toISOString(),
-      day: r.grp.startsWith("d:") ? r.grp.slice(2) : null,
+      day: r.grp.startsWith("d:") ? r.grp.slice(2, 12) : null,
     })),
     page: current,
     pages,
@@ -265,7 +266,7 @@ export async function ledgerHistory(
   };
 }
 
-/** Usage charges (ingest + chat) since `since`, in micros. */
+/** Usage charges (ingest, storage and chat) since `since`, in micros. */
 export async function chargesSince(db: Executor, accountId: string, since: Date): Promise<number> {
   const [r] = await rows<{ micros: string | number | null }>(
     db,
@@ -275,7 +276,7 @@ export async function chargesSince(db: Executor, accountId: string, since: Date)
   return Number(r?.micros ?? 0);
 }
 
-/** Usage charges by kind (ingest, chat_<level>) since `since`. */
+/** Usage charges by kind (ingest, store, chat_<level>) since `since`. */
 export async function chargesByKind(
   db: Executor,
   accountId: string,
@@ -304,17 +305,17 @@ export const CHAT_LEVELS = [
 export interface UsageCharge {
   /** The workspace's name, the day ("YYYY-MM-DD"), or null (no grouping, or a deleted workspace). */
   group: string | null;
-  /** "ingest" or "chat_<level>". */
+  /** "ingest", "store" or "chat_<level>". */
   kind: string;
-  /** Charges, less those given back: ingest batches, or questions for chat. */
+  /** Charges, less those given back: ingest or storage batches, or questions for chat. */
   count: number;
   micros: number;
-  /** Ingest only: billed message tokens (each message at least the per-message minimum). */
+  /** Ingest and storage: billed tokens (each message or fact at least the per-item minimum). */
   tokens: number;
 }
 
 /**
- * Usage charges (ingest and chat) by kind, net of charges given back, optionally only those of one
+ * Usage charges (ingest, storage and chat) by kind, net of charges given back, optionally only those of one
  * workspace (its internal id) and grouped by workspace name or by UTC day. `until` is exclusive.
  */
 export async function usageCharges(
@@ -339,12 +340,12 @@ export async function usageCharges(
     sql`SELECT ${group} AS grp, l.kind,
                (count(*) FILTER (WHERE l.amount_micros < 0) - count(*) FILTER (WHERE l.amount_micros > 0))::int AS n,
                -sum(l.amount_micros) AS micros,
-               sum(CASE WHEN l.kind = 'ingest'
+               sum(CASE WHEN l.kind IN ('ingest', 'store')
                         THEN (CASE WHEN l.amount_micros < 0 THEN 1 ELSE -1 END)
                              * COALESCE((l.detail->>'billed_tokens')::bigint, 0) END) AS tokens
         FROM credit_ledger l
         ${opts.by === "workspace" ? sql`LEFT JOIN workspaces w ON w.id = l.detail->>'workspace_id'` : sql``}
-        WHERE l.account_id = ${accountId} AND (l.kind = 'ingest' OR l.kind LIKE 'chat\\_%')
+        WHERE l.account_id = ${accountId} AND (l.kind IN ('ingest', 'store') OR l.kind LIKE 'chat\\_%')
           ${opts.since ? sql`AND l.created_at >= ${opts.since}` : sql``}
           ${opts.until ? sql`AND l.created_at < ${opts.until}` : sql``}
           ${opts.workspaceId ? sql`AND l.detail->>'workspace_id' = ${opts.workspaceId}` : sql``}
@@ -361,9 +362,11 @@ export async function usageCharges(
 
 /** What an account was charged for usage, with the billable units (the usage API's `billed`). */
 export interface Billed {
-  /** Learning and chat together, net of charges given back. */
+  /** Learning, storage and chat together, net of charges given back. */
   billed_usd: number;
   learning: { message_tokens: number; billed_usd: number };
+  /** Messages kept without being learned from, and facts added through the API. */
+  storage: { tokens: number; billed_usd: number };
   chat: {
     questions: number;
     billed_usd: number;
@@ -377,12 +380,17 @@ export function billedFrom(
 ): Billed {
   const usd = (micros: number) => micros / MICROS_PER_USD;
   let learning = { tokens: 0, micros: 0 };
+  let storage = { tokens: 0, micros: 0 };
   const levels = new Map<string, { count: number; micros: number }>(
     CHAT_LEVELS.map((l) => [l, { count: 0, micros: 0 }]),
   );
   for (const c of charges) {
     if (c.kind === "ingest") {
       learning = { tokens: learning.tokens + c.tokens, micros: learning.micros + c.micros };
+      continue;
+    }
+    if (c.kind === "store") {
+      storage = { tokens: storage.tokens + c.tokens, micros: storage.micros + c.micros };
       continue;
     }
     const level = levels.get(c.kind.replace(/^chat_/, ""));
@@ -396,8 +404,9 @@ export function billedFrom(
     { count: 0, micros: 0 },
   );
   return {
-    billed_usd: usd(learning.micros + chat.micros),
+    billed_usd: usd(learning.micros + storage.micros + chat.micros),
     learning: { message_tokens: learning.tokens, billed_usd: usd(learning.micros) },
+    storage: { tokens: storage.tokens, billed_usd: usd(storage.micros) },
     chat: {
       questions: chat.count,
       billed_usd: usd(chat.micros),

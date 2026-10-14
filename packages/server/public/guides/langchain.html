@@ -195,7 +195,7 @@ docs = retriever.invoke("food preferences")</code></pre>
 
     <h2 id="cost-speed">Cost and speed</h2>
     <p>The middleware reads memory once per run, with a context request and no model call: context reads took 0.3 to 0.7 seconds, measured from Europe against the hosted API (Frankfurt), October 2026. <code>recall_search</code> and the retriever search facts and messages without a model call, in about a second. <code>recall_ask</code> is one model call of 2 to 4.5 seconds at <code>low</code>. Recording returns at once; learning runs in the background.</p>
-    <p>Context, search and storage are included. Learning from the recorded messages and answering questions are charged; see <a href="/docs#pricing">pricing</a> and <a href="/guides/cost-and-speed">Cost and speed</a> for worked examples.</p>
+    <p>Context and search are included. Learning from the recorded messages and answering questions are charged; see <a href="/docs#pricing">pricing</a> and <a href="/guides/cost-and-speed">Cost and speed</a> for worked examples.</p>
 
     <h2 id="privacy">Privacy and forgetting</h2>
     <p>The middleware sends the user's message and the agent's final answer to Recall, not tool calls or tool output. <code>RecallChatMessageHistory</code> stores every message you give it, tool messages included, but Recall learns only from the user's. Tell users what the agent remembers. To forget someone:</p>

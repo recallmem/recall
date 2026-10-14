@@ -119,12 +119,49 @@ describe("background billing", () => {
     );
     expect(billed).toBeGreaterThan(0);
     expect(await balance()).toBeLessThan(before);
+    // Keeping the 30 messages is charged too, at the storage price, once per message.
+    const [stored] = await rows<{ messages: number; billed: number }>(
+      s.ctx.db,
+      sql`SELECT sum((detail->>'messages')::int)::int AS messages,
+                 sum((detail->>'billed_tokens')::int)::int AS billed
+          FROM credit_ledger WHERE account_id = ${accountId} AND kind = 'store'
+            AND detail->>'session_id' = (SELECT id FROM sessions WHERE name = 'free')`,
+    );
+    expect(stored!.messages).toBe(30);
+    expect(stored!.billed).toBeGreaterThan(30 * 50);
     // Each message is billed once: nothing is left tagged unbilled in the summarised range.
     const left = await count(
       sql`SELECT count(*)::int AS n FROM messages m JOIN sessions se ON se.id = m.session_id
             WHERE se.name = 'free' AND m.seq_in_session <= 20 AND m.internal ? 'unbilled'`,
     );
     expect(left).toBe(0);
+    expect(await ledgerDrift(s.ctx.db, accountId)).toBe(0);
+  });
+
+  it("charges facts added through the API at the storage price, each at least 50 tokens", async () => {
+    const before = await balance();
+    const res = await s.api(
+      "POST",
+      "/v3/workspaces/main/conclusions",
+      {
+        conclusions: [
+          { content: "Alice drinks tea.", observer_id: "alice", observed_id: "alice" },
+          { content: "Alice runs on Sundays.", observer_id: "alice", observed_id: "alice" },
+        ],
+      },
+      auth,
+    );
+    expect(res.status).toBe(201);
+    const [entry] = await rows<{ amount: number; detail: Record<string, unknown> }>(
+      s.ctx.db,
+      sql`SELECT amount_micros::int AS amount, detail FROM credit_ledger
+          WHERE account_id = ${accountId} AND kind = 'store' AND detail ? 'conclusions'
+          ORDER BY id DESC LIMIT 1`,
+    );
+    // 2 facts at the 50-token minimum: 100 tokens at $0.25 per 1M, rounded up to the micro.
+    expect(entry!.detail).toMatchObject({ conclusions: 2, billed_tokens: 100 });
+    expect(entry!.amount).toBe(-25);
+    expect(await balance()).toBe(before - 25);
     expect(await ledgerDrift(s.ctx.db, accountId)).toBe(0);
   });
 

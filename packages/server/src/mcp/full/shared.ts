@@ -47,7 +47,6 @@ export function exclusive(options: Record<string, unknown>): void {
   if (set.length > 1) fail(`${set.join(", ")} are mutually exclusive: pass only one.`);
 }
 
-export const scopeIdArg = (what: string) => z.string().min(1).max(512).describe(what);
 export const newScopeIdArg = scopeName.describe("Id for the scope.");
 export const newPeerIdArg = newName;
 

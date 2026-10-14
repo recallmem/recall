@@ -209,10 +209,12 @@ export interface BilledQuestions {
 }
 /** What an account on prepaid credit (the hosted service) was charged, with the billable units. */
 export interface UsageBilled {
-  /** Learning and chat together, in USD. Charges given back are left out. */
+  /** Learning, storage and chat together, in USD. Charges given back are left out. */
   billedUsd: number;
   /** Message tokens learned (each message counts as at least 50) and their charge. */
   learning: { messageTokens: number; billedUsd: number };
+  /** Tokens stored without learning (messages no reasoning call reads, facts you add) and their charge. */
+  storage: { tokens: number; billedUsd: number };
   /** Questions answered, in all and per reasoning level. */
   chat: BilledQuestions & { byLevel: Record<ReasoningLevel, BilledQuestions> };
 }

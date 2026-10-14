@@ -10,6 +10,8 @@ import { rows } from "../../db/client.js";
 import { ApiError, notFound } from "../../lib/errors.js";
 import { iso } from "../../lib/time.js";
 import { LlmError } from "../../llm/types.js";
+import { cardValueTerms } from "../../reasoner/cards.js";
+import { normKey } from "../../reasoner/util.js";
 import type { ChatResult } from "../../recall/cache.js";
 import { prepareChat, runChat } from "../../recall/chat.js";
 import type { ChatLevel } from "../../recall/prompts.js";
@@ -480,6 +482,8 @@ export interface PeerView {
   firstMessageAt: string | null;
   lastMessageAt: string | null;
   card: string[] | null;
+  /** Per line of `card`, the facts it rests on (see `cardSources`). */
+  cardSources: CardSource[];
   /** Cards other peers keep about this one. */
   otherCards: { observer: string; card: string[] }[];
   /** Other peers holding conclusions about this one (for the playground). */
@@ -490,9 +494,62 @@ export interface PeerView {
   totals: { current: number; superseded: number; self: number };
 }
 
+/** Most facts listed under one card line. */
+const CARD_SOURCES_MAX = 20;
+
+/** The facts behind one peer-card line. */
+export interface CardSource {
+  entry: string;
+  /** Current facts in the peer's own memory that name every word of the line's value. */
+  facts: { id: string; content: string; at: string }[];
+  /** The value is the peer's own name: every fact names it, so none is listed. */
+  isName: boolean;
+}
+
+/**
+ * For each card line, the current facts in the peer's own memory that name its value: the line
+ * "ATTRIBUTE: Home: Utrecht" rests on the facts that mention "Utrecht" (the same matching that
+ * dates card entries, `supportDate`). Newest first, at most CARD_SOURCES_MAX per line.
+ */
+export async function cardSources(
+  ctx: AppContext,
+  ws: WsHandle,
+  peerId: string,
+  peerName: string,
+  card: string[],
+): Promise<CardSource[]> {
+  const facts = await rows<{ id: string; content: string; at: Date | string }>(
+    ctx.db,
+    sql`SELECT c.id, c.content, COALESCE(c.valid_from, c.created_at) AS at FROM conclusions c
+        WHERE c.workspace_id = ${ws.id} AND c.observer_id = ${peerId} AND c.observed_id = ${peerId}
+          AND c.deleted_at IS NULL AND c.valid_to IS NULL
+        ORDER BY at DESC, c.id LIMIT 2000`,
+  );
+  const words = facts.map((f) => new Set(normKey(f.content).split(" ")));
+  const nameWords = new Set(normKey(peerName).split(" "));
+  return card.map((entry) => {
+    const terms = cardValueTerms(entry);
+    const isName = terms.length > 0 && terms.every((t) => nameWords.has(t));
+    const matched =
+      terms.length && !isName
+        ? facts.filter((_, i) => terms.every((t) => words[i]!.has(t))).slice(0, CARD_SOURCES_MAX)
+        : [];
+    return {
+      entry,
+      isName,
+      facts: matched.map((f) => ({
+        id: f.id,
+        content: f.content,
+        at: (f.at instanceof Date ? f.at : new Date(f.at)).toISOString(),
+      })),
+    };
+  });
+}
+
 export async function peerView(ctx: AppContext, ws: WsHandle, name: string): Promise<PeerView> {
   const peer = await selectPeerRow(ctx.db, ws.id, name);
   if (!peer) throw notFound("Peer");
+  const card = await getPeerCard(ctx, ws.key, peer.name, undefined);
   const [stats] = await rows<Obj>(
     ctx.db,
     sql`SELECT count(*)::int AS n, min(m.created_at) AS first_at, max(m.created_at) AS last_at
@@ -524,7 +581,8 @@ export async function peerView(ctx: AppContext, ws: WsHandle, name: string): Pro
     messages: num(stats?.n ?? 0),
     firstMessageAt: date(stats?.first_at),
     lastMessageAt: date(stats?.last_at),
-    card: await getPeerCard(ctx, ws.key, peer.name, undefined),
+    card,
+    cardSources: card?.length ? await cardSources(ctx, ws, peer.internal_id, peer.name, card) : [],
     otherCards: others
       .filter((o) => Array.isArray(o.peer_card))
       .map((o) => ({ observer: o.observer, card: o.peer_card as string[] })),
@@ -940,9 +998,11 @@ export function lastDays(n: number, now = new Date()): string[] {
 const DAY = (col: string) =>
   sql.raw(`to_char(date_trunc('day', ${col} AT TIME ZONE 'UTC'), 'YYYY-MM-DD')`);
 
-/** One kind of usage over a period: learning (in message tokens) or chat at one level (questions). */
+/**
+ * One kind of usage over a period: learning or storage (in tokens) or chat at one level (questions).
+ */
 export interface UsageLine {
-  /** "ingest" or "chat_<level>". */
+  /** "ingest", "store" or "chat_<level>". */
   kind: string;
   units: number;
   /** Charged, less charges given back; null for an account that is not billed. */
@@ -964,7 +1024,7 @@ export interface UsageReport {
   range: string[];
   /** Days with any usage, newest first. */
   days: UsageDay[];
-  /** Learning first, then chat by level. */
+  /** Learning first, then storage, then chat by level. */
   lines: UsageLine[];
   /**
    * True for a billed account: units and amounts come from its charges. Otherwise message tokens
@@ -994,7 +1054,7 @@ export async function usageReport(
     const l = lines.get(kind) ?? { kind, units: 0, micros: billed ? 0 : null };
     lines.set(kind, l);
     if (kind === "ingest") r.tokens += units;
-    else r.questions += units;
+    else if (kind.startsWith("chat_")) r.questions += units;
     l.units += units;
     if (micros !== null) {
       r.micros = (r.micros ?? 0) + micros;
@@ -1003,7 +1063,7 @@ export async function usageReport(
   };
   if (billed) {
     for (const c of await usageCharges(ctx.db, accountId, { since, by: "day" }))
-      add(c.group!, c.kind, c.kind === "ingest" ? c.tokens : c.count, c.micros);
+      add(c.group!, c.kind, c.kind.startsWith("chat_") ? c.count : c.tokens, c.micros);
   } else {
     const [learned, asked] = await Promise.all([
       rows<{ day: string; tokens: number | string }>(
@@ -1023,7 +1083,11 @@ export async function usageReport(
     for (const r of asked) add(r.day, r.task, num(r.n), null);
   }
   const order = (kind: string) =>
-    kind === "ingest" ? -1 : CHAT_LEVELS.indexOf(kind.replace(/^chat_/, "") as ChatLevel);
+    kind === "ingest"
+      ? -2
+      : kind === "store"
+        ? -1
+        : CHAT_LEVELS.indexOf(kind.replace(/^chat_/, "") as ChatLevel);
   return {
     range,
     days: [...days.values()].sort((a, b) => b.day.localeCompare(a.day)),

@@ -8,7 +8,7 @@ import {
   handleScopeBackfill,
   handleScopeRemoval,
 } from "../core/jobs.js";
-import { rows } from "../db/client.js";
+import { isUniqueViolation, rows } from "../db/client.js";
 import { pruneIdempotencyRecords } from "../http/idempotency.js";
 import { newId } from "../lib/ids.js";
 import { metrics } from "../lib/metrics.js";
@@ -130,13 +130,7 @@ function toJob(r: JobDbRow): ClaimedJob {
   };
 }
 
-export function isUniqueViolation(err: unknown): boolean {
-  for (let e: unknown = err, depth = 0; e && depth < 5; depth++) {
-    if ((e as { code?: string }).code === "23505") return true;
-    e = (e as { cause?: unknown }).cause;
-  }
-  return false;
-}
+export { isUniqueViolation };
 
 function errorText(err: unknown): string {
   const e = err as Error;
@@ -295,6 +289,18 @@ export class Worker {
     try {
       const [r] = await this.ctx.db.transaction(async (tx) => {
         await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext('recall:queue-claim'))`);
+        // Fairness (hosted): skip the workspaces of accounts that already have their share of
+        // jobs running. The running set is small, so this is a cheap filter on the usual scan.
+        const cap = this.ctx.config.tenancy.hosted
+          ? this.ctx.config.worker.maxRunningPerAccount
+          : 0;
+        const fair =
+          cap > 0
+            ? sql`AND (j.workspace_id IS NULL OR j.workspace_id NOT IN (
+                SELECT w.id FROM workspaces w WHERE w.account_id IN (
+                  SELECT rw.account_id FROM jobs r JOIN workspaces rw ON rw.id = r.workspace_id
+                  WHERE r.status = 'running' GROUP BY rw.account_id HAVING count(*) >= ${cap})))`
+            : sql``;
         return rows<JobDbRow>(
           tx,
           sql`UPDATE jobs SET status = 'running', attempts = attempts + 1, locked_by = ${this.id},
@@ -303,6 +309,7 @@ export class Worker {
                 SELECT j.id FROM jobs j
                 WHERE j.status = 'pending' AND j.run_after <= now()
                   AND NOT EXISTS (SELECT 1 FROM jobs r WHERE r.work_key = j.work_key AND r.status = 'running')
+                  ${fair}
                   AND ${PEER_ORDER}
                 ORDER BY j.run_after, j.id
                 LIMIT 1

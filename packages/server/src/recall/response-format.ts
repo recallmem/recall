@@ -4,24 +4,6 @@ type Obj = Record<string, unknown>;
 
 const TYPES = new Set(["string", "number", "integer", "boolean", "null", "object", "array"]);
 const REJECTED = ["allOf", "not", "if", "then", "else", "patternProperties"];
-/** Accepted but never enforced: they travel to the model as prose hints only. */
-const CONSTRAINTS = [
-  "minItems",
-  "maxItems",
-  "minLength",
-  "maxLength",
-  "minimum",
-  "maximum",
-  "exclusiveMinimum",
-  "exclusiveMaximum",
-  "multipleOf",
-  "pattern",
-  "format",
-  "minProperties",
-  "maxProperties",
-  "uniqueItems",
-  "default",
-];
 const MAX_DEPTH = 20;
 const MAX_NODES = 500;
 
@@ -192,11 +174,4 @@ export function projectToSchema(value: unknown, schema: Obj, root: Obj = schema)
     if (alt) return projectToSchema(value, alt, root);
   }
   return value;
-}
-
-/** Constraint keywords found anywhere in the schema, so the prompt can mention them as hints. */
-export function hasConstraintHints(schema: Obj): boolean {
-  return JSON.stringify(schema)
-    .split('"')
-    .some((s) => CONSTRAINTS.includes(s));
 }

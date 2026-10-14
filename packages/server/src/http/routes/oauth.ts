@@ -113,7 +113,7 @@ const NO_STORE = { "Cache-Control": "no-store", Pragma: "no-cache" };
  * time to the session, the account and the authorization request. "Allow" is
  * accepted only CONSENT_MIN_MS after rendering (a scripted double-click lands
  * sooner, with or without JavaScript; with JavaScript the button also stays
- * disabled until the page has been seen and used, see views.SCRIPT) and within
+ * disabled until the page has been seen and used, see dashboard/app-js.ts) and within
  * CONSENT_MAX_MS.
  */
 export const CONSENT_MIN_MS = 1_000;
@@ -658,9 +658,12 @@ function oauthApp(ctx: AppContext): Hono<DashEnv> {
         "Retry-After": String(Math.max(1, Math.ceil(wait))),
       });
   };
-  const limitNetwork = (c: Context) => {
+  const networkOf = (c: Context) => {
     const ip = clientIp(c, ctx.config.server.clientIp);
-    const network = ip ? networkKey(ip) : null;
+    return ip ? networkKey(ip) : null;
+  };
+  const limitNetwork = (c: Context) => {
+    const network = networkOf(c);
     if (network) limit(`oauth-token:net:${network}`, cfg.tokenRatePerMin, "token requests");
   };
 
@@ -672,7 +675,13 @@ function oauthApp(ctx: AppContext): Hono<DashEnv> {
     let result: Awaited<ReturnType<typeof exchangeCode>>;
     if (grantType === "authorization_code") {
       const p = parseParams(CodeGrant, params);
-      limit(`oauth-token:client:${p.client_id}`, cfg.tokenRatePerMin, "code exchanges");
+      // Per client and network: a client id is public and shared by every user of that app (a
+      // metadata URL), so a budget per client alone would let one network lock all of them out.
+      limit(
+        `oauth-token:client:${p.client_id}:${networkOf(c) ?? "unknown"}`,
+        cfg.tokenRatePerMin,
+        "code exchanges",
+      );
       if (canonicalResource(p.resource) !== cfg.resource)
         throw new OAuthError(
           "invalid_target",

@@ -29,7 +29,7 @@ export interface NewMessage {
   internal?: Obj;
 }
 
-/** Shape stored in `messages.internal` for the reasoner (contract 1 in docs/IMPLEMENTATION.md). */
+/** Shape stored in `messages.internal` at message creation, read by the reasoner (src/reasoner). */
 export interface MessageInternal {
   observers: string[];
   reasoning: boolean;

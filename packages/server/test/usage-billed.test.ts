@@ -43,6 +43,13 @@ beforeAll(async () => {
     messageIds: ["m1", "m2"],
     tokenCounts: [10, 199_950],
   });
+  // Storage in "quiet": 100,000 tokens kept without learning at $0.25 per 1M = $0.025.
+  await billing.debitStore(s.ctx.db, {
+    workspaceId: ws.quiet!,
+    source: "messages",
+    keyIds: ["m3"],
+    tokenCounts: [100_000],
+  });
   // Chat in "main": two questions at low, one given back (no answer came): one charged, $0.005.
   for (const k of ["q1", "q2"]) {
     const r = await billing.reserveChat({ accountId, workspaceId: ws.main!, level: "low", key: k });
@@ -79,6 +86,7 @@ describe("usage API on the hosted service", () => {
     expect(usage.billed).toEqual({
       billed_usd: 0.205,
       learning: { message_tokens: 200_000, billed_usd: 0.2 },
+      storage: { tokens: 0, billed_usd: 0 },
       chat: {
         questions: 1,
         billed_usd: 0.005,
@@ -111,7 +119,8 @@ describe("usage API on the hosted service", () => {
 
   it("reports the account's charges in total and per workspace", async () => {
     const usage = await (await s.api("GET", "/v3/usage", undefined, key)).json();
-    expect(usage.billed.billed_usd).toBe(0.255);
+    expect(usage.billed.billed_usd).toBe(0.28);
+    expect(usage.billed.storage).toEqual({ tokens: 100_000, billed_usd: 0.025 });
     expect(usage.billed.chat.questions).toBe(2);
     expect(usage.billed.learning.message_tokens).toBe(200_000);
     const byWs = usage.by_workspace.map(
@@ -125,11 +134,11 @@ describe("usage API on the hosted service", () => {
     expect(byWs).toEqual([
       ["main", 2, 0.205],
       ["side", 0, 0.05],
-      ["quiet", 1, 0],
+      ["quiet", 1, 0.025],
     ]);
     expect(JSON.stringify(usage)).not.toMatch(/cost_usd|unpriced|provider|openrouter|acme/);
     // The budget counts what was charged.
-    expect(usage.budget.month_to_date_usd).toBeCloseTo(0.255, 6);
+    expect(usage.budget.month_to_date_usd).toBeCloseTo(0.28, 6);
   });
 });
 
@@ -151,11 +160,14 @@ describe("usage page on the hosted service", () => {
     expect(cells).toContain(
       '<td>Chat · high</td><td class="num">1 question</td><td class="num">$0.05</td>',
     );
+    expect(cells).toContain(
+      '<td>Storage</td><td class="num">100,000 tokens stored</td><td class="num">$0.03</td>',
+    );
     // Sub-cent amounts keep their digits; amounts from a cent up have two decimals.
-    expect(cells).toContain('<td class="num" colspan="2"><strong>$0.26</strong></td>');
+    expect(cells).toContain('<td class="num" colspan="2"><strong>$0.28</strong></td>');
     // By day: the day, tokens learned, questions answered and the charge.
     expect(cells).toMatch(
-      /<td><time datetime="\d{4}-\d\d-\d\d">[A-Z][a-z]{2} \d+<\/time><\/td><td class="num">200,000<\/td><td class="num">2<\/td><td class="num">\$0.26<\/td>/,
+      /<td><time datetime="\d{4}-\d\d-\d\d">[A-Z][a-z]{2} \d+<\/time><\/td><td class="num">200,000<\/td><td class="num">2<\/td><td class="num">\$0.28<\/td>/,
     );
     expect(html).toContain("<th>Tokens learned</th>");
     for (const gone of ["Model calls", "Input tokens", "Output tokens", "model call"]) {

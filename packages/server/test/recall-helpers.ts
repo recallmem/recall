@@ -5,8 +5,8 @@ import { countTokens } from "../src/lib/tokens.js";
 import { vecLiteral } from "../src/recall/util.js";
 
 /**
- * Seeds a small world straight into the tables (components A and B own the real
- * write paths): workspace "acme", peers alice and bob, sessions s1 (both) and s2
+ * Seeds a small world straight into the tables (the API and the reasoner own the
+ * real write paths): workspace "acme", peers alice and bob, sessions s1 (both) and s2
  * (alice), dated messages, alice's conclusions including a superseded pair and a
  * derived one, a peer card and session summaries.
  */

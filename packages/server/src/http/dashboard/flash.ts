@@ -24,6 +24,7 @@ export type Flash =
   | { kind: "fact_corrected"; before: string; after: string }
   | { kind: "fact_added"; text: string; observer: string }
   | { kind: "card_saved"; entries: number }
+  | { kind: "card_line_removed"; entry: string; facts: number }
   | {
       kind: "peer_forgotten";
       peer: string;

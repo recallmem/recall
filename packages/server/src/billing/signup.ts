@@ -14,6 +14,10 @@ import { type Db, rows } from "../db/client.js";
  * The caller is the sign-up transaction: the checks and the recording run in it,
  * under an advisory lock, so concurrent sign-ups cannot all pass the same check.
  * A limit of 0 switches that limit off.
+ *
+ * A credit held back only by the daily cap is not lost: it waits in
+ * `signup_credit_pending` and the billing sweep grants it on a later day, after
+ * the same checks (see `deferSignupCredit`).
  */
 
 type Executor = Pick<Db, "execute">;
@@ -107,6 +111,68 @@ export async function recordSignupGrant(
     sql`INSERT INTO signup_credit_grants (ip_hash, email_hash, amount_micros)
         VALUES (${ipHash}, ${emailHash}, ${amountMicros})`,
   );
+}
+
+/** A welcome credit held back by the daily cap, waiting for a later day. */
+export interface PendingSignupCredit {
+  account_id: string;
+  ip_hash: string | null;
+  email_hash: string | null;
+  amount_micros: number;
+}
+
+/**
+ * Keeps the welcome credit of an account that signed up after the day's cap was reached, so the
+ * billing sweep can grant it later (in the sign-up transaction).
+ */
+export async function deferSignupCredit(tx: Executor, p: PendingSignupCredit): Promise<void> {
+  await tx.execute(
+    sql`INSERT INTO signup_credit_pending (account_id, ip_hash, email_hash, amount_micros)
+        VALUES (${p.account_id}, ${p.ip_hash}, ${p.email_hash}, ${p.amount_micros})
+        ON CONFLICT (account_id) DO NOTHING`,
+  );
+}
+
+/**
+ * Claims the oldest waiting welcome credit for the calling transaction (row-locked; concurrent
+ * sweeps take different rows), or null when none is waiting.
+ */
+export async function claimPendingSignupCredit(tx: Executor): Promise<PendingSignupCredit | null> {
+  const [r] = await rows<PendingSignupCredit>(
+    tx,
+    sql`SELECT account_id, ip_hash, email_hash, amount_micros FROM signup_credit_pending
+        ORDER BY created_at, account_id LIMIT 1 FOR UPDATE SKIP LOCKED`,
+  );
+  return r ? { ...r, amount_micros: Number(r.amount_micros) } : null;
+}
+
+export async function dropPendingSignupCredit(tx: Executor, accountId: string): Promise<void> {
+  await tx.execute(sql`DELETE FROM signup_credit_pending WHERE account_id = ${accountId}`);
+}
+
+/** How long a welcome credit held back by the daily cap may wait before it lapses. */
+export const PENDING_CREDIT_DAYS = 14;
+
+/** Drops waiting welcome credits past PENDING_CREDIT_DAYS, or all of them when `all`. */
+export async function expirePendingSignupCredits(db: Executor, all = false): Promise<void> {
+  await db.execute(
+    all
+      ? sql`DELETE FROM signup_credit_pending`
+      : sql`DELETE FROM signup_credit_pending
+            WHERE created_at < now() - ${sql.raw(`interval '${PENDING_CREDIT_DAYS} days'`)}`,
+  );
+}
+
+/** The welcome credit this account is still waiting for, in micro-USD; null when none. */
+export async function pendingSignupCreditMicros(
+  db: Executor,
+  accountId: string,
+): Promise<number | null> {
+  const [r] = await rows<{ amount_micros: string | number }>(
+    db,
+    sql`SELECT amount_micros FROM signup_credit_pending WHERE account_id = ${accountId}`,
+  );
+  return r ? Number(r.amount_micros) : null;
 }
 
 /** Housekeeping: grants too old to count towards either limit. */

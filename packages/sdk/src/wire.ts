@@ -182,12 +182,14 @@ const LEVELS = ["minimal", "low", "medium", "high", "max"] as const;
 
 function billedFromWire(w: Obj): UsageBilled {
   const learning = (w.learning as Obj | null) ?? {};
+  const storage = (w.storage as Obj | null) ?? {};
   const chat = (w.chat as Obj | null) ?? {};
   const byLevel = (chat.by_level as Record<string, Obj> | null) ?? {};
   const questions = (q: Obj) => ({ questions: num(q.questions), billedUsd: num(q.billed_usd) });
   return {
     billedUsd: num(w.billed_usd),
     learning: { messageTokens: num(learning.message_tokens), billedUsd: num(learning.billed_usd) },
+    storage: { tokens: num(storage.tokens), billedUsd: num(storage.billed_usd) },
     chat: {
       ...questions(chat),
       byLevel: Object.fromEntries(
