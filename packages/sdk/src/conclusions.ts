@@ -3,6 +3,7 @@ import type { CallOptions } from "./http.js";
 import type { Page } from "./page.js";
 import type {
   Conclusion,
+  ConclusionHistory,
   ConclusionInput,
   Filters,
   ListOptions,
@@ -132,6 +133,11 @@ export class ConclusionsView {
           observer_id: this.observer,
           observed_id: this.observed,
           session_id: c.sessionId === undefined ? undefined : idOf(c.sessionId),
+          event_start: c.eventStart,
+          event_end: c.eventEnd,
+          tags: c.tags,
+          pinned: c.pinned,
+          expires_at: c.expiresAt,
         });
       });
       // POST /conclusions is not idempotent, so the client only retries it after a 429.
@@ -178,6 +184,39 @@ export class WorkspaceConclusions {
   }
   getMany(ids: readonly string[]): Promise<Conclusion[]> {
     return getManyConclusions(this.core, ids, {});
+  }
+  /** What happened to a fact: who changed it, why and from what, and what it replaced. */
+  async history(id: string): Promise<ConclusionHistory> {
+    const r = await this.core.http.request<Obj>({
+      method: "GET",
+      path: `${wsPath(this.core)}/conclusions/${enc(id)}/history`,
+    });
+    const events = Array.isArray(r.events) ? (r.events as Obj[]) : [];
+    return {
+      conclusion: conclusionFromWire(r.conclusion as Obj),
+      events: events.map((e) => ({
+        action: String(e.action),
+        actor: String(e.actor),
+        reason: (e.reason as string | null) ?? null,
+        sources: Array.isArray(e.sources) ? (e.sources as string[]) : [],
+        before: e.before ?? null,
+        after: e.after ?? null,
+        createdAt: String(e.created_at),
+      })),
+      replaced: (Array.isArray(r.replaced) ? (r.replaced as Obj[]) : []).map(conclusionFromWire),
+      replacedBy: r.replaced_by ? conclusionFromWire(r.replaced_by as Obj) : null,
+    };
+  }
+  /** Pins a fact (or unpins it): Recall never replaces a pinned fact; what disagrees is flagged. */
+  async pin(id: string, pinned = true): Promise<Conclusion> {
+    return conclusionFromWire(
+      await this.core.http.request<Obj>({
+        method: "PATCH",
+        path: `${wsPath(this.core)}/conclusions/${enc(id)}`,
+        body: { pinned },
+        idempotent: true,
+      }),
+    );
   }
 }
 

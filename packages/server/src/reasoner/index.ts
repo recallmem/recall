@@ -2,12 +2,14 @@ import { sql } from "drizzle-orm";
 import { scheduleDreamsIfDue } from "../consolidate/index.js";
 import type { AppContext } from "../context.js";
 import { rows } from "../db/client.js";
+import type { EventPrecision } from "../lib/event-time.js";
 import { truncateTokens } from "../lib/tokens.js";
 import { LlmError } from "../llm/types.js";
 import { enqueue } from "../queue/enqueue.js";
 import { budgetPause, type ClaimedJob, type JobOutcome } from "../queue/types.js";
 import { summaryWorkPending, updateLongSummary } from "../summaries/index.js";
 import {
+  blockDates,
   crossesBoundary,
   loadBlocksAfter,
   loadSummaries,
@@ -29,6 +31,7 @@ import {
 import { embedMessages } from "./embed.js";
 import { loadSession, type SessionInfo } from "./session.js";
 import "./offline.js";
+import { recordEvents } from "../core/history.js";
 import {
   EXTRACTION_SYSTEM,
   ExtractionOut,
@@ -318,18 +321,113 @@ async function previousMessage(
   return r ? toPending(r) : null;
 }
 
+/** How far back in its session a message is compared for an exact repeat. */
+const REPEAT_LOOKBACK = 500;
+
+const sameWords = (s: string) => s.trim().toLowerCase().replace(/\s+/g, " ");
+
+/**
+ * Exact repeats: a message with the same words as an earlier message of the same peer in the
+ * session, whose facts every current observer still holds, restates those facts. They are
+ * reinforced in code and the message needs no model call. Returns the facts reinforced per
+ * collection.
+ */
+async function reinforceRepeats(
+  ctx: AppContext,
+  session: SessionInfo,
+  msgs: PendingMessage[],
+): Promise<{ repeated: Set<string>; touched: WindowResult["touched"] }> {
+  const repeated = new Set<string>();
+  const touched: WindowResult["touched"] = new Map();
+  const candidates = msgs.filter((m) => m.tokenCount >= 4 && m.observers.length);
+  if (!candidates.length) return { repeated, touched };
+  // The latest earlier message with the same words, per candidate, in one query.
+  const found = await rows<{ mid: string; prev: string }>(
+    ctx.db,
+    sql`SELECT DISTINCT ON (q.mid) q.mid, p.id AS prev
+        FROM unnest(${textArray(candidates.map((m) => m.id))}, ${textArray(candidates.map((m) => m.peerId))},
+                    ${textArray(candidates.map((m) => String(m.seqInSession)))}::int[],
+                    ${textArray(candidates.map((m) => String(m.tokenCount)))}::int[],
+                    ${textArray(candidates.map((m) => sameWords(m.content)))}) AS q(mid, pid, seq, tokens, words)
+        JOIN messages p ON p.session_id = ${session.id} AND p.peer_id = q.pid AND p.reasoned_at IS NOT NULL
+          AND p.seq_in_session < q.seq AND p.seq_in_session >= q.seq - ${REPEAT_LOOKBACK}
+          AND p.token_count BETWEEN q.tokens - 8 AND q.tokens + 8
+          AND btrim(regexp_replace(lower(p.content), '[[:space:]]+', ' ', 'g')) = q.words
+        ORDER BY q.mid, p.seq_in_session DESC`,
+  );
+  const prevOf = new Map(found.map((r) => [r.mid, r.prev]));
+  for (const m of candidates) {
+    const prevId = prevOf.get(m.id);
+    if (!prevId) continue;
+    const prev = { id: prevId };
+    const facts = await rows<{
+      id: string;
+      collection_id: string;
+      observer_id: string;
+      workspace_id: string;
+    }>(
+      ctx.db,
+      sql`SELECT c.id, c.collection_id, col.observer_id, c.workspace_id FROM conclusions c
+          JOIN collections col ON col.id = c.collection_id
+          WHERE col.observed_id = ${m.peerId} AND col.observer_id = ANY(${textArray(m.observers)})
+            AND c.message_ids @> ${textArray([prev.id])} AND c.deleted_at IS NULL AND c.valid_to IS NULL`,
+    );
+    const holders = new Set(facts.map((f) => f.observer_id));
+    if (!facts.length || m.observers.some((o) => !holders.has(o))) continue;
+    await ctx.db.transaction(async (tx) => {
+      await tx.execute(
+        sql`UPDATE conclusions SET times_derived = times_derived + 1, updated_at = now(),
+              message_ids = ARRAY(SELECT DISTINCT unnest(message_ids || ${textArray([m.id])}))
+            WHERE id = ANY(${textArray(facts.map((f) => f.id))})`,
+      );
+      await recordEvents(
+        tx,
+        facts.map((f) => ({
+          workspaceId: f.workspace_id,
+          collectionId: f.collection_id,
+          conclusionId: f.id,
+          action: "reinforced" as const,
+          actor: "reasoner" as const,
+          reason: "the same words again",
+          sources: [m.id],
+        })),
+      );
+      const colls = [...new Set(facts.map((f) => f.collection_id))];
+      await tx.execute(
+        sql`UPDATE collections SET version = version + 1 WHERE id = ANY(${textArray(colls)})`,
+      );
+    });
+    repeated.add(m.id);
+    for (const f of facts)
+      touched.set(f.collection_id, {
+        observerId: f.observer_id,
+        observedId: m.peerId,
+        inserted: 0,
+      });
+  }
+  return { repeated, touched };
+}
+
 async function processWindow(
   ctx: AppContext,
   session: SessionInfo,
   window: PendingMessage[],
-  isTarget: (m: PendingMessage) => boolean,
+  isTargetIn: (m: PendingMessage) => boolean,
 ): Promise<WindowResult> {
   const empty: WindowResult = { touched: new Map(), summaryWritten: false };
   const cfg = session.config;
+  const said = window.filter((m) => isTargetIn(m) && !isTrivial(m.content));
+  if (!said.length) {
+    await markReasoned(ctx, session, window);
+    return empty;
+  }
+  // Exact repeats are settled in code; they stay in the transcript as context only.
+  const { repeated, touched: repeatedIn } = await reinforceRepeats(ctx, session, said);
+  const isTarget = (m: PendingMessage) => isTargetIn(m) && !repeated.has(m.id);
   const targets = window.filter(isTarget);
   if (!targets.some((m) => !isTrivial(m.content))) {
     await markReasoned(ctx, session, window);
-    return empty;
+    return { ...empty, touched: repeatedIn };
   }
 
   // Summaries ride along in the same call when the window continues the current short summary.
@@ -423,6 +521,14 @@ async function processWindow(
           handle: h,
           content: f.content,
           validFrom: f.valid_from ? toDate(f.valid_from) : null,
+          event:
+            f.event_start && f.event_precision
+              ? {
+                  start: toDate(f.event_start),
+                  end: f.event_end ? toDate(f.event_end) : null,
+                  precision: f.event_precision,
+                }
+              : null,
         });
       }
     }
@@ -464,7 +570,7 @@ async function processWindow(
       const a = await processWindow(ctx, session, window.slice(0, mid), isTarget);
       const b = await processWindow(ctx, session, window.slice(mid), isTarget);
       return {
-        touched: new Map([...a.touched, ...b.touched]),
+        touched: new Map([...repeatedIn, ...a.touched, ...b.touched]),
         summaryWritten: a.summaryWritten || b.summaryWritten,
       };
     }
@@ -515,7 +621,7 @@ async function processWindow(
           startSeq: first,
           endSeq: last.seqInSession,
           lastMessageId: last.id,
-          content: `${last.createdAt.toISOString().slice(0, 10)}: ${out.synopsis.trim()}`,
+          content: `${blockDates(window[0]!.createdAt, last.createdAt)}: ${out.synopsis.trim()}`,
         });
       }
       if (wantShort && out.short_summary?.trim()) {
@@ -556,7 +662,7 @@ async function processWindow(
     },
     "reasoned window",
   );
-  return { touched: stats.touched, summaryWritten };
+  return { touched: new Map([...repeatedIn, ...stats.touched]), summaryWritten };
 }
 
 /**
@@ -608,6 +714,9 @@ interface SimilarFact {
   key: string;
   content: string;
   valid_from: Date | string | null;
+  event_start: Date | string | null;
+  event_end: Date | string | null;
+  event_precision: EventPrecision | null;
 }
 
 /**
@@ -628,7 +737,8 @@ async function similarFacts(
   if (!count?.n) return [];
   const anchors = await rows<SimilarFact>(
     ctx.db,
-    sql`SELECT id, COALESCE(internal->>'key', id) AS key, content, valid_from FROM conclusions
+    sql`SELECT id, COALESCE(internal->>'key', id) AS key, content, valid_from, event_start, event_end, event_precision
+        FROM conclusions
         WHERE collection_id = ${collectionId} AND deleted_at IS NULL AND valid_to IS NULL
           ${count.n > CONTEXT_FACTS_PER_SPEAKER ? sql`AND category IN ('identity', 'relationship', 'instruction')` : sql``}
         ORDER BY importance DESC, valid_from DESC NULLS LAST, created_at DESC
@@ -638,17 +748,17 @@ async function similarFacts(
   if (count.n > CONTEXT_FACTS_PER_SPEAKER && messageIds.length) {
     similar = await rows<SimilarFact & { d: number }>(
       ctx.db,
-      sql`SELECT x.id, x.key, x.content, x.valid_from, min(x.d) AS d
+      sql`SELECT x.id, x.key, x.content, x.valid_from, x.event_start, x.event_end, x.event_precision, min(x.d) AS d
           FROM messages q
           CROSS JOIN LATERAL (
             SELECT c.id, COALESCE(c.internal->>'key', c.id) AS key, c.content, c.valid_from,
-                   (c.embedding <=> q.embedding) + 0 AS d
+                   c.event_start, c.event_end, c.event_precision, (c.embedding <=> q.embedding) + 0 AS d
             FROM conclusions c
             WHERE c.collection_id = ${collectionId} AND c.deleted_at IS NULL AND c.valid_to IS NULL
               AND c.embedding IS NOT NULL
-            ORDER BY 5 LIMIT ${NEIGHBOURS_PER_MESSAGE}) x
+            ORDER BY 8 LIMIT ${NEIGHBOURS_PER_MESSAGE}) x
           WHERE q.id = ANY(${textArray(messageIds)}) AND q.embedding IS NOT NULL
-          GROUP BY x.id, x.key, x.content, x.valid_from
+          GROUP BY x.id, x.key, x.content, x.valid_from, x.event_start, x.event_end, x.event_precision
           ORDER BY d LIMIT ${CONTEXT_FACTS_PER_SPEAKER}`,
     );
   }

@@ -1,7 +1,20 @@
 import { type SQL, sql } from "drizzle-orm";
+import { cardDiff, type MemoryEvent, recordEvents } from "../core/history.js";
 import type { Db } from "../db/client.js";
 import { rows } from "../db/client.js";
+import {
+  closedAt,
+  distinctOccurrences,
+  type EventTime,
+  endedBy,
+  eventOf,
+  eventTime,
+  laterState,
+  stateStart,
+  type Timed,
+} from "../lib/event-time.js";
 import { newId } from "../lib/ids.js";
+import { normalizeTags } from "../lib/tags.js";
 import { applyCardEdits, cardValueTerms } from "./cards.js";
 import type { ExtractionOut, FactOut } from "./prompt.js";
 import { clamp, cleanText, normKey, textArray, vec } from "./util.js";
@@ -45,17 +58,22 @@ export interface PreparedFact {
   importance: number;
   messageIds: string[];
   validFrom: Date;
+  /** When what the fact describes happened or began; null for facts without a time of their own. */
+  event: EventTime | null;
+  /** What it is about, normalized (see lib/tags.ts). */
+  tags: string[];
   observers: string[];
   action: "add" | "reinforce" | "supersede";
   target: KnownRef | null;
 }
 
 /**
- * Validates the model's facts against the transcript: the subject must have
- * written one of the cited messages (or, when none are cited validly, any
- * target message in the window), observers come from those messages, and
- * reinforce/supersede targets must be known facts about the same peer.
- * Duplicates within the batch are merged.
+ * Validates the model's facts against the transcript: a fact is kept only when it
+ * cites at least one target message its subject wrote in this window. A fact that
+ * cites nothing valid is dropped, never attributed to some other message: a source
+ * is what the fact was learned from, so it cannot be filled in afterwards.
+ * Observers come from the cited messages, and reinforce/supersede targets must be
+ * known facts about the same peer. Duplicates within the batch are merged.
  */
 export function prepareFacts(
   facts: FactOut[],
@@ -73,15 +91,13 @@ export function prepareFacts(
     const cited = [...new Set(f.source_messages)]
       .map((n) => transcript.get(n))
       .filter((m) => m !== undefined);
-    let own = cited.filter((m) => m.target && m.peerId === speaker.peerId);
-    if (!own.length && !cited.some((m) => m.peerId === speaker.peerId)) {
-      // Nothing valid cited: fall back to the speaker's target messages in the window.
-      own = [...transcript.values()].filter((m) => m.target && m.peerId === speaker.peerId);
-    }
+    const own = cited.filter((m) => m.target && m.peerId === speaker.peerId);
     if (!own.length) continue;
     const sources = [...new Map([...cited, ...own].map((m) => [m.id, m])).values()];
     const observers = [...new Set(own.flatMap((m) => m.observers))];
     const validFrom = new Date(Math.max(...own.map((m) => m.createdAt.getTime())));
+    const event = eventTime(f.event_start, f.event_end);
+    const tags = normalizeTags(f.tags);
     let target = f.target ? (known.get(f.target.trim()) ?? null) : null;
     if (target && target.observedId !== speaker.peerId) target = null;
     let action = f.action;
@@ -97,6 +113,8 @@ export function prepareFacts(
       importance: clamp(Math.round(Number.isFinite(f.importance) ? f.importance : 3), 1, 5) / 5,
       messageIds: sources.map((m) => m.id),
       validFrom,
+      event,
+      tags,
       observers,
       action,
       target: action === "add" ? null : target,
@@ -171,6 +189,33 @@ export interface ApplyStats {
   /** Collections whose facts or card changed. */
   touched: Map<string, { observerId: string; observedId: string; inserted: number }>;
 }
+
+/** A stored fact as the update logic needs it: identity, when it holds and its event time. */
+interface Known extends Timed {
+  id: string;
+  key: string;
+  /** Set by a person: never closed by what the reasoner learns. */
+  pinned: boolean;
+}
+interface KnownRow {
+  id: string;
+  key: string;
+  since: Date | string;
+  category: string | null;
+  event_start: Date | string | null;
+  event_end: Date | string | null;
+  event_precision: EventTime["precision"] | null;
+  pinned: boolean | null;
+}
+const KNOWN_TIME_COLS = sql`category, event_start, event_end, event_precision, pinned`;
+const knownOf = (r: KnownRow): Known => ({
+  id: r.id,
+  key: r.key,
+  category: r.category,
+  validFrom: new Date(r.since),
+  event: eventOf(r),
+  pinned: r.pinned === true,
+});
 
 interface Op {
   fact: PreparedFact;
@@ -254,53 +299,51 @@ export async function applyFacts(
 
   // Each observer holds its own copy of a fact; copies share internal.key.
   const targetKeys = [...new Set(args.facts.flatMap((f) => (f.target ? [f.target.key] : [])))];
-  const copies = new Map<string, { id: string; key: string; since: Date }>();
+  const copies = new Map<string, Known>();
   if (targetKeys.length) {
-    const found = await rows<{
-      id: string;
-      collection_id: string;
-      key: string;
-      since: Date | string;
-    }>(
+    const found = await rows<KnownRow & { collection_id: string }>(
       tx,
       sql`SELECT id, collection_id, COALESCE(internal->>'key', id) AS key,
-                 COALESCE(valid_from, created_at) AS since FROM conclusions
+                 COALESCE(valid_from, created_at) AS since, ${KNOWN_TIME_COLS} FROM conclusions
           WHERE deleted_at IS NULL AND valid_to IS NULL
             AND (id = ANY(${textArray(targetKeys)}) OR internal->>'key' = ANY(${textArray(targetKeys)}))`,
     );
-    for (const r of found)
-      copies.set(`${r.collection_id}|${r.key}`, { id: r.id, key: r.key, since: new Date(r.since) });
+    for (const r of found) copies.set(`${r.collection_id}|${r.key}`, knownOf(r));
   }
 
   // The same text already current in the collection (also without embeddings): never a second copy.
-  const verbatim = new Map<string, { id: string; key: string }>();
+  // Several current facts can share a text when each is a different dated occurrence.
+  const verbatim = new Map<string, { id: string; key: string; event: EventTime | null }[]>();
   if (ops.length) {
     for (const r of await sameText(
       tx,
       [...new Set(ops.map((o) => o.collection.id))],
       ops.map((o) => o.fact.content),
-    ))
-      verbatim.set(`${r.collection_id}|${r.raw}`, { id: r.id, key: r.key });
+    )) {
+      const k = `${r.collection_id}|${r.raw}`;
+      verbatim.set(k, [...(verbatim.get(k) ?? []), { id: r.id, key: r.key, event: eventOf(r) }]);
+    }
   }
 
   // Nearest current fact per (fact, collection), exact scan within the collection.
-  const nearest = new Map<number, { id: string; key: string; d: number }>();
+  const nearest = new Map<number, Known & { d: number }>();
   const probes = ops.map((op, i) => ({ op, i })).filter(({ op }) => op.vector);
   if (probes.length) {
     const values = sql.join(
       probes.map(({ op, i }) => sql`(${i}::int, ${op.collection.id}, ${vec(op.vector!)})`),
       sql`, `,
     );
-    const found = await rows<{ i: number; id: string; key: string; d: number }>(
+    const found = await rows<KnownRow & { i: number; d: number }>(
       tx,
-      sql`SELECT q.i, x.id, x.key, x.d FROM (VALUES ${values}) AS q(i, coll, v)
+      sql`SELECT q.i, x.* FROM (VALUES ${values}) AS q(i, coll, v)
           CROSS JOIN LATERAL (
-            SELECT c.id, COALESCE(c.internal->>'key', c.id) AS key, (c.embedding <=> q.v) + 0 AS d
+            SELECT c.id, COALESCE(c.internal->>'key', c.id) AS key, COALESCE(c.valid_from, c.created_at) AS since,
+                   ${KNOWN_TIME_COLS}, (c.embedding <=> q.v) + 0 AS d
             FROM conclusions c
             WHERE c.collection_id = q.coll AND c.deleted_at IS NULL AND c.valid_to IS NULL AND c.embedding IS NOT NULL
-            ORDER BY 3 LIMIT 1) x`,
+            ORDER BY d LIMIT 1) x`,
     );
-    for (const r of found) nearest.set(Number(r.i), { id: r.id, key: r.key, d: Number(r.d) });
+    for (const r of found) nearest.set(Number(r.i), { ...knownOf(r), d: Number(r.d) });
   }
 
   interface NewRow {
@@ -309,12 +352,34 @@ export async function applyFacts(
     key: string;
     validTo: Date | null;
     supersededBy: string | null;
+    /** The event end it takes when it is stored already replaced (see endedBy). */
+    eventEnd: Date | null;
+    /** The fact it replaces, or the pinned fact it disagrees with. */
+    replaces: string | null;
+    conflictWith: string | null;
   }
   const newRows: NewRow[] = [];
-  const reinforce = async (id: string, f: PreparedFact) => {
+  // The change log of this batch, written once the new facts exist.
+  const events: MemoryEvent[] = [];
+  const logged = (op: Op, e: Omit<MemoryEvent, "workspaceId" | "collectionId" | "actor">) =>
+    events.push({
+      workspaceId: args.workspaceId,
+      collectionId: op.collection.id,
+      actor: "reasoner",
+      ...e,
+    });
+  const reinforce = async (id: string, f: PreparedFact, op: Op) => {
+    logged(op, {
+      conclusionId: id,
+      action: "reinforced",
+      sources: f.messageIds,
+      reason: "said again",
+    });
     await tx.execute(
       sql`UPDATE conclusions SET times_derived = times_derived + 1,
             message_ids = ARRAY(SELECT DISTINCT unnest(message_ids || ${textArray(f.messageIds)})),
+            tags = (SELECT COALESCE((array_agg(t ORDER BY o))[1:8], '{}') FROM (SELECT DISTINCT ON (t) t, o
+              FROM unnest(tags || ${textArray(f.tags)}) WITH ORDINALITY AS x(t, o) ORDER BY t, o) y),
             confidence = GREATEST(confidence, ${f.confidence}), importance = GREATEST(importance, ${f.importance}),
             updated_at = now()
           WHERE id = ${id}`,
@@ -323,7 +388,16 @@ export async function applyFacts(
   };
   const factKeys = new Map<PreparedFact, string>();
   const insert = (op: Op, key: string): NewRow => {
-    const row: NewRow = { id: newId(), op, key, validTo: null, supersededBy: null };
+    const row: NewRow = {
+      id: newId(),
+      op,
+      key,
+      validTo: null,
+      supersededBy: null,
+      eventEnd: null,
+      replaces: null,
+      conflictWith: null,
+    };
     newRows.push(row);
     stats.inserted++;
     touch(op.collection, 1);
@@ -337,15 +411,29 @@ export async function applyFacts(
     const f = op.fact;
     const copy = f.target ? copies.get(`${op.collection.id}|${f.target.key}`) : undefined;
     const probe = nearest.get(i);
-    const same = verbatim.get(`${op.collection.id}|${f.content}`);
-    const near = same && !(probe && probe.d <= DUPLICATE_DISTANCE) ? { ...same, d: 0 } : probe;
-    const isDuplicate = near && near.d <= DUPLICATE_DISTANCE;
+    const sameList = verbatim.get(`${op.collection.id}|${f.content}`) ?? [];
+    const same = sameList.find((x) => !distinctOccurrences(f.event, x.event)) ?? sameList[0];
+    const near =
+      same &&
+      !(probe && probe.d <= DUPLICATE_DISTANCE && !distinctOccurrences(f.event, probe.event))
+        ? { ...same, d: 0, pinned: false }
+        : probe;
+    // A near-identical fact about another occurrence (a second gym visit, another trip) is new.
+    const isDuplicate =
+      near && near.d <= DUPLICATE_DISTANCE && !distinctOccurrences(f.event, near.event ?? null);
     // The target may be gone from this collection (superseded or merged meanwhile,
     // or this observer joined later): then it is new information, checked for duplicates.
-    const action = f.action !== "add" && !copy ? "add" : f.action;
+    let action = f.action !== "add" && !copy ? "add" : f.action;
+    // Dated occurrences that do not overlap never restate or replace each other.
+    if (
+      copy &&
+      distinctOccurrences(f.event, copy.event) &&
+      (action === "reinforce" || (f.category === "event" && copy.category === "event"))
+    )
+      action = "add";
     if (action === "reinforce" || (action === "add" && isDuplicate)) {
       const existing = action === "reinforce" ? copy : near;
-      if (existing) await reinforce(existing.id, f);
+      if (existing) await reinforce(existing.id, f, op);
       touch(op.collection);
       continue;
     }
@@ -354,30 +442,50 @@ export async function applyFacts(
       const earlier = replacements.get(chainKey);
       if (isDuplicate && near.key === copy.key) {
         // "Superseded" by the same statement: it is a restatement.
-        await reinforce(copy.id, f);
+        await reinforce(copy.id, f, op);
         touch(op.collection);
         continue;
       }
-      if (copy.since > f.validFrom) {
-        // The known fact comes from later messages than this one (an older session learned
-        // late): this is the earlier state. It is kept as history, closed where the known
-        // fact begins, and the known fact stays current.
-        if (isDuplicate) await reinforce(near.id, f);
+      if (laterState(copy, f)) {
+        // The known fact describes a later state than this one (an older session learned late,
+        // or a move reported after the fact): this is the earlier state. It is kept as history,
+        // closed where the known fact begins, and the known fact stays current.
+        if (isDuplicate) await reinforce(near.id, f, op);
         else {
           const row = insert(op, factKeys.get(f) ?? newKey(factKeys, f));
-          row.validTo = copy.since;
+          row.validTo = closedAt(f, copy);
+          row.eventEnd = endedBy(f, copy);
           row.supersededBy = copy.id;
           stats.superseded++;
         }
         touch(op.collection);
         continue;
       }
+      if (copy.pinned) {
+        // A person set the known fact: it stays as it is. The new statement is kept next to it
+        // and the disagreement is flagged for review.
+        if (isDuplicate) await reinforce(near.id, f, op);
+        else {
+          const row = insert(op, factKeys.get(f) ?? newKey(factKeys, f));
+          row.conflictWith = copy.id;
+          logged(op, {
+            conclusionId: copy.id,
+            action: "conflict",
+            sources: [row.id, ...f.messageIds],
+            reason: "a newer statement disagrees with this pinned fact",
+            after: { content: f.content },
+          });
+        }
+        touch(op.collection);
+        continue;
+      }
       if (earlier && !isDuplicate) {
         const row = insert(op, factKeys.get(f) ?? newKey(factKeys, f));
-        const [older, newer] =
-          earlier.op.fact.validFrom <= f.validFrom ? [earlier, row] : [row, earlier];
-        older.validTo = newer.op.fact.validFrom;
+        const [older, newer] = laterState(earlier.op.fact, f) ? [row, earlier] : [earlier, row];
+        older.validTo = closedAt(older.op.fact, newer.op.fact);
+        older.eventEnd = endedBy(older.op.fact, newer.op.fact);
         older.supersededBy = newer.id;
+        newer.replaces = older.id;
         replacements.set(chainKey, newer);
         stats.superseded++;
         continue;
@@ -385,18 +493,32 @@ export async function applyFacts(
       let replacement: string;
       if (isDuplicate) {
         // The new state is already stored (e.g. learned in another batch): link to it.
-        await reinforce(near.id, f);
+        await reinforce(near.id, f, op);
         replacement = near.id;
       } else {
         const row = insert(op, factKeys.get(f) ?? newKey(factKeys, f));
+        row.replaces = copy.id;
         replacements.set(chainKey, row);
         replacement = row.id;
       }
-      await tx.execute(
-        sql`UPDATE conclusions SET valid_to = GREATEST(COALESCE(valid_from, created_at), ${f.validFrom}::timestamptz),
+      const closed = await rows<{ valid_to: Date | string }>(
+        tx,
+        sql`UPDATE conclusions SET valid_to = GREATEST(COALESCE(valid_from, created_at), ${stateStart(f)}::timestamptz),
+              event_end = COALESCE(event_end, ${endedBy(copy, f)}::timestamptz),
               superseded_by = ${replacement}, updated_at = now()
-            WHERE id = ${copy.id} AND valid_to IS NULL`,
+            WHERE id = ${copy.id} AND valid_to IS NULL AND NOT pinned RETURNING valid_to`,
       );
+      if (closed[0])
+        logged(op, {
+          conclusionId: copy.id,
+          action: "superseded",
+          sources: [replacement, ...f.messageIds],
+          reason: "replaced by a newer statement",
+          after: {
+            superseded_by: replacement,
+            valid_to: new Date(closed[0].valid_to).toISOString(),
+          },
+        });
       stats.superseded++;
       touch(op.collection);
       continue;
@@ -410,20 +532,42 @@ export async function applyFacts(
   }
 
   if (newRows.length) {
-    const values = newRows.map(({ id, op, key, validTo, supersededBy }) => {
+    const values = newRows.map(({ id, op, key, validTo, supersededBy, eventEnd, conflictWith }) => {
       const f = op.fact;
       return sql`(${id}, ${args.workspaceId}, ${op.collection.id}, ${op.collection.observer_id}, ${f.aboutId},
         ${args.sessionId}, ${f.content}, ${f.level}, ${f.category}, ${f.confidence}::real, ${f.importance}::real,
         ${textArray(f.messageIds)}, ${f.validFrom}::timestamptz, ${validTo}::timestamptz, ${supersededBy},
+        ${f.event?.start ?? null}::timestamptz, ${eventEnd ?? f.event?.end ?? null}::timestamptz,
+        ${f.event?.precision ?? null}, ${textArray(f.tags)},
         ${op.vector ? vec(op.vector) : sql`NULL::vector`}, ${op.vector ? args.embeddingModel : null},
-        ${JSON.stringify({ key })}::jsonb)`;
+        ${JSON.stringify(conflictWith ? { key, conflict_with: conflictWith } : { key })}::jsonb)`;
     });
     await tx.execute(
       sql`INSERT INTO conclusions (id, workspace_id, collection_id, observer_id, observed_id, session_id, content, level,
-            category, confidence, importance, message_ids, valid_from, valid_to, superseded_by, embedding,
-            embedding_model, internal)
+            category, confidence, importance, message_ids, valid_from, valid_to, superseded_by, event_start,
+            event_end, event_precision, tags, embedding, embedding_model, internal)
           VALUES ${sql.join(values, sql`, `)}`,
     );
+    for (const r of newRows)
+      events.push({
+        workspaceId: args.workspaceId,
+        collectionId: r.op.collection.id,
+        conclusionId: r.id,
+        action: "created",
+        actor: "reasoner",
+        sources: r.op.fact.messageIds,
+        reason: r.supersededBy
+          ? "learned late: an earlier state, already replaced"
+          : r.conflictWith
+            ? "disagrees with a pinned fact"
+            : r.replaces
+              ? "replaces an earlier statement"
+              : "learned from messages",
+        after:
+          r.replaces || r.conflictWith
+            ? { replaces: r.replaces, conflict_with: r.conflictWith }
+            : undefined,
+      });
   }
 
   // Card edits are dated with the speaker's newest message in the window: an entry set from
@@ -436,13 +580,27 @@ export async function applyFacts(
       if (!c) continue;
       const stale = await supersededValues(tx, c.id, e.add);
       const dates = { ...(c.card_dates ?? {}) };
+      const before = Array.isArray(c.peer_card) ? c.peer_card : [];
       const { card, changed, datesChanged } = applyCardEdits(
-        Array.isArray(c.peer_card) ? c.peer_card : [],
+        before,
         e.add.filter((a) => !stale.has(a)),
         e.remove,
         { asOf: () => at, dates },
       );
       if (!changed && !datesChanged) continue;
+      if (changed) {
+        const diff = cardDiff(before, card);
+        events.push({
+          workspaceId: args.workspaceId,
+          collectionId: c.id,
+          conclusionId: null,
+          action: "card",
+          actor: "reasoner",
+          reason: "learned from messages",
+          before: diff.removed,
+          after: diff.added,
+        });
+      }
       await tx.execute(
         sql`UPDATE collections SET peer_card = ${JSON.stringify(card)}::jsonb, card_dates = ${JSON.stringify(dates)}::jsonb,
               card_updated_at = ${changed ? sql`now()` : sql`card_updated_at`}
@@ -455,6 +613,8 @@ export async function applyFacts(
       touch(c);
     }
   }
+
+  await recordEvents(tx, events);
 
   if (stats.touched.size) {
     const values = sql.join(
@@ -490,11 +650,22 @@ export async function sameText(
   tx: Tx,
   collectionIds: string[],
   texts: string[],
-): Promise<{ raw: string; id: string; collection_id: string; key: string }[]> {
+): Promise<
+  {
+    raw: string;
+    id: string;
+    collection_id: string;
+    key: string;
+    event_start: Date | string | null;
+    event_end: Date | string | null;
+    event_precision: EventTime["precision"] | null;
+  }[]
+> {
   if (!collectionIds.length || !texts.length) return [];
   return rows(
     tx,
-    sql`SELECT q.raw, c.id, c.collection_id, COALESCE(c.internal->>'key', c.id) AS key
+    sql`SELECT q.raw, c.id, c.collection_id, COALESCE(c.internal->>'key', c.id) AS key, c.event_start, c.event_end,
+               c.event_precision
         FROM unnest(${textArray([...new Set(texts)])}) AS q(raw)
         JOIN conclusions c ON c.collection_id = ANY(${textArray(collectionIds)})
           AND c.deleted_at IS NULL AND c.valid_to IS NULL

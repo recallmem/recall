@@ -49,6 +49,8 @@ const SearchBody = z.object({
   query: z.string().min(1).max(10_000),
   filters: JsonObject.nullish(),
   limit: z.number().int().min(1).max(100).default(10),
+  // Recall: each result says why it ranked where it did.
+  explain: z.boolean().optional(),
 });
 const WorkspaceSearchBody = SearchBody.extend({ scope: z.string().min(1).nullish() });
 
@@ -435,6 +437,7 @@ export function register(app: App, ctx: AppContext): void {
         filters: b.filters,
         limit: b.limit,
         scope: b.scope,
+        explain: b.explain,
       }),
     );
   });
@@ -448,6 +451,7 @@ export function register(app: App, ctx: AppContext): void {
         filters: b.filters,
         limit: b.limit,
         peer: c.req.param("peer_id")!,
+        explain: b.explain,
       }),
     );
   });
@@ -461,6 +465,7 @@ export function register(app: App, ctx: AppContext): void {
         filters: b.filters,
         limit: b.limit,
         session: c.req.param("session_id")!,
+        explain: b.explain,
       }),
     );
   });

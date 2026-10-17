@@ -112,6 +112,9 @@ function petStory(delayMs = 120) {
           confidence: 1,
           importance: 4,
           source_messages: [line.n],
+          event_start: null,
+          event_end: null,
+          tags: [],
           action: died ? "supersede" : "add",
           target: died?.handle ?? null,
         });
@@ -127,6 +130,9 @@ function petStory(delayMs = 120) {
           confidence: 1,
           importance: 4,
           source_messages: [line.n],
+          event_start: null,
+          event_end: null,
+          tags: [],
           action: alive ? "supersede" : "add",
           target: alive?.handle ?? null,
         });

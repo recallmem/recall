@@ -23,7 +23,7 @@ describe("site", () => {
     const home = await s.app.request("/");
     expect(home.status).toBe(200);
     expect(home.headers.get("content-type")).toContain("text/html");
-    expect(await home.text()).toContain("Recall doesn't.");
+    expect(await home.text()).toContain("Recall keeps receipts.");
     const docs = await s.app.request("/docs");
     expect(docs.status).toBe(200);
     expect(await docs.text()).toContain('id="quickstart"');
@@ -265,7 +265,9 @@ describe("site content", () => {
     expect(faq).toMatch(/^Yes\./);
     expect(faq).toContain('href="/docs#self-host"');
     // The night shift demo shows what happened to the facts, not a weekly schedule.
-    const night = /<section class="block" id="night-shift">[\s\S]*?<\/section>/.exec(home)?.[0];
+    const night = /<section class="block[^"]*" id="night-shift"[^>]*>[\s\S]*?<\/section>/.exec(
+      home,
+    )?.[0];
     expect(night).toContain("goes quiet");
     expect(night).not.toMatch(/every (?:mon|tues|wednes|thurs|fri|satur|sun)day/i);
   });
@@ -335,8 +337,8 @@ describe("site content", () => {
   });
 
   it("keeps the first screen visible: no reveal animation in the hero", () => {
-    const hero = /<section class="hero">[\s\S]*?<\/section>/.exec(home)?.[0] ?? "";
-    expect(hero).toContain("Recall doesn't.");
+    const hero = /<section class="hero"[^>]*>[\s\S]*?<\/section>/.exec(home)?.[0] ?? "";
+    expect(hero).toContain("Recall keeps receipts.");
     expect(hero).not.toContain("reveal");
     expect(hero).toContain('class="proof-line"');
   });
@@ -404,9 +406,9 @@ describe("site content", () => {
     const dir = join(REPO, "packages/server/public");
     const chart = /<figure class="cmp [\s\S]*?<\/figure>/g;
     // Links to the comparison pages and the switching guide may name the product they are about
-    // (the guides index and its nav, llms.txt); the comparison pages are checked below.
+    // (the guides index and its nav, llms.txt, the sitemap); the comparison pages are checked below.
     const dedicated =
-      /<a [^>]*href="\/(?:compare\/[\w-]+|guides\/switch-from-honcho)"[^>]*>[\s\S]*?<\/a>|^.*https:\/\/recallmem\.dev\/(?:compare\/[\w-]+|guides\/switch-from-honcho)\).*$/gm;
+      /<a [^>]*href="\/(?:compare\/[\w-]+|guides\/switch-from-honcho)"[^>]*>[\s\S]*?<\/a>|^.*https:\/\/recallmem\.dev\/(?:compare\/[\w-]+|guides\/switch-from-honcho)\).*$|<loc>https:\/\/recallmem\.dev\/(?:compare\/[\w-]+|guides\/switch-from-honcho)<\/loc>/gm;
     for (const file of readdirSync(dir).filter((f) => /\.(html|js|css|txt|xml)$/.test(f))) {
       if (file === "compare.html") continue;
       const text = read(`packages/server/public/${file}`).replace(dedicated, "");
@@ -742,7 +744,7 @@ describe("comparison pages", () => {
     expect(hrefsOf(guide)).toContain("/compare/honcho");
     // The home page links them from the footer only, not from the hero.
     const home = await (await s.app.request("/")).text();
-    const hero = /<section class="hero">[\s\S]*?<\/section>/.exec(home)?.[0] ?? "";
+    const hero = /<section class="hero"[^>]*>[\s\S]*?<\/section>/.exec(home)?.[0] ?? "";
     expect(hero).not.toContain("/compare");
     // On Vercel the CDN serves them with the site's headers.
     const vercel = JSON.parse(read("packages/server/vercel.json")) as {

@@ -22,7 +22,7 @@ Recall is run by Smidt Beheer, the Netherlands (KvK 99124254). Data is stored in
 - [Ask questions](https://recallmem.dev/docs#chat): chat with reasoning levels, evidence, citations and structured output
 - [Prompt context](https://recallmem.dev/docs#context): recent messages, a summary and what is known about a person, within a token budget
 - [SDKs](https://recallmem.dev/docs#sdks): TypeScript and Python
-- [Integrations](https://recallmem.dev/docs#integrations): Claude Code, Codex, OpenClaw, Hermes and the Agent Skill
+- [Integrations](https://recallmem.dev/docs#integrations): Claude Code, Codex, OpenClaw, Hermes, the Agent Skill and the GitHub Action (repository memory)
 - [MCP](https://recallmem.dev/docs#mcp): add Recall to Claude.ai, ChatGPT, Cursor or any MCP client
 - [Webhooks](https://recallmem.dev/docs#webhooks): signed events when background work finishes
 - [Self-hosting](https://recallmem.dev/docs#self-host): run the server yourself with Docker or from source, with your own model provider keys
@@ -31,13 +31,16 @@ Recall is run by Smidt Beheer, the Netherlands (KvK 99124254). Data is stored in
 - [Export your data](https://recallmem.dev/docs#export)
 - [Errors and limits](https://recallmem.dev/docs#errors): error format, rate limits, message and request size limits
 - [Retries](https://recallmem.dev/docs#idempotency): the Idempotency-Key header
-- [Pricing](https://recallmem.dev/docs#pricing): prepaid credit; learning {{price_ingest}} per 1M message tokens (a message counts as at least {{price_min_tokens}} tokens); chat {{price_minimal}} (minimal), {{price_low}} (low, the default), {{price_medium}} (medium), {{price_high}} (high) or {{price_max}} (max) per question; context, search, storage and the night shift included
+- [Pricing](https://recallmem.dev/docs#pricing): prepaid credit; learning {{price_ingest}} per 1M message tokens (a message counts as at least {{price_min_tokens}} tokens); chat {{price_minimal}} (minimal), {{price_low}} (low, the default), {{price_medium}} (medium), {{price_high}} (high) or {{price_max}} (max) per question; storing messages no reasoning call reads, and facts you add yourself, {{price_store}} per 1M tokens (at least {{price_min_tokens}} each); context, search and the night shift included
 
 ## Guides
 
 - [All guides](https://recallmem.dev/guides): one per kind of agent (support, coding agents, tutoring, game NPCs, voice and more)
 - [Reasoning levels and models](https://recallmem.dev/guides/levels-and-models)
 - [Cost and speed](https://recallmem.dev/guides/cost-and-speed)
+- [Memory for Claude Code](https://recallmem.dev/claude-code-memory): the plugin that gives Claude Code (and Codex) memory between sessions
+- [One memory for ChatGPT and Claude](https://recallmem.dev/chatgpt-claude-memory): connect Recall to ChatGPT, Claude, Claude Code and Cursor over MCP
+- [The context bill](https://recallmem.dev/calculator): a calculator of what re-sending the whole conversation with every model call costs, next to a memory
 - [Privacy, consent and forgetting](https://recallmem.dev/guides/privacy)
 - [Switch from Honcho](https://recallmem.dev/guides/switch-from-honcho): change the base URL and the API key; what stays the same, what Recall adds and what differs
 

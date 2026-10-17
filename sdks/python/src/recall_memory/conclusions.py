@@ -309,6 +309,22 @@ class WorkspaceConclusionsBase(_ConclusionsCommon):
     ) -> Generator[Request, Response, _List[Conclusion]]:
         return (yield from self._get_many(conclusion_ids))
 
+    @operation
+    def history(self, conclusion_id: str) -> Generator[Request, Response, dict[str, Any]]:
+        """What happened to a fact: ``conclusion``, ``events`` (who changed it, why, from what),
+        ``replaced`` (the facts it replaced) and ``replaced_by``."""
+        resp = yield Request("GET", self._path(f"/{seg(conclusion_id)}/history"))
+        return dict(resp.body)
+
+    @operation
+    def pin(
+        self, conclusion_id: str, pinned: bool = True
+    ) -> Generator[Request, Response, Conclusion]:
+        """Pin a fact (or unpin it with ``pinned=False``): Recall never replaces a pinned fact;
+        a statement that disagrees is kept next to it and flagged."""
+        resp = yield Request("PATCH", self._path(f"/{seg(conclusion_id)}"), json={"pinned": pinned})
+        return Conclusion.model_validate(resp.body)
+
 
 class ConclusionsView(ConclusionsViewBase, SyncMode):
     @property

@@ -9,7 +9,11 @@
 <meta property="og:title" content="Reasoning levels and models — Recall guides" />
 <meta property="og:description" content="Choose between prompt context, search and chat, pick a reasoning level per question, and what models Recall answers with, from our own measurements." />
 <meta property="og:type" content="article" />
-<meta property="og:image" content="/og.png" />
+<meta property="og:url" content="https://recallmem.dev/guides/levels-and-models" />
+<meta property="og:image" content="https://recallmem.dev/og.png" />
+<meta property="og:site_name" content="Recall" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://recallmem.dev/og.png" />
 <link rel="canonical" href="https://recallmem.dev/guides/levels-and-models" />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="preload" href="/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin />
@@ -116,8 +120,8 @@ const user = recall.peer("user-8412");
 const assistant = recall.peer("assistant", { configuration: { observeMe: false } });
 const session = recall.session("chat-311", { peers: ["user-8412", "assistant"] });
 await session.addMessages([
-  user.message("I moved from Leeds to Utrecht in March. I cycle to work most days."),
-  assistant.message("Utrecht is a great city for cycling."),
+  user.message("I moved from Seattle to Denver in March. I cycle to work most days."),
+  assistant.message("Denver is a great city for cycling."),
   user.message("I'm allergic to peanuts, and I've started learning Dutch."),
 ]);
 await recall.waitForIdle(); // for this demo only: real apps do not wait for learning</code></pre>
@@ -132,8 +136,8 @@ assistant = recall.peer("assistant", configuration=PeerConfig(observe_me=False))
 session = recall.session("chat-311", peers=[user, assistant])
 session.add_messages(
     [
-        user.message("I moved from Leeds to Utrecht in March. I cycle to work most days."),
-        assistant.message("Utrecht is a great city for cycling."),
+        user.message("I moved from Seattle to Denver in March. I cycle to work most days."),
+        assistant.message("Denver is a great city for cycling."),
         user.message("I'm allergic to peanuts, and I've started learning Dutch."),
     ]
 )
@@ -283,5 +287,6 @@ profile = user.chat(
 </footer>
 
 <script src="/site.js" defer></script>
+<script defer src="/u/script.js" data-website-id="49d3572d-ca3b-4281-a0ed-191b2f269094" data-host-url="/u"></script>
 </body>
 </html>

@@ -16,6 +16,7 @@ import { newId } from "../lib/ids.js";
 import { enqueue } from "../queue/enqueue.js";
 import { lockSessionSummaries } from "../summaries/store.js";
 import type { Obj } from "./configuration.js";
+import { cardDiff, recordEvents } from "./history.js";
 import { newName } from "./schemas.js";
 import { type WsKey, wsIs } from "./tenancy.js";
 import { ensureWorkspace } from "./workspaces.js";
@@ -369,6 +370,7 @@ export async function setPeerCard(
   peerName: string,
   target: string | undefined,
   card: string[],
+  by: { actor: "api" | "dashboard"; ref?: string | null; reason?: string } = { actor: "api" },
 ): Promise<string[]> {
   return ctx.db.transaction(async (tx) => {
     const { row: ws } = await ensureWorkspace(tx, workspace);
@@ -376,12 +378,35 @@ export async function setPeerCard(
     const peers = await ensurePeers(tx, ws.internal_id, names);
     const observer = peers.get(peerName)!;
     const observed = peers.get(target && target !== peerName ? target : peerName)!;
-    await tx.execute(
+    const [was] = await rows<{ peer_card: string[] }>(
+      tx,
+      sql`SELECT peer_card FROM collections WHERE observer_id = ${observer.id} AND observed_id = ${observed.id}
+          FOR UPDATE`,
+    );
+    const [col] = await rows<{ id: string }>(
+      tx,
       sql`INSERT INTO collections (id, workspace_id, observer_id, observed_id, peer_card, card_updated_at, version)
           VALUES (${newId()}, ${ws.internal_id}, ${observer.id}, ${observed.id}, ${JSON.stringify(card)}::jsonb, now(), 1)
           ON CONFLICT (observer_id, observed_id) DO UPDATE SET
-            peer_card = EXCLUDED.peer_card, card_updated_at = now(), version = collections.version + 1`,
+            peer_card = EXCLUDED.peer_card, card_updated_at = now(), card_blocked = NULL,
+            version = collections.version + 1
+          RETURNING id`,
     );
+    const diff = cardDiff(Array.isArray(was?.peer_card) ? was.peer_card : [], card);
+    if (col && (diff.added.length || diff.removed.length))
+      await recordEvents(tx, [
+        {
+          workspaceId: ws.internal_id,
+          collectionId: col.id,
+          conclusionId: null,
+          action: "card",
+          actor: by.actor,
+          actorRef: by.ref ?? null,
+          reason: by.reason ?? "set the card",
+          before: diff.removed,
+          after: diff.added,
+        },
+      ]);
     return card;
   });
 }

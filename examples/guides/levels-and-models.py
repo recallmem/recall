@@ -18,8 +18,8 @@ def main(recall: Recall | None = None) -> dict[str, Any]:
     session = recall.session("chat-311", peers=[user, assistant])
     session.add_messages(
         [
-            user.message("I moved from Leeds to Utrecht in March. I cycle to work most days."),
-            assistant.message("Utrecht is a great city for cycling."),
+            user.message("I moved from Seattle to Denver in March. I cycle to work most days."),
+            assistant.message("Denver is a great city for cycling."),
             user.message("I'm allergic to peanuts, and I've started learning Dutch."),
         ]
     )

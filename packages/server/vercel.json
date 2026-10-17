@@ -49,7 +49,7 @@
       ]
     },
     {
-      "source": "/:page(home|docs|guides|compare|evals|privacy|terms|dpa|security|support)",
+      "source": "/:page(home|docs|guides|compare|calculator|claude-code-memory|chatgpt-claude-memory|evals|privacy|terms|dpa|security|support)",
       "headers": [
         {
           "key": "X-Content-Type-Options",
@@ -136,7 +136,7 @@
       ]
     },
     {
-      "source": "/:file(site\\.css|site\\.js|favicon\\.svg|og\\.png|robots\\.txt|llms\\.txt)",
+      "source": "/:file(site\\.css|site\\.js|calculator\\.js|favicon\\.svg|og\\.png|og-bill\\.png|robots\\.txt|llms\\.txt|sitemap\\.xml)",
       "headers": [
         {
           "key": "X-Content-Type-Options",
@@ -276,7 +276,7 @@
       "statusCode": 308
     },
     {
-      "source": "/:page(home|docs|guides|compare|evals|privacy|terms|dpa|security|support)",
+      "source": "/:page(home|docs|guides|compare|calculator|claude-code-memory|chatgpt-claude-memory|evals|privacy|terms|dpa|security|support)",
       "has": [
         {
           "type": "host",
@@ -309,7 +309,7 @@
       "statusCode": 308
     },
     {
-      "source": "/:page(home|docs|guides|compare|evals|privacy|terms|dpa|security|support)",
+      "source": "/:page(home|docs|guides|compare|calculator|claude-code-memory|chatgpt-claude-memory|evals|privacy|terms|dpa|security|support)",
       "has": [
         {
           "type": "host",
@@ -343,6 +343,14 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/u/script.js",
+      "destination": "https://stats.recallmem.dev/script.js"
+    },
+    {
+      "source": "/u/api/send",
+      "destination": "https://stats.recallmem.dev/api/send"
+    },
     {
       "source": "/",
       "missing": [

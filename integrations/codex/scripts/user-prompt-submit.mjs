@@ -4,11 +4,10 @@
 
 import {
   additionalContext,
-  clip,
   fetchMemory,
   finish,
   idempotencyKey,
-  messageMetadata,
+  messagesOf,
   recallSessionId,
   record,
   renderMemory,
@@ -37,13 +36,7 @@ await runHook("user-prompt-submit", async ({ settings, input, state, env }) => {
             turnId(input) ?? Math.floor(Date.now() / 1000),
             prompt,
           ),
-          messages: [
-            {
-              peer_id: settings.peer,
-              content: clip(prompt),
-              metadata: messageMetadata(input),
-            },
-          ],
+          messages: messagesOf(settings.peer, prompt, input),
           setup: sessionSetup(settings, input),
         },
         env,

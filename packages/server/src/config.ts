@@ -205,6 +205,13 @@ const EnvSchema = z.object({
    */
   RECALL_GITHUB_CLIENT_ID: z.string().trim().min(1).optional(),
   RECALL_GITHUB_CLIENT_SECRET: z.string().trim().min(1).optional(),
+  /**
+   * The operator console's Traffic page reads website analytics from a self-hosted Umami server:
+   * its URL, the website's id there, and an Umami API key (set all three).
+   */
+  UMAMI_URL: z.string().trim().url().optional(),
+  UMAMI_WEBSITE_ID: z.string().trim().uuid().optional(),
+  UMAMI_API_KEY: z.string().trim().min(1).optional(),
   RECALL_REVIEWER_EMAIL: z.string().trim().toLowerCase().email().optional(),
   RECALL_REVIEWER_PASSWORD_HASH: z
     .string()
@@ -447,6 +454,8 @@ export interface HostedConfig {
   reviewer: { email: string; passwordHash: string } | null;
   /** The GitHub OAuth app for "Continue with GitHub", if configured. */
   github: { clientId: string; clientSecret: string } | null;
+  /** The Umami server the console's Traffic page reads (UMAMI_URL, _WEBSITE_ID, _API_KEY), if set. */
+  umami: { url: string; websiteId: string; apiKey: string } | null;
   /** Signed-in dashboard users allowed into the operator console (lower-cased emails). */
   operatorEmails: string[];
   /** The weekly activation-funnel email to the operator (RECALL_FUNNEL_REPORT_ENABLED). */
@@ -675,6 +684,14 @@ export function hostedConfig(env: Env): HostedConfig {
     github:
       env.RECALL_GITHUB_CLIENT_ID && env.RECALL_GITHUB_CLIENT_SECRET
         ? { clientId: env.RECALL_GITHUB_CLIENT_ID, clientSecret: env.RECALL_GITHUB_CLIENT_SECRET }
+        : null,
+    umami:
+      env.UMAMI_URL && env.UMAMI_WEBSITE_ID && env.UMAMI_API_KEY
+        ? {
+            url: env.UMAMI_URL.replace(/\/+$/, ""),
+            websiteId: env.UMAMI_WEBSITE_ID,
+            apiKey: env.UMAMI_API_KEY,
+          }
         : null,
     operatorEmails: parseEmailList(env.RECALL_OPERATOR_EMAILS),
     funnelReport: env.RECALL_FUNNEL_REPORT_ENABLED,

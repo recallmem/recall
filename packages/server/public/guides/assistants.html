@@ -9,7 +9,11 @@
 <meta property="og:title" content="Personal assistants and companions — Recall guides" />
 <meta property="og:description" content="Build a personal assistant or AI companion that remembers the user across conversations with Recall: model, code in TypeScript and Python, settings, cost and forgetting." />
 <meta property="og:type" content="article" />
-<meta property="og:image" content="/og.png" />
+<meta property="og:url" content="https://recallmem.dev/guides/assistants" />
+<meta property="og:image" content="https://recallmem.dev/og.png" />
+<meta property="og:site_name" content="Recall" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://recallmem.dev/og.png" />
 <link rel="canonical" href="https://recallmem.dev/guides/assistants" />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="preload" href="/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin />
@@ -102,7 +106,7 @@
       <tbody>
         <tr><td>"My parents visit on Saturday. Can you plan a dinner for four?"</td><td>Suggests roast chicken.</td><td>Suggests a mushroom risotto: the user set "vegetarian" in their profile.</td></tr>
         <tr><td>Thursday, a new conversation: "What do I still need to buy?"</td><td>"For what, exactly?"</td><td>"For Saturday's dinner with your parents: mushrooms, risotto rice and a lemon."</td></tr>
-        <tr><td>The user mentions once that they moved</td><td>Keeps suggesting cafés in the old city.</td><td>Recall closes "lives in Utrecht", starts "lives in Amersfoort" and keeps the old fact as history.</td></tr>
+        <tr><td>The user mentions once that they moved</td><td>Keeps suggesting cafés in the old city.</td><td>Recall closes "lives in Boston", starts "lives in Chicago" and keeps the old fact as history.</td></tr>
       </tbody>
     </table>
     <p>Recall does not write the replies. Your model does, as it does now; Recall gives it what it should know about this user, and learns from what they say.</p>
@@ -166,12 +170,12 @@ await user.setCard([
   ...card,
   "Prefers to be called Sam.",
   "Vegetarian.",
-  "Timezone Europe/Amsterdam.",
+  "Timezone America/New_York.",
 ]);</code></pre>
 <pre data-panel="py" hidden><code># The peer card: a short list of facts for every prompt. Recall writes and updates it as it
 # learns; you can add lines yourself, e.g. from onboarding. set_card replaces the whole card.
 card = user.get_card() or []
-user.set_card([*card, "Prefers to be called Sam.", "Vegetarian.", "Timezone Europe/Amsterdam."])</code></pre>
+user.set_card([*card, "Prefers to be called Sam.", "Vegetarian.", "Timezone America/New_York."])</code></pre>
 </div>
     <p><b>Every message: one request.</b> <code>turn</code> stores the user's message and returns the context for your model in the same round trip: the conversation so far, a summary of older turns, the card and what Recall has learned about the user, trimmed to <code>tokens</code>. Building the context uses no model, so it is fast and included in the price; you pay only for learning from the message. Store the reply afterwards so the conversation is complete.</p>
 <div class="code guide-code" data-tabbox>
@@ -214,7 +218,7 @@ answer = user.chat(
     "What should I keep in mind when suggesting a weekend plan?", reasoning_level="low"
 )</code></pre>
 </div>
-    <p><b>Let users fix what you remember.</b> A "What I remember" page builds trust and catches mistakes. List the user's facts, delete the ones they flag, and store the right value when they give it. Deleting a fact does not change the card, so update the card too. When the user corrects something in conversation ("I moved to Amersfoort"), you need not do anything: Recall closes the old fact itself.</p>
+    <p><b>Let users fix what you remember.</b> A "What I remember" page builds trust and catches mistakes. List the user's facts, delete the ones they flag, and store the right value when they give it. Deleting a fact does not change the card, so update the card too. When the user corrects something in conversation ("I moved to Chicago"), you need not do anything: Recall closes the old fact itself.</p>
 <div class="code guide-code" data-tabbox>
   <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
 <pre data-panel="ts"><code>// A "What I remember" page: list the facts and let the user delete a wrong or outdated one.
@@ -321,5 +325,6 @@ for c in chats:
 </footer>
 
 <script src="/site.js" defer></script>
+<script defer src="/u/script.js" data-website-id="49d3572d-ca3b-4281-a0ed-191b2f269094" data-host-url="/u"></script>
 </body>
 </html>

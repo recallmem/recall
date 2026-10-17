@@ -12,6 +12,7 @@
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
     "lint": "biome check .",
+    "check": "pnpm lint && pnpm typecheck && pnpm test",
     "format": "biome check --write .",
     "dev": "pnpm --filter @recall-memory/server dev"
   },

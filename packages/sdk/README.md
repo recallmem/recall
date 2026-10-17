@@ -21,7 +21,7 @@ const bot = recall.peer("bot");
 const session = recall.session("chat-1");
 
 // One round trip per agent turn: store the message, get the next prompt's context back.
-const { context } = await session.turn([alice.message("I moved to Utrecht last month.")], {
+const { context } = await session.turn([alice.message("I moved to New York last month.")], {
   peerTarget: alice,
   tokens: 4000,
 });
@@ -31,7 +31,7 @@ const reply = await openai.chat.completions.create({
 });
 
 await recall.waitForIdle(); // background reasoning has caught up
-console.log(await alice.chat("Where do I live?")); // "Utrecht"
+console.log(await alice.chat("Where do I live?")); // "New York"
 ```
 
 ## Configuration

@@ -4,6 +4,7 @@ import type { Logger } from "pino";
 import Stripe from "stripe";
 import type { ChatLevel, HostedConfig } from "../config.js";
 import { type BudgetGuard, setAccountSuspension } from "../core/accounts.js";
+import { expireFacts } from "../core/history.js";
 import { purgeOAuth } from "../core/oauth.js";
 import { ownerEmails, purgeExpiredLogins } from "../core/users.js";
 import { type Db, rows } from "../db/client.js";
@@ -961,6 +962,9 @@ export class Billing {
    * purges expired sign-in and sign-up records.
    */
   async sweep(): Promise<void> {
+    await expireFacts(this.deps.db).catch((err) =>
+      this.deps.log.error({ err }, "fact expiry sweep failed"),
+    );
     if (this.deps.config.dashboard) {
       await purgeExpiredLogins(this.deps.db);
       await purgeSignupGrants(this.deps.db);

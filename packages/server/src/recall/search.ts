@@ -1,6 +1,7 @@
 import { type SQL, sql } from "drizzle-orm";
 import type { AppContext } from "../context.js";
 import { rows } from "../db/client.js";
+import { type EventTime, eventOf } from "../lib/event-time.js";
 import { and, inList, num, rrf, toDate, tsQuery, vecLiteral } from "./util.js";
 import { vectorRows } from "./vector.js";
 
@@ -31,6 +32,9 @@ export interface MessageHit {
   /** Best cosine distance over the query embeddings, when the message was reached by a vector leg. */
   dist: number | null;
   lexical: boolean;
+  /** Its place (1 = first) in the best vector leg and in the full-text leg, when it was in them. */
+  vectorRank?: number | null;
+  lexicalRank?: number | null;
 }
 
 /** Table aliases fixed by the `compileFilters("messages", …)` contract: m, s, p, w. */
@@ -98,13 +102,16 @@ export async function searchMessages(ctx: AppContext, p: MessageSearch): Promise
   const results = await Promise.all(legs);
   const byseq = new Map<number, MessageHit>();
   const lists = results.map((list, i) =>
-    list.map((r) => {
+    list.map((r, at) => {
       const row = mapMessage(r);
       const hit = byseq.get(row.seq) ?? { row, score: 0, dist: null, lexical: false };
-      if (i === lexIdx) hit.lexical = true;
-      else {
+      if (i === lexIdx) {
+        hit.lexical = true;
+        hit.lexicalRank = at + 1;
+      } else {
         const d = num(r.dist);
         hit.dist = hit.dist == null ? d : Math.min(hit.dist, d);
+        hit.vectorRank = Math.min(hit.vectorRank ?? Number.POSITIVE_INFINITY, at + 1);
       }
       byseq.set(row.seq, hit);
       return row.seq;
@@ -181,6 +188,10 @@ export interface ConclusionRow {
   validFrom: Date | null;
   validTo: Date | null;
   supersededBy: string | null;
+  /** When what the fact describes happened or began (null when it has no time of its own). */
+  event: EventTime | null;
+  /** Set by a person; never changed by the reasoner or dreams. */
+  pinned: boolean;
   createdAt: Date;
 }
 
@@ -197,7 +208,8 @@ export interface ConclusionHit {
 export const CONC_FROM = sql`conclusions c JOIN peers obs ON obs.id = c.observer_id JOIN peers obd ON obd.id = c.observed_id LEFT JOIN sessions s ON s.id = c.session_id`;
 export const CONC_COLS = sql`c.id, c.content, c.level, c.category, c.confidence, c.importance, c.times_derived,
   c.source_ids, c.message_ids, c.session_id, s.name AS session_name, c.observer_id, c.observed_id,
-  obs.name AS observer_name, obd.name AS observed_name, c.valid_from, c.valid_to, c.superseded_by, c.created_at`;
+  obs.name AS observer_name, obd.name AS observed_name, c.valid_from, c.valid_to, c.superseded_by, c.created_at,
+  c.event_start, c.event_end, c.event_precision, c.pinned`;
 
 export function mapConclusion(r: Obj): ConclusionRow {
   return {
@@ -219,6 +231,8 @@ export function mapConclusion(r: Obj): ConclusionRow {
     validFrom: toDate(r.valid_from as string | null),
     validTo: toDate(r.valid_to as string | null),
     supersededBy: (r.superseded_by as string | null) ?? null,
+    event: eventOf(r as Parameters<typeof eventOf>[0]),
+    pinned: r.pinned === true,
     createdAt: toDate(r.created_at as string)!,
   };
 }
@@ -226,8 +240,11 @@ export function mapConclusion(r: Obj): ConclusionRow {
 export type FactState = "current" | "superseded" | "all";
 
 export function stateCond(state: FactState): SQL {
-  if (state === "current") return sql`c.deleted_at IS NULL AND c.valid_to IS NULL`;
-  if (state === "superseded") return sql`c.deleted_at IS NULL AND c.valid_to IS NOT NULL`;
+  // A fact past its expiry date no longer holds, even before the sweep closes it.
+  if (state === "current")
+    return sql`c.deleted_at IS NULL AND c.valid_to IS NULL AND (c.expires_at IS NULL OR c.expires_at > now())`;
+  if (state === "superseded")
+    return sql`c.deleted_at IS NULL AND (c.valid_to IS NOT NULL OR c.expires_at <= now())`;
   return sql`c.deleted_at IS NULL`;
 }
 

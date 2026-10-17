@@ -333,3 +333,82 @@ async function ownerEmails(db: Executor, ids: string[]): Promise<Map<string, str
   );
   return new Map(found.map((r) => [r.account_id, r.email]));
 }
+
+/** Self-serve sign-ups of a period from one source and campaign, and how many called the API. */
+export interface SourceRow {
+  /** `accounts.signup_source`; null when unknown (direct visits, sign-ups before 0029). */
+  source: string | null;
+  campaign: string | null;
+  signups: number;
+  /** Accounts whose API key or connected app was used at least once. */
+  apiCalls: number;
+}
+
+/**
+ * Sign-ups of the last `days` days by where they came from (core/signup-source.ts), with the
+ * accounts that made a first API call: an API key or OAuth-connected app used at least once.
+ * Test and operator-created accounts are left out, as in the funnel. Most sign-ups first.
+ */
+export async function signupsBySource(
+  db: Executor,
+  opts: { days: number; now?: Date; testEmails: string[] },
+): Promise<SourceRow[]> {
+  const now = opts.now ?? new Date();
+  const since = new Date(now.getTime() - opts.days * DAY_MS);
+  const found = await rows<{
+    source: string | null;
+    campaign: string | null;
+    signups: number;
+    api_calls: number;
+  }>(
+    db,
+    sql`SELECT a.signup_source AS source, a.signup_campaign AS campaign, count(*)::int AS signups,
+               count(*) FILTER (WHERE
+                 EXISTS (SELECT 1 FROM api_keys k WHERE k.account_id = a.id AND k.last_used_at IS NOT NULL)
+                 OR EXISTS (SELECT 1 FROM oauth_grants g WHERE g.account_id = a.id AND g.last_used_at IS NOT NULL)
+               )::int AS api_calls
+        FROM accounts a
+        WHERE a.created_at >= ${since} AND a.created_at <= ${now}
+          AND a.id <> ${DEFAULT_ACCOUNT_ID} AND ${SELF_SERVE} AND NOT ${testAccount(opts.testEmails)}
+        GROUP BY 1, 2
+        ORDER BY 3 DESC, 1 NULLS LAST, 2 NULLS FIRST`,
+  );
+  return found.map((r) => ({
+    source: r.source,
+    campaign: r.campaign,
+    signups: r.signups,
+    apiCalls: r.api_calls,
+  }));
+}
+
+/** A tagged link's sign-ups (core/links.ts): accounts made since the link with its source and campaign. */
+export interface LinkSignups {
+  signups: number;
+  /** Of those, the accounts whose API key or connected app was used at least once. */
+  apiCalls: number;
+}
+
+/**
+ * Sign-ups per live tagged link: self-serve, non-test accounts created since the link was made
+ * whose sign-up source and campaign are the link's (links that share both share these counts).
+ */
+export async function signupsByLink(
+  db: Executor,
+  opts: { testEmails: string[] },
+): Promise<Map<string, LinkSignups>> {
+  const found = await rows<{ id: string; signups: number; api_calls: number }>(
+    db,
+    sql`SELECT l.id, count(a.id)::int AS signups,
+               count(a.id) FILTER (WHERE
+                 EXISTS (SELECT 1 FROM api_keys k WHERE k.account_id = a.id AND k.last_used_at IS NOT NULL)
+                 OR EXISTS (SELECT 1 FROM oauth_grants g WHERE g.account_id = a.id AND g.last_used_at IS NOT NULL)
+               )::int AS api_calls
+        FROM utm_links l
+        LEFT JOIN accounts a ON a.signup_source = l.source AND a.signup_campaign = l.campaign
+          AND a.created_at >= l.created_at AND a.id <> ${DEFAULT_ACCOUNT_ID} AND ${SELF_SERVE}
+          AND NOT ${testAccount(opts.testEmails)}
+        WHERE l.archived_at IS NULL
+        GROUP BY l.id`,
+  );
+  return new Map(found.map((r) => [r.id, { signups: r.signups, apiCalls: r.api_calls }]));
+}

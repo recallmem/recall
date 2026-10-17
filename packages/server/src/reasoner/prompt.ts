@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { describeEventTime, type EventPrecision } from "../lib/event-time.js";
 import { isoDay, isoMinute } from "./util.js";
 
 /**
@@ -25,23 +26,26 @@ export const FACT_CATEGORIES = [
 
 export const EXTRACTION_SYSTEM = `You keep long-term memory about the participants ("peers") of conversations. A peer may be a person, an AI agent, a bot or a service; refer to every peer by its id exactly as written.
 
-Input: KNOWN FACTS already stored per speaker (handles F1, F2, ...) with each speaker's profile CARD, then a TRANSCRIPT of new messages, one per line: [mN] <peer> <UTC time>: <text>. Continuation lines are indented. Lines marked (context) are earlier or unobserved messages: use them only to understand the others, never as a source.
+Input: KNOWN FACTS already stored per speaker (handles F1, F2, ...), each with the date it was learned and, after "event", when it happened if known, with each speaker's profile CARD; then a TRANSCRIPT of new messages, one per line: [mN] <peer> <UTC time> <weekday>: <text>. Continuation lines are indented. Lines marked (context) are earlier or unobserved messages: use them only to understand the others, never as a source.
 
 Return JSON:
 facts: what the new messages reveal about their authors that is worth remembering beyond this conversation. Per fact:
 - about: the peer the fact describes; it must have written one of the source messages. Never record as a peer's fact what another peer said or assumed about them. Exception: when a peer accepts or answers someone's proposal or question ("yes", "the second one"), the accepted details are that peer's statement.
-- content: one standalone sentence with the peer id as subject, e.g. "alice adopted a dog named Rover". Replace pronouns and relative times ("yesterday", "next week") with names and absolute dates based on the message time. Keep qualifiers (reason, place, people, time, tools). One fact per item.
+- content: one standalone sentence with the peer id as subject, e.g. "alice adopted a dog named Rover". Replace pronouns and relative times ("yesterday", "next week") with names and absolute dates based on the message time. Keep qualifiers (reason, place, people, time, tools) and specifics (names, titles, brands, amounts, counts). One fact per item.
+- event_start: when what the fact describes happened or began (the trip, the move, the purchase, the first day of the job), not when it was said: YYYY-MM-DD, or YYYY-MM or YYYY when only the month or year is known. Work relative times out from the date and weekday of the message that says them: "last Tuesday" in a message of Thursday 2025-06-05 is 2025-06-03. null for facts without a time of their own (traits, preferences, skills, lasting relationships) and when the time cannot be worked out.
+- event_end: when what the fact is about spans time (a trip, a former job, an illness, a stay), when that span ended or will end, in the same format; for an uncertain date such as "last week", the last day it could be. Not when a current state might stop: that is what superseding records. Otherwise null.
+- tags: 1 to 4 lowercase labels for finding every fact about the same thing later: the kind of thing or activity, singular and generic (trip, concert, book, purchase, workout, job), and the named people, places, products or titles it mentions (lina, porto, dune). Give the same kind the same label every time.
 - level: "explicit" when stated; "deductive" when it follows with near certainty from what was stated (works as a nurse -> works in healthcare). Never speculate.
 - category: identity, preference, relationship, plan, event, skill, instruction (how the peer wants to be treated), state (temporary condition), or other.
 - confidence: 0 to 1; 1 = plainly stated, lower for hedged, joking or hypothetical statements.
 - importance: 1 to 5; 5 = identity, health, close relationships, long-term goals, standing instructions; 1 = trivia.
 - source_messages: the N of each [mN] line the fact comes from.
-- action: "add" for new information (target null); "reinforce" when it repeats a KNOWN FACT unchanged (target = that handle); "supersede" when it changes, corrects, ends or contradicts a KNOWN FACT about the same peer: moved, changed job or opinion, cancelled or completed plan (target = the outdated handle; content = the new state, standalone). When the target bundles several details and only some change, the new content restates the details that still hold, so nothing true is lost.
+- action: "add" for new information (target null); "reinforce" when it repeats a KNOWN FACT unchanged (target = that handle); "supersede" when it changes, corrects, ends or contradicts a KNOWN FACT about the same peer: moved, changed job or opinion, cancelled or completed plan (target = the outdated handle; content = the new state, standalone, saying what changed). When the target bundles several details and only some change, the new content restates the details that still hold, so nothing true is lost. Each occurrence of something that happens repeatedly is its own fact: another gym visit, a second trip or a new purchase on a different date is "add", never "reinforce" or "supersede" of the earlier one.
 Do record concrete events and activities (what the peer did, read, made, visited, attended or bought, with whom, and the absolute date), and specifics such as names, titles, places, origins, relationship status and numbers: memory questions usually ask about exactly these. Skip greetings, thanks, small talk, questions that reveal nothing, generic offers of help, how the conversation itself proceeds, and things true of almost anyone. Returning no facts is correct when nothing qualifies.
 
 cards: edits to the profile cards of speakers, only for stable facts likely to hold for months: [{peer, add, remove}]. Entries start with IDENTITY:, ATTRIBUTE:, RELATIONSHIP: or INSTRUCTION:, use the form "PREFIX: Label: value" (e.g. "ATTRIBUTE: Location: Berlin"), and stay under 200 characters. Only what the peer stated or accepted about itself. remove = exact existing entries that are now wrong. Usually [].
 
-synopsis: if requested, 1 to 3 sentences on what the new messages covered (topics, decisions, requests, open questions); otherwise null.
+synopsis: if requested, 1 to 3 sentences on what the new messages covered (topics, decisions, requests, open questions), naming people, places, titles, numbers and dates exactly as they were given; otherwise null.
 short_summary: if requested, the PREVIOUS SUMMARY updated with any earlier synopses and the new messages so it covers the whole conversation: the most important facts, preferences, decisions and open threads, at most 200 words, no preamble; otherwise null.
 
 EXAMPLE (illustration only; never output its content)
@@ -51,24 +55,27 @@ coach:
 CARD coach: (empty)
 noor:
 F1 2025-02-10 noor lives in Lyon
-F2 2025-02-10 noor works as a pharmacist
+F2 2025-02-10 event 2023-09 noor works as a pharmacist
 CARD noor: ATTRIBUTE: Location: Lyon
 synopsis: requested
 TRANSCRIPT
-[m1] coach 2025-06-03T08:00Z: Morning! How is Lyon treating you?
-[m2] noor 2025-06-03T08:01Z: We moved to Porto last week. Still a pharmacist, of course.
-[m3] coach 2025-06-03T08:02Z: So you'll be surfing every weekend now?
-[m4] noor 2025-06-03T08:03Z: Ha, no. My sister Lina flies in on Friday to see the flat.
+[m1] coach 2025-06-03T08:00Z Tue: Morning! How is Lyon treating you?
+[m2] noor 2025-06-03T08:01Z Tue: We moved to Porto last week. Still a pharmacist, of course.
+[m3] coach 2025-06-03T08:02Z Tue: So you'll be surfing every weekend now?
+[m4] noor 2025-06-03T08:03Z Tue: Ha, no. My sister Lina flies in on Friday to see the flat.
 Output (coach's guess about surfing is not recorded: noor never said it):
-{"facts":[{"about":"noor","content":"noor lives in Porto, having moved from Lyon in the week of 2025-05-26","level":"explicit","category":"identity","confidence":1,"importance":4,"source_messages":[2],"action":"supersede","target":"F1"},
-{"about":"noor","content":"noor works as a pharmacist","level":"explicit","category":"identity","confidence":1,"importance":4,"source_messages":[2],"action":"reinforce","target":"F2"},
-{"about":"noor","content":"noor expects a visit from sister Lina, who flies to Porto on 2025-06-06 to see the new flat","level":"explicit","category":"plan","confidence":0.9,"importance":3,"source_messages":[4],"action":"add","target":null}],
+{"facts":[{"about":"noor","content":"noor lives in Porto, having moved from Lyon in the week of 2025-05-26","event_start":"2025-05-26","event_end":"2025-06-01","tags":["move","porto","lyon"],"level":"explicit","category":"identity","confidence":1,"importance":4,"source_messages":[2],"action":"supersede","target":"F1"},
+{"about":"noor","content":"noor works as a pharmacist","event_start":null,"event_end":null,"tags":["job","pharmacist"],"level":"explicit","category":"identity","confidence":1,"importance":4,"source_messages":[2],"action":"reinforce","target":"F2"},
+{"about":"noor","content":"noor expects a visit from sister Lina, who flies to Porto on 2025-06-06 to see the new flat","event_start":"2025-06-06","event_end":null,"tags":["visit","lina","porto"],"level":"explicit","category":"plan","confidence":0.9,"importance":3,"source_messages":[4],"action":"add","target":null}],
 "cards":[{"peer":"noor","add":["ATTRIBUTE: Location: Porto","RELATIONSHIP: Sister: Lina"],"remove":["ATTRIBUTE: Location: Lyon"]}],
 "synopsis":"noor moved from Lyon to Porto; noor's sister Lina visits on 2025-06-06.","short_summary":null}`;
 
 export const FactOut = z.object({
   about: z.string(),
   content: z.string(),
+  event_start: z.string().nullable(),
+  event_end: z.string().nullable(),
+  tags: z.array(z.string()),
   level: z.enum(["explicit", "deductive"]),
   category: z.enum(FACT_CATEGORIES),
   confidence: z.number(),
@@ -106,10 +113,15 @@ function oneLine(content: string): string {
   return content.replace(/\r\n?/g, "\n").replace(/\n+/g, "\n  ").trim();
 }
 
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+/** A message's time as the extractor sees it: UTC minute and weekday, to work out "last Tuesday". */
+export const transcriptTime = (d: Date): string => `${isoMinute(d)} ${WEEKDAYS[d.getUTCDay()]}`;
+
 export function formatTranscript(messages: PromptMessage[]): string {
   const lines = messages.map(
     (m) =>
-      `[m${m.index}] ${m.peerName} ${isoMinute(m.createdAt)}${m.context ? " (context)" : ""}: ${oneLine(m.content)}`,
+      `[m${m.index}] ${m.peerName} ${transcriptTime(m.createdAt)}${m.context ? " (context)" : ""}: ${oneLine(m.content)}`,
   );
   return `TRANSCRIPT\n${lines.join("\n")}`;
 }
@@ -118,6 +130,7 @@ export interface KnownFact {
   handle: string;
   content: string;
   validFrom: Date | null;
+  event: { start: Date; end: Date | null; precision: EventPrecision } | null;
 }
 
 export interface SpeakerContext {
@@ -139,7 +152,9 @@ export function formatContext(args: {
     parts.push(`${s.name}:`);
     if (s.facts.length) {
       for (const f of s.facts)
-        parts.push(`${f.handle} ${f.validFrom ? `${isoDay(f.validFrom)} ` : ""}${f.content}`);
+        parts.push(
+          `${f.handle} ${f.validFrom ? `${isoDay(f.validFrom)} ` : ""}${f.event ? `event ${describeEventTime(f.event)} ` : ""}${f.content}`,
+        );
     } else parts.push("(none)");
     if (s.card) parts.push(`CARD ${s.name}: ${s.card.length ? s.card.join(" | ") : "(empty)"}`);
   }
@@ -175,6 +190,6 @@ export function extractionMaxTokens(
   synopsis: boolean,
   shortSummary: boolean,
 ): number {
-  const facts = 160 + 130 * targetMessages;
+  const facts = 160 + 150 * targetMessages;
   return Math.min(6000, facts + (synopsis ? 120 : 0) + (shortSummary ? 400 : 0));
 }

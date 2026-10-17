@@ -4,8 +4,8 @@ import { newId } from "../src/lib/ids.js";
 import { countTokens } from "../src/lib/tokens.js";
 import { stripMarkers } from "../src/recall/markers.js";
 import { type Pack, renderPack, type View } from "../src/recall/pack.js";
-import { isOrdering, isOverview } from "../src/recall/prompts.js";
 import type { MessageRow } from "../src/recall/search.js";
+import { isOrdering, isOverview } from "../src/recall/shape.js";
 import { createTestServer } from "./api-helpers.js";
 import { seedWorld, type World } from "./recall-helpers.js";
 
@@ -150,6 +150,7 @@ describe("pack rendering", () => {
     history: [],
     snippets: [],
     log: [],
+    brief: null,
     chronological: false,
     focus: [],
     replies: false,

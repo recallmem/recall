@@ -4,3 +4,4 @@ Disallow: /app/
 Disallow: /v3/
 Disallow: /mcp
 Disallow: /admin/
+Sitemap: https://recallmem.dev/sitemap.xml

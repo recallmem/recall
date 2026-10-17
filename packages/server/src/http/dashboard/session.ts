@@ -139,7 +139,7 @@ export const securityHeaders =
     const extra = c.get("formAction");
     c.header(
       "Content-Security-Policy",
-      "default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; " +
+      "default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self'; " +
         `form-action 'self' https://checkout.stripe.com https://billing.stripe.com${stripeDomain ? ` https://${stripeDomain}` : ""}${extra ? ` ${extra}` : ""}; ` +
         "frame-ancestors 'none'; base-uri 'none'",
     );

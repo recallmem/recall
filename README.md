@@ -23,10 +23,10 @@
   <a href="https://github.com/recallmem/recall/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/recallmem/recall/ci.yml?branch=main&style=flat-square&label=ci&labelColor=171410"></a>
 </p>
 
-**Your agents forget. Recall doesn't.** Recall is long-term memory for AI agents that talk to the
+**Your agents forget. Recall keeps receipts.** Recall is long-term memory for AI agents that talk to the
 same people again. Send it the conversation; in the background it works out what is true about
 each person, keeps a **dated, cited record** of it, and retires facts that stop being true (when
-Alice moves from Amsterdam to Utrecht, the old address is closed, not contradicted). Ask it a
+Alice moves from London to New York, the old address is closed, not contradicted). Ask it a
 question and it answers from that record in a single model call, with its sources, or hands you the
 context to put in your own prompt. Use the hosted API at [recallmem.dev](https://recallmem.dev)
 (hosted in Frankfurt), or run the server in this repository yourself.
@@ -107,14 +107,14 @@ const bot = recall.peer("bot");
 const session = recall.session("chat-1");
 
 // One round trip per agent turn: store the message, get the next prompt's context back.
-const { context } = await session.turn([alice.message("I moved to Utrecht last month.")], {
+const { context } = await session.turn([alice.message("I moved to New York last month.")], {
   peerTarget: alice,
   tokens: 4000,
 });
 const messages = context.toOpenAI(bot); // or context.toAnthropicParams(bot)
 
 await recall.waitForIdle(); // background reasoning has caught up
-console.log(await alice.chat("Where do I live?")); // "Utrecht"
+console.log(await alice.chat("Where do I live?")); // "New York"
 ```
 
 **Python** (`pip install recall-mem`, imported as `recall_memory`, Python 3.10+)
@@ -131,14 +131,14 @@ session = recall.session("chat-1")
 session.add_peers([alice, bot])
 session.add_messages(
     [
-        alice.message("I moved to Utrecht last month and I love cycling."),
-        bot.message("Utrecht is great for cycling!"),
+        alice.message("I moved to New York last month and I love cycling."),
+        bot.message("New York has great bike lanes!"),
     ]
 )
 
 recall.wait_for_idle()  # block until reasoning has finished
 
-print(alice.chat("Where does Alice live?"))  # -> "Alice lives in Utrecht."
+print(alice.chat("Where does Alice live?"))  # -> "Alice lives in New York."
 
 # Build the next prompt: recent messages + what is known about Alice, in OpenAI or Anthropic shape.
 ctx = session.context(peer_target=alice, tokens=4000)
@@ -154,8 +154,8 @@ curl $RECALL_URL/v3/workspaces/my-app/sessions/chat-1/messages \
   -H "Authorization: Bearer $RECALL_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"messages":[
-        {"peer_id":"alice","content":"I moved to Utrecht last month and I am vegetarian now."},
-        {"peer_id":"assistant","content":"Noted! Utrecht has great veggie food."}
+        {"peer_id":"alice","content":"I moved to New York last month and I am vegetarian now."},
+        {"peer_id":"assistant","content":"Noted! New York has great veggie food."}
       ]}'
 
 # Learning runs in the background and usually takes about 20 seconds: new messages are read in

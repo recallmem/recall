@@ -56,7 +56,7 @@ from langchain_core.messages import AIMessage, HumanMessage
 from langchain_recall import RecallChatMessageHistory, RecallRetriever
 
 history = RecallChatMessageHistory("chat-1", user_id="user-42")
-history.add_messages([HumanMessage("I moved to Utrecht."), AIMessage("Welcome to Utrecht!")])
+history.add_messages([HumanMessage("I moved to New York."), AIMessage("Welcome to New York!")])
 docs = RecallRetriever(user_id="user-42", source="facts").invoke("where does the user live?")
 ```
 

@@ -1,5 +1,14 @@
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { createServer as createHttpServer, type ServerResponse } from "node:http";
 import { type AddressInfo, createServer, type Socket } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -129,6 +138,25 @@ const messages = async (s: Served, session = SESSION, headers: Record<string, st
   return res.status === 200 ? ((await res.json()).items as Json[]) : [];
 };
 const state = () => JSON.parse(readFileSync(join(data, "state.json"), "utf8"));
+/** The unsent entries, oldest first: one file each in the plugin data directory's spool. */
+const spool = (): Json[] => {
+  const dir = join(data, "spool");
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir)
+    .filter((n) => n.endsWith(".json"))
+    .sort()
+    .map((n) => JSON.parse(readFileSync(join(dir, n), "utf8")));
+};
+const said = () => spool().map((e) => e.messages[0].content as string);
+/** Entries the spool let go of and has not reported yet. */
+const lostCount = () => {
+  const dir = join(data, "lost");
+  if (!existsSync(dir)) return 0;
+  return readdirSync(dir).reduce(
+    (n, f) => n + JSON.parse(readFileSync(join(dir, f), "utf8")).count,
+    0,
+  );
+};
 
 beforeEach(() => {
   home = mkdtempSync(join(tmpdir(), "recall-plugin-home-"));
@@ -308,7 +336,7 @@ describe("plugin: recording prompts and replies", () => {
       ["claude", "Welcome to Utrecht! Tabs it is."],
     ]);
     expect(stored[0].metadata).toMatchObject({ source: "claude-code", prompt_id: "prompt-0001" });
-    expect(state().spool).toEqual([]);
+    expect(spool()).toEqual([]);
     // The session was created with the assistant as a non-observed member.
     expect(await get(s, `/v3/workspaces/cc/sessions/${SESSION}/peers/claude/config`)).toMatchObject(
       { observe_me: false },
@@ -351,17 +379,24 @@ describe("plugin: recording prompts and replies", () => {
     expect(s.requests.slice(before).filter((r) => r.path.endsWith("/messages"))).toEqual([]);
   });
 
-  it("trims very long messages to what the server accepts", async () => {
+  it("stores a very long message whole, as parts the server accepts, in order", async () => {
     const env = baseEnv(s.url);
-    const huge = "x".repeat(60_000);
+    // Different text in each part, and a character outside the BMP right on a part boundary.
+    const huge = `${"a".repeat(23_999)}😀${"b".repeat(24_000)}${"c".repeat(12_000)}`;
     await run(
       "stop.mjs",
       common("Stop", { session_id: "long", last_assistant_message: huge }),
       env,
     );
-    const [stored] = await messages(s, "cc-long");
-    expect(stored.content.length).toBeLessThan(25_000);
-    expect(stored.content).toContain("[truncated by the Recall plugin]");
+    const stored = await messages(s, "cc-long");
+    expect(stored).toHaveLength(3);
+    expect(stored.map((m) => m.content).join("")).toBe(huge);
+    for (const m of stored) expect(m.content.length).toBeLessThanOrEqual(24_000);
+    expect(stored.map((m) => [m.metadata.part, m.metadata.parts])).toEqual([
+      [1, 3],
+      [2, 3],
+      [3, 3],
+    ]);
   });
 
   it("can recall facts that relate to each prompt (opt-in)", async () => {
@@ -418,9 +453,9 @@ describe("plugin: when Recall is unreachable", () => {
       expect(res, file).toMatchObject({ code: 0, stdout: "", stderr: "" });
       expect(res.ms, file).toBeLessThan(5000);
     }
-    expect(
-      state().spool.map((e: { messages: { content: string }[] }) => e.messages[0]!.content),
-    ).toEqual(["first prompt", "first reply"]);
+    expect(spool().map((e: { messages: { content: string }[] }) => e.messages[0]!.content)).toEqual(
+      ["first prompt", "first reply"],
+    );
     expect(state().breakerUntil).toBeGreaterThan(Date.now());
     expect(readFileSync(join(data, "hooks.log"), "utf8")).toContain("could not reach");
 
@@ -433,23 +468,205 @@ describe("plugin: when Recall is unreachable", () => {
       up,
     );
     expect(s.requests.length).toBe(before);
-    expect(state().spool).toHaveLength(3);
+    expect(spool()).toHaveLength(3);
 
     // Once it closes, the backlog goes first, then the new message; nothing twice.
     writeFileSync(join(data, "state.json"), JSON.stringify({ ...state(), breakerUntil: 0 }));
+    const recovered = Date.now();
     await run(
       "stop.mjs",
       common("Stop", { last_assistant_message: "second reply", prompt_id: "p2" }),
       up,
     );
-    expect((await messages(s)).map((m) => m.content)).toEqual([
+    const stored = await messages(s);
+    expect(stored.map((m) => m.content)).toEqual([
       "first prompt",
       "first reply",
       "second prompt",
       "second reply",
     ]);
-    expect(state().spool).toEqual([]);
+    // Each keeps the time it was said, not the time it was finally sent.
+    const said = stored.map((m) => Date.parse(m.created_at));
+    expect([...said].sort((a, b) => a - b)).toEqual(said);
+    expect(said[0]).toBeLessThan(recovered);
+    expect(spool()).toEqual([]);
     expect(state().breakerUntil).toBe(0);
+  });
+
+  /** A spool as an earlier outage leaves it: `n` prompts said a minute apart, oldest first. */
+  const backlog = (n: number, session = "backlog") =>
+    Array.from({ length: n }, (_, i) => ({
+      at: Date.parse("2026-10-01T09:00:00Z") + i * 60_000,
+      key: `u-backlog-${session}-${i}`,
+      workspace: "cc",
+      session: `cc-${session}`,
+      messages: [
+        {
+          peer_id: "lucas",
+          content: `old ${i}`,
+          created_at: new Date(Date.parse("2026-10-01T09:00:00Z") + i * 60_000).toISOString(),
+        },
+      ],
+      setup: { peers: { lucas: { observe_me: true }, claude: { observe_me: false } } },
+    }));
+
+  it("never sends a new message ahead of older ones still waiting", async () => {
+    const up = baseEnv(s.url);
+    // Written as version 0.2 left it, in state.json: the hook moves it to the spool first.
+    writeFileSync(join(data, "state.json"), JSON.stringify({ spool: backlog(15) }));
+    const turn = common("UserPromptSubmit", {
+      session_id: "backlog",
+      prompt: "new",
+      prompt_id: "n1",
+    });
+    await run("user-prompt-submit.mjs", turn, up);
+    // Ten of the backlog went; the new prompt waits behind the other five.
+    expect((await messages(s, "cc-backlog")).map((m) => m.content)).toEqual(
+      Array.from({ length: 10 }, (_, i) => `old ${i}`),
+    );
+    expect(
+      spool()
+        .map((e: { key: string }) => e.key)
+        .at(-1),
+    ).toMatch(/^u-/);
+    expect(spool()).toHaveLength(6);
+    expect(state().breakerUntil).toBe(0);
+    await run(
+      "stop.mjs",
+      common("Stop", { session_id: "backlog", last_assistant_message: "reply", prompt_id: "n1" }),
+      up,
+    );
+    const stored = await messages(s, "cc-backlog");
+    expect(stored.map((m) => m.content)).toEqual([
+      ...Array.from({ length: 15 }, (_, i) => `old ${i}`),
+      "new",
+      "reply",
+    ]);
+    expect(stored[3].created_at).toBe("2026-10-01T09:03:00.000Z");
+    expect(spool()).toEqual([]);
+  });
+
+  it("counts what a full spool lets go of, and says so at the next session start and in status", async () => {
+    const down = baseEnv(await closedPort());
+    writeFileSync(
+      join(data, "state.json"),
+      JSON.stringify({ spool: backlog(500, "full"), breakerUntil: Date.now() + 60_000 }),
+    );
+    await run(
+      "user-prompt-submit.mjs",
+      common("UserPromptSubmit", { session_id: "full", prompt: "one more", prompt_id: "f1" }),
+      down,
+    );
+    expect(spool()).toHaveLength(500);
+    expect(spool()[0].messages[0].content).toBe("old 1");
+    expect(spool().at(-1).messages[0].content).toBe("one more");
+    expect(lostCount()).toBe(1);
+    expect(readFileSync(join(data, "hooks.log"), "utf8")).toContain("spool full");
+
+    const status = await run("status.mjs", "", down);
+    expect(status.stdout).toContain("unsent          500 waiting since 2026-10-01T09:01:00.000Z");
+    expect(status.stdout).toContain("lost            1 messages since 2026-10-01T09:00:00.000Z");
+
+    const start = await run(
+      "session-start.mjs",
+      common("SessionStart", { session_id: "full", source: "startup" }),
+      down,
+    );
+    expect(start.code).toBe(0);
+    const context = JSON.parse(start.stdout).hookSpecificOutput.additionalContext as string;
+    expect(context).toContain("500 recorded messages are waiting to be stored in Recall");
+    expect(context).toContain("1 message was not stored");
+    // Reported once.
+    expect(lostCount()).toBe(0);
+  });
+
+  it("keeps a spooled message when another hook later saves an older copy of the state", async () => {
+    const down = baseEnv(await closedPort());
+    await run(
+      "user-prompt-submit.mjs",
+      common("UserPromptSubmit", { session_id: "w-b", prompt: "from B", prompt_id: "b" }),
+      down,
+    );
+    expect(said()).toEqual(["from B"]);
+    // Hook A read the state before B ran and saves its copy afterwards, as in the reported
+    // schedule. Unsent messages are not in that file, so A's copy cannot remove B's.
+    writeFileSync(join(data, "state.json"), JSON.stringify({ breakerUntil: 0, sessions: {} }));
+    await run(
+      "user-prompt-submit.mjs",
+      common("UserPromptSubmit", { session_id: "w-a", prompt: "from A", prompt_id: "a" }),
+      down,
+    );
+    expect(said().sort()).toEqual(["from A", "from B"]);
+  });
+
+  it("writes an incoming prompt to disk before sending anything, so stopping the hook loses nothing", async () => {
+    // Every answer takes two seconds: slower than a hook can wait for the whole backlog.
+    const slow = createHttpServer((req, res) => {
+      req.resume();
+      setTimeout(() => {
+        res.writeHead(200, { "content-type": "application/json" });
+        res.end("{}");
+      }, 2000);
+    });
+    await new Promise<void>((resolve) => slow.listen(0, "127.0.0.1", () => resolve()));
+    const { port } = slow.address() as AddressInfo;
+    try {
+      writeFileSync(join(data, "state.json"), JSON.stringify({ spool: backlog(10, "slow") }));
+      const env = baseEnv(`http://127.0.0.1:${port}`, { RECALL_HOOK_TIMEOUT_MS: "3000" });
+      // Killed while the first old message is still being sent.
+      const child = spawn(process.execPath, [script("user-prompt-submit.mjs")], {
+        env: { PATH: process.env.PATH ?? "", ...env },
+        stdio: ["pipe", "ignore", "ignore"],
+      });
+      const closed = new Promise((resolve) => child.on("close", resolve));
+      child.stdin.end(
+        JSON.stringify(
+          common("UserPromptSubmit", { session_id: "slow", prompt: "new prompt", prompt_id: "s1" }),
+        ),
+      );
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      child.kill("SIGKILL");
+      await closed;
+      expect(said()).toHaveLength(11);
+      expect(said().at(-1)).toBe("new prompt");
+
+      // Left alone, it sends what fits in its time budget and exits well inside the 8 s hook
+      // timeout; everything it did not send is still on disk, in order.
+      const res = await run(
+        "user-prompt-submit.mjs",
+        common("UserPromptSubmit", { session_id: "slow", prompt: "next prompt", prompt_id: "s2" }),
+        env,
+      );
+      expect(res.code).toBe(0);
+      expect(res.ms).toBeLessThan(7000);
+      expect(said()).toEqual([
+        ...Array.from({ length: 9 }, (_, i) => `old ${i + 1}`),
+        "new prompt",
+        "next prompt",
+      ]);
+      // A slow answer is not an outage.
+      expect(state().breakerUntil).toBe(0);
+    } finally {
+      await new Promise<void>((resolve) => slow.close(() => resolve()));
+    }
+  });
+
+  it("keeps every message when hooks of parallel sessions spool at the same time", async () => {
+    const down = baseEnv(await closedPort());
+    await Promise.all(
+      ["a", "b", "c", "d", "e", "f", "g", "h"].map((id) =>
+        run(
+          "user-prompt-submit.mjs",
+          common("UserPromptSubmit", { session_id: `par-${id}`, prompt: `from ${id}` }),
+          down,
+        ),
+      ),
+    );
+    expect(
+      spool()
+        .map((e: { messages: { content: string }[] }) => e.messages[0]!.content)
+        .sort(),
+    ).toEqual(["a", "b", "c", "d", "e", "f", "g", "h"].map((id) => `from ${id}`));
   });
 
   it("waits no longer than the timeout for a server that never answers, then skips it for a while", async () => {
@@ -474,18 +691,16 @@ describe("plugin: when Recall is unreachable", () => {
       );
       expect(second.code).toBe(0);
       expect(second.ms).toBeLessThan(first.ms);
-      expect(state().spool).toHaveLength(2);
+      expect(spool()).toHaveLength(2);
     } finally {
       for (const socket of sockets) socket.destroy();
       await new Promise<void>((resolve) => silent.close(() => resolve()));
     }
   });
 
-  it("does not keep what the server refuses, and does not trip on it", async () => {
-    const authed = await startServer({
-      RECALL_AUTH_ENABLED: "true",
-      RECALL_AUTH_SECRET: "plugin-secret",
-    });
+  it("keeps messages while Recall refuses the key, says why, and sends them once it is fixed", async () => {
+    const secret = "plugin-secret";
+    const authed = await startServer({ RECALL_AUTH_ENABLED: "true", RECALL_AUTH_SECRET: secret });
     try {
       const res = await run(
         "user-prompt-submit.mjs",
@@ -493,10 +708,114 @@ describe("plugin: when Recall is unreachable", () => {
         baseEnv(authed.url),
       );
       expect(res).toMatchObject({ code: 0, stdout: "", stderr: "" });
-      expect(state().spool).toEqual([]);
+      expect(said()).toEqual(["no key"]);
+      // A refusal is answered at once: not an outage, so the breaker stays closed.
       expect(state().breakerUntil).toBe(0);
+      const start = await run(
+        "session-start.mjs",
+        common("SessionStart", { source: "startup" }),
+        baseEnv(authed.url),
+      );
+      expect(start.stdout).toContain("Recall refused the API key, HTTP 401");
+
+      const key = signToken({ ad: true }, secret);
+      const keyed = baseEnv(authed.url, { CLAUDE_PLUGIN_OPTION_API_KEY: key });
+      await run(
+        "user-prompt-submit.mjs",
+        common("UserPromptSubmit", { prompt: "with key", prompt_id: "p2" }),
+        keyed,
+      );
+      expect(spool()).toEqual([]);
+      const stored = await messages(authed, SESSION, { authorization: `Bearer ${key}` });
+      expect(stored.map((m: Json) => m.content)).toEqual(["no key", "with key"]);
+      expect(existsSync(join(data, "refused.json"))).toBe(false);
     } finally {
       await authed.stop();
+    }
+  });
+
+  /** A Recall stand-in: `answer` gets each request's method, path and Idempotency-Key. */
+  async function fakeRecall(
+    answer: (req: { method: string; path: string; key: string }, res: ServerResponse) => void,
+  ) {
+    const server = createHttpServer((req, res) => {
+      req.resume();
+      req.on("end", () =>
+        answer(
+          {
+            method: req.method ?? "",
+            path: req.url ?? "",
+            key: String(req.headers["idempotency-key"] ?? ""),
+          },
+          res,
+        ),
+      );
+    });
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", () => resolve()));
+    const { port } = server.address() as AddressInfo;
+    return {
+      url: `http://127.0.0.1:${port}`,
+      stop: () => new Promise<void>((resolve) => server.close(() => resolve())),
+    };
+  }
+  const reply = (res: ServerResponse, status: number, headers: Record<string, string> = {}) => {
+    res.writeHead(status, { "content-type": "application/json", ...headers });
+    res.end(status < 300 ? "{}" : JSON.stringify({ detail: `status ${status}` }));
+  };
+
+  it("counts a message Recall rejects for good and reports it, instead of dropping it silently", async () => {
+    const recall = await fakeRecall((req, res) =>
+      reply(res, req.path.endsWith("/messages") ? 422 : 200),
+    );
+    try {
+      const env = baseEnv(recall.url);
+      await run("user-prompt-submit.mjs", common("UserPromptSubmit", { prompt: "bad" }), env);
+      expect(spool()).toEqual([]);
+      expect(lostCount()).toBe(1);
+      const start = await run(
+        "session-start.mjs",
+        common("SessionStart", { source: "startup" }),
+        env,
+      );
+      expect(start.stdout).toContain("Recall rejected 1 message for good");
+      expect(lostCount()).toBe(0); // reported once
+    } finally {
+      await recall.stop();
+    }
+  });
+
+  it("leaves a message on disk when Recall says another hook is writing it", async () => {
+    // The first request for the old message is held, then fails; one arriving meanwhile gets
+    // the server's "another request is writing to this session" 409, which asks for a retry.
+    let pending = false;
+    const recall = await fakeRecall((req, res) => {
+      if (!req.path.endsWith("/messages") || req.key !== "u-backlog-race-0") return reply(res, 200);
+      if (pending) return reply(res, 409, { "retry-after": "1" });
+      pending = true;
+      setTimeout(() => {
+        pending = false;
+        reply(res, 500);
+      }, 2500);
+    });
+    try {
+      writeFileSync(join(data, "state.json"), JSON.stringify({ spool: backlog(1, "race") }));
+      const env = baseEnv(recall.url);
+      const first = run(
+        "user-prompt-submit.mjs",
+        common("UserPromptSubmit", { session_id: "race", prompt: "a", prompt_id: "a" }),
+        env,
+      );
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      const second = run(
+        "user-prompt-submit.mjs",
+        common("UserPromptSubmit", { session_id: "race", prompt: "b", prompt_id: "b" }),
+        env,
+      );
+      await Promise.all([first, second]);
+      expect(said()).toEqual(["old 0", "a", "b"]);
+      expect(lostCount()).toBe(0);
+    } finally {
+      await recall.stop();
     }
   });
 });

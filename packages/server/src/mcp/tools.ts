@@ -50,6 +50,51 @@ import {
 const NOTHING_YET =
   "Nothing is remembered here yet. When the user asks you to remember something, save it with create_conclusions.";
 
+// Output schemas: what each tool returns, as structured content next to the JSON text. Loose
+// objects, so a field added later never fails a call.
+const item = z.looseObject({});
+const note = z.string().optional().describe("Set when memory has nothing to go on yet.");
+const OUTPUT = {
+  add_messages_to_session: z.looseObject({
+    session_id: z.string(),
+    stored: z.number().describe("Messages stored by this call."),
+    replayed: z.boolean().describe("True when an idempotent retry returned the first result."),
+    messages: z.array(
+      z.looseObject({ id: z.string(), peer_id: z.string(), created_at: z.string() }),
+    ),
+  }),
+  chat: z.looseObject({
+    content: z.string().describe("The answer."),
+    confidence: z.unknown().optional(),
+    abstained: z.boolean().optional().describe("True when memory did not know."),
+    citations: z.array(z.unknown()).optional(),
+    evidence: z.unknown().optional(),
+  }),
+  search: z.looseObject({ messages: z.array(item), conclusions: z.array(item), note }),
+  get_session_context: z.looseObject({
+    session_id: z.string(),
+    summary: z.string().nullable(),
+    peer_representation: z.string().nullable(),
+    peer_card: z.array(z.string()).nullable(),
+    messages: z.array(item),
+    note,
+  }),
+  get_peer_card: z.looseObject({
+    peer_id: z.string(),
+    target_peer_id: z.string(),
+    peer_card: z.array(z.string()).nullable(),
+    note,
+  }),
+  list_conclusions: z.looseObject({ items: z.array(item), note }),
+  create_conclusions: z.looseObject({
+    created: z.number(),
+    conclusions: z.array(z.looseObject({ id: z.string(), content: z.string() })),
+  }),
+  delete_conclusion: z.looseObject({
+    deleted: z.string().describe("The deleted conclusion's id."),
+  }),
+};
+
 export function registerTools(server: McpServer, ctx: AppContext, s: McpSession): void {
   const add = toolAdder(server, ctx, s);
 
@@ -57,6 +102,7 @@ export function registerTools(server: McpServer, ctx: AppContext, s: McpSession)
   add(
     defineTool({
       name: "add_messages_to_session",
+      output: OUTPUT.add_messages_to_session,
       title: "Record messages",
       action: "add messages",
       description:
@@ -129,6 +175,9 @@ export function registerTools(server: McpServer, ctx: AppContext, s: McpSession)
   add(
     defineTool({
       name: "chat",
+      output: OUTPUT.chat,
+      // Without include_evidence the answer is plain text; as structured content it is { content }.
+      structured: (v) => (typeof v === "string" ? { content: v } : v),
       title: "Ask memory",
       action: "ask memory",
       description:
@@ -189,6 +238,7 @@ export function registerTools(server: McpServer, ctx: AppContext, s: McpSession)
   add(
     defineTool({
       name: "search",
+      output: OUTPUT.search,
       title: "Search memory",
       action: "search",
       description:
@@ -263,6 +313,7 @@ export function registerTools(server: McpServer, ctx: AppContext, s: McpSession)
   add(
     defineTool({
       name: "get_session_context",
+      output: OUTPUT.get_session_context,
       title: "Get session context",
       action: "get session context",
       description:
@@ -349,6 +400,7 @@ export function registerTools(server: McpServer, ctx: AppContext, s: McpSession)
   add(
     defineTool({
       name: "get_peer_card",
+      output: OUTPUT.get_peer_card,
       title: "Get peer card",
       action: "get the peer card",
       description:
@@ -382,6 +434,7 @@ export function registerTools(server: McpServer, ctx: AppContext, s: McpSession)
   add(
     defineTool({
       name: "list_conclusions",
+      output: OUTPUT.list_conclusions,
       title: "List conclusions",
       action: "list conclusions",
       description:
@@ -456,6 +509,7 @@ export function registerTools(server: McpServer, ctx: AppContext, s: McpSession)
   add(
     defineTool({
       name: "create_conclusions",
+      output: OUTPUT.create_conclusions,
       title: "Save facts",
       action: "create conclusions",
       description:
@@ -503,6 +557,7 @@ export function registerTools(server: McpServer, ctx: AppContext, s: McpSession)
   add(
     defineTool({
       name: "delete_conclusion",
+      output: OUTPUT.delete_conclusion,
       title: "Delete a fact",
       action: "delete the conclusion",
       description:

@@ -80,6 +80,8 @@ export interface SearchParams {
   session?: string;
   /** Unprefixed scope name (workspace search). */
   scope?: string | null;
+  /** Recall: add to each result why it ranked where it did. */
+  explain?: boolean;
 }
 
 export async function searchMessagesApi(ctx: AppContext, p: SearchParams) {
@@ -134,7 +136,20 @@ export async function searchMessagesApi(ctx: AppContext, p: SearchParams) {
     limit: p.limit,
     cond,
   });
-  return hits.map((h) => serializeMessage(h.row));
+  return hits.map((h, i) =>
+    p.explain
+      ? {
+          ...serializeMessage(h.row),
+          explain: {
+            rank: i + 1,
+            score: Math.round(h.score * 1e6) / 1e6,
+            rank_by_meaning: h.vectorRank ?? null,
+            distance: h.dist == null ? null : Math.round(h.dist * 1e4) / 1e4,
+            rank_by_words: h.lexicalRank ?? null,
+          },
+        }
+      : serializeMessage(h.row),
+  );
 }
 
 // ---------------------------------------------------------------------------

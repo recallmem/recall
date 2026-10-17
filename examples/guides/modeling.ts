@@ -21,7 +21,7 @@ export async function main(recall = new Recall({ workspaceId: "trips-prod" })) {
     peers: { "user-8412": {}, "agent-planner": { observeOthers: true } },
   });
   await trip.addMessages([
-    user.message("I live in Utrecht and I am vegetarian."),
+    user.message("I live in Boston and I am vegetarian."),
     planner.message("Noted. I'll only suggest restaurants with good vegetarian menus."),
   ]);
 
@@ -30,17 +30,17 @@ export async function main(recall = new Recall({ workspaceId: "trips-prod" })) {
     peers: { "user-8412": {}, "agent-billing": { observeOthers: true } },
   });
   await invoice.addMessages([
-    user.message("I moved to Amersfoort last week, please update my billing address."),
-    billing.message("Done. Your next invoice goes to your new address in Amersfoort."),
+    user.message("I moved to Chicago last week, please update my billing address."),
+    billing.message("Done. Your next invoice goes to your new address in Chicago."),
   ]);
   // #endregion
 
   // #region views
   // (waitForIdle is for this demo; real apps rarely wait for learning to finish.)
   await recall.waitForIdle();
-  // Recall's view of the user, built from everything they said in any session: Amersfoort.
+  // Recall's view of the user, built from everything they said in any session: Chicago.
   const recallView = await user.chat("Where do I live?", { reasoningLevel: "minimal" });
-  // The planner's view holds only what it witnessed. It never heard about the move: Utrecht.
+  // The planner's view holds only what it witnessed. It never heard about the move: Boston.
   const plannerView = await planner.chat("Where does the user live?", {
     target: user,
     reasoningLevel: "minimal",

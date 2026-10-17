@@ -4,7 +4,7 @@ import { type Db, rows } from "../db/client.js";
 import { compileFilters } from "../http/filters.js";
 import { type Page, type Paging, paginate } from "../http/pagination.js";
 import { MESSAGE_COLS, type MessageRow, messageOut } from "../http/serialize.js";
-import { ApiError, conflict, idempotencyKeyReused, notFound } from "../lib/errors.js";
+import { ApiError, idempotencyKeyReused, notFound } from "../lib/errors.js";
 import { newId } from "../lib/ids.js";
 import { fingerprint } from "../lib/json.js";
 import { countTokens } from "../lib/tokens.js";
@@ -248,7 +248,10 @@ export async function createMessages(
     return result;
   } catch (err) {
     if (isLockTimeout(err)) {
-      throw conflict("Another request is writing to this session; retry shortly");
+      // Temporary, unlike a reused key's 409: Retry-After tells a client to send it again.
+      throw new ApiError(409, "Another request is writing to this session; retry shortly", {
+        "Retry-After": "1",
+      });
     }
     throw err;
   }

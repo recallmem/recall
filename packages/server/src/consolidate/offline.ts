@@ -66,6 +66,17 @@ MockProvider.register("dream", (req) => ({
 
 MockProvider.register("card", (req) => {
   const facts = req.messages.map((m) => m.content).join("\n");
+  // A brief update: the old brief, then the new facts as sentences, oldest first.
+  if (facts.startsWith("NEW FACTS")) {
+    const old = /BRIEF:\n([\s\S]*)$/.exec(req.context ?? "")?.[1]?.trim();
+    const lines = facts
+      .split("\n")
+      .slice(1)
+      .map((l) => l.replace(/^- \S+ (?:\[event [^\]]+\] )?/, "").trim());
+    return {
+      json: { brief: [old && old !== "(empty)" ? old : "", ...lines].filter(Boolean).join(" ") },
+    };
+  }
   const card: string[] = [];
   for (const m of facts.matchAll(/^- (?:\[[^\]]*\] )?(\S+) lives in (.+)$/gm))
     card.push(`ATTRIBUTE: Location: ${m[2]}`);

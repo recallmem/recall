@@ -38,6 +38,9 @@ Recall is run by Smidt Beheer, the Netherlands (KvK 99124254). Data is stored in
 - [All guides](https://recallmem.dev/guides): one per kind of agent (support, coding agents, tutoring, game NPCs, voice and more)
 - [Reasoning levels and models](https://recallmem.dev/guides/levels-and-models)
 - [Cost and speed](https://recallmem.dev/guides/cost-and-speed)
+- [Memory for Claude Code](https://recallmem.dev/claude-code-memory): the plugin that gives Claude Code (and Codex) memory between sessions
+- [One memory for ChatGPT and Claude](https://recallmem.dev/chatgpt-claude-memory): connect Recall to ChatGPT, Claude, Claude Code and Cursor over MCP
+- [The context bill](https://recallmem.dev/calculator): a calculator of what re-sending the whole conversation with every model call costs, next to a memory
 - [Privacy, consent and forgetting](https://recallmem.dev/guides/privacy)
 - [Switch from Honcho](https://recallmem.dev/guides/switch-from-honcho): change the base URL and the API key; what stays the same, what Recall adds and what differs
 

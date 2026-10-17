@@ -65,7 +65,6 @@ import {
   type LevelPlan,
   type PlanOverride,
   PRIVATE_TEXTS,
-  planFor,
   RULES_TOKENS,
   SYSTEM_PROMPT,
   TOOLS,
@@ -82,6 +81,7 @@ import {
   searchConclusions,
   searchMessages,
 } from "./search.js";
+import { planFor } from "./shape.js";
 import { and, day, normalizeQuery, num, sha, stableStringify } from "./util.js";
 
 type Obj = Record<string, unknown>;

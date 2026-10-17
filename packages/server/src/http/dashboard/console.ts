@@ -5,7 +5,14 @@ import { topupStatus } from "../../billing/withdrawal.js";
 import type { AppContext } from "../../context.js";
 import { getAccount } from "../../core/accounts.js";
 import { recentApiKeys, revokeApiKey } from "../../core/apikeys.js";
-import { funnel, funnelPeriod, testEmails } from "../../core/funnel.js";
+import {
+  funnel,
+  funnelPeriod,
+  signupsByLink,
+  signupsBySource,
+  testEmails,
+} from "../../core/funnel.js";
+import { archiveLink, createLink, linkVisitors, listLinks } from "../../core/links.js";
 import {
   consoleAccounts,
   consoleOverview,
@@ -14,16 +21,20 @@ import {
   usageByTask,
 } from "../../core/operator.js";
 import { suspendAccount, unsuspendAccount } from "../../core/suspend.js";
+import { liveVisitors, trafficPeriod, umamiReport } from "../../core/traffic.js";
 import { ApiError } from "../../lib/errors.js";
 import * as cv from "./console-views.js";
+import { linksPage } from "./links-views.js";
 import { dashPath } from "./paths.js";
 import type { DashEnv, DashState } from "./session.js";
+import { trafficPage } from "./traffic-views.js";
 import type { page } from "./views.js";
 
 /**
  * The operator console, at <dashboard>/admin: business and system health
  * (sign-ups, money, model cost, the job queue), the activation funnel of
- * self-serve sign-ups (core/funnel.ts), the accounts, and per-account actions
+ * self-serve sign-ups (core/funnel.ts), website traffic and sign-ups by source
+ * (core/traffic.ts), the accounts, and per-account actions
  * (grant credit, revoke a key, suspend, unsuspend).
  *
  * Open only to signed-in dashboard users whose email is in RECALL_OPERATOR_EMAILS.
@@ -105,6 +116,98 @@ export function registerConsole(
       active: "/admin",
       body: cv.funnelPage({ ...data, billing: ctx.billing.enabled }),
     });
+  });
+
+  // ---- traffic: website analytics (Umami) and sign-ups by source ----------------
+  app.get("/admin/traffic", async (c) => {
+    const op = operatorOf(c);
+    if (!op) return hide(c);
+    const days = trafficPeriod(c.req.query("days"));
+    const umami = ctx.config.hosted.umami;
+    const [sources, analytics] = await Promise.all([
+      signupsBySource(ctx.db, { days, testEmails: testEmails(ctx.config.hosted) }),
+      umami
+        ? umamiReport(umami, days).then(
+            (report) => ({ state: "ok" as const, report }),
+            (err: unknown) => {
+              ctx.log.warn({ err }, "operator console: could not read Umami");
+              const timeout = err instanceof Error && err.name === "TimeoutError";
+              const message = timeout
+                ? "the request timed out"
+                : err instanceof Error
+                  ? err.message
+                  : "unknown error";
+              return { state: "error" as const, message };
+            },
+          )
+        : { state: "off" as const },
+    ]);
+    return render(c, 200, {
+      title: "Traffic · Console",
+      active: "/admin",
+      body: trafficPage({ days, analytics, sources }),
+    });
+  });
+
+  /** The Traffic page's live counter: visitors in the last 5 minutes, polled by app.js. */
+  app.get("/admin/traffic/live", async (c) => {
+    const op = operatorOf(c);
+    if (!op) return hide(c);
+    const umami = ctx.config.hosted.umami;
+    if (!umami) return c.json({ visitors: null }, 404);
+    try {
+      return c.json({ visitors: await liveVisitors(umami) }, 200, { "Cache-Control": "no-store" });
+    } catch (err) {
+      ctx.log.warn({ err }, "operator console: could not read Umami's live visitors");
+      return c.json({ visitors: null }, 502, { "Cache-Control": "no-store" });
+    }
+  });
+
+  // ---- links: tagged links for the operator's posts ---------------------------------
+  app.get("/admin/links", async (c) => {
+    const op = operatorOf(c);
+    if (!op) return hide(c);
+    const umami = ctx.config.hosted.umami;
+    const links = await listLinks(ctx.db);
+    const [visitors, signups] = await Promise.all([
+      umami ? linkVisitors(umami, links.slice(0, 40)) : Promise.resolve(null),
+      signupsByLink(ctx.db, { testEmails: testEmails(ctx.config.hosted) }),
+    ]);
+    const madeId = c.req.query("made");
+    return render(c, 200, {
+      title: "Links · Console",
+      active: "/admin",
+      notice: cv.notice(c.req.query("msg")),
+      body: linksPage({
+        csrf: op.csrf,
+        siteUrl: ctx.config.server.siteUrl,
+        links,
+        visitors,
+        signups,
+        made: madeId ? (links.find((l) => l.id === madeId) ?? null) : null,
+      }),
+    });
+  });
+
+  app.post("/admin/links", async (c) => {
+    const op = operatorOf(c);
+    if (!op) return hide(c);
+    if (!ctx.config.server.siteUrl)
+      throw new ApiError(409, "Set RECALL_SITE_URL on this server to make links.");
+    const link = await createLink(ctx.db, c.get("form"), op.email);
+    ctx.log.info(
+      { operator: op.email, link: link.id, source: link.source, campaign: link.campaign },
+      "operator console: link made",
+    );
+    return c.redirect(dashPath(`/admin/links?made=${encodeURIComponent(link.id)}`), 303);
+  });
+
+  app.post("/admin/links/:link_id/archive", async (c) => {
+    const op = operatorOf(c);
+    if (!op) return hide(c);
+    const link = await archiveLink(ctx.db, c.req.param("link_id"));
+    ctx.log.info({ operator: op.email, link: link.id }, "operator console: link archived");
+    return c.redirect(dashPath("/admin/links?msg=link_archived"), 303);
   });
 
   // ---- accounts --------------------------------------------------------------

@@ -8,7 +8,7 @@ export const HOST_INFO = {
   /** Names the host in message metadata, the user agent and the `hosts.<id>` config block. */
   id: "claude-code",
   /** Plugin version, sent in the user agent. */
-  version: "0.1.0",
+  version: "0.3.1",
   /** Peer the agent's replies are recorded as, unless configured. */
   assistantPeer: "claude",
   /** Recall session ids are `<prefix>-<session id>` or `<prefix>-dir-<project>-<hash>`. */

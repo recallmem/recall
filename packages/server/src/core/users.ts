@@ -4,6 +4,7 @@ import { type Db, isUniqueViolation, rows } from "../db/client.js";
 import type { MemberRole } from "../db/schema.js";
 import { newId } from "../lib/ids.js";
 import { createAccount } from "./accounts.js";
+import type { SignupSource } from "./signup-source.js";
 
 /**
  * Dashboard identities: users (one per email), their account memberships, the
@@ -51,6 +52,8 @@ export async function issueLoginToken(
   next: string | null = null,
   /** Which browser asked (see `browserBinding`): only it is sent on to `next`. */
   browser: string | null = null,
+  /** Where the visit came from, stored on the account if the link creates one. */
+  source: SignupSource | null = null,
 ): Promise<IssueResult> {
   // An unknown network counts as one network of its own for the per-address limits.
   const sameNetwork = ipHash === null ? sql`ip_hash IS NULL` : sql`ip_hash = ${ipHash}`;
@@ -74,9 +77,11 @@ export async function issueLoginToken(
   if ((counts?.by_ip ?? 0) >= LOGIN_LIMIT_PER_IP) return { limited: "ip" };
   const token = randomToken();
   await db.execute(
-    sql`INSERT INTO login_tokens (id, token_hash, email, ip_hash, expires_at, next_path, next_browser)
+    sql`INSERT INTO login_tokens (id, token_hash, email, ip_hash, expires_at, next_path, next_browser,
+                                  signup_source, signup_campaign)
         VALUES (${`lt_${newId()}`}, ${sha256hex(token)}, ${email}, ${ipHash},
-                ${new Date(Date.now() + ttlMs)}, ${next}, ${next ? browser : null})`,
+                ${new Date(Date.now() + ttlMs)}, ${next}, ${next ? browser : null},
+                ${source?.source ?? null}, ${source?.campaign ?? null})`,
   );
   return { token };
 }
@@ -96,15 +101,32 @@ export async function peekLogin(db: Executor, token: string): Promise<string | n
 export async function consumeLogin(
   db: Executor,
   token: string,
-): Promise<{ email: string; next: string | null; browser: string | null } | null> {
+): Promise<{
+  email: string;
+  next: string | null;
+  browser: string | null;
+  source: SignupSource | null;
+} | null> {
   if (!token || token.length > 200) return null;
-  const [r] = await rows<{ email: string; next_path: string | null; next_browser: string | null }>(
+  const [r] = await rows<{
+    email: string;
+    next_path: string | null;
+    next_browser: string | null;
+    signup_source: string | null;
+    signup_campaign: string | null;
+  }>(
     db,
     sql`UPDATE login_tokens SET used_at = now()
         WHERE token_hash = ${sha256hex(token)} AND used_at IS NULL AND expires_at > now()
-        RETURNING email, next_path, next_browser`,
+        RETURNING email, next_path, next_browser, signup_source, signup_campaign`,
   );
-  return r ? { email: r.email, next: r.next_path, browser: r.next_browser } : null;
+  if (!r) return null;
+  return {
+    email: r.email,
+    next: r.next_path,
+    browser: r.next_browser,
+    source: r.signup_source ? { source: r.signup_source, campaign: r.signup_campaign } : null,
+  };
 }
 
 /** True when `email` already belongs to a user with an account, so signing in will not create one. */
@@ -139,6 +161,8 @@ export async function signIn(
     termsVersion?: string;
     /** The GitHub account that signs a new user up; tied to the user it creates. */
     github?: GithubIdentity;
+    /** Where the visit came from, stored on a new account (core/signup-source.ts). */
+    source?: SignupSource | null;
   },
 ): Promise<SignIn | null> {
   const terms = opts.termsVersion ?? null;
@@ -180,6 +204,12 @@ export async function signIn(
       name: email.split("@")[0]!.slice(0, 200) || email,
       metadata: { signup_email: email, signup: "self_serve" },
     });
+    if (opts.source)
+      await tx.execute(
+        sql`UPDATE accounts SET signup_source = ${opts.source.source},
+              signup_campaign = ${opts.source.campaign}
+            WHERE id = ${account.id}`,
+      );
     await addMember(tx, account.id, user!.id, "owner");
     await opts.onNewAccount?.(tx, account.id);
     return { userId: user!.id, accountId: account.id, created: true };

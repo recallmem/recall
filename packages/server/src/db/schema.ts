@@ -46,6 +46,12 @@ export const accounts = pgTable("accounts", {
   welcomeEmailAt: ts("welcome_email_at"),
   nudgeEmailAt: ts("nudge_email_at"),
   onboardingEmailsOffAt: ts("onboarding_emails_off_at"),
+  /**
+   * Where a self-serve sign-up came from (0029_signup_source.sql): the UTM source (else the
+   * referring site's host) and campaign the landing page passed to the sign-in page.
+   */
+  signupSource: text("signup_source"),
+  signupCampaign: text("signup_campaign"),
 });
 
 export const apiKeys = pgTable("api_keys", {
@@ -148,6 +154,12 @@ export const collections = pgTable("collections", {
   version: bigint("version", { mode: "number" }).notNull().default(0),
   newSinceDream: integer("new_since_dream").notNull().default(0),
   lastDreamAt: ts("last_dream_at"),
+  /** A short dated account of the observed peer, kept by dreams (0023_peer_brief.sql). */
+  brief: text("brief"),
+  /** Facts created up to this time are in the brief; a deleted fact clears both. */
+  briefThrough: ts("brief_through"),
+  /** Why the last card refresh was refused (0028_card_blocked.sql); null when fine. */
+  cardBlocked: text("card_blocked"),
   createdAt: ts("created_at").notNull().defaultNow(),
 });
 
@@ -171,6 +183,16 @@ export const conclusions = pgTable("conclusions", {
   validFrom: ts("valid_from"),
   validTo: ts("valid_to"),
   supersededBy: text("superseded_by"),
+  /** When the event happened or the state began (0022_event_time.sql); null for timeless facts. */
+  eventStart: ts("event_start"),
+  eventEnd: ts("event_end"),
+  eventPrecision: text("event_precision").$type<"day" | "month" | "year">(),
+  /** What the fact is about, for finding every fact on one thing (0024_conclusion_tags.sql). */
+  tags: text("tags").array().notNull().default([]),
+  /** Set by a person; the reasoner and dreams never change it (0026_pinned_facts.sql). */
+  pinned: boolean("pinned").notNull().default(false),
+  /** Past this time the fact no longer holds (0027_fact_expiry.sql). */
+  expiresAt: ts("expires_at"),
   embedding: vector("embedding", { dimensions: 1536 }),
   embeddingModel: text("embedding_model"),
   internal: json<Obj>("internal").notNull().default({}),
@@ -298,6 +320,9 @@ export const loginTokens = pgTable("login_tokens", {
   nextPath: text("next_path"),
   /** Keyed hash of the requesting browser's anonymous cookie (0012_link_browser_and_minted_keys.sql). */
   nextBrowser: text("next_browser"),
+  /** The sign-up source carried through the emailed link (0029_signup_source.sql). */
+  signupSource: text("signup_source"),
+  signupCampaign: text("signup_campaign"),
 });
 
 export const userSessions = pgTable("user_sessions", {
@@ -401,6 +426,21 @@ export const operatorReports = pgTable(
   },
   (t) => [primaryKey({ columns: [t.report, t.period] })],
 );
+
+// Tagged links made in the operator console's Links page (0030_utm_links.sql): a site page with
+// UTM tags, at most one live link per set of tags (src/core/links.ts).
+export const utmLinks = pgTable("utm_links", {
+  id: text("id").primaryKey(),
+  path: text("path").notNull(),
+  source: text("source").notNull(),
+  medium: text("medium").notNull(),
+  campaign: text("campaign").notNull(),
+  content: text("content"),
+  note: text("note"),
+  createdBy: text("created_by").notNull(),
+  createdAt: ts("created_at").notNull().defaultNow(),
+  archivedAt: ts("archived_at"),
+});
 
 // ---------------------------------------------------------------------------
 // OAuth 2.1 for the hosted MCP endpoint (0008_oauth.sql). Secrets are stored as SHA-256 only.

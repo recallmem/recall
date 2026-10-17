@@ -21,6 +21,7 @@ import { listGrants, revokeGrant, setAutoRemember } from "../../core/oauth.js";
 import { stopOnboardingEmails, verifyUnsubscribeToken } from "../../core/onboarding.js";
 import { selectPeerRow } from "../../core/peers.js";
 import { selectSessionRow } from "../../core/sessions.js";
+import { type SignupSource, signupSourceOf, sourceQuery } from "../../core/signup-source.js";
 import { wsKey } from "../../core/tenancy.js";
 import {
   accountMembers,
@@ -274,14 +275,29 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
   // "Continue with GitHub" needs an absolute callback URL, so the dashboard's own URL.
   const github = cfg.github && ctx.config.server.dashboardUrl ? cfg.github : null;
   const githubCallback = dashboardLink(ctx.config, "/auth/github/callback");
-  /** Where the GitHub button starts, carrying `next`; null when GitHub sign-in is off. */
-  const githubHref = (next: string | null | undefined) =>
-    github ? dashPath(`/auth/github${next ? `?next=${encodeURIComponent(next)}` : ""}`) : null;
+  /** Where the GitHub button starts, carrying `next` and the sign-up source; null when it is off. */
+  const githubHref = (next: string | null | undefined, source: SignupSource | null = null) => {
+    if (!github) return null;
+    const q = [next ? `next=${encodeURIComponent(next)}` : "", sourceQuery(source)]
+      .filter(Boolean)
+      .join("&");
+    return dashPath(`/auth/github${q ? `?${q}` : ""}`);
+  };
+  /** The site's, the API's and the dashboard's hosts: a Referer from these names no source. */
+  const ownHosts = [
+    ctx.config.server.siteUrl,
+    ctx.config.server.publicUrl,
+    ctx.config.server.dashboardUrl,
+  ].flatMap((u) => (u ? [new URL(u).host] : []));
+  /** The source a sign-in form or the GitHub button carried on (`src`, `campaign`). */
+  const carriedSource = (q: Record<string, string | undefined>) =>
+    signupSourceOf({ src: q.src, campaign: q.campaign }, undefined, []);
 
   // ---- sign-in -------------------------------------------------------------
   app.get("/login", (c) => {
     const next = safeNext(c.req.query("next"));
     if (c.get("dash")) return c.redirect(next ?? dashPath("/"), 303);
+    const source = signupSourceOf(c.req.query(), c.req.header("referer"), ownHosts);
     return render(c, 200, {
       title: "Sign in",
       notice: v.notice(c.req.query("msg")),
@@ -290,8 +306,9 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
         legal,
         signup: cfg.signup,
         next,
+        source,
         reviewer: !!cfg.reviewer,
-        github: githubHref(next),
+        github: githubHref(next, source),
       }),
     });
   });
@@ -299,6 +316,7 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
   app.post("/login", async (c) => {
     const form = c.get("form");
     const next = safeNext(form.next);
+    const source = carriedSource(form);
     const email = normalizeEmail(form.email ?? "");
     if (!email)
       return render(c, 422, {
@@ -310,7 +328,8 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
           signup: cfg.signup,
           email: form.email,
           next,
-          github: githubHref(next),
+          source,
+          github: githubHref(next, source),
         }),
       });
     // Counted per network, not per address: one IPv6 host has a whole /64 to rotate through.
@@ -334,7 +353,8 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
           signup: cfg.signup,
           email: form.email,
           next,
-          github: githubHref(next),
+          source,
+          github: githubHref(next, source),
         }),
       });
     }
@@ -345,6 +365,7 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
       undefined,
       next,
       browserBinding(c, secret),
+      source,
     );
     if ("limited" in issued)
       return render(c, 429, {
@@ -356,7 +377,8 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
           signup: cfg.signup,
           email,
           next,
-          github: githubHref(next),
+          source,
+          github: githubHref(next, source),
         }),
       });
     // On the dashboard's own host when it has one (RECALL_DASHBOARD_URL), else under /app.
@@ -388,7 +410,8 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
           signup: cfg.signup,
           email,
           next,
-          github: githubHref(next),
+          source,
+          github: githubHref(next, source),
         }),
       });
     }
@@ -424,6 +447,7 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
     const result = await signIn(ctx.db, email, {
       allowSignup: cfg.signup,
       ...terms,
+      source: login.source,
       onNewAccount: (tx, accountId) => ctx.billing.onSignup(tx, accountId, { ipHash, emailHash }),
     });
     if (!result)
@@ -463,12 +487,21 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
     if (!github) return c.notFound();
     const next = safeNext(c.req.query("next"));
     if (c.get("dash")) return c.redirect(next ?? dashPath("/"), 303);
+    const source = carriedSource(c.req.query());
     // The state is bound to this browser's sign-in cookie, which the sign-in page sets first.
     const binding = browserBinding(c, secret);
-    if (!binding)
-      return c.redirect(dashPath(`/login${next ? `?next=${encodeURIComponent(next)}` : ""}`), 303);
+    if (!binding) {
+      const q = [next ? `next=${encodeURIComponent(next)}` : "", sourceQuery(source)]
+        .filter(Boolean)
+        .join("&");
+      return c.redirect(dashPath(`/login${q ? `?${q}` : ""}`), 303);
+    }
     return c.redirect(
-      gh.authorizeUrl(github, githubCallback, gh.signState(secret, binding, next)),
+      gh.authorizeUrl(
+        github,
+        githubCallback,
+        gh.signState(secret, binding, next, Date.now(), false, source),
+      ),
       302,
     );
   });
@@ -584,7 +617,7 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
       result = await signIn(ctx.db, email, {
         allowSignup: cfg.signup && signUp,
         ...terms,
-        ...(signUp ? { github: identity } : {}),
+        ...(signUp ? { github: identity, source: state.source } : {}),
         onNewAccount: (tx, accountId) => ctx.billing.onSignup(tx, accountId, { ipHash, emailHash }),
       });
     } catch (err) {
@@ -750,6 +783,7 @@ export function dashboard(ctx: AppContext): Hono<DashEnv> {
         checklist: progress,
         activity,
         connect: connectInfo(c, c.req.query("connect") ?? "curl"),
+        csrf: dash.csrf,
       }),
     });
   });

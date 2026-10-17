@@ -1,6 +1,7 @@
 """Renders public/home.html (served at "/") from index.tpl.html, inlining the pixel sprites, and
 src/http/dashboard/night.ts: the same night sky and elephant scene behind the sign-in pages.
-Also writes public/llms.txt from llms.tpl.txt.
+Also writes public/llms.txt from llms.tpl.txt, and puts the analytics tag (analytics.py) on the
+hand-written pages (docs, privacy, terms, support).
 
 Every benchmark figure on the home page comes from EVALS in pages.py (the evals page's source) and
 every price from the defaults in src/config.ts (prices.py), so neither can go stale here.
@@ -17,11 +18,13 @@ HERE = pathlib.Path(__file__).resolve().parent
 PUBLIC = HERE.parent.parent / "public"
 sys.path.insert(0, str(HERE))
 from brands import PATHS, brand  # noqa: E402
+from art import art_ask, art_learn, art_send, coin, hero_layers, night_room, night_stars, pixel_divider  # noqa: E402
 from scene import hero_sky, scene  # noqa: E402
 from compare import ANSWER_MODEL, MEMORY_MODEL  # noqa: E402
 from pages import EVALS, REPO_URL, landing_comparison  # noqa: E402
 from prices import LEVELS, PRICES, usd, usd2  # noqa: E402
 from sprites import S, svg  # noqa: E402
+from analytics import stamp  # noqa: E402
 
 LME, B100, B500 = EVALS["longmemeval"], EVALS["beam100k"], EVALS["beam500k"]
 
@@ -56,6 +59,7 @@ NUMBERS = {
 PRICE = {f"price_{k}": usd(PRICES[k]) for k in LEVELS}
 PRICE["price_ingest"] = usd(PRICES["ingest_per_mtok"])
 PRICE["price_min_tokens"] = f"{PRICES['ingest_min_tokens']:.0f}"
+PRICE["price_store"] = usd(PRICES["store_per_mtok"])
 PRICE["signup_credit"] = usd(PRICES["signup_credit"])
 
 # One month of a support assistant, computed from the prices above so it cannot drift. At today's
@@ -133,6 +137,15 @@ def proof_line():
 SCENES = {
     "scene": scene,
     "hero_sky": hero_sky,
+    # The animated pixel art (art.py): the hero's horizon, the three steps, the night shift.
+    **{f"hero_layer_{k}": (lambda k=k: hero_layers()[k]) for k in ("sky", "far", "near", "front")},
+    "night_stars": night_stars,
+    "art_send": art_send,
+    "art_learn": art_learn,
+    "art_ask": art_ask,
+    "night_room": night_room,
+    "coin": coin,
+    **{f"divider_{n}": (lambda n=n: pixel_divider(n)) for n in range(4)},
     "compare": landing_comparison,
     "stats": stats,
     "proof_line": proof_line,
@@ -163,8 +176,12 @@ def render(tpl):
     return out
 
 
-(PUBLIC / "home.html").write_text(render((HERE / "index.tpl.html").read_text()))
+(PUBLIC / "home.html").write_text(stamp(render((HERE / "index.tpl.html").read_text())))
 print(f"public/home.html written ({len(S)} sprites available)")
+# The hand-written pages carry the same analytics tag (analytics.py); pages.py and guides.mjs stamp theirs.
+for name in ("docs.html", "privacy.html", "terms.html", "support.html"):
+    (PUBLIC / name).write_text(stamp((PUBLIC / name).read_text()))
+print("analytics tag stamped on docs, privacy, terms and support")
 (PUBLIC / "llms.txt").write_text(render((HERE / "llms.tpl.txt").read_text()))
 print("public/llms.txt written")
 

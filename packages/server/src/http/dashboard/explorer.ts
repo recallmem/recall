@@ -1,6 +1,7 @@
 import { type SQL, sql } from "drizzle-orm";
 import { CHAT_LEVELS, usageCharges } from "../../billing/ledger.js";
 import type { AppContext } from "../../context.js";
+import { eventsOf, type MemoryEventOut, recordEvents } from "../../core/history.js";
 import { listMessages } from "../../core/messages.js";
 import { getPeerCard, listPeerSessions, listPeers, selectPeerRow } from "../../core/peers.js";
 import { listSessionPeers, listSessions, selectSessionRow } from "../../core/sessions.js";
@@ -333,16 +334,30 @@ export async function supersedeFact(
   ws: WsHandle,
   id: string,
   replacementId: string,
+  userId: string | null = null,
 ): Promise<boolean> {
   return ctx.db.transaction(async (tx) => {
-    const [row] = await rows<{ collection_id: string }>(
+    const [row] = await rows<{ collection_id: string; content: string; valid_to: Date | string }>(
       tx,
       sql`UPDATE conclusions SET valid_to = GREATEST(COALESCE(valid_from, created_at), now()),
             superseded_by = ${replacementId}, updated_at = now()
           WHERE id = ${id} AND workspace_id = ${ws.id} AND valid_to IS NULL AND deleted_at IS NULL
-          RETURNING collection_id`,
+          RETURNING collection_id, content, valid_to`,
     );
     if (!row) return false;
+    await recordEvents(tx, [
+      {
+        workspaceId: ws.id,
+        collectionId: row.collection_id,
+        conclusionId: id,
+        action: "superseded",
+        actor: "dashboard",
+        actorRef: userId,
+        reason: "corrected in the dashboard",
+        sources: [replacementId],
+        after: { superseded_by: replacementId, valid_to: new Date(row.valid_to).toISOString() },
+      },
+    ]);
     // Every change to a collection bumps its version (cached answers key on it).
     await tx.execute(
       sql`UPDATE collections SET version = version + 1 WHERE id = ${row.collection_id}`,
@@ -486,6 +501,10 @@ export interface PeerView {
   cardSources: CardSource[];
   /** Cards other peers keep about this one. */
   otherCards: { observer: string; card: string[] }[];
+  /** The peer's own brief, kept by the night shift (null until one is written). */
+  brief: string | null;
+  /** Why the night shift's last card refresh was refused, if it was. */
+  cardBlocked: string | null;
   /** Other peers holding conclusions about this one (for the playground). */
   observers: string[];
   /** Facts about this peer per observer, the peer's own view first. */
@@ -563,6 +582,11 @@ export async function peerView(ctx: AppContext, ws: WsHandle, name: string): Pro
           AND col.observer_id <> ${peer.internal_id} AND jsonb_array_length(col.peer_card) > 0
         ORDER BY obs.name LIMIT 20`,
   );
+  const [own] = await rows<{ brief: string | null; card_blocked: string | null }>(
+    ctx.db,
+    sql`SELECT brief, card_blocked FROM collections
+        WHERE workspace_id = ${ws.id} AND observer_id = ${peer.internal_id} AND observed_id = ${peer.internal_id}`,
+  );
   const observers = await rows<{ name: string; current: number; superseded: number }>(
     ctx.db,
     sql`SELECT obs.name, count(*) FILTER (WHERE c.valid_to IS NULL)::int AS current,
@@ -586,6 +610,8 @@ export async function peerView(ctx: AppContext, ws: WsHandle, name: string): Pro
     otherCards: others
       .filter((o) => Array.isArray(o.peer_card))
       .map((o) => ({ observer: o.observer, card: o.peer_card as string[] })),
+    brief: own?.brief?.trim() || null,
+    cardBlocked: own?.card_blocked ?? null,
     observers: observers.map((o) => o.name).filter((n) => n !== peer.name),
     views: observers
       .map((o) => ({ observer: o.name, current: num(o.current), superseded: num(o.superseded) }))
@@ -626,6 +652,8 @@ export interface FactsView {
   messages: Map<string, MessageRef>;
   /** Facts the listed ones point at (replacements and premises), by id. */
   related: Map<string, ConclusionRow>;
+  /** What happened to each listed fact, oldest first (see core/history.ts). */
+  history: Map<string, MemoryEventOut[]>;
 }
 
 const escapeLike = (s: string) => s.replace(/[\\%_]/g, (ch) => `\\${ch}`);
@@ -674,6 +702,10 @@ export async function peerFacts(
     counts: { current, superseded },
     messages: await messagesByIds(ctx, ws, [...new Set(found.flatMap((c) => c.messageIds))]),
     related,
+    history: await eventsOf(
+      ctx.db,
+      found.map((c) => c.id),
+    ),
   };
 }
 

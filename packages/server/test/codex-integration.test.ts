@@ -156,7 +156,7 @@ describe("codex: hooks", () => {
     ]);
     expect(stored[0].metadata).toEqual({ source: "codex", turn_id: "turn-1" });
     // The plugin data directory Codex provides holds the hook state.
-    expect(JSON.parse(readFileSync(join(data, "state.json"), "utf8")).spool).toEqual([]);
+    expect(readdirSync(join(data, "spool")).filter((n) => n.endsWith(".json"))).toEqual([]);
   });
 
   it("keeps state under $CODEX_HOME/recall/state when it runs as a user hook", async () => {
@@ -166,9 +166,11 @@ describe("codex: hooks", () => {
       { HOME: home, CODEX_HOME: codexHome, RECALL_URL: await closedPort() },
     );
     expect(res).toMatchObject({ code: 0, stdout: "", stderr: "" });
-    const state = JSON.parse(readFileSync(join(codexHome, "recall/state/state.json"), "utf8"));
-    expect(state.spool).toHaveLength(1);
-    expect(state.spool[0].messages[0]).toMatchObject({ content: "hello" });
+    const dir = join(codexHome, "recall/state/spool");
+    const files = readdirSync(dir).filter((n) => n.endsWith(".json"));
+    expect(files).toHaveLength(1);
+    const entry = JSON.parse(readFileSync(join(dir, files[0]!), "utf8"));
+    expect(entry.messages[0]).toMatchObject({ content: "hello" });
   });
 
   it("adds facts for each prompt when lookup is prompt", async () => {

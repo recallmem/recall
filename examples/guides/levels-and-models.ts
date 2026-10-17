@@ -9,8 +9,8 @@ export async function main(recall = new Recall({ workspaceId: "my-app" })) {
   const assistant = recall.peer("assistant", { configuration: { observeMe: false } });
   const session = recall.session("chat-311", { peers: ["user-8412", "assistant"] });
   await session.addMessages([
-    user.message("I moved from Leeds to Utrecht in March. I cycle to work most days."),
-    assistant.message("Utrecht is a great city for cycling."),
+    user.message("I moved from Seattle to Denver in March. I cycle to work most days."),
+    assistant.message("Denver is a great city for cycling."),
     user.message("I'm allergic to peanuts, and I've started learning Dutch."),
   ]);
   await recall.waitForIdle(); // for this demo only: real apps do not wait for learning

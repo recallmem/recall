@@ -133,11 +133,19 @@ const RESOURCES: Record<FilterResource, ResourceDef> = {
       times_derived: number("c.times_derived"),
       metadata: json("c.internal"),
       // Recall: validity and provenance. `current` is true while the fact still holds.
-      current: { kind: "bool", col: sql.raw("(c.valid_to IS NULL)") },
+      current: {
+        kind: "bool",
+        col: sql.raw("(c.valid_to IS NULL AND (c.expires_at IS NULL OR c.expires_at > now()))"),
+      },
+      expires_at: datetime("c.expires_at"),
       valid_from: datetime("COALESCE(c.valid_from, c.created_at)"),
       valid_to: datetime("c.valid_to"),
       superseded_by: text("c.superseded_by"),
+      // When what the fact describes happened or began; facts without one never match a range.
+      event_start: datetime("c.event_start"),
+      event_end: datetime("COALESCE(c.event_end, c.event_start)"),
       message_ids: { kind: "id_array", col: sql.raw("c.message_ids") },
+      tags: { kind: "id_array", col: sql.raw("c.tags") },
     },
     aliases: { observer: "observer_id", observed: "observed_id" },
   },

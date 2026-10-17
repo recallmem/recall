@@ -10,13 +10,19 @@ import {
   funnel,
   percent,
   STEP_LABELS,
+  signupsByLink,
   testEmails,
 } from "./funnel.js";
+import { linkVisitors, listLinks } from "./links.js";
+import { type Count, umamiReport } from "./traffic.js";
 
 /**
  * The weekly activation-funnel email to the operator: once a week, from Monday 08:00
  * Europe/Amsterdam, the funnel of the last 7 days and the last 30 days by sign-up week (numbers
- * only: no names or addresses), with a link to the console's Funnel page. It goes to
+ * only: no names or addresses), with a link to the console's Funnel page. With Umami configured
+ * it also carries the week's website traffic (visitors, top referring sites and campaigns, "Get
+ * API key" clicks) and the tagged link that did best; when Umami cannot be read the email goes
+ * out without that part. It goes to
  * RECALL_ALERT_EMAIL, else to every RECALL_OPERATOR_EMAILS address; RECALL_FUNNEL_REPORT_ENABLED=false
  * turns it off. Needs the dashboard (hosted mode with RECALL_PUBLIC_URL).
  *
@@ -111,6 +117,8 @@ export async function sendWeeklyFunnelReport(
       last7,
       last30,
       consoleUrl: dashboardLink(ctx.config, "/admin/funnel?days=30"),
+      traffic: await trafficSummary(ctx, now, emails),
+      trafficUrl: dashboardLink(ctx.config, "/admin/traffic"),
     });
   } catch (err) {
     await release();
@@ -134,6 +142,56 @@ export async function sendWeeklyFunnelReport(
   handled.set(ctx.db, week);
   ctx.log.info({ week, recipients: delivered }, "weekly funnel report sent");
   return "sent";
+}
+
+/** The week's website traffic for the email, if Umami is configured; null when it is not or fails. */
+export interface TrafficSummary {
+  visitors: number;
+  visits: number;
+  pageviews: number;
+  topSites: Count[];
+  topCampaigns: Count[];
+  apiKeyClicks: number;
+  /** The live tagged link with the most sign-ups since it was made (visitors break ties). */
+  bestLink: { source: string; campaign: string; signups: number; visitors: number | null } | null;
+}
+
+async function trafficSummary(
+  ctx: Deps,
+  now: Date,
+  emails: string[],
+): Promise<TrafficSummary | null> {
+  const umami = ctx.config.hosted.umami;
+  if (!umami) return null;
+  try {
+    const r = await umamiReport(umami, 7, now);
+    const links = (await listLinks(ctx.db)).slice(0, 25);
+    const [signups, visitors] = await Promise.all([
+      signupsByLink(ctx.db, { testEmails: emails }),
+      linkVisitors(umami, links, now),
+    ]);
+    const ranked = links
+      .map((l) => ({
+        source: l.source,
+        campaign: l.campaign,
+        signups: signups.get(l.id)?.signups ?? 0,
+        visitors: visitors.get(l.id) ?? null,
+      }))
+      .filter((l) => l.signups > 0 || (l.visitors ?? 0) > 0)
+      .sort((a, b) => b.signups - a.signups || (b.visitors ?? 0) - (a.visitors ?? 0));
+    return {
+      visitors: r.totals.visitors,
+      visits: r.totals.visits,
+      pageviews: r.totals.pageviews,
+      topSites: r.referrerHosts.slice(0, 3),
+      topCampaigns: r.utmCampaigns.slice(0, 3),
+      apiKeyClicks: r.events.find((e) => e.name === "get-api-key")?.count ?? 0,
+      bestLink: ranked[0] ?? null,
+    };
+  } catch (err) {
+    ctx.log.warn({ err }, "weekly funnel report: website traffic left out");
+    return null;
+  }
 }
 
 /** Checks for the weekly report every few minutes (worker processes); returns a stop function. */
@@ -175,11 +233,28 @@ function stepLines(g: FunnelGroup): string[] {
   ];
 }
 
+/** The traffic part of the email, as lines of text (the HTML shows the same lines). */
+function trafficLines(t: TrafficSummary): string[] {
+  const list = (rows: Count[]) =>
+    rows.length ? rows.map((r) => `${r.name} (${num(r.count)})`).join(", ") : "none yet";
+  return [
+    `Visitors: ${num(t.visitors)} (${num(t.visits)} visits, ${num(t.pageviews)} page views).`,
+    `Top referring sites: ${list(t.topSites)}.`,
+    `Top campaigns: ${list(t.topCampaigns)}.`,
+    `"Get API key" clicks: ${num(t.apiKeyClicks)}.`,
+    t.bestLink
+      ? `Best tagged link: ${t.bestLink.source} / ${t.bestLink.campaign}, ${num(t.bestLink.signups)} sign-up${t.bestLink.signups === 1 ? "" : "s"}${t.bestLink.visitors == null ? "" : ` and ${num(t.bestLink.visitors)} visitor${t.bestLink.visitors === 1 ? "" : "s"}`} since it was made.`
+      : "No tagged link has brought visitors yet.",
+  ];
+}
+
 export function renderFunnelReport(d: {
   week: string;
   last7: Funnel;
   last30: Funnel;
   consoleUrl: string;
+  traffic?: TrafficSummary | null;
+  trafficUrl?: string;
 }): { subject: string; text: string; html: string } {
   const w = d.last7.total;
   const subject = `Recall funnel, week of ${d.week}: ${num(w.signups)} sign-up${w.signups === 1 ? "" : "s"} in 7 days`;
@@ -193,12 +268,21 @@ export function renderFunnelReport(d: {
     { label: "All 30 days", g: d.last30.total },
   ];
 
+  const traffic = d.traffic ? trafficLines(d.traffic) : null;
   const text = [
     `Recall activation funnel, week of ${d.week}`,
     "",
     "Self-serve sign-ups in the last 7 days:",
     ...stepLines(w),
     "",
+    ...(traffic
+      ? [
+          "Website, last 7 days:",
+          ...traffic.map((l) => `  ${l}`),
+          ...(d.trafficUrl ? [`  More: ${d.trafficUrl}`] : []),
+          "",
+        ]
+      : []),
     "Last 30 days by sign-up week (UTC, from Monday), count and share of sign-ups:",
     `  ${"Week of".padEnd(12)}${cols.map((c) => c.padStart(c === "Median to answer" ? 18 : 12)).join("")}`,
     ...weekRows.map(
@@ -244,6 +328,13 @@ export function renderFunnelReport(d: {
 ${summary}
 </table>
 <p>Median time from sign-up to first answer: ${esc(formatDuration(w.medianAnswerMs))}</p>
+${
+  traffic
+    ? `<h2 style="font-size:15px;margin:16px 0 8px;">Website, last 7 days</h2>
+<ul style="margin:0;padding-left:18px;">${traffic.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>
+${d.trafficUrl ? `<p><a href="${esc(d.trafficUrl)}">Open Traffic in the console</a></p>` : ""}`
+    : ""
+}
 <h2 style="font-size:15px;margin:16px 0 8px;">Last 30 days by sign-up week (UTC, from Monday)</h2>
 <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
 <tr><th style="${head}text-align:left;">Week of</th>${cols.map((c) => `<th style="${head}">${esc(c)}</th>`).join("")}</tr>

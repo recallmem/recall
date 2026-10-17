@@ -11,11 +11,14 @@ import {
   paymentRequired,
   unprocessable,
 } from "../lib/errors.js";
+import { eventTime, parseEventDate } from "../lib/event-time.js";
 import { newId } from "../lib/ids.js";
+import { normalizeTags } from "../lib/tags.js";
 import { countTokens } from "../lib/tokens.js";
 import { LlmError } from "../llm/types.js";
 import { ensureCollections, lockCollections, NORMALIZED, sameText } from "../reasoner/apply.js";
 import { textArray } from "../reasoner/util.js";
+import { factEvents, type MemoryEvent, recordEvents } from "./history.js";
 import { findPeers } from "./peers.js";
 import { type WsKey, wsIs } from "./tenancy.js";
 import { findWorkspace } from "./workspaces.js";
@@ -34,6 +37,23 @@ export interface NewConclusion {
   observer_id: string;
   observed_id: string;
   session_id?: string | null;
+  /** When what the fact describes happened or began: `YYYY`, `YYYY-MM` or `YYYY-MM-DD`. */
+  event_start?: string | null;
+  /** The last day of a span, in the same forms. */
+  event_end?: string | null;
+  /** What the fact is about; stored lowercase and singular. */
+  tags?: string[] | null;
+  /** Set by a person: the reasoner and dreams never close, merge or rewrite it. */
+  pinned?: boolean | null;
+  /** When the fact stops holding (ISO 8601). */
+  expires_at?: string | null;
+}
+
+/** Who stores facts through `storeConclusions`, for the change log. */
+export interface StoredBy {
+  actor: "api" | "dashboard" | "system";
+  ref?: string | null;
+  reason?: string;
 }
 
 const vectorLiteral = (v: number[]) => `[${v.join(",")}]`;
@@ -97,8 +117,9 @@ export async function storeConclusions(
   ctx: AppContext,
   workspace: WsKey,
   items: NewConclusion[],
-  opts: { ignore?: readonly string[] } = {},
+  opts: { ignore?: readonly string[]; by?: StoredBy } = {},
 ): Promise<{ conclusion: ConclusionOut; existing: boolean }[]> {
+  const by: StoredBy = opts.by ?? { actor: "api" };
   const tokenCounts = items.map((i) => countTokens(i.content));
   for (const tokens of tokenCounts) {
     if (tokens > EMBED_MAX_TOKENS) {
@@ -106,6 +127,13 @@ export async function storeConclusions(
         `Content exceeds maximum embedding token limit of ${EMBED_MAX_TOKENS} (got ${tokens} tokens)`,
       );
     }
+  }
+  const events = items.map((i) => eventTime(i.event_start, i.event_end));
+  for (const [n, item] of items.entries()) {
+    if (item.event_start && !events[n])
+      throw unprocessable(`Invalid event_start: ${item.event_start}`);
+    if (item.event_end && !parseEventDate(item.event_end))
+      throw unprocessable(`Invalid event_end: ${item.event_end}`);
   }
   const ws = await findWorkspace(ctx.db, workspace);
   if (!ws) throw notFound(`Workspace ${workspace.name}`);
@@ -204,28 +232,90 @@ export async function storeConclusions(
       }
     }
 
+    const changes: MemoryEvent[] = [];
+    const logBase = (r: (typeof resolved)[number]) => ({
+      workspaceId: ws.internal_id,
+      collectionId: r.collection.id,
+      actor: by.actor,
+      actorRef: by.ref ?? null,
+    });
+    for (const r of resolved) {
+      const fact = factOf.get(groupOf.get(r.index)!)!;
+      if (
+        fact.existing &&
+        reinforced.includes(fact.id) &&
+        !changes.some((e) => e.conclusionId === fact.id)
+      )
+        changes.push({
+          ...logBase(r),
+          conclusionId: fact.id,
+          action: "reinforced",
+          reason: by.reason ?? "said again",
+        });
+    }
     if (reinforced.length) {
       await tx.execute(
         sql`UPDATE conclusions SET times_derived = times_derived + 1, updated_at = now()
             WHERE id = ANY(${textArray(reinforced)})`,
       );
     }
+    // A restated fact that had no event time takes the one this call gives; asked to pin, it is.
+    for (const r of resolved) {
+      const fact = factOf.get(groupOf.get(r.index)!)!;
+      if (!fact.existing || !r.item.pinned) continue;
+      const pinned = await rows<{ id: string }>(
+        tx,
+        sql`UPDATE conclusions SET pinned = true WHERE id = ${fact.id} AND NOT pinned RETURNING id`,
+      );
+      if (pinned.length)
+        changes.push({
+          ...logBase(r),
+          conclusionId: fact.id,
+          action: "pinned",
+          reason: by.reason ?? "pinned",
+        });
+    }
+    for (const r of resolved) {
+      const event = events[r.index];
+      const fact = factOf.get(groupOf.get(r.index)!)!;
+      if (!event || !fact.existing) continue;
+      await tx.execute(
+        sql`UPDATE conclusions SET event_start = ${event.start}::timestamptz, event_end = ${event.end}::timestamptz,
+              event_precision = ${event.precision}
+            WHERE id = ${fact.id} AND event_start IS NULL`,
+      );
+    }
     if (fresh.length) {
       await tx.execute(
         sql`INSERT INTO conclusions (id, workspace_id, collection_id, observer_id, observed_id, session_id, content,
-                                     level, times_derived, valid_from, embedding, embedding_model)
+                                     level, times_derived, valid_from, event_start, event_end, event_precision,
+                                     tags, pinned, expires_at, embedding, embedding_model)
             VALUES ${sql.join(
               fresh.map((r) => {
                 const id = factOf.get(groupOf.get(r.index)!)!.id;
+                const event = events[r.index];
                 return sql`(${id}, ${ws.internal_id}, ${r.collection.id}, ${r.collection.observer_id},
                      ${r.collection.observed_id}, ${r.item.session_id ? sessionIds.get(r.item.session_id)! : null},
-                     ${r.item.content}, 'explicit', 1, now(), ${vectorLiteral(vectors[r.index]!)}::vector,
+                     ${r.item.content}, 'explicit', 1, now(), ${event?.start ?? null}::timestamptz,
+                     ${event?.end ?? null}::timestamptz, ${event?.precision ?? null},
+                     ${textArray(normalizeTags(r.item.tags))}, ${r.item.pinned === true},
+                     ${r.item.expires_at ? new Date(r.item.expires_at) : null}::timestamptz,
+                     ${vectorLiteral(vectors[r.index]!)}::vector,
                      ${ctx.embeddings.ref})`;
               }),
               sql`, `,
             )}`,
       );
     }
+    for (const r of fresh)
+      changes.push({
+        ...logBase(r),
+        conclusionId: factOf.get(groupOf.get(r.index)!)!.id,
+        action: "created",
+        reason: by.reason ?? "added directly",
+        after: r.item.pinned ? { pinned: true } : undefined,
+      });
+    await recordEvents(tx, changes);
     // Every change to a collection bumps its version (recall caches key on it).
     const perCollection = new Map<string, number>();
     for (const r of resolved) perCollection.set(r.collection.id, 0);
@@ -266,11 +356,17 @@ export async function listConclusions(
   workspace: WsKey,
   paging: Paging,
   filters: Record<string, unknown> | null | undefined,
+  asOf: Date | null = null,
 ): Promise<Page<ReturnType<typeof conclusionOut>>> {
   const where: (SQL | undefined)[] = [
     sql`${wsIs(workspace)}`,
     sql`c.deleted_at IS NULL`,
     compileFilters("conclusions", filters),
+    // What held on that date, as memory knows it now: begun by then and not yet replaced.
+    asOf == null
+      ? undefined
+      : sql`COALESCE(c.valid_from, c.created_at) <= ${asOf}::timestamptz
+        AND (c.valid_to IS NULL OR c.valid_to > ${asOf}::timestamptz)`,
   ];
   return paginate(ctx.db, paging, {
     select: CONCLUSION_COLS,
@@ -297,6 +393,7 @@ export async function queryConclusions(
     top_k: number;
     distance?: number | null;
     filters?: Record<string, unknown> | null;
+    explain?: boolean;
   },
 ) {
   const filters = body.filters ?? {};
@@ -339,12 +436,19 @@ export async function queryConclusions(
     conds.filter((c): c is SQL => c !== undefined).map((c) => sql`(${c})`),
     sql` AND `,
   );
-  const found = await rows<ConclusionRow>(
+  const found = await rows<ConclusionRow & { dist: number | string }>(
     ctx.db,
-    sql`SELECT ${CONCLUSION_COLS} ${FROM_CONCLUSION} WHERE ${where}
-        ORDER BY c.embedding <=> ${literal}, c.id LIMIT ${body.top_k}`,
+    sql`SELECT ${CONCLUSION_COLS}, (c.embedding <=> ${literal}) + 0 AS dist ${FROM_CONCLUSION} WHERE ${where}
+        ORDER BY dist, c.id LIMIT ${body.top_k}`,
   );
-  return found.map(conclusionOut);
+  return found.map((r, i) =>
+    body.explain
+      ? {
+          ...conclusionOut(r),
+          explain: { rank: i + 1, distance: Math.round(Number(r.dist) * 1e4) / 1e4 },
+        }
+      : conclusionOut(r),
+  );
 }
 
 export async function getConclusion(ctx: AppContext, workspace: WsKey, id: string) {
@@ -355,6 +459,102 @@ export async function getConclusion(ctx: AppContext, workspace: WsKey, id: strin
   );
   if (!row) throw notFound("Conclusion");
   return conclusionOut(row);
+}
+
+/**
+ * Pins or unpins a fact. A pinned fact was set by a person: the reasoner and dreams never close,
+ * merge or rewrite it, and a statement that disagrees is stored next to it as a conflict.
+ */
+export async function pinConclusion(
+  ctx: AppContext,
+  workspace: WsKey,
+  id: string,
+  pinned: boolean,
+  by: StoredBy = { actor: "api" },
+) {
+  await ctx.db.transaction(async (tx) => {
+    const [row] = await rows<{ workspace_id: string; collection_id: string; was: boolean }>(
+      tx,
+      sql`SELECT c.workspace_id, c.collection_id, c.pinned AS was FROM conclusions c JOIN workspaces w ON w.id = c.workspace_id
+          WHERE ${wsIs(workspace)} AND c.id = ${id} AND c.deleted_at IS NULL FOR UPDATE OF c`,
+    );
+    if (!row) throw notFound("Conclusion");
+    if (row.was === pinned) return;
+    await tx.execute(
+      sql`UPDATE conclusions SET pinned = ${pinned}, updated_at = now() WHERE id = ${id}`,
+    );
+    await tx.execute(
+      sql`UPDATE collections SET version = version + 1 WHERE id = ${row.collection_id}`,
+    );
+    await recordEvents(tx, [
+      {
+        workspaceId: row.workspace_id,
+        collectionId: row.collection_id,
+        conclusionId: id,
+        action: pinned ? "pinned" : "unpinned",
+        actor: by.actor,
+        actorRef: by.ref ?? null,
+        reason: by.reason ?? null,
+      },
+    ]);
+  });
+  return getConclusion(ctx, workspace, id);
+}
+
+/** Sets or clears when a fact stops holding. */
+export async function setConclusionExpiry(
+  ctx: AppContext,
+  workspace: WsKey,
+  id: string,
+  expiresAt: Date | null,
+  by: StoredBy = { actor: "api" },
+): Promise<void> {
+  await ctx.db.transaction(async (tx) => {
+    const [row] = await rows<{ workspace_id: string; collection_id: string }>(
+      tx,
+      sql`UPDATE conclusions c SET expires_at = ${expiresAt}::timestamptz, updated_at = now()
+          FROM workspaces w WHERE w.id = c.workspace_id AND ${wsIs(workspace)} AND c.id = ${id}
+            AND c.deleted_at IS NULL
+          RETURNING c.workspace_id, c.collection_id`,
+    );
+    if (!row) throw notFound("Conclusion");
+    await tx.execute(
+      sql`UPDATE collections SET version = version + 1 WHERE id = ${row.collection_id}`,
+    );
+    await recordEvents(tx, [
+      {
+        workspaceId: row.workspace_id,
+        collectionId: row.collection_id,
+        conclusionId: id,
+        action: "edited",
+        actor: by.actor,
+        actorRef: by.ref ?? null,
+        reason: expiresAt ? "set when it stops holding" : "cleared its expiry",
+        after: { expires_at: expiresAt?.toISOString() ?? null },
+      },
+    ]);
+  });
+}
+
+/**
+ * A fact's history: the fact, every recorded change to it (oldest first), the facts it replaced
+ * and the fact that replaced it. Changes made before the log existed (October 2026) are not in it.
+ */
+export async function conclusionHistory(ctx: AppContext, workspace: WsKey, id: string) {
+  const conclusion = await getConclusion(ctx, workspace, id);
+  const [events, replaced] = await Promise.all([
+    factEvents(ctx.db, id),
+    rows<ConclusionRow>(
+      ctx.db,
+      sql`SELECT ${CONCLUSION_COLS} ${FROM_CONCLUSION}
+          WHERE ${wsIs(workspace)} AND c.superseded_by = ${id} AND c.deleted_at IS NULL
+          ORDER BY COALESCE(c.valid_from, c.created_at), c.id LIMIT 50`,
+    ),
+  ]);
+  const by = conclusion.superseded_by
+    ? await getConclusion(ctx, workspace, conclusion.superseded_by).catch(() => null)
+    : null;
+  return { conclusion, events, replaced: replaced.map(conclusionOut), replaced_by: by };
 }
 
 /** Soft delete. Bumps the collection version so cached answers are not served from it. */

@@ -1,0 +1,4 @@
+{
+  "//": "The website's id in the self-hosted Umami (stats.recallmem.dev); empty: no tracker on the pages. Not a secret: it is in every page. After changing it, run build.py, pages.py and guides.mjs.",
+  "umamiWebsiteId": "49d3572d-ca3b-4281-a0ed-191b2f269094"
+}

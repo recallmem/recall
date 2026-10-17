@@ -97,7 +97,7 @@ function listWebhooks(
  * // your own server: new Recall({ baseURL: "http://localhost:8000" })
  * const alice = recall.peer("alice");            // no request: handles are lazy
  * const session = recall.session("chat-1");
- * await session.addMessages([alice.message("I moved to Utrecht last month.")]);
+ * await session.addMessages([alice.message("I moved to New York last month.")]);
  * await recall.waitForIdle();                     // let background reasoning finish
  * console.log(await alice.chat("Where do I live?"));
  * ```

@@ -35,14 +35,14 @@ session = recall.session("chat-1")  # no network call either
 session.add_peers([alice, bot])
 session.add_messages(
     [
-        alice.message("I moved to Utrecht last month and I love cycling."),
-        bot.message("Utrecht is great for cycling!"),
+        alice.message("I moved to New York last month and I love cycling."),
+        bot.message("New York has great bike lanes!"),
     ]
 )
 
 recall.wait_for_idle()  # block until reasoning has finished
 
-print(alice.chat("Where does Alice live?"))  # -> "Alice lives in Utrecht."
+print(alice.chat("Where does Alice live?"))  # -> "Alice lives in New York."
 
 # Build the next prompt: recent messages + what is known about Alice, in OpenAI or Anthropic shape.
 ctx = session.context(peer_target=alice, tokens=4000)
@@ -59,7 +59,7 @@ recall = Recall(base_url="http://localhost:8000", workspace_id="my-app")  # or: 
 One round trip per agent turn (store the new messages and get the next context back):
 
 ```python
-result = session.turn([alice.message("Actually, I now live in Amersfoort.")], peer_target=alice)
+result = session.turn([alice.message("Actually, I now live in Chicago.")], peer_target=alice)
 prompt = result.context.to_openai(assistant=bot)
 ```
 

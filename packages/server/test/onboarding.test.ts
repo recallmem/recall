@@ -225,7 +225,11 @@ describe("nudge", () => {
     expect(nudges.map((m) => m.to).sort()).toEqual(["idle@example.com", "key-made@example.com"]);
 
     const m = mail.to("idle@example.com").at(-1)!;
-    expect(m.subject).toBe("Stuck? Here's the 2-minute start");
+    expect(m.subject).toBe("Stuck? See Recall work in 30 seconds, no code");
+    expect(m.text).toContain(
+      `Open the Playground and press Try the sample: ${PUBLIC_URL}/app/playground.`,
+    );
+    expect(m.html).toContain(`href="${PUBLIC_URL}/app/playground"`);
     expect(m.replyTo).toBe("support@recallmem.dev");
     expect(m.text).toContain(`1. Create an API key at ${PUBLIC_URL}/app/keys.`);
     expect(m.text).toContain(
@@ -272,7 +276,7 @@ describe("nudge", () => {
     await sendOnboardingEmails(deps());
     expect(mail.to("thirteen-days@example.com").map((m) => m.subject)).toEqual([
       "Welcome to Recall",
-      "Stuck? Here's the 2-minute start",
+      "Stuck? See Recall work in 30 seconds, no code",
     ]);
     expect(mail.to("fifteen-days@example.com").map((m) => m.subject)).toEqual([
       "Welcome to Recall",
@@ -292,7 +296,7 @@ describe("sent once", () => {
     expect(again.reduce((n, r) => n + (r === "off" ? 0 : r.nudge), 0)).toBe(1);
     expect(mail.to("concurrent@example.com").map((m) => m.subject)).toEqual([
       "Welcome to Recall",
-      "Stuck? Here's the 2-minute start",
+      "Stuck? See Recall work in 30 seconds, no code",
     ]);
   });
 

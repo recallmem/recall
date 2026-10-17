@@ -147,7 +147,11 @@ function head(title, description, path) {
 <meta property="og:title" content="${attr(title)}" />
 <meta property="og:description" content="${attr(description)}" />
 <meta property="og:type" content="article" />
-<meta property="og:image" content="/og.png" />
+<meta property="og:url" content="https://recallmem.dev${path}" />
+<meta property="og:image" content="https://recallmem.dev/og.png" />
+<meta property="og:site_name" content="Recall" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://recallmem.dev/og.png" />
 <link rel="canonical" href="https://recallmem.dev${path}" />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="preload" href="/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin />
@@ -294,8 +298,23 @@ for (const f of existsSync(join(SRC)) ? readdirSync(SRC) : []) {
     throw new Error(`site/guides/${f} is not in manifest.json`);
 }
 
+// The Umami tracker tag, as analytics.py puts it on the other pages (none without a website id).
+const umamiId = JSON.parse(
+  readFileSync(join(SERVER, "scripts/site/analytics.json"), "utf8"),
+).umamiWebsiteId.trim();
+const stampAnalytics = (html) => {
+  const page = html.replace(/<script defer src="\/u\/script\.js"[^>]*><\/script>\n/g, "");
+  return umamiId
+    ? page.replace(
+        "</body>",
+        `<script defer src="/u/script.js" data-website-id="${umamiId}" data-host-url="/u"></script>\n</body>`,
+      )
+    : page;
+};
+
 let stale = 0;
-for (const [path, html] of outputs) {
+for (const [path, raw] of outputs) {
+  const html = stampAnalytics(raw);
   const current = existsSync(path) ? readFileSync(path, "utf8") : null;
   if (current === html) continue;
   stale++;

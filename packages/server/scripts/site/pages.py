@@ -16,8 +16,10 @@ PUBLIC = HERE.parent.parent / "public"
 sys.path.insert(0, str(HERE))
 from scene import elephant, runs  # noqa: E402
 from sprites import svg  # noqa: E402
+from analytics import stamp  # noqa: E402
 import compare  # noqa: E402
 import versus  # noqa: E402
+from prices import PRICES, usd  # noqa: E402
 
 LOGO = svg("logo")
 # The hosted models' public names (CODENAMES in src/llm/codenames.ts).
@@ -29,7 +31,21 @@ UPDATED = "10 October 2026"
 REPO_URL = "https://github.com/recallmem/recall"
 
 
-def page(slug, title, desc, body, toc=None, scripts=False, canonical=True, updated=True, cls="", version=None, date=None):
+def share_card(slug, title, desc, image):
+    """The preview a link to the page gets when it is shared (Open Graph; X reads the same tags)."""
+    tags = [
+        ("og:title", f"{title} — Recall"),
+        ("og:description", desc),
+        ("og:type", "website"),
+        ("og:url", f"https://recallmem.dev/{slug}"),
+        ("og:image", f"https://recallmem.dev{image}"),
+        ("og:site_name", "Recall"),
+    ]
+    meta = "".join(f'<meta property="{k}" content="{html.escape(v)}" />\n' for k, v in tags)
+    return meta + f'<meta name="twitter:card" content="summary_large_image" />\n<meta name="twitter:image" content="https://recallmem.dev{image}" />\n'
+
+
+def page(slug, title, desc, body, toc=None, scripts=False, canonical=True, updated=True, cls="", version=None, date=None, extra_scripts=(), og_image="/og.png"):
     links = "".join(f'<a href="#{a}">{html.escape(t)}</a>' for a, t in (toc or []))
     stamp = f"Last updated: {date or UPDATED}" + (f" · Version {version}" if version else "")
     aside = (
@@ -53,7 +69,7 @@ def page(slug, title, desc, body, toc=None, scripts=False, canonical=True, updat
 <meta name="theme-color" content="#0c0b0a" />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 {f'<link rel="canonical" href="https://recallmem.dev/{slug}" />' if canonical else '<meta name="robots" content="noindex" />'}
-<link rel="stylesheet" href="/site.css" />
+{share_card(slug, title, desc, og_image) if canonical else ''}<link rel="stylesheet" href="/site.css" />
 </head>
 <body>
 
@@ -81,7 +97,7 @@ def page(slug, title, desc, body, toc=None, scripts=False, canonical=True, updat
   <div class="wrap">
     <div><a class="logo" href="/">{LOGO}Recall</a></div>
     <nav aria-label="Footer">
-      <div><b>Recall</b><a href="/">Home</a><a href="/evals">Evals</a><a href="/docs">Docs</a><a href="/compare">Compare</a><span class="muted">Smidt Beheer · KvK 99124254 · VAT NL004444074B96</span></div>
+      <div><b>Recall</b><a href="/">Home</a><a href="/evals">Evals</a><a href="/docs">Docs</a><a href="/compare">Compare</a><a href="/calculator">Context bill</a><span class="muted">Smidt Beheer · KvK 99124254 · VAT NL004444074B96</span></div>
       <div><b>Compare</b><a href="/compare/honcho">vs Honcho</a><a href="/compare/mem0">vs Mem0</a><a href="/compare/zep">vs Zep</a><a href="/compare/letta">vs Letta</a><a href="/guides/switch-from-honcho">Switch from Honcho</a></div>
       <div><b>Legal</b><a href="/privacy">Privacy policy</a><a href="/terms">Terms of service</a><a href="/dpa">Data processing</a><a href="/security">Security</a></div>
       <div><b>Help</b><a href="/support">Support</a><a href="mailto:support@recallmem.dev">support@recallmem.dev</a></div>
@@ -89,7 +105,7 @@ def page(slug, title, desc, body, toc=None, scripts=False, canonical=True, updat
   </div>
 </footer>
 {'<script src="/site.js" defer></script>' if scripts else ''}
-</body>
+{"".join(f'<script src="{src}" defer></script>\n' for src in extra_scripts)}</body>
 </html>
 """
 
@@ -590,11 +606,11 @@ def dpa_page():
         "Recall's data processing agreement (GDPR Article 28) for customers who send personal data.",
         DPA_BODY,
         toc=DPA_TOC,
-        version="2.0",
+        version="2.1",
         # Annex 3 describes what the model providers do together, not which model runs which task
         # (the hosted models go by their codenames); a sub-processor change is not a new DPA version
         # (section 6).
-        date="11 October 2026",
+        date="14 October 2026",
     )
 
 
@@ -627,7 +643,7 @@ SECURITY_BODY = """
 <ul>
 <li>We confirm that we received your report within five working days, investigate it, and keep you informed of our progress.</li>
 <li>Please keep the details confidential until the problem is fixed. We aim to fix serious problems within 90 days and agree with you when details can be published.</li>
-<li>If you want, we credit you once the problem is fixed. We do not currently pay rewards (no bug bounty).</li>
+<li>If you want, we credit you once the problem is fixed. We do not pay rewards for security reports.</li>
 </ul>
 
 <h2 id="safe-harbour">Safe harbour</h2>
@@ -664,7 +680,7 @@ SECURITY_BODY = """
 <li><b>Dashboard.</b> Signed, HttpOnly, Secure session cookies, protection against cross-site request forgery on every form, a strict Content Security Policy, and no third-party scripts.</li>
 <li><b>Separation.</b> Every request is scoped to one account, and automated tests check that accounts cannot read each other's data. The database provider's public data interface is locked.</li>
 <li><b>Abuse protection.</b> Rate limits, and temporary blocks after repeated failed credentials.</li>
-<li><b>Less data.</b> We do not store IP addresses in our database, card details stay with Stripe, the website uses no analytics or tracking, and we do not use customer content to train AI models.</li>
+<li><b>Less data.</b> We do not store IP addresses in our database, card details stay with Stripe, the website counts visits with cookieless analytics we host ourselves (see the <a href="/privacy#analytics">privacy policy</a>), and we do not use customer content to train AI models.</li>
 <li><b>Your controls.</b> Export your data, or delete a person, a session, a workspace or your whole account, at any time.</li>
 </ul>
 
@@ -685,8 +701,8 @@ def security_page():
             "@REPO_HOST_PATH@", REPO_URL.removeprefix("https://")
         ),
         toc=SECURITY_TOC,
-        version="1.1",
-        date="11 October 2026",
+        version="1.2",
+        date="16 October 2026",
     )
 
 
@@ -723,19 +739,305 @@ def not_found_page():
     )
 
 
+# -------------------------------------------------------------------------------- calculator
+
+# The same arithmetic as public/calculator.js, which takes over in the browser; this renders the
+# default scenario so the page reads without script (test/site.test.ts checks the two agree).
+CALC_MEMORY_CONTEXT = 2000
+CALC_RECENT = 10
+CALC_DEFAULTS = {"users": 1000, "msgs": 20, "tokens": 60, "days": 90, "price": 3, "window": 200000, "cached": 0}
+# name, label, hint, min, max, step
+CALC_FIELDS = [
+    ("users", "Active users", "each with one ongoing conversation", 1, 10_000_000, 1),
+    ("msgs", "Messages a day, per user", "theirs and the agent's together", 2, 2000, 1),
+    ("tokens", "Tokens per message", "a token is about ¾ of a word", 1, 20000, 1),
+    ("days", "Days", "how long the conversation runs", 1, 730, 1),
+    ("price", "Model input price", "$ per 1M tokens, your model's", 0, 100, 0.01),
+    ("window", "Context window", "tokens your model reads at most", 1000, 10_000_000, 1000),
+    ("cached", "Prompt-cache discount", "% off the re-sent history", 0, 100, 1),
+]
+
+
+def js_round(x):
+    """Math.round: halves round up."""
+    return int(x + 0.5) if x >= 0 else -int(-x + 0.5)
+
+
+def calc_bill(s):
+    ingest, min_tokens = PRICES["ingest_per_mtok"], PRICES["ingest_min_tokens"]
+    calls = s["msgs"] / 2
+    per_day = s["msgs"] * s["tokens"]
+    naive, memory = [], []
+    forgets_on = crossover = None
+    for d in range(1, s["days"] + 1):
+        history = per_day * (d - 1) + per_day / 2
+        resent = calls * min(s["window"], history) * (s["price"] / 1e6) * (1 - s["cached"] / 100)
+        mem_in = CALC_MEMORY_CONTEXT + min(CALC_RECENT, s["msgs"] * d) * s["tokens"]
+        learn = s["msgs"] * max(s["tokens"], min_tokens) * (ingest / 1e6)
+        mem = calls * mem_in * (s["price"] / 1e6) + learn
+        naive.append(resent * s["users"])
+        memory.append(mem * s["users"])
+        if forgets_on is None and per_day * d > s["window"]:
+            forgets_on = d
+        if crossover is None and resent > mem:
+            crossover = d
+    last_month = max(0, s["days"] - 30)
+    return {
+        "naive": naive,
+        "memory": memory,
+        "naive_total": sum(naive),
+        "memory_total": sum(memory),
+        "naive_month": sum(naive[last_month:]),
+        "memory_month": sum(memory[last_month:]),
+        "forgets_on": forgets_on,
+        "crossover": crossover,
+    }
+
+
+def calc_money(x):
+    if x >= 1e6:
+        return f"${x / 1e6:.{0 if x >= 1e7 else 1}f}M"
+    if x >= 1000:
+        return f"${js_round(x):,}"
+    if x >= 0.01:
+        return f"${x:.2f}"
+    return "< $0.01" if x > 0 else "$0"
+
+
+def calc_steps(values, top, w=600, h=180):
+    n = len(values)
+    pts = []
+    for i, v in enumerate(values):
+        y = js_round(h - 4 - ((v / top) * (h - 12) if top else 0))
+        pts += [f"{js_round(i / n * w)},{y}", f"{js_round((i + 1) / n * w)},{y}"]
+    return " ".join(pts)
+
+
+def calculator_page():
+    s = CALC_DEFAULTS
+    b = calc_bill(s)
+    ratio = b["naive_total"] / b["memory_total"]
+    times = f"{js_round(ratio)}" if ratio >= 10 else f"{ratio:.1f}"
+    window = f"{s['window']:,}"
+    top = max(b["naive"] + b["memory"])
+    ingest, min_tokens = PRICES["ingest_per_mtok"], int(PRICES["ingest_min_tokens"])
+    fields = "".join(
+        f'<label class="bill-field"><span>{html.escape(label)}</span>'
+        f'<input type="number" name="{name}" value="{s[name]}" min="{lo}" max="{hi}" step="{step}" inputmode="decimal" />'
+        f"<small>{html.escape(hint)}</small></label>"
+        for name, label, hint, lo, hi, step in CALC_FIELDS
+    )
+    crossover = (
+        f"Within {s['days']} days, re-sending stays cheaper per day."
+        if b["crossover"] is None
+        else f"From day {b['crossover']}, each day of re-sending costs more than a day with memory."
+    )
+    forgets = (
+        f"The whole history still fits in a {window}-token window after {s['days']} days."
+        if b["forgets_on"] is None
+        else f"From day {b['forgets_on']}, the history no longer fits in a {window}-token window: re-sending "
+        "starts dropping the oldest messages, so your agent forgets them anyway."
+    )
+    body = f"""
+<p class="lede bill-lede">Most agents remember by re-sending the whole conversation with every model call. That bill grows every day the conversation does, until the history outgrows the context window and the agent forgets anyway. Put in your own numbers.</p>
+
+<div class="bill" data-bill data-ingest="{ingest:g}" data-min-tokens="{min_tokens}">
+  <div class="bill-inputs">{fields}</div>
+  <div class="bill-cards">
+    <div class="bill-card naive">
+      <h3><i class="key naive"></i>Re-sending the history</h3>
+      <p class="bill-total" data-out="naive-total">{calc_money(b["naive_total"])}</p>
+      <p class="muted"><span data-out="naive-month">{calc_money(b["naive_month"])}</span> of it in the last 30 days</p>
+    </div>
+    <div class="bill-card memory">
+      <h3><i class="key memory"></i>With Recall</h3>
+      <p class="bill-total" data-out="memory-total">{calc_money(b["memory_total"])}</p>
+      <p class="muted"><span data-out="memory-month">{calc_money(b["memory_month"])}</span> of it in the last 30 days</p>
+    </div>
+  </div>
+  <p class="bill-verdict" data-out="verdict" aria-live="polite">Re-sending costs {times}× as much over {s["days"]} days.</p>
+  <figure class="bill-chart">
+    <figcaption>Model input cost per day, all users <span class="muted">(top: <span data-out="chart-max">{calc_money(top)} a day</span>)</span></figcaption>
+    <svg data-chart viewBox="0 0 600 180" preserveAspectRatio="none" role="img" aria-label="Cost per day: re-sending the history climbs every day, with Recall it stays flat.">
+      <line class="bill-base" x1="0" y1="176" x2="600" y2="176" />
+      <polyline class="bill-naive" points="{calc_steps(b["naive"], top)}" />
+      <polyline class="bill-memory" points="{calc_steps(b["memory"], top)}" />
+    </svg>
+    <div class="bill-axis"><span>day 1</span><span data-out="chart-days">day {s["days"]}</span></div>
+  </figure>
+  <ul class="bill-notes">
+    <li data-out="crossover">{crossover}</li>
+    <li data-out="forgets">{forgets}</li>
+  </ul>
+  <p><button type="button" class="btn btn-ghost" data-share hidden>Copy a link to this bill</button></p>
+</div>
+
+<h2 id="how">How it is worked out</h2>
+<ul>
+  <li>A day's messages are half the user's and half the agent's, and each user message is one model call.</li>
+  <li><b>Re-sending:</b> each call reads the conversation so far (every earlier day and, on average, half of today), up to the context window, at your model's input price less the cache discount.</li>
+  <li><b>With Recall:</b> each call reads a {CALC_MEMORY_CONTEXT:,}-token memory context (a running summary and the facts that matter, from the <a href="/docs#context">context endpoint</a>) and the last {CALC_RECENT} messages, at the same input price. Recall learns from each message once, at {usd(ingest)} per 1M tokens, a message counting as at least {min_tokens} tokens. Fetching the context is included in that price.</li>
+  <li>Left out of both: output tokens (the same either way), Recall's optional chat questions, and the free credit.</li>
+  <li>The calculator runs in your browser and sends nothing. Your numbers are in the address bar, so a link shares them.</li>
+</ul>
+
+<h2 id="try">Try it on your own agent</h2>
+<p>New accounts get {usd(PRICES["signup_credit"])} of credit and a sample conversation to try, no code needed. Adding Recall to an agent takes two calls: store each message, and ask for the context before each model call.</p>
+<div class="hero-ctas">
+  <a class="btn btn-primary" href="/app/login" data-umami-event="get-api-key" data-umami-event-place="calculator">Get {usd(PRICES["signup_credit"])} of free credit</a>
+  <a class="btn btn-ghost" href="/guides/cost-and-speed">Cost and speed guide</a>
+</div>
+"""
+    return page(
+        "calculator",
+        "The context bill",
+        "What it costs when an agent re-sends the whole conversation with every model call, next to a memory "
+        "that sends what matters. Put in your own numbers.",
+        body,
+        updated=False,
+        cls="bill-page",
+        extra_scripts=("/calculator.js",),
+        og_image="/og-bill.png",
+    )
+
+
+# --------------------------------------------------------------------------- intent pages
+
+# Pages for what people search for: memory for Claude Code (and Codex), and one memory shared by
+# ChatGPT and Claude. Install commands and the MCP URL are the ones in the plugin README and the
+# docs (test/intent-pages.test.ts checks they agree); prices come from src/config.ts.
+PLUGIN_REPO = "recallmem/recall-plugin"
+MCP_URL = "https://api.recallmem.dev/mcp"
+# A day of coding: 100 prompts and 100 replies of about 300 tokens each, learned once.
+CODING_DAY_MESSAGES, CODING_DAY_TOKENS = 200, 300
+
+
+def cta(place):
+    return f"""<div class="hero-ctas">
+  <a class="btn btn-primary" href="/app/login" data-umami-event="get-api-key" data-umami-event-place="{place}">Get {usd(PRICES["signup_credit"])} of free credit</a>
+  <a class="btn btn-ghost" href="/docs">Read the docs</a>
+</div>"""
+
+
+def claude_code_page():
+    day = CODING_DAY_MESSAGES * max(CODING_DAY_TOKENS, PRICES["ingest_min_tokens"]) * PRICES["ingest_per_mtok"] / 1e6
+    body = f"""
+<p class="lede">Claude Code starts every session from zero. <code>CLAUDE.md</code> holds what you write down; Recall learns the rest from what you say (your preferences, the decisions you made, the people and projects you mention) and brings it back in the next session, with the date and the message each fact came from.</p>
+
+<h2 id="install">Install</h2>
+<p>In Claude Code (it needs plugin support and Node 18 or later):</p>
+<pre><code>/plugin marketplace add {PLUGIN_REPO}
+/plugin install recall-memory@recall</code></pre>
+<p>Claude Code asks for your Recall API key when you enable the plugin and keeps it in your system's credential store. Create one at <a href="/app/login">app.recallmem.dev</a>; new accounts get {usd(PRICES["signup_credit"])} of credit. Restart Claude Code, then run <code>/recall-memory:status</code> to check the connection.</p>
+
+<h2 id="what">What it remembers</h2>
+<ul>
+  <li><b>You:</b> "I use pnpm, not npm", "explain diffs before you apply them", your time zone, the stack you prefer.</li>
+  <li><b>Decisions:</b> "we moved staging to a new database in October", "the API stays on v3 until the migration lands".</li>
+  <li><b>People and projects:</b> who reviews which part of the code, what the side project is called, when the launch is.</li>
+</ul>
+<p>When something changes, the old fact is closed with the date it stopped being true, not overwritten. Ask "what do you know about me?" in a new session, and every answer points to the message it came from. You can read, correct or delete any fact on the dashboard.</p>
+
+<h2 id="how">How it works</h2>
+<ul>
+  <li>When a session starts, resumes or is compacted, the plugin adds what Recall knows about you to Claude's context (about 1,500 tokens by default).</li>
+  <li>It records each prompt and Claude's final reply. Recall learns only from what you say; Claude's replies are context, never a source of facts about you.</li>
+  <li>It adds eight MCP tools, so Claude can look something up, remember a fact you ask it to, or forget one.</li>
+  <li>Tool calls, command output and file contents are never sent. Your code stays on your machine.</li>
+  <li>If Recall cannot be reached, Claude carries on. Messages wait on disk, in order, and are sent when it is back; the next session tells you if any were lost.</li>
+</ul>
+
+<h2 id="claude-md">Recall and CLAUDE.md</h2>
+<p>Use both. <code>CLAUDE.md</code> is the instructions you write and keep in the repository. Recall is what Claude learns from working with you, across every project, without you writing it down, and it keeps track of when each thing was true.</p>
+
+<h2 id="codex">Codex too</h2>
+<p>The same repository has a Codex plugin with the same memory, so what you told Claude Code is there when you use Codex:</p>
+<pre><code>codex plugin marketplace add {PLUGIN_REPO}
+codex plugin add recall-memory@recall</code></pre>
+<p>Then run <code>/hooks</code> in Codex and trust the three Recall hooks. Other setups are in the <a href="/docs#codex">docs</a>.</p>
+
+<h2 id="cost">What it costs</h2>
+<p>Recall learns from each message once, at {usd(PRICES["ingest_per_mtok"])} per million tokens. A busy day of 100 prompts and 100 replies of about {CODING_DAY_TOKENS} tokens comes to about {usd(round(day, 2))}. Adding memory to each session is included. There is no subscription: you top up credit, and new accounts start with {usd(PRICES["signup_credit"])}.</p>
+
+<h2 id="faq">Questions</h2>
+<p><b>Is my code sent to Recall?</b> No. Only your prompts and Claude's final replies. Switch recording off for a project with <code>RECALL_RECORD=false</code>, or all hooks with <code>RECALL_ENABLED=false</code>.</p>
+<p><b>Can I run it myself?</b> Yes. The server runs with Docker; point the plugin at your own URL (<a href="/docs#self-host">self-hosting</a>).</p>
+<p><b>Where is my data?</b> In the EU (Frankfurt). It is never used to train models, and you can erase any fact or a whole person.</p>
+
+{cta("claude-code-memory")}
+"""
+    return page(
+        "claude-code-memory",
+        "Memory for Claude Code",
+        "Give Claude Code memory that lasts between sessions: your preferences, decisions and projects, each fact dated "
+        "and linked to the message it came from. Two commands to install; works with Codex too.",
+        body,
+        updated=False,
+        cls="intent-page",
+    )
+
+
+def shared_memory_page():
+    body = f"""
+<p class="lede">Every assistant keeps its own memory, and none of them share it. Tell ChatGPT you moved, and Claude still thinks you live in the old place. Recall is one memory that all your AI apps read and write, with the date of each fact and the message it came from.</p>
+
+<h2 id="connect">Connect your apps</h2>
+<p>Each app signs in to Recall itself: you paste one URL, sign in with your email and approve. There is no API key to copy.</p>
+<pre><code>{MCP_URL}</code></pre>
+<ul>
+  <li><b>Claude</b> (web, desktop and mobile): Settings, Connectors, <b>Add custom connector</b>. Name it Recall, paste the URL, leave the OAuth fields empty, then <b>Connect</b>. In a chat, switch Recall on in the tools menu.</li>
+  <li><b>ChatGPT</b>: turn on developer mode (Settings, Apps &amp; Connectors, Advanced settings), then create a connector with the same URL and OAuth, and sign in when ChatGPT asks.</li>
+  <li><b>Claude Code</b>: <code>claude mcp add --transport http recall {MCP_URL}</code>, then run <code>/mcp</code> and choose Authenticate. For memory in every session, use the <a href="/claude-code-memory">Claude Code plugin</a>.</li>
+  <li><b>Cursor, VS Code and other MCP apps</b>: add a remote MCP server with the same URL; the app finds the sign-in itself.</li>
+</ul>
+
+<h2 id="what">What it does</h2>
+<ul>
+  <li>Saves what lasts: preferences, plans, people, decisions. Say "remember that…", or let the app save lasting facts on its own (you choose when you connect it).</li>
+  <li>Answers from memory with sources: ask "what did I decide about the venue?" and get the current answer, not last month's.</li>
+  <li>Keeps history: when something changes, the old fact is closed with a date instead of being overwritten.</li>
+  <li>Says when it doesn't know, instead of guessing.</li>
+</ul>
+
+<h2 id="control">You stay in control</h2>
+<ul>
+  <li>Browse everything it remembers on the dashboard, correct it, or ask any app to forget a fact.</li>
+  <li>See which apps are connected and revoke one in a click; it is signed out within seconds.</li>
+  <li>Stored in the EU (Frankfurt), never used to train models. Erase a person entirely when you need to.</li>
+</ul>
+
+<h2 id="cost">What it costs</h2>
+<p>New accounts get {usd(PRICES["signup_credit"])} of credit, with no subscription. Searching memory and adding it to a conversation are included. A question answered from memory costs {usd(PRICES["low"])} at the default level, and saving a fact a fraction of a cent.</p>
+
+{cta("shared-memory")}
+"""
+    return page(
+        "chatgpt-claude-memory",
+        "One memory for ChatGPT and Claude",
+        "Connect Recall to ChatGPT, Claude, Claude Code and Cursor, and every app remembers the same things about you, "
+        "each with its date and source. One URL, sign in once per app, no API key to copy.",
+        body,
+        updated=False,
+        cls="intent-page",
+    )
+
+
 def main():
     out = {
         "evals.html": evals_page(),
         "dpa.html": dpa_page(),
         "security.html": security_page(),
         "404.html": not_found_page(),
+        "calculator.html": calculator_page(),
+        "claude-code-memory.html": claude_code_page(),
+        "chatgpt-claude-memory.html": shared_memory_page(),
         **versus.render(page, EVALS, REPO_URL),
     }
     for name, text in out.items():
         if "{{" in text or "style=" in text:
             raise SystemExit(f"{name}: placeholder or inline style left (the CSP allows no inline style)")
         (PUBLIC / name).parent.mkdir(parents=True, exist_ok=True)
-        (PUBLIC / name).write_text(text)
+        (PUBLIC / name).write_text(stamp(text))
     print("written:", ", ".join(out))
 
 

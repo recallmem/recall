@@ -216,6 +216,12 @@ export interface ToolDef<S extends z.ZodObject> {
   readOnly: boolean;
   destructive?: boolean;
   idempotent?: boolean;
+  /**
+   * The result's shape, advertised as the tool's output schema. With it the result also comes
+   * back as structured content: the value as JSON, or what `structured` makes of it.
+   */
+  output?: z.ZodObject;
+  structured?(value: unknown): unknown;
   run(args: z.infer<S>, s: McpSession): Promise<unknown>;
 }
 
@@ -234,6 +240,7 @@ export function toolAdder(server: McpServer, ctx: AppContext, s: McpSession): Ad
         title: def.title,
         description: def.description,
         inputSchema: def.schema as z.ZodObject,
+        ...(def.output ? { outputSchema: def.output } : {}),
         annotations: {
           title: def.title,
           // Every hint as an explicit boolean: directories (OpenAI's) reject tools that leave one out.
@@ -245,7 +252,14 @@ export function toolAdder(server: McpServer, ctx: AppContext, s: McpSession): Ad
       },
       async (args: Record<string, unknown>): Promise<CallToolResult> => {
         try {
-          return asText(await def.run(args as z.infer<S>, s));
+          const value = await def.run(args as z.infer<S>, s);
+          const result = asText(value);
+          if (def.output)
+            // Through JSON, so dates are strings and absent fields absent, as in the text.
+            result.structuredContent = JSON.parse(
+              JSON.stringify(def.structured ? def.structured(value) : value),
+            );
+          return result;
         } catch (err) {
           return {
             isError: true,

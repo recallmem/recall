@@ -115,10 +115,52 @@ export interface Conclusion {
   supersededBy?: string | null;
   /** Ids of the messages it was learned from (empty for facts saved directly). */
   messageIds?: string[];
+  /**
+   * When what the fact describes happened or began, as precise as it is known: `2025-05-27`,
+   * `2025-05` or `2025`. Null when the fact has no time of its own.
+   */
+  eventStart?: string | null;
+  /** The last day of a span (`2025-06-01`), or null. */
+  eventEnd?: string | null;
+  /** How precise `eventStart` is. */
+  eventPrecision?: "day" | "month" | "year" | null;
+  /** What the fact is about: kinds of things and named entities, lowercase and singular. */
+  tags?: string[];
+  /** Set by a person: Recall never replaces it. */
+  pinned?: boolean;
+  /** When the fact stops holding, if it has an end date. */
+  expiresAt?: string | null;
 }
 export interface ConclusionInput {
   content: string;
   sessionId?: string | { readonly id: string };
+  /** When it happened or began: `YYYY`, `YYYY-MM` or `YYYY-MM-DD`. */
+  eventStart?: string;
+  /** The last day of a span, in the same forms. */
+  eventEnd?: string;
+  tags?: string[];
+  /** Set by a person: Recall never replaces it; what disagrees is flagged instead. */
+  pinned?: boolean;
+  /** When the fact stops holding (ISO 8601). */
+  expiresAt?: string;
+}
+
+/** One recorded change to a fact (`recall.conclusions.history`). */
+export interface ConclusionEvent {
+  action: string;
+  actor: string;
+  reason: string | null;
+  sources: string[];
+  before: unknown;
+  after: unknown;
+  createdAt: string;
+}
+export interface ConclusionHistory {
+  conclusion: Conclusion;
+  events: ConclusionEvent[];
+  /** The facts this one replaced. */
+  replaced: Conclusion[];
+  replacedBy: Conclusion | null;
 }
 
 export interface EvidenceObservation {

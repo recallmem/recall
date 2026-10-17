@@ -241,6 +241,7 @@ export function renderOnboardingEmail(
   const site = (server.siteUrl ?? api).replace(/\/+$/, "");
   const keys = dashboardLink(config, "/keys");
   const billing = dashboardLink(config, "/billing");
+  const playground = dashboardLink(config, "/playground");
   const quickstart = `${site}/docs#quickstart`;
   const unsubscribe = dashboardLink(
     config,
@@ -301,11 +302,13 @@ export function renderOnboardingEmail(
     ];
     footnote = `You get this because you signed up for Recall. We send new accounts at most two of these getting-started emails. Turn them off: ${unsubscribe}`;
   } else {
-    subject = "Stuck? Here's the 2-minute start";
-    preheader = "Store a message, ask about it, and see Recall answer.";
-    heading = "The 2-minute start";
+    subject = "Stuck? See Recall work in 30 seconds, no code";
+    preheader = "One click loads a sample conversation; ask about it and see the sources.";
+    heading = "See it work in 30 seconds";
     body = [
-      "You signed up for Recall, but nothing has used your account yet. If you got stuck, this is the shortest way to see it work.",
+      "You signed up for Recall, but nothing has used your account yet. The quickest way to see it work needs no code at all.",
+      `Open the Playground and press Try the sample: ${playground}. It loads a short conversation about Alex, who moved from Chicago to Lisbon. Ask "Where does Alex live now?" and you get the answer, the message it came from, and the old city kept in the history instead of overwritten. It uses less than a cent of your credit.`,
+      "When you want it in your own app, it takes two calls:",
       ...(noCredit
         ? [
             `Your account has no credit yet: add some at ${billing} first, or the question below answers 402.`,
@@ -323,7 +326,7 @@ export function renderOnboardingEmail(
           "",
           `curl ${api}/v3/workspaces/my-app/sessions/chat-1/messages \\`,
           `  -H "Authorization: Bearer $RECALL_API_KEY" -H "Content-Type: application/json" \\`,
-          `  -d '{"messages":[{"peer_id":"alice","content":"I moved to Utrecht and I am vegetarian now."}]}'`,
+          `  -d '{"messages":[{"peer_id":"alice","content":"I moved to New York and I am vegetarian now."}]}'`,
           "",
           `curl ${api}/v3/workspaces/my-app/peers/alice/chat \\`,
           `  -H "Authorization: Bearer $RECALL_API_KEY" -H "Content-Type: application/json" \\`,
@@ -341,7 +344,10 @@ export function renderOnboardingEmail(
       preheader,
       heading,
       paragraphs: body,
-      button: { label: "Create an API key", url: keys },
+      button:
+        kind === "welcome"
+          ? { label: "Create an API key", url: keys }
+          : { label: "Try the sample", url: playground },
       footnote,
     }),
     replyTo: SUPPORT_EMAIL,

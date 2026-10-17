@@ -75,9 +75,28 @@ To switch Recall off for one project, set `RECALL_ENABLED=false` under `env` in 
 
 ## What gets sent
 
-Your prompts and Claude's final replies (not tool calls or file contents, and each cut to 24,000 characters) go to the
-Recall server you configured, which analyses them with its language model. Do not point this at a server you do not
-trust, and set `RECALL_RECORD=false` or `RECALL_ENABLED=false` for work you do not want remembered.
+Your prompts and Claude's final replies go to the Recall server you configured, which analyses them with its language
+model. Tool calls, command output and file contents are not sent: Recall learns about you from what you say, and
+Claude's replies are stored as context, never as a source of facts about you. A message longer than the server's
+25,000-character limit is stored whole, as consecutive parts. Each message carries the time it was said. Do not point
+this at a server you do not trust, and set `RECALL_RECORD=false` or `RECALL_ENABLED=false` for work you do not want
+remembered.
+
+## When Recall cannot be reached
+
+The hooks never block Claude: a memory outage must not stop your work. They don't lose what they record either.
+Every prompt and reply is written to disk first, one file per message in the plugin's data directory, before
+anything is sent, and the file is removed only after Recall has taken the message. A hook that is stopped, or that
+runs at the same time as another session's hook, therefore leaves every message it accepted on disk. Messages are
+sent oldest first, with the time they were said, within a few seconds' budget so the hook always finishes well
+inside Claude Code's timeout; what is left goes with the next hook. The spool holds 500 messages; if an outage
+outlasts that, the oldest are let go of, and the next session's context and `/recall-memory:status` say how many
+and since when.
+
+A refused API key (revoked, or missing) or an account out of credit is treated the same way: messages stay on disk
+and are sent once it is fixed, and the session context and `/recall-memory:status` say why they are waiting. Only
+a message Recall rejects as such (a malformed one, say) leaves the spool unsent; it is counted and reported the
+same way, never dropped silently.
 
 ## Troubleshooting
 

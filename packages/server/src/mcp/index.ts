@@ -108,7 +108,19 @@ export function createMcpServer(
   profile: McpProfile = "default",
 ): McpServer {
   const server = new McpServer(
-    { name: "Recall", version: VERSION },
+    {
+      name: "Recall",
+      title: "Recall",
+      version: VERSION,
+      // What directories (Smithery, Glama, the official registry) show about the server.
+      description:
+        "Long-term memory for AI agents: learns dated facts about each person from conversations, closes facts that change, and answers with sources.",
+      websiteUrl: "https://recallmem.dev",
+      icons: [
+        { src: "https://recallmem.dev/icon.png", mimeType: "image/png", sizes: ["512x512"] },
+        { src: "https://recallmem.dev/favicon.svg", mimeType: "image/svg+xml" },
+      ],
+    },
     {
       instructions:
         profile === "full"

@@ -21,7 +21,7 @@ export interface TranscriptLine {
 export function parseTranscript(text: string): TranscriptLine[] {
   const out: TranscriptLine[] = [];
   for (const line of text.split("\n")) {
-    const m = line.match(/^\[m(\d+)\] (\S+) (\S+?)( \(context\))?: (.*)$/);
+    const m = line.match(/^\[m(\d+)\] (\S+) (\S+?)(?: [A-Z][a-z]{2})?( \(context\))?: (.*)$/);
     if (m) out.push({ n: Number(m[1]), peer: m[2]!, time: m[3]!, context: !!m[4], text: m[5]! });
     else if (out.length && line.startsWith("  ")) out.at(-1)!.text += ` ${line.trim()}`;
   }
@@ -51,7 +51,7 @@ function parseKnown(context: string): Map<string, Known[]> {
       known.set(speaker, []);
       continue;
     }
-    const f = line.match(/^(F\d+) (?:\d{4}-\d{2}-\d{2} )?(.*)$/);
+    const f = line.match(/^(F\d+) (?:\d{4}-\d{2}-\d{2} )?(?:event \S+(?: to \S+)? )?(.*)$/);
     if (f && speaker) known.get(speaker)!.push({ handle: f[1]!, content: f[2]! });
   }
   return known;
@@ -222,6 +222,11 @@ export function offlineExtraction(req: LlmRequest): ExtractionOut {
         source_messages: [line.n],
         action,
         target: same?.handle ?? old?.handle ?? null,
+        // An ISO date in the sentence is when it happened (the real extractor works dates out).
+        event_start: sentence.match(/\b\d{4}-\d{2}(?:-\d{2})?\b/)?.[0] ?? null,
+        event_end: null,
+        // Capitalised words stand in for the named things a real extractor would tag.
+        tags: [...new Set(sentence.match(/(?<=\s)\p{Lu}\p{Ll}+/gu) ?? [])].slice(0, 4),
       });
       if (attr && cardsUsed) {
         const edit = cards.get(line.peer) ?? { add: [], remove: [] };

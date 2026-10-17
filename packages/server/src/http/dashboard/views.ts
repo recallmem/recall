@@ -4,6 +4,7 @@ import type { Invoice } from "../../billing/index.js";
 import { CHAT_LEVELS, formatUsd, type LedgerLine } from "../../billing/ledger.js";
 import type { ApiKeyOut } from "../../core/apikeys.js";
 import type { GrantOut } from "../../core/oauth.js";
+import type { SignupSource } from "../../core/signup-source.js";
 import { type LegalLinks, TERMS_VERSION } from "../../lib/legal.js";
 import { dayChart, shortDay } from "./chart.js";
 import type { Checklist, DailySeries, UsageDay, UsageReport } from "./explorer.js";
@@ -76,6 +77,7 @@ const NOTICES: Record<string, string> = {
   credit_duplicate: "That grant was already applied; nothing changed.",
   account_suspended: "Account suspended. Its keys, connected apps and sessions are refused now.",
   account_unsuspended: "Suspension lifted. The account works again.",
+  link_archived: "Link archived. It keeps working wherever you posted it.",
 };
 
 export const notice = (code: string | undefined) => (code ? NOTICES[code] : undefined);
@@ -187,6 +189,8 @@ export function loginPage(
     legal?: LegalLinks | null;
     /** Where "Continue with GitHub" starts; absent when GitHub sign-in is off. */
     github?: string | null;
+    /** Where the visit came from, carried on to the account a sign-up creates. */
+    source?: SignupSource | null;
   },
 ): H {
   return html`<section class="card narrow">
@@ -205,6 +209,8 @@ export function loginPage(
   <form method="post" action="${dashPath("/login")}">
     ${csrfField(csrf)}
     ${opts.next ? html`<input type="hidden" name="next" value="${opts.next}" />` : ""}
+    ${opts.source ? html`<input type="hidden" name="src" value="${opts.source.source}" />` : ""}
+    ${opts.source?.campaign ? html`<input type="hidden" name="campaign" value="${opts.source.campaign}" />` : ""}
     <label for="email">Email</label>
     <input id="email" name="email" type="email" autocomplete="email" required maxlength="254" placeholder="you@company.com" value="${opts.email ?? ""}" />
     <button class="wide">Email me a link</button>
@@ -490,6 +496,8 @@ export interface OverviewData {
   checklist: Checklist;
   activity: DailySeries;
   connect: ConnectInfo;
+  /** For the "try it on a sample conversation" button. */
+  csrf?: string;
 }
 
 /** Where a client connects, for the onboarding snippets (absolute URLs). */
@@ -537,7 +545,7 @@ import { Recall } from "@recall-memory/sdk";
 const recall = new Recall({ workspaceId: "my-app" });
 const alice = recall.peer("alice");
 const session = recall.session("s1");
-await session.addMessages([alice.message("I moved to Utrecht.")]);
+await session.addMessages([alice.message("I moved to New York.")]);
 
 // Learning runs in the background; a moment later:
 console.log(await alice.chat("Where does Alice live?"));`,
@@ -553,7 +561,7 @@ from recall_memory import Recall
 recall = Recall(workspace_id="my-app")
 alice = recall.peer("alice")
 session = recall.session("s1")
-session.add_messages([alice.message("I moved to Utrecht.")])
+session.add_messages([alice.message("I moved to New York.")])
 
 # Learning runs in the background; a moment later:
 print(alice.chat("Where does Alice live?"))`,
@@ -594,7 +602,7 @@ claude mcp add --transport http recall ${c.mcp}`,
 curl ${c.base}/v3/workspaces/my-app/sessions/s1/messages \\
   -H "Authorization: Bearer $RECALL_API_KEY" \\
   -H "Content-Type: application/json" \\
-  -d '{"messages":[{"peer_id":"alice","content":"I moved to Utrecht."}]}'
+  -d '{"messages":[{"peer_id":"alice","content":"I moved to New York."}]}'
 
 # 2. ask about the person
 curl ${c.base}/v3/workspaces/my-app/peers/alice/chat \\
@@ -727,7 +735,7 @@ ${
         ? html`<p class="error">Your monthly budget is reached: chat answers 402 and background learning is paused until ${date(d.budget.resets_at)} UTC or until you <a href="${dashPath("/settings#budget")}">raise the budget</a>.</p>`
         : ""
 }
-${checklistCard(d.connect.base, d.checklist)}
+${checklistCard(d.connect.base, d.checklist, d.csrf)}
 <div class="stats">
   ${
     d.billing && d.balanceMicros != null

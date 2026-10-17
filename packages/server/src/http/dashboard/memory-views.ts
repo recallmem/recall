@@ -1,6 +1,8 @@
 import { html } from "hono/html";
 import type { HtmlEscapedString } from "hono/utils/html";
 import { formatUsd } from "../../billing/ledger.js";
+import type { MemoryEventOut } from "../../core/history.js";
+import { describeEventTime } from "../../lib/event-time.js";
 import { type ChatLevel, LEVELS } from "../../recall/prompts.js";
 import type { ConclusionRow } from "../../recall/search.js";
 import type {
@@ -184,8 +186,8 @@ function snippetMessages(base: string) {
   -H "Authorization: Bearer $RECALL_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{"messages": [
-        {"peer_id": "alice", "content": "I just moved to Utrecht and I cycle to work."},
-        {"peer_id": "assistant", "content": "Welcome to Utrecht! How is the commute?"}
+        {"peer_id": "alice", "content": "I just moved to New York and I cycle to work."},
+        {"peer_id": "assistant", "content": "Welcome to New York! How is the commute?"}
       ]}'`;
 }
 
@@ -243,7 +245,17 @@ export function gettingStarted(base: string, done: Checklist | null): H {
 </ol>`;
 }
 
-export function checklistCard(base: string, c: Checklist): H {
+/** "Try it on a sample conversation": the first run that needs no API key or terminal (sample.ts). */
+export function trySample(csrf: string): H {
+  return html`<form method="post" action="${dashPath("/playground/sample")}" class="try-sample">
+  ${csrfField(csrf)}
+  <div class="try-sample-text"><strong>No code needed: try it on a sample conversation.</strong>
+  <span>Four months of chats with Alex, who moves from Chicago to Lisbon. Ask what Recall remembers and see the messages behind every answer. It uses less than a cent of your credit.</span></div>
+  <button>Try the sample</button>
+</form>`;
+}
+
+export function checklistCard(base: string, c: Checklist, csrf?: string): H {
   const steps = [c.key, c.messages, c.asked];
   const doneCount = steps.filter(Boolean).length;
   if (doneCount === steps.length) {
@@ -258,6 +270,7 @@ export function checklistCard(base: string, c: Checklist): H {
     <div><p class="eyebrow">Getting started</p><h2>From zero to a remembered fact</h2></div>
     <div class="progress"><span>${doneCount} of ${steps.length} done</span>${meter(140, (doneCount / steps.length) * 100)}</div>
   </div>
+  ${!c.messages && csrf ? trySample(csrf) : ""}
   ${gettingStarted(base, c)}
 </section>`;
 }
@@ -304,6 +317,7 @@ ${pager(d.list.page, d.list.pages, (p) => withQuery(dashPath("/memory"), { page:
   <span class="empty-mark">${ICON_STACK}</span>
   <h2>No memory yet</h2>
   <p>Recall builds memory from the messages your agent sends. Three calls and you can watch it learn.</p>
+  ${trySample(d.csrf)}
   ${gettingStarted(d.base, null)}
   ${d.canCreate ? html`<div class="empty-alt"><span>Prefer to start with an empty workspace?</span>${create}</div>` : ""}
 </section>`
@@ -561,17 +575,47 @@ function factActions(ws: string, peer: string, c: ConclusionRow, e: MemoryEdit):
       <div class="buttons"><button class="small">Save correction</button></div></form></details>`
       : ""
   }
+  <form method="post" action="${base}/pin" class="inline-form">${csrfField(e.csrf)}<input type="hidden" name="pinned" value="${c.pinned ? "0" : "1"}" /><button class="secondary small" title="${c.pinned ? "Let Recall update this fact again" : "Keep this fact as written: Recall flags what disagrees instead of replacing it"}">${c.pinned ? "Unpin" : "Pin"}</button></form>
   <details><summary>Delete</summary><form method="post" action="${base}/delete">${csrfField(e.csrf)}<input type="hidden" name="confirm" value="1" />
     <p class="hint">Deletes this fact for good${c.validTo == null ? "" : " (it is only history now)"}. Answers stop using it at once; it cannot be undone.</p>
     <div class="buttons"><button class="danger small">Delete permanently</button></div></form></details>
 </div>`;
 }
 
+const ACTOR: Record<MemoryEventOut["actor"], string> = {
+  reasoner: "Recall, from messages",
+  dream: "the night shift",
+  api: "the API",
+  dashboard: "a person in the dashboard",
+  system: "Recall",
+};
+const ACTION: Record<MemoryEventOut["action"], string> = {
+  created: "Created",
+  reinforced: "Said again",
+  superseded: "Replaced",
+  merged: "Merged",
+  edited: "Edited",
+  pinned: "Pinned",
+  unpinned: "Unpinned",
+  conflict: "Disagreed with",
+  expired: "Expired",
+  card: "Card changed",
+};
+
+/** What happened to a fact, oldest first, from the change log. */
+function historyOf(events: MemoryEventOut[]): H | string {
+  if (!events.length) return "";
+  return html`<details class="fact-history"><summary>History (${events.length})</summary><ol class="history">${events.map(
+    (e) =>
+      html`<li><span class="when">${day(e.created_at)}</span> <b>${ACTION[e.action] ?? e.action}</b> by ${ACTOR[e.actor] ?? e.actor}${e.reason ? html`: ${e.reason}` : ""}</li>`,
+  )}</ol></details>`;
+}
+
 function factItem(
   ws: string,
   peer: string,
   c: ConclusionRow,
-  refs: Pick<FactsView, "messages" | "related">,
+  refs: Pick<FactsView, "messages" | "related"> & { history?: FactsView["history"] },
   showObserver: boolean,
   edit: MemoryEdit | null = null,
 ): H {
@@ -590,7 +634,7 @@ function factItem(
       superseded
         ? html`<span class="badge superseded">Superseded</span>`
         : html`<span class="badge current">Current</span>`
-    }<span class="badge${LEVEL_TONE[c.level] ?? ""}">${c.level}</span></span>
+    }${c.pinned ? html`<span class="badge pinned" title="Set by a person: Recall never replaces it">Pinned</span>` : ""}<span class="badge${LEVEL_TONE[c.level] ?? ""}">${c.level}</span></span>
   </div>
   <div class="fact-meta">
     <span class="validity" title="${superseded ? "Valid from / to" : "Valid from"}">${
@@ -603,6 +647,7 @@ function factItem(
         ? html`<span>${c.observerName === peer ? "self-observed" : html`seen by <a href="${peerHref(ws, c.observerName)}">${c.observerName}</a>`}</span>`
         : ""
     }
+    ${c.event ? html`<span title="When it happened or began">happened ${describeEventTime(c.event)}</span>` : ""}
     ${c.sessionName ? html`<span>in <a href="${sessionHref(ws, c.sessionName)}">${c.sessionName}</a></span>` : ""}
     ${c.timesDerived > 1 ? html`<span title="Derived again from later messages">reinforced ${c.timesDerived}×</span>` : ""}
     ${
@@ -636,6 +681,7 @@ function factItem(
         }</div>`
       : ""
   }
+  ${historyOf(refs.history?.get(c.id) ?? [])}
   ${edit ? factActions(ws, peer, c, edit) : ""}
 </li>`;
 }
@@ -666,7 +712,8 @@ export function levelHow(level: ChatLevel): string {
 }
 
 export function askForm(f: AskForm): H {
-  const price = (l: ChatLevel) => (f.prices?.[l] ? ` · ${formatUsd(f.prices[l]!)}` : "");
+  const price = (l: ChatLevel) =>
+    f.prices?.[l] ? ` · ${formatUsd(f.prices[l]!, { exact: true })}` : "";
   return html`<form method="post" action="${f.action}" class="ask-form">
   ${csrfField(f.csrf)}
   <input type="hidden" name="nonce" value="${f.nonce}" />
@@ -905,6 +952,11 @@ ${pager(f.page, f.pages, (x) => `${q({ page: x })}#facts`)}`
   const card = html`<section class="card peer-card">
   <h2>Peer card</h2>
   ${
+    p.cardBlocked
+      ? html`<p class="hint warn" role="status">The night shift could not refresh this card: ${p.cardBlocked}. The card below is the last good one; saving it here clears this.</p>`
+      : ""
+  }
+  ${
     p.card?.length
       ? html`<ul class="card-list">${p.card.map((line, i) => {
           const src = p.cardSources[i];
@@ -920,7 +972,7 @@ ${pager(f.page, f.pages, (x) => `${q({ page: x })}#facts`)}`
   <form method="post" action="${here}/card">${csrfField(edit.csrf)}
     <label for="card-text">One entry per line</label>
     <textarea id="card-text" name="card" rows="8" maxlength="60000" spellcheck="false">${(p.card ?? []).join("\n")}</textarea>
-    <p class="hint">For example <code>ATTRIBUTE: Home: Utrecht</code>. Empty lines are dropped; save an empty card to clear it.</p>
+    <p class="hint">For example <code>ATTRIBUTE: Home: New York</code>. Empty lines are dropped; save an empty card to clear it.</p>
     <div class="buttons"><button class="small">Save card</button></div>
   </form></details>`
       : ""
@@ -929,6 +981,11 @@ ${pager(f.page, f.pages, (x) => `${q({ page: x })}#facts`)}`
     (o) =>
       html`<details class="other-card"><summary>How ${o.observer} sees ${p.name}</summary><ul class="card-list">${o.card.map(cardLine)}</ul></details>`,
   )}
+  ${
+    p.brief
+      ? html`<details class="other-card brief"><summary>Brief</summary><p class="muted small">A dated account the night shift keeps from ${p.name}'s facts, for overview questions. Deleting a fact clears it until the next night shift.</p>${p.brief.split("\n").map((line) => html`<p>${line}</p>`)}</details>`
+      : ""
+  }
 </section>`;
   const sessions = html`<section class="card late">
   <h2>Sessions <span class="count">${n(d.sessions.total)}</span></h2>
@@ -1159,7 +1216,45 @@ ${d.ctxResult ? contextPanel(d.ws, s, d.ctxParams, d.ctxResult) : ""}`;
 // ---------------------------------------------------------------------------
 // Playground
 
+/** The sample conversation's state on the Playground (sample.ts). */
+export interface SampleState {
+  /** Facts Recall has concluded about the sample peer so far (0 while it reads). */
+  facts: number;
+  /** How many times the page has refreshed itself while waiting. */
+  tries: number;
+  questions: readonly { q: string; shows: string }[];
+  /** The page that shows the conversation itself. */
+  transcriptHref: string;
+  /** The Playground for the sample, with a question filled in. */
+  askHref: (q: string) => string;
+  /** The Playground for the sample after one more wait. */
+  againHref: string;
+}
+
+function sampleCard(s: SampleState): H {
+  if (!s.facts) {
+    const waiting = s.tries < 24;
+    return html`<section class="card sample-card" aria-live="polite"><p class="eyebrow">Sample conversation</p>
+<h2>Recall is reading the conversation…</h2>
+<p>It turns the eleven messages into dated facts, the way it does for your agent's conversations. This usually takes 20 to 60 seconds. <a href="${s.transcriptHref}">Read the conversation</a> while you wait.</p>
+${
+  waiting
+    ? html`<p class="hint" data-refresh-after="5" data-refresh-href="${s.againHref}"><a href="${s.againHref}">Refresh</a> · this page refreshes by itself.</p>`
+    : html`<p class="hint">This is taking longer than usual. <a href="${s.againHref}">Refresh</a> in a minute; nothing is lost.</p>`
+}</section>`;
+  }
+  return html`<section class="card sample-card"><p class="eyebrow">Sample conversation</p>
+<h2>Ask about Alex</h2>
+<p>Recall learned ${s.facts} fact${s.facts === 1 ? "" : "s"} from <a href="${s.transcriptHref}">four months of chats</a>. Pick a question, press Ask, then open the sources under the answer.</p>
+<ul class="sample-questions">${s.questions.map(
+    (x) =>
+      html`<li><a class="chip" href="${s.askHref(x.q)}">${x.q}</a><span class="faint">${x.shows}</span></li>`,
+  )}</ul></section>`;
+}
+
 export function playgroundPage(d: {
+  csrf: string;
+  sample: SampleState | null;
   base: string;
   workspaces: string[];
   ws: string | null;
@@ -1174,7 +1269,7 @@ export function playgroundPage(d: {
   <p class="lede">Ask what Recall knows about a peer and see the evidence behind the answer. It runs the same engine, billing and spend caps as <code>POST /v3/workspaces/{ws}/peers/{peer}/chat</code>.</p></div>
 </header>`;
   if (!d.workspaces.length)
-    return html`${intro}<section class="empty"><span class="empty-mark">${ICON_SPARK}</span><h2>Nothing to ask about yet</h2><p>The playground answers from memory. Send a few messages first:</p>${gettingStarted(d.base, null)}</section>`;
+    return html`${intro}<section class="empty"><span class="empty-mark">${ICON_SPARK}</span><h2>Nothing to ask about yet</h2><p>The playground answers from memory. Try it on a sample conversation, or send your own messages first:</p>${trySample(d.csrf)}${gettingStarted(d.base, null)}</section>`;
   const picker = html`<form method="get" action="${dashPath("/playground")}" class="picker">
   <div class="field"><label for="pg-ws">Workspace</label><select id="pg-ws" name="ws" data-autosubmit>${d.workspaces.map(
     (w) => html`<option value="${w}"${w === d.ws ? html` selected` : ""}>${w}</option>`,
@@ -1190,13 +1285,14 @@ export function playgroundPage(d: {
 </form>`;
   const levels = html`<section class="card levels late"><h2>Reasoning levels</h2><ul class="level-list">${LEVEL_ORDER.map(
     (l) =>
-      html`<li><span class="level-name">${l}</span><span class="level-price">${d.prices?.[l] ? formatUsd(d.prices[l]!) : ""}</span><span class="level-how">${levelHow(l)}</span></li>`,
+      html`<li><span class="level-name">${l}</span><span class="level-price">${d.prices?.[l] ? formatUsd(d.prices[l]!, { exact: true }) : ""}</span><span class="level-how">${levelHow(l)}</span></li>`,
   )}</ul><p class="hint">${d.prices ? "Prices are per question." : ""} Higher levels search more and cost more; <code>low</code> is the API default.</p></section>`;
   return html`${intro}
+${d.sample ? sampleCard(d.sample) : ""}
 <div class="layout">
   <div class="side">${levels}</div>
   <div class="main">
-    <section class="card">${picker}${
+    <section class="card" id="ask">${picker}${
       d.ask
         ? html`<div class="divider"></div>${askForm(d.ask)}${
             d.ws && d.peer

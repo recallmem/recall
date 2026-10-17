@@ -67,15 +67,17 @@ function status(a: { suspendedAt: string | null; billed: boolean }): H {
     : html`<span class="badge">unbilled (operator)</span>`;
 }
 
-function tabs(active: "overview" | "funnel" | "accounts"): H {
+export function consoleTabs(active: "overview" | "funnel" | "traffic" | "links" | "accounts"): H {
   return html`<nav class="tabs" aria-label="Console">
   <a href="${dashPath("/admin")}"${active === "overview" ? html` aria-current="page"` : ""}>Overview</a>
   <a href="${dashPath("/admin/funnel")}"${active === "funnel" ? html` aria-current="page"` : ""}>Funnel</a>
+  <a href="${dashPath("/admin/traffic")}"${active === "traffic" ? html` aria-current="page"` : ""}>Traffic</a>
+  <a href="${dashPath("/admin/links")}"${active === "links" ? html` aria-current="page"` : ""}>Links</a>
   <a href="${dashPath("/admin/accounts")}"${active === "accounts" ? html` aria-current="page"` : ""}>Accounts</a>
 </nav>`;
 }
 
-const head = (title: string, lede: string) =>
+export const consoleHead = (title: string, lede: string) =>
   html`<header class="page-head"><div><p class="eyebrow">Operator console</p><h1>${title}</h1>
 <p class="lede">${lede}</p></div></header>`;
 
@@ -85,8 +87,8 @@ const head = (title: string, lede: string) =>
 export function overviewPage(d: ConsoleOverview & { billing: boolean }): H {
   const w = d.welcome;
   const capped = w.capMicros > 0 && w.todayMicros >= w.capMicros;
-  return html`${head("Overview", "Sign-ups, money, model cost and the job queue. Days are UTC.")}
-${tabs("overview")}
+  return html`${consoleHead("Overview", "Sign-ups, money, model cost and the job queue. Days are UTC.")}
+${consoleTabs("overview")}
 <div class="stats compact">
   <div class="stat"><span class="label">Accounts</span><span class="value">${n(d.accounts.total)}</span><span class="sub">${n(d.accounts.suspended)} suspended</span></div>
   <div class="stat"><span class="label">New, 24 h</span><span class="value">${n(d.accounts.last24h)}</span></div>
@@ -150,7 +152,7 @@ const accountsCount = (count: number, kind: string) =>
   `${n(count)} ${kind} account${count === 1 ? "" : "s"}`;
 
 /** A step's count with its share of the group's sign-ups. */
-const shareCell = (count: number, of: number): H =>
+export const shareCell = (count: number, of: number): H =>
   html`<td class="num">${n(count)} <span class="faint">(${percent(count, of)})</span></td>`;
 
 export function funnelPage(d: Funnel & { billing: boolean }): H {
@@ -161,8 +163,8 @@ export function funnelPage(d: Funnel & { billing: boolean }): H {
   const groupRow = (g: FunnelGroup, label: H | string) =>
     html`<tr><td>${label}</td><td class="num">${n(g.signups)}</td>${steps.map((s) => shareCell(g.reached[s], g.signups))}<td class="num">${formatDuration(g.medianAnswerMs)}</td></tr>`;
   const left = d.leftOut.operatorCreated + d.leftOut.test;
-  return html`${head("Funnel", "Self-serve sign-ups and how far each got. Weeks are UTC, from Monday.")}
-${tabs("funnel")}
+  return html`${consoleHead("Funnel", "Self-serve sign-ups and how far each got. Weeks are UTC, from Monday.")}
+${consoleTabs("funnel")}
 <div class="filters"><nav class="segmented" aria-label="Sign-up period">${FUNNEL_PERIODS.map(period)}</nav></div>
 <div class="stats compact">
   <div class="stat"><span class="label">Signed up</span><span class="value">${n(t.signups)}</span><span class="sub">since ${when(d.since.toISOString())} UTC</span></div>
@@ -221,8 +223,8 @@ export function accountsPage(d: {
     const qs = p.toString();
     return dashPath(`/admin/accounts${qs ? `?${qs}` : ""}`);
   };
-  return html`${head("Accounts", "Newest first, 50 a page. Money columns cover the last 30 days.")}
-${tabs("accounts")}
+  return html`${consoleHead("Accounts", "Newest first, 50 a page. Money columns cover the last 30 days.")}
+${consoleTabs("accounts")}
 <div class="filters">
   <form method="get" action="${dashPath("/admin/accounts")}" class="filter-form" role="search">
     <label class="sr" for="q">Search accounts</label>

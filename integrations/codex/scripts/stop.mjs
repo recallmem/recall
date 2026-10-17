@@ -3,10 +3,9 @@
 // Prints nothing, never asks the agent to continue, and exits 0 whatever happens.
 
 import {
-  clip,
   finish,
   idempotencyKey,
-  messageMetadata,
+  messagesOf,
   recallSessionId,
   record,
   runHook,
@@ -26,13 +25,7 @@ await runHook("stop", async ({ settings, input, state, env }) => {
       workspace: settings.workspace,
       session: sessionId,
       key: idempotencyKey("a", input.session_id, turnId(input) ?? "", reply),
-      messages: [
-        {
-          peer_id: settings.assistantPeer,
-          content: clip(reply),
-          metadata: messageMetadata(input),
-        },
-      ],
+      messages: messagesOf(settings.assistantPeer, reply, input),
       setup: sessionSetup(settings, input),
     },
     env,

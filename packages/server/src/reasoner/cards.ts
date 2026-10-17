@@ -21,6 +21,25 @@ export const CARD_MAX_CHARS = 200;
 const PREFIX_RE = new RegExp(`^\\s*(${CARD_PREFIXES.join("|")})\\s*:\\s*(.+)$`, "is");
 
 /** Returns the canonical entry ("PREFIX: body"), or null when it breaks the rules. */
+/**
+ * What is wrong with a card a model wrote, by the card rules: too many entries, or entries that
+ * are not "PREFIX: ..." lines of at most CARD_MAX_CHARS characters. Empty when it is fine.
+ */
+export function cardProblems(entries: readonly string[]): string[] {
+  const problems: string[] = [];
+  if (entries.length > CARD_MAX_ENTRIES)
+    problems.push(`it has ${entries.length} entries; at most ${CARD_MAX_ENTRIES} are allowed`);
+  const bad = entries.filter((e) => normalizeCardEntry(e) === null);
+  if (bad.length)
+    problems.push(
+      `${bad.length} ${bad.length === 1 ? "entry is" : "entries are"} not a "PREFIX: Label: value" line of at most ${CARD_MAX_CHARS} characters (${bad
+        .slice(0, 3)
+        .map((e) => `"${e.slice(0, 60)}"`)
+        .join(", ")})`,
+    );
+  return problems;
+}
+
 export function normalizeCardEntry(raw: string): string | null {
   const m = String(raw ?? "")
     .replace(/\s+/g, " ")

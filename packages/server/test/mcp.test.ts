@@ -39,12 +39,19 @@ async function call(client: Client, name: string, args: Record<string, unknown> 
   const res = (await client.callTool({ name, arguments: args })) as {
     isError?: boolean;
     content: { type: string; text: string }[];
+    structuredContent?: unknown;
   };
   const text = res.content[0]!.text;
   let json: unknown = null;
   try {
     json = JSON.parse(text);
   } catch {}
+  // Every curated tool has an output schema (the client checks the content against it), and its
+  // structured content is the same result as the text: the JSON, or a plain answer as { content }.
+  if (!res.isError && TOOLS.includes(name))
+    expect(res.structuredContent, name).toEqual(
+      json !== null && typeof json === "object" ? json : { content: text },
+    );
   return { isError: res.isError, text, json } as Result;
 }
 
@@ -76,9 +83,16 @@ describe("mcp: tools over streamable HTTP", () => {
 
   it("advertises a small curated toolset with truthful annotations and instructions", async () => {
     expect(client.getServerVersion()?.name).toBe("Recall");
+    // What directories show about the server: a description, the website and an icon that exists.
+    const info = client.getServerVersion();
+    expect(info?.description).toMatch(/^Long-term memory for AI agents/);
+    expect(info?.websiteUrl).toBe("https://recallmem.dev");
+    expect(info?.icons?.map((i) => i.src)).toContain("https://recallmem.dev/icon.png");
     expect(client.getInstructions()).toContain("add_messages_to_session");
     const { tools } = await client.listTools();
     expect(tools.map((t) => t.name).sort()).toEqual(TOOLS);
+    // Each declares its result's shape (directories score tools without one lower).
+    for (const t of tools) expect(t.outputSchema?.type, t.name).toBe("object");
 
     const hints = Object.fromEntries(tools.map((t) => [t.name, t.annotations]));
     for (const name of [

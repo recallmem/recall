@@ -2,13 +2,8 @@ import { sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { newId } from "../src/lib/ids.js";
 import { countTokens } from "../src/lib/tokens.js";
-import {
-  isAggregate,
-  LEVELS,
-  planFor,
-  RULES_TOKENS,
-  SYSTEM_PROMPT,
-} from "../src/recall/prompts.js";
+import { LEVELS, RULES_TOKENS, SYSTEM_PROMPT } from "../src/recall/prompts.js";
+import { isAggregate, planFor } from "../src/recall/shape.js";
 import { vecLiteral } from "../src/recall/util.js";
 import { createTestServer } from "./api-helpers.js";
 import { chatUsage, parseSse, seedWorld, type World } from "./recall-helpers.js";

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { isAggregate, LEVELS, planFor } from "../src/recall/prompts.js";
+import { LEVELS } from "../src/recall/prompts.js";
+import { isAggregate, planFor } from "../src/recall/shape.js";
 
 describe("counting and total questions", () => {
   it("are recognised in English and Dutch", () => {

@@ -9,7 +9,7 @@ API (get a key at https://app.recallmem.dev/keys); to use a server you run yours
     recall = Recall(api_key="...", workspace_id="my-app")  # hosted: https://api.recallmem.dev
     alice = recall.peer("alice")
     session = recall.session("chat-1")
-    session.add_messages([alice.message("I moved to Utrecht last month.")])
+    session.add_messages([alice.message("I moved to New York last month.")])
     recall.wait_for_idle()
     print(alice.chat("Where does Alice live?"))
 """

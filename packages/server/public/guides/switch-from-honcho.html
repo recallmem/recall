@@ -9,7 +9,11 @@
 <meta property="og:title" content="Switch from Honcho — Recall guides" />
 <meta property="og:description" content="Move an app from Honcho to Recall: change the base URL and API key, what stays the same, what Recall adds, the differences that matter, and a checklist. Checked with Honcho's own clients." />
 <meta property="og:type" content="article" />
-<meta property="og:image" content="/og.png" />
+<meta property="og:url" content="https://recallmem.dev/guides/switch-from-honcho" />
+<meta property="og:image" content="https://recallmem.dev/og.png" />
+<meta property="og:site_name" content="Recall" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://recallmem.dev/og.png" />
 <link rel="canonical" href="https://recallmem.dev/guides/switch-from-honcho" />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="preload" href="/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin />
@@ -129,14 +133,14 @@ const assistant = recall.peer("assistant");
 const session = recall.session("support-42");
 await session.addPeers([alice, assistant]);
 await session.addMessages([
-  alice.message("We moved from Amsterdam to Utrecht last week."),
+  alice.message("We moved from London to New York last week."),
   assistant.message("Congratulations on the move!"),
 ]);
 const context = await session.context({ tokens: 2000, peerTarget: alice });
 const messages = context.toOpenAI(assistant);
 await recall.waitForIdle(); // for this demo only: real apps do not wait for learning
 const city = await alice.chat("Where does alice live now?", { reasoningLevel: "low" });
-const hits = await alice.search("Utrecht");</code></pre>
+const hits = await alice.search("New York");</code></pre>
 <pre data-panel="py" hidden><code>from recall_memory import Recall
 
 recall = Recall(workspace_id="my-app")
@@ -148,7 +152,7 @@ session = recall.session("support-42")
 session.add_peers([alice, assistant])
 session.add_messages(
     [
-        alice.message("We moved from Amsterdam to Utrecht last week."),
+        alice.message("We moved from London to New York last week."),
         assistant.message("Congratulations on the move!"),
     ]
 )
@@ -156,7 +160,7 @@ context = session.context(tokens=2000, peer_target=alice)
 messages = context.to_openai(assistant=assistant)
 recall.wait_for_idle()  # for this demo only: real apps do not wait for learning
 city = alice.chat("Where does alice live now?", reasoning_level="low")
-hits = alice.search("Utrecht")</code></pre>
+hits = alice.search("New York")</code></pre>
 </div>
 
     <h2 id="adds">What Recall adds</h2>
@@ -239,5 +243,6 @@ erased = alice.delete()</code></pre>
 </footer>
 
 <script src="/site.js" defer></script>
+<script defer src="/u/script.js" data-website-id="49d3572d-ca3b-4281-a0ed-191b2f269094" data-host-url="/u"></script>
 </body>
 </html>

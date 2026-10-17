@@ -4,7 +4,7 @@ import { getBillingRow } from "../../billing/ledger.js";
 import { scheduleManualDream } from "../../consolidate/index.js";
 import type { AppContext } from "../../context.js";
 import { getAccount } from "../../core/accounts.js";
-import { createConclusions, deleteConclusion, storeConclusions } from "../../core/conclusions.js";
+import { deleteConclusion, pinConclusion, storeConclusions } from "../../core/conclusions.js";
 import { deletePeer, setPeerCard } from "../../core/peers.js";
 import { newName } from "../../core/schemas.js";
 import { wsKey } from "../../core/tenancy.js";
@@ -51,6 +51,14 @@ import { clip, setFlash, takeFlash } from "./flash.js";
 import * as mv from "./memory-views.js";
 import { withQuery } from "./memory-views.js";
 import { dashPath } from "./paths.js";
+import {
+  factCount,
+  loadSample,
+  SAMPLE_PEER,
+  SAMPLE_QUESTIONS,
+  SAMPLE_SESSION,
+  SAMPLE_WS,
+} from "./sample.js";
 import type { DashEnv, DashState } from "./session.js";
 import * as v from "./views.js";
 
@@ -353,9 +361,12 @@ export function registerMemory(
     const observer = f.observer?.trim() || peer.name;
     if (observer !== peer.name && !peer.observers.includes(observer))
       throw new ApiError(422, "Pick whose memory the fact goes into.");
-    await createConclusions(ctx, ws.key, [
-      { content, observer_id: observer, observed_id: peer.name },
-    ]);
+    await storeConclusions(
+      ctx,
+      ws.key,
+      [{ content, observer_id: observer, observed_id: peer.name, pinned: true }],
+      { by: { actor: "dashboard", ref: dash.userId, reason: "added in the dashboard" } },
+    );
     setFlash(c, secret, dash.sessionId, { kind: "fact_added", text: clip(content), observer });
     return c.redirect(factsOf(ws.name, peer.name, observer), 303);
   });
@@ -377,6 +388,22 @@ export function registerMemory(
     );
   });
 
+  app.post("/memory/:ws/peers/:peer/facts/:id/pin", async (c) => {
+    const { dash, ws } = await manageWs(c);
+    const peer = c.req.param("peer");
+    const fact = await peerFact(ws, peer, c.req.param("id"));
+    const pinned = c.get("form").pinned === "1";
+    await pinConclusion(ctx, ws.key, fact.id, pinned, {
+      actor: "dashboard",
+      ref: dash.userId,
+      reason: pinned ? "pinned in the dashboard" : "unpinned in the dashboard",
+    });
+    return c.redirect(
+      `${factsOf(ws.name, peer, fact.observerName, fact.validTo ? "all" : undefined).replace(/#facts$/, "")}#f-${fact.id}`,
+      303,
+    );
+  });
+
   app.post("/memory/:ws/peers/:peer/facts/:id/correct", async (c) => {
     const { dash, ws } = await manageWs(c);
     const peer = c.req.param("peer");
@@ -388,14 +415,15 @@ export function registerMemory(
     if (content === fact.content.trim()) return c.redirect(back, 303);
     // The correction is a new explicit fact in the same view (or the same fact already stored
     // there); the old one becomes its history.
+    // A person's own correction is pinned: what the reasoner learns later never overwrites it.
     const [stored] = await storeConclusions(
       ctx,
       ws.key,
-      [{ content, observer_id: fact.observerName, observed_id: peer }],
-      { ignore: [fact.id] },
+      [{ content, observer_id: fact.observerName, observed_id: peer, pinned: true }],
+      { ignore: [fact.id], by: { actor: "dashboard", ref: dash.userId, reason: "a correction" } },
     );
     const created = stored!.conclusion;
-    if (!(await supersedeFact(ctx, ws, fact.id, created.id))) {
+    if (!(await supersedeFact(ctx, ws, fact.id, created.id, dash.userId))) {
       // Changed meanwhile (corrected or deleted elsewhere): do not leave a second version.
       if (!stored!.existing) await deleteConclusion(ctx, ws.key, created.id);
       throw new ApiError(
@@ -423,7 +451,11 @@ export function registerMemory(
       throw new ApiError(422, `A peer card holds at most ${CARD_MAX_ENTRIES} entries.`);
     if (lines.some((l) => l.length > CARD_ENTRY_MAX))
       throw new ApiError(422, `Each card entry is at most ${CARD_ENTRY_MAX} characters.`);
-    await setPeerCard(ctx, ws.key, peer.name, undefined, lines);
+    await setPeerCard(ctx, ws.key, peer.name, undefined, lines, {
+      actor: "dashboard",
+      ref: dash.userId,
+      reason: "edited the card",
+    });
     setFlash(c, secret, dash.sessionId, { kind: "card_saved", entries: lines.length });
     return c.redirect(mv.peerHref(ws.name, peer.name), 303);
   });
@@ -448,6 +480,7 @@ export function registerMemory(
       peer.name,
       undefined,
       card.filter((l) => l !== entry),
+      { actor: "dashboard", ref: dash.userId, reason: "removed a line" },
     );
     for (const f of chosen) await deleteConclusion(ctx, ws.key, f.id);
     ctx.log.info(
@@ -634,10 +667,29 @@ export function registerMemory(
       if (peer) observers = [peer, ...(await peerView(ctx, ws, peer)).observers];
     }
     const input = outcome?.input;
+    let sample: mv.SampleState | null = null;
+    if (wsName === SAMPLE_WS && peer === SAMPLE_PEER) {
+      const ws = await accountWorkspace(ctx, dash.accountId, wsName);
+      const tries = Math.min(intParam(c.req.query("t"), 0), 100);
+      const here = (q: Record<string, string | number>) =>
+        withQuery(dashPath("/playground"), { ws: SAMPLE_WS, peer: SAMPLE_PEER, ...q });
+      sample = {
+        facts: await factCount(ctx, ws.id, SAMPLE_PEER),
+        tries,
+        questions: SAMPLE_QUESTIONS,
+        transcriptHref: dashPath(
+          `/memory/${encodeURIComponent(SAMPLE_WS)}/sessions/${encodeURIComponent(SAMPLE_SESSION)}`,
+        ),
+        askHref: (q) => `${here({ q })}#ask`,
+        againHref: here({ t: tries + 1 }),
+      };
+    }
     return render(c, outcome?.error ? outcome.error.status : 200, {
       title: "Playground",
       active: "/playground",
       body: mv.playgroundPage({
+        csrf: dash.csrf,
+        sample,
         base: h.base(c),
         workspaces: names,
         ws: wsName,
@@ -654,7 +706,7 @@ export function registerMemory(
                 hidden: { ws: wsName, peer },
                 peer,
                 observers,
-                query: input?.query ?? "",
+                query: input?.query ?? (c.req.query("q") ?? "").slice(0, 500),
                 level: input?.level ?? "low",
                 perspective: input?.perspective ?? null,
                 prices,
@@ -668,6 +720,16 @@ export function registerMemory(
     const dash = signedIn(c);
     if (!dash) return toLogin(c);
     return playground(c, dash, { ws: c.req.query("ws"), peer: c.req.query("peer") }, null);
+  });
+
+  /** The first run without code: a sample conversation in this account, then the Playground. */
+  app.post("/playground/sample", async (c) => {
+    const dash = requireUser(c);
+    await loadSample(ctx, dash.accountId);
+    return c.redirect(
+      withQuery(dashPath("/playground"), { ws: SAMPLE_WS, peer: SAMPLE_PEER }),
+      303,
+    );
   });
 
   app.post("/playground", async (c) => {

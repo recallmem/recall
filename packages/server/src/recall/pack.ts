@@ -1,17 +1,23 @@
 import { type SQL, sql } from "drizzle-orm";
 import type { AppContext } from "../context.js";
 import { rows } from "../db/client.js";
+import { describeEventTime } from "../lib/event-time.js";
+import { questionTags } from "../lib/tags.js";
 import { countTokens, truncateTokens } from "../lib/tokens.js";
+import { textArray } from "../reasoner/util.js";
 import type { EvidenceLog } from "./format.js";
 import { type Allowlist, getCard, type PeerRef, type SessionRef, type WsRef } from "./lookup.js";
-import { isHistorical, isOverview, type LevelPlan } from "./prompts.js";
+import type { LevelPlan } from "./prompts.js";
 import { EMBED_TOKEN_LIMIT } from "./representation.js";
 import {
   allowlistCond,
+  CONC_COLS,
+  CONC_FROM,
   type ConclusionHit,
   type ConclusionRow,
   type MessageHit,
   type MessageRow,
+  mapConclusion,
   messagesAround,
   messagesByIds,
   pairCond,
@@ -21,6 +27,8 @@ import {
   searchMessages,
 } from "./search.js";
 import { latestSummaries, recentMessages } from "./session-context.js";
+import { isAggregate, shapeOf } from "./shape.js";
+import { type TimeWindow, withoutQuestionDate } from "./time-window.js";
 import { and, day, inList, normalizeQuery, queryTerms, toDate } from "./util.js";
 
 /** Everything that decides what a request may recall. Built once per request by `prepareChat`. */
@@ -110,6 +118,8 @@ export interface Pack {
   snippets: SnippetItem[];
   /** Conversation log for overview and ordering questions, oldest first. */
   log: LogItem[];
+  /** The observed peer's brief (a dated account kept by dreams), for overview and ordering questions. */
+  brief: string | null;
   /** Facts and excerpts are listed oldest first (overview and ordering questions). */
   chronological: boolean;
   /** Words of the question that pick which part of a long message an excerpt shows. */
@@ -321,6 +331,17 @@ async function loadCards(ctx: AppContext, view: View) {
   return { profile: profile.card.slice(0, 30), self: self.card.slice(0, 12) };
 }
 
+/** The brief of the viewed (observer, observed) pair, when the view may read all of its memory. */
+async function loadBrief(ctx: AppContext, view: View): Promise<string | null> {
+  if (view.allowlist || view.noMemory || !view.observer || !view.observed) return null;
+  const [r] = await rows<{ brief: string | null }>(
+    ctx.db,
+    sql`SELECT brief FROM collections
+        WHERE workspace_id = ${view.ws.id} AND observer_id = ${view.observer.id} AND observed_id = ${view.observed.id}`,
+  );
+  return r?.brief?.trim() || null;
+}
+
 async function sessionBits(ctx: AppContext, session: SessionRef, tokens: number) {
   const sums = await latestSummaries(ctx, session.id);
   const pick = sums.long && sums.long.tokenCount <= 900 ? sums.long : (sums.short ?? sums.long);
@@ -414,6 +435,7 @@ async function loadLog(
   view: View,
   query: string,
   maxTokens: number,
+  window: TimeWindow | null,
 ): Promise<LogItem[]> {
   const found = await rows<{ content: string; token_count: number | string; at: string | Date }>(
     ctx.db,
@@ -431,7 +453,9 @@ async function loadLog(
     const text = r.content.trim();
     const content = /^\d{4}-\d{2}-\d{2}/.test(text) ? text : `${day(at)}: ${text}`;
     const words = new Set(content.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? []);
-    const score = terms.filter((t) => words.has(t)).length;
+    // Notes from the time the question asks about come first, then those sharing its words.
+    const inWindow = window && at >= window.from && at < window.to ? 1000 : 0;
+    const score = inWindow + terms.filter((t) => words.has(t)).length;
     return { i, content, at, tokens: Number(r.token_count) || countTokens(content), score };
   });
   const byRelevance = [...notes].sort((a, b) => b.score - a.score || b.i - a.i);
@@ -481,9 +505,59 @@ async function factSources(
 }
 
 const firstAt = (s: SnippetItem) => s.messages[0]?.createdAt.getTime() ?? 0;
-const factAt = (f: ConclusionHit) => (f.row.validFrom ?? f.row.createdAt).getTime();
+/** When a fact's event happened, else when it was said: the order facts are listed in by time. */
+const factAt = (f: ConclusionHit) =>
+  (f.row.event?.start ?? f.row.validFrom ?? f.row.createdAt).getTime();
 
-/** Retrieval for the one-call path: hybrid facts, superseded facts for historical questions, excerpts, cards, session. */
+/**
+ * Every fact tagged with what a counting question counts ("how many concerts", "all my trips"),
+ * oldest first, up to `limit`: the items are usually spread over many conversations, so the
+ * closest few by meaning miss some. A tag on more than a few times `limit` facts says too little
+ * to count by and is left out.
+ */
+async function taggedFacts(
+  ctx: AppContext,
+  view: View,
+  query: string,
+  limit: number,
+): Promise<ConclusionHit[]> {
+  const tags = questionTags(queryTerms(withoutQuestionDate(query)));
+  if (!tags.length) return [];
+  const cond = and(conclusionCond(view), sql`c.deleted_at IS NULL`);
+  const counts = await rows<{ tag: string; n: number | string }>(
+    ctx.db,
+    sql`SELECT t.tag, count(*) AS n FROM conclusions c, unnest(c.tags) AS t(tag)
+        WHERE ${cond} AND c.tags && ${textArray(tags)} AND t.tag = ANY(${textArray(tags)})
+        GROUP BY t.tag`,
+  );
+  const useful = counts.filter((r) => Number(r.n) <= limit * 3).map((r) => r.tag);
+  if (!useful.length) return [];
+  const found = await rows<Record<string, unknown>>(
+    ctx.db,
+    sql`SELECT ${CONC_COLS} FROM ${CONC_FROM} WHERE ${cond} AND c.tags && ${textArray(useful)}
+        ORDER BY COALESCE(c.event_start, c.valid_from, c.created_at), c.id LIMIT ${limit}`,
+  );
+  return found.map((r) => ({ row: mapConclusion(r), dist: null, lexical: true, rel: 0.5 }));
+}
+
+/**
+ * Facts from a window of time: their event overlaps it, or, without an event time, they were
+ * learned in it.
+ */
+export function factInWindow(w: TimeWindow): SQL {
+  const eventEnd = sql`COALESCE(c.event_end + interval '1 day', CASE c.event_precision
+    WHEN 'year' THEN c.event_start + interval '1 year' WHEN 'month' THEN c.event_start + interval '1 month'
+    ELSE c.event_start + interval '1 day' END)`;
+  return sql`(CASE WHEN c.event_start IS NOT NULL
+    THEN c.event_start < ${w.to}::timestamptz AND ${eventEnd} > ${w.from}::timestamptz
+    ELSE COALESCE(c.valid_from, c.created_at) >= ${w.from}::timestamptz
+      AND COALESCE(c.valid_from, c.created_at) < ${w.to}::timestamptz END)`;
+}
+
+/**
+ * Retrieval for the one-call path: hybrid facts, superseded facts for historical questions,
+ * excerpts, cards, session; for a question that names a time, also what memory has from then.
+ */
 export async function buildPack(
   ctx: AppContext,
   view: View,
@@ -492,49 +566,73 @@ export async function buildPack(
 ): Promise<Pack> {
   const now = new Date();
   const ws = view.ws;
-  const historical = isHistorical(query);
-  // Overviews, summaries and "in what order" questions: add the conversation log and list
-  // facts and excerpts in time order, so the answer can follow the actual sequence.
-  const chronological = isOverview(query);
+  // Overviews, summaries, "in what order" questions and questions that name a time: add the
+  // conversation log and list facts and excerpts in time order, so the answer can follow the
+  // actual sequence.
+  const { kind, historical, chronological, window } = shapeOf(query, now);
   const logP = chronological
-    ? loadLog(ctx, view, query, Math.floor(plan.budget * LOG_SHARE))
+    ? loadLog(ctx, view, query, Math.floor(plan.budget * LOG_SHARE), window)
     : Promise.resolve([]);
   const [vectors, others] = await Promise.all([
     queryVectors(ctx, ws.id, query, plan.multiQuery),
     mentionedPeers(ctx, view, query),
   ]);
   const base = { workspaceId: ws.id, query, vectors };
-  const [factHits, histHits, msgHits, cards, sess, otherHits] = await Promise.all([
-    view.noMemory
-      ? []
-      : searchConclusions(ctx, {
-          ...base,
-          pool: plan.facts * 2,
-          cond: conclusionCond(view),
-          state: "current",
-        }),
-    historical && !view.noMemory
-      ? searchConclusions(ctx, {
-          ...base,
-          pool: plan.history * 2,
-          cond: conclusionCond(view),
-          state: "superseded",
-        })
-      : [],
-    searchMessages(ctx, { ...base, limit: plan.snippets, cond: messageCond(view) }),
-    loadCards(ctx, view),
-    view.session ? sessionBits(ctx, view.session, plan.sessionTokens) : null,
-    Promise.all(
-      others.map((p) =>
-        searchConclusions(ctx, {
-          ...base,
-          pool: plan.facts,
-          cond: mentionedCond(view, p),
-          state: "current",
-        }),
+  const [factHits, histHits, msgHits, cards, sess, otherHits, winFactHits, winMsgHits, tagHits] =
+    await Promise.all([
+      view.noMemory
+        ? []
+        : searchConclusions(ctx, {
+            ...base,
+            pool: plan.facts * 2,
+            cond: conclusionCond(view),
+            state: "current",
+          }),
+      historical && !view.noMemory
+        ? searchConclusions(ctx, {
+            ...base,
+            pool: plan.history * 2,
+            cond: conclusionCond(view),
+            state: "superseded",
+          })
+        : [],
+      searchMessages(ctx, { ...base, limit: plan.snippets, cond: messageCond(view) }),
+      loadCards(ctx, view),
+      view.session ? sessionBits(ctx, view.session, plan.sessionTokens) : null,
+      Promise.all(
+        others.map((p) =>
+          searchConclusions(ctx, {
+            ...base,
+            pool: plan.facts,
+            cond: mentionedCond(view, p),
+            state: "current",
+          }),
+        ),
       ),
-    ),
-  ]);
+      // The time the question names: facts dated in it (replaced ones too: they held then) and
+      // the messages written in it, best matches first.
+      window && !view.noMemory
+        ? searchConclusions(ctx, {
+            ...base,
+            pool: plan.facts,
+            cond: and(conclusionCond(view), factInWindow(window)),
+            state: "all",
+          })
+        : [],
+      window
+        ? searchMessages(ctx, {
+            ...base,
+            limit: plan.snippets,
+            cond: and(
+              messageCond(view),
+              sql`m.created_at >= ${window.from}::timestamptz AND m.created_at < ${window.to}::timestamptz`,
+            ),
+          })
+        : [],
+      (kind === "counting" || isAggregate(query)) && !view.noMemory
+        ? taggedFacts(ctx, view, query, plan.facts * 2)
+        : [],
+    ]);
 
   // Best-ranked first. Beyond a few always-kept facts, hits that match neither by words nor by
   // meaning are noise (a vector leg returns its nearest neighbours however far away they are).
@@ -546,14 +644,40 @@ export async function buildPack(
   const topFacts = ranked(factHits, plan.facts, MIN_FACTS);
   // Facts about other people the question names get their own share of the pack.
   const otherFacts = ranked(otherHits.flat(), Math.ceil(plan.facts / 2), 0);
-  const factRank = new Map([...topFacts, ...otherFacts].map((h, i) => [h, i]));
+  // Facts from the time asked about count by their date, whether or not their words match.
+  const shown = new Set([...topFacts, ...otherFacts].map((h) => h.row.id));
+  const winFresh = winFactHits.filter((h) => !shown.has(h.row.id));
+  const half = Math.ceil(plan.facts / 2);
+  const winFacts = ranked(
+    winFresh.filter((h) => !h.row.validTo),
+    half,
+    half,
+  );
+  const winOld = ranked(
+    winFresh.filter((h) => h.row.validTo),
+    plan.history,
+    plan.history,
+  );
+  // Facts tagged with what a counting question counts, whatever their rank.
+  for (const h of winFresh) shown.add(h.row.id);
+  const tagFresh = tagHits.filter((h) => !shown.has(h.row.id));
+  const tagFacts = tagFresh.filter((h) => !h.row.validTo).slice(0, plan.facts);
+  const tagOld = tagFresh.filter((h) => h.row.validTo).slice(0, plan.history);
+  const picked = [...topFacts, ...otherFacts, ...winFacts, ...tagFacts];
+  const factRank = new Map(picked.map((h, i) => [h, i]));
   const inOrder = (hits: ConclusionHit[]) =>
     chronological ? [...hits].sort((a, b) => factAt(a) - factAt(b)) : hits;
-  const facts = (await attachPrevious(ctx, inOrder([...topFacts, ...otherFacts]), 1)).map((f) => ({
+  const facts = (await attachPrevious(ctx, inOrder(picked), 1)).map((f) => ({
     ...f,
     rank: factRank.get(f.hit) ?? 0,
   }));
-  const history = inOrder(ranked(histHits, plan.history, 0)).map((hit, i) => ({
+  const oldHits = ranked(histHits, plan.history, 0);
+  const oldIds = new Set(oldHits.map((h) => h.row.id));
+  const later = [...winOld, ...tagOld].filter((h) => !oldIds.has(h.row.id));
+  const history = inOrder([
+    ...oldHits,
+    ...later.filter((h, i) => later.findIndex((x) => x.row.id === h.row.id) === i),
+  ]).map((hit, i) => ({
     label: `F${facts.length + i + 1}`,
     hit,
     previous: null,
@@ -561,7 +685,18 @@ export async function buildPack(
   const recentIds = new Set(sess?.recent.map((m) => m.id));
   const sourceHits = await factSources(ctx, view, topFacts.slice(0, plan.sources), msgHits);
   let snippets = (
-    await expandSnippets(ctx, view, [...msgHits, ...sourceHits], 1, 1, recentIds)
+    await expandSnippets(
+      ctx,
+      view,
+      [
+        ...msgHits,
+        ...sourceHits,
+        ...winMsgHits.filter((h) => !msgHits.some((m) => m.row.id === h.row.id)),
+      ],
+      1,
+      1,
+      recentIds,
+    )
   ).map((s, i) => ({
     ...s,
     rank: i,
@@ -571,6 +706,7 @@ export async function buildPack(
       .sort((a, b) => firstAt(a) - firstAt(b))
       .map((s, i) => ({ ...s, label: `M${i + 1}` }));
   const log = await logP;
+  const brief = kind === "summary" || kind === "ordering" ? await loadBrief(ctx, view) : null;
 
   // Workspace chat has no anchor peer: add the cards of the people the best facts are about.
   const peerProfiles: Pack["peerProfiles"] = [];
@@ -592,6 +728,7 @@ export async function buildPack(
     history,
     snippets,
     log,
+    brief,
     chronological,
     focus: focusTerms(query),
     replies: asksAboutReplies(query),
@@ -601,7 +738,8 @@ export async function buildPack(
       facts.some((f) => isRelevant(f.hit)) ||
       history.some((f) => isRelevant(f.hit)) ||
       snippets.some((s) => s.relevant) ||
-      log.length > 0,
+      log.length > 0 ||
+      !!brief,
     nextF: facts.length + history.length + 1,
     nextM: snippets.length + 1,
     text: "",
@@ -622,6 +760,7 @@ export const packIsEmpty = (p: Pack): boolean =>
   !p.history.length &&
   !p.snippets.length &&
   !p.log.length &&
+  !p.brief &&
   !p.summary &&
   !p.recent.length;
 
@@ -629,7 +768,7 @@ export const packIsEmpty = (p: Pack): boolean =>
 // Rendering under a token budget
 // ---------------------------------------------------------------------------
 
-type Section = "profile" | "facts" | "history" | "excerpts" | "log" | "session";
+type Section = "profile" | "brief" | "facts" | "history" | "excerpts" | "log" | "session";
 interface Entry {
   section: Section;
   text: string;
@@ -650,12 +789,15 @@ interface Entry {
 function factLine(f: FactItem, wide: boolean, historyItem: boolean, anchor: string | null): string {
   const r = f.hit.row;
   const subject = wide || (anchor && r.observedName !== anchor) ? `(${r.observedName}) ` : "";
-  if (historyItem) return `[${f.label}] ${subject}${r.content} (true until ${day(r.validTo)})`;
-  const tags = `${r.level !== "explicit" ? " (inferred)" : ""}${r.confidence < 0.5 ? " (uncertain)" : ""}`;
+  const event = r.event ? ` (event ${describeEventTime(r.event)})` : "";
+  // A replaced state with a known end says when it ended; otherwise, until when it was believed.
+  if (historyItem)
+    return `[${f.label}]${event} ${subject}${r.content}${r.event?.end ? "" : ` (true until ${day(r.validTo)})`}`;
+  const tags = `${r.pinned ? " (pinned)" : ""}${r.level !== "explicit" ? " (inferred)" : ""}${r.confidence < 0.5 ? " (uncertain)" : ""}`;
   const was = f.previous
     ? ` (was: "${clip(f.previous.content, 140)}" until ${day(f.previous.validTo)})`
     : "";
-  return `[${f.label}] ${day(r.validFrom ?? r.createdAt)} ${subject}${r.content}${tags}${was}`;
+  return `[${f.label}] ${day(r.validFrom ?? r.createdAt)}${event} ${subject}${r.content}${tags}${was}`;
 }
 
 /** Memory that holds a wish to keep something from other people. */
@@ -718,6 +860,7 @@ export function describeView(v: View, privacy = false): string {
 
 const TITLES: Record<Section, string> = {
   profile: "## Profile",
+  brief: "## Brief",
   facts: "## Facts",
   history: "## No longer true",
   excerpts: "## Excerpts",
@@ -809,6 +952,7 @@ export function renderPack(
   }
   for (const l of pack.log)
     add("log", `[${l.label}] ${clip(l.content, 700)}`, 1.3 + l.rank / 1000, { log: l });
+  if (pack.brief) add("brief", pack.brief, 1.4);
   if (pack.summary) add("session", `Summary: ${pack.summary}`, 1.8);
   for (const [i, m] of pack.recent.entries()) {
     add("session", msgLine(m, 400), 2.2 + (pack.recent.length - i) / 100, { recent: m });
@@ -859,7 +1003,9 @@ export function renderPack(
           .join("\n")}`,
       );
     }
-    if (![...chosen].some((e) => e.fact || e.history || e.snippet || e.log))
+    if (
+      ![...chosen].some((e) => e.fact || e.history || e.snippet || e.log || e.section === "brief")
+    )
       out.push("## Facts\n(nothing relevant was found in memory)");
     if (owner) out.push(owner);
     return out.join("\n\n");
@@ -882,6 +1028,7 @@ export function renderPack(
     .filter((s) => s.messages.length);
   pack.recent = pack.recent.filter((m) => kept.some((e) => e.recent === m));
   pack.log = pack.log.filter((l) => kept.some((e) => e.log === l));
+  if (!kept.some((e) => e.section === "brief")) pack.brief = null;
   if (!kept.some((e) => e.section === "session" && !e.recent)) pack.summary = null;
   pack.text = text;
   pack.tokens = tokens;

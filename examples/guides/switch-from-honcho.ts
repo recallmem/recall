@@ -12,14 +12,14 @@ export async function main(recall = new Recall({ workspaceId: "my-app" })) {
   const session = recall.session("support-42");
   await session.addPeers([alice, assistant]);
   await session.addMessages([
-    alice.message("We moved from Amsterdam to Utrecht last week."),
+    alice.message("We moved from London to New York last week."),
     assistant.message("Congratulations on the move!"),
   ]);
   const context = await session.context({ tokens: 2000, peerTarget: alice });
   const messages = context.toOpenAI(assistant);
   await recall.waitForIdle(); // for this demo only: real apps do not wait for learning
   const city = await alice.chat("Where does alice live now?", { reasoningLevel: "low" });
-  const hits = await alice.search("Utrecht");
+  const hits = await alice.search("New York");
   // #endregion
 
   // #region extras

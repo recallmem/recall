@@ -87,6 +87,14 @@ export function conclusionFromWire(w: Obj): Conclusion {
     ...("valid_to" in w ? { validTo: strOrNull(w.valid_to) } : {}),
     ...("superseded_by" in w ? { supersededBy: strOrNull(w.superseded_by) } : {}),
     ...(Array.isArray(w.message_ids) ? { messageIds: w.message_ids as string[] } : {}),
+    ...("event_start" in w ? { eventStart: strOrNull(w.event_start) } : {}),
+    ...("event_end" in w ? { eventEnd: strOrNull(w.event_end) } : {}),
+    ...(Array.isArray(w.tags) ? { tags: w.tags as string[] } : {}),
+    ...("pinned" in w ? { pinned: w.pinned === true } : {}),
+    ...("expires_at" in w ? { expiresAt: strOrNull(w.expires_at) } : {}),
+    ...("event_precision" in w
+      ? { eventPrecision: strOrNull(w.event_precision) as Conclusion["eventPrecision"] }
+      : {}),
   };
 }
 

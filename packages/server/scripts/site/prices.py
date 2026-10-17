@@ -8,6 +8,7 @@ CONFIG = pathlib.Path(__file__).resolve().parents[2] / "src" / "config.ts"
 KEYS = {
     "ingest_per_mtok": "RECALL_PRICE_INGEST_PER_MTOK_USD",
     "ingest_min_tokens": "RECALL_PRICE_INGEST_MIN_TOKENS",
+    "store_per_mtok": "RECALL_PRICE_STORE_PER_MTOK_USD",
     "minimal": "RECALL_PRICE_CHAT_MINIMAL_USD",
     "low": "RECALL_PRICE_CHAT_LOW_USD",
     "medium": "RECALL_PRICE_CHAT_MEDIUM_USD",

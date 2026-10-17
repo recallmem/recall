@@ -8,6 +8,7 @@ import { loadConfig } from "../src/config.js";
 import { funnel, funnelPeriod, testEmails } from "../src/core/funnel.js";
 import {
   funnelReportRecipients,
+  renderFunnelReport,
   reportWeek,
   sendWeeklyFunnelReport,
 } from "../src/core/funnel-report.js";
@@ -509,6 +510,40 @@ describe("weekly report", () => {
       due: false,
     });
     expect(reportWeek(new Date("2026-10-26T07:00:00Z"))).toEqual({ week: "2026-10-26", due: true });
+  });
+
+  it("carries the week's website traffic and the best tagged link when Umami is read", async () => {
+    const f = await funnel(s.ctx.db, { days: 7, testEmails: [], recent: 0 });
+    const mail = renderFunnelReport({
+      week: "2026-10-12",
+      last7: f,
+      last30: f,
+      consoleUrl: "https://app.example/admin/funnel?days=30",
+      trafficUrl: "https://app.example/admin/traffic",
+      traffic: {
+        visitors: 6,
+        visits: 7,
+        pageviews: 9,
+        topSites: [{ name: "reddit.com", count: 4 }],
+        topCampaigns: [],
+        apiKeyClicks: 2,
+        bestLink: { source: "reddit", campaign: "claudeai-plugin", signups: 1, visitors: 3 },
+      },
+    });
+    expect(mail.text).toContain("Website, last 7 days:");
+    expect(mail.text).toContain("Visitors: 6 (7 visits, 9 page views).");
+    expect(mail.text).toContain("Top referring sites: reddit.com (4).");
+    expect(mail.text).toContain("Top campaigns: none yet.");
+    expect(mail.text).toContain('"Get API key" clicks: 2.');
+    expect(mail.text).toContain(
+      "Best tagged link: reddit / claudeai-plugin, 1 sign-up and 3 visitors since it was made.",
+    );
+    expect(mail.html).toContain(
+      '<a href="https://app.example/admin/traffic">Open Traffic in the console</a>',
+    );
+    // Without Umami the email has no traffic part.
+    const plain = renderFunnelReport({ week: "2026-10-12", last7: f, last30: f, consoleUrl: "x" });
+    expect(plain.text).not.toContain("Website, last 7 days");
   });
 
   it("is sent once per week, also when several checks run at once", async () => {

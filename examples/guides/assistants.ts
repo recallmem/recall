@@ -28,7 +28,7 @@ export async function main(recall = new Recall({ workspaceId: "assistant-prod" }
     ...card,
     "Prefers to be called Sam.",
     "Vegetarian.",
-    "Timezone Europe/Amsterdam.",
+    "Timezone America/New_York.",
   ]);
   // #endregion
 

@@ -19,7 +19,7 @@ def main(recall: Recall | None = None) -> dict[str, Any]:
     session.add_peers([alice, assistant])
     session.add_messages(
         [
-            alice.message("We moved from Amsterdam to Utrecht last week."),
+            alice.message("We moved from London to New York last week."),
             assistant.message("Congratulations on the move!"),
         ]
     )
@@ -27,7 +27,7 @@ def main(recall: Recall | None = None) -> dict[str, Any]:
     messages = context.to_openai(assistant=assistant)
     recall.wait_for_idle()  # for this demo only: real apps do not wait for learning
     city = alice.chat("Where does alice live now?", reasoning_level="low")
-    hits = alice.search("Utrecht")
+    hits = alice.search("New York")
     # endregion
 
     # region extras

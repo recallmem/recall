@@ -5,6 +5,7 @@ import { rows } from "../db/client.js";
 import { newId } from "../lib/ids.js";
 import { lockCollections, NORMALIZED } from "../reasoner/apply.js";
 import { textArray } from "../reasoner/util.js";
+import { recordEvents } from "./history.js";
 import { setBackfillStatus } from "./scopes.js";
 
 /** Payload-carrying job row as the worker hands it to a handler. */
@@ -204,23 +205,42 @@ export async function handleScopeBackfill(ctx: AppContext, job: JobRow): Promise
             FROM hit WHERE t.id = hit.target
             RETURNING t.collection_id`,
       );
-      const inserted = await rows<{ collection_id: string; id: string; source_id: string }>(
+      const inserted = await rows<{
+        collection_id: string;
+        workspace_id: string;
+        id: string;
+        source_id: string;
+      }>(
         tx,
         sql`WITH ins AS (
               INSERT INTO conclusions (id, workspace_id, collection_id, observer_id, observed_id, session_id, content, level,
                                        category, confidence, importance, times_derived, source_ids, message_ids,
-                                       valid_from, valid_to, embedding, embedding_model, internal)
+                                       valid_from, valid_to, event_start, event_end, event_precision, tags,
+                                       embedding, embedding_model, internal)
               SELECT substr(translate(rtrim(encode(decode(md5(random()::text || clock_timestamp()::text || c.id), 'hex'), 'base64'), '='), '+/', '_-'), 1, 21),
                      c.workspace_id, dst.id, ${scopePeerId}, c.observed_id, c.session_id, c.content, 'explicit',
                      c.category, c.confidence, c.importance, c.times_derived, '{}', c.message_ids,
-                     c.valid_from, c.valid_to, c.embedding, c.embedding_model,
+                     c.valid_from, c.valid_to, c.event_start, c.event_end, c.event_precision, c.tags, c.embedding,
+                     c.embedding_model,
                      jsonb_build_object('scope_copy_of', c.id, 'key', COALESCE(c.internal ->> 'key', c.id))
               ${source}
               JOIN collections dst ON dst.observer_id = ${scopePeerId} AND dst.observed_id = c.observed_id
               WHERE NOT ${present}
                 AND NOT (c.valid_to IS NULL AND EXISTS (SELECT 1 FROM conclusions x WHERE ${sameCurrent("x")}))
-              RETURNING id, collection_id, internal ->> 'scope_copy_of' AS source_id)
-            SELECT id, collection_id, source_id FROM ins`,
+              RETURNING id, workspace_id, collection_id, internal ->> 'scope_copy_of' AS source_id)
+            SELECT id, workspace_id, collection_id, source_id FROM ins`,
+      );
+      await recordEvents(
+        tx,
+        inserted.map((r) => ({
+          workspaceId: r.workspace_id,
+          collectionId: r.collection_id,
+          conclusionId: r.id,
+          action: "created" as const,
+          actor: "system" as const,
+          reason: "copied into the scope",
+          sources: [r.source_id],
+        })),
       );
       if (inserted.length > 0) {
         // Re-point supersession links at the scope's fact for the replacement: its copy, or

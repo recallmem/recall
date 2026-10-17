@@ -29,7 +29,7 @@ def main(recall: Recall | None = None) -> dict[str, Any]:
     )
     trip.add_messages(
         [
-            user.message("I live in Utrecht and I am vegetarian."),
+            user.message("I live in Boston and I am vegetarian."),
             planner.message("Noted. I'll only suggest restaurants with good vegetarian menus."),
         ]
     )
@@ -41,8 +41,8 @@ def main(recall: Recall | None = None) -> dict[str, Any]:
     )
     invoice.add_messages(
         [
-            user.message("I moved to Amersfoort last week, please update my billing address."),
-            billing.message("Done. Your next invoice goes to your new address in Amersfoort."),
+            user.message("I moved to Chicago last week, please update my billing address."),
+            billing.message("Done. Your next invoice goes to your new address in Chicago."),
         ]
     )
     # endregion
@@ -50,9 +50,9 @@ def main(recall: Recall | None = None) -> dict[str, Any]:
     # region views
     # (wait_for_idle is for this demo; real apps rarely wait for learning to finish.)
     recall.wait_for_idle()
-    # Recall's view of the user, built from everything they said in any session: Amersfoort.
+    # Recall's view of the user, built from everything they said in any session: Chicago.
     recall_view = user.chat("Where do I live?", reasoning_level="minimal")
-    # The planner's view holds only what it witnessed. It never heard about the move: Utrecht.
+    # The planner's view holds only what it witnessed. It never heard about the move: Boston.
     planner_view = planner.chat("Where does the user live?", target=user, reasoning_level="minimal")
     # In a prompt, read the user through the eyes of the agent that is talking.
     context = trip.context(peer_target=user, peer_perspective=planner, tokens=2000)

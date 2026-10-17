@@ -9,7 +9,12 @@
 <meta property="og:title" content="Recall docs" />
 <meta property="og:description" content="Quickstart, SDKs, the command line, integrations for Claude Code, Codex, OpenClaw and Hermes, MCP, models and the REST API." />
 <meta property="og:type" content="website" />
-<meta property="og:image" content="/og.png" />
+<meta property="og:url" content="https://recallmem.dev/docs" />
+<meta property="og:image" content="https://recallmem.dev/og.png" />
+<meta property="og:site_name" content="Recall" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://recallmem.dev/og.png" />
+<link rel="canonical" href="https://recallmem.dev/docs" />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="preload" href="/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preload" href="/fonts/departure-mono.woff2" as="font" type="font/woff2" crossorigin />
@@ -96,8 +101,8 @@ export RECALL_API_KEY=pk_live_...</code></pre>
   -H "Authorization: Bearer $RECALL_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"messages":[
-        {"peer_id":"alice","content":"I moved to Utrecht last month and I am vegetarian now."},
-        {"peer_id":"assistant","content":"Noted! Utrecht has great veggie food."}
+        {"peer_id":"alice","content":"I moved to New York last month and I am vegetarian now."},
+        {"peer_id":"assistant","content":"Noted! New York has great veggie food."}
       ]}'</code></pre>
     <p><b>4. Ask about the person.</b> Learning runs in the background. New messages wait briefly so that a conversation is read in batches, so a single message is usually learned from within about 20 seconds. <code>GET /v3/workspaces/my-app/queue/status</code> shows progress; in a test or a script, <code>GET /v3/workspaces/my-app/queue/status?wait_ms=30000</code> starts the waiting work at once and answers when it is done (it waits at most 60 seconds), and the SDKs do the same with <code>waitForIdle()</code> (<code>wait_for_idle()</code> in Python). Prompt context always includes the newest messages, learned from or not.</p>
 <pre><code>curl $RECALL_URL/v3/workspaces/my-app/peers/alice/chat \
@@ -122,7 +127,7 @@ export RECALL_API_KEY=pk_live_...</code></pre>
         <tr><td><b>Night shift</b></td><td>A background pass after a conversation goes quiet, once enough new facts have built up: it merges duplicates, closes facts that changed, draws new conclusions with their sources and rewrites the peer card. At most three model calls, included in the price. The API calls it a dream; <a href="#dreams"><code>POST …/schedule_dream</code></a> runs one at once.</td></tr>
       </tbody>
     </table>
-    <div class="callout"><svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="10" cy="10" r="7"/><path d="M10 6.5v4M10 13.5h.01"/></svg><span>Facts are bi-temporal. When Alice says she moved, "lives in Amsterdam" is closed and "lives in Utrecht" starts — at ingest, with relative dates like "last week" anchored to when the message was written.</span></div>
+    <div class="callout"><svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="10" cy="10" r="7"/><path d="M10 6.5v4M10 13.5h.01"/></svg><span>Facts are bi-temporal. When Alice says she moved, "lives in London" is closed and "lives in New York" starts — at ingest, with relative dates like "last week" anchored to when the message was written.</span></div>
 
     <h2 id="migrate">Switching to Recall</h2>
     <p>Recall implements the v3 memory REST API (workspaces, peers, sessions, messages, chat and context), so a client written for it keeps working: point its base URL at Recall and use a Recall key. Nothing else changes in your code. The <a href="/guides/switch-from-honcho">switching guide</a> lists the few differences in behaviour and a checklist.</p>
@@ -267,7 +272,7 @@ openclaw config set plugins.entries.recall-memory.config \
     <p>Put the API key in <code>RECALL_API_KEY</code> in the Gateway's environment, or in <code>~/.recall/config.json</code>, rather than in <code>openclaw.json</code>. Restart the Gateway, or run <code>openclaw plugins reload recall-memory</code>. The plugin's <code>lookup</code> setting chooses when memory is added: <code>turn</code> (default) on every user turn, <code>first-turn</code> once per session, <code>off</code> for tools only. Heartbeat and cron turns are not recorded unless you set <code>recordAutomated</code>.</p>
     <p><b>Check it.</b></p>
 <pre><code>openclaw plugins inspect recall-memory --runtime --json      # lists the four recall_* tools
-openclaw agent --local -m "I moved to Utrecht last month" --session-key agent:main:recall-check
+openclaw agent --local -m "I moved to New York last month" --session-key agent:main:recall-check
 recall session messages oc-agent-main-recall-check --last 2   # your message and the reply</code></pre>
     <p>Full reference: <a href="https://github.com/recallmem/recall-plugin/blob/main/integrations/openclaw/README.md"><code>integrations/openclaw</code></a>.</p>
 
@@ -280,7 +285,7 @@ hermes memory setup        # pick "recall" and enter the URL, API key, workspace
     <p><code>hermes memory setup</code> writes the API key to <code>~/.hermes/.env</code> (<code>RECALL_API_KEY</code>) and the rest to <code>~/.hermes/recall.json</code>. Instead of the wizard you can set <code>memory.provider: recall</code> in <code>~/.hermes/config.yaml</code>.</p>
     <p><b>Check it.</b></p>
 <pre><code>hermes memory status                               # "recall ... ← active"
-hermes chat -q "I moved to Utrecht last month" -Q  # prints session_id: &lt;id&gt;
+hermes chat -q "I moved to New York last month" -Q  # prints session_id: &lt;id&gt;
 recall session messages hermes-&lt;id&gt; --last 2       # your message and the reply</code></pre>
     <p>Then, in a new chat, ask "where do I live?". Full reference: <a href="https://github.com/recallmem/recall-plugin/blob/main/integrations/hermes/README.md"><code>integrations/hermes</code></a>.</p>
 
@@ -420,6 +425,7 @@ docker run -p 8000:8000 -v recall-data:/data -e OPENAI_API_KEY=sk-... recall-ser
         <tr><td><code>POST …/search</code> · <code>…/peers/{p}/search</code> · <code>…/sessions/{s}/search</code></td><td>Hybrid <a href="#search-filters">search</a> over messages</td></tr>
         <tr><td><code>POST …/conclusions/list</code> · <code>/query</code></td><td><a href="#facts">List facts</a> · query them by meaning</td></tr>
         <tr><td><code>POST …/conclusions</code> · <code>DELETE …/conclusions/{id}</code></td><td><a href="#add-facts">Add facts yourself</a> · delete one</td></tr>
+        <tr><td><code>GET …/conclusions/{id}/history</code> · <code>PATCH …/conclusions/{id}</code><span class="pill">Recall</span></td><td><a href="#history">What happened to a fact</a> · <a href="#pinned">pin it</a></td></tr>
         <tr><td><code>GET …/queue/status</code></td><td>Background work still pending; <code>?wait_ms=</code> waits until it is done<span class="pill">Recall</span></td></tr>
         <tr><td><code>POST …/queue/retry</code><span class="pill">Recall</span></td><td>Queue background work that failed (say, during a provider outage) again</td></tr>
         <tr><td><code>POST …/schedule_dream</code></td><td><a href="#dreams">Run the night shift now</a></td></tr>
@@ -454,20 +460,21 @@ GET /v3/workspaces/{workspace}/sessions/{session}</code></pre>
     <p>The SDKs add a key to every write, so their own retries are always safe; pass your own (<code>idempotencyKey</code>, or <code>idempotency_key</code> in Python) when another process might send the same write again.</p>
 
     <h3 id="add-facts">Add facts yourself</h3>
-    <p>Recall learns facts from messages, but you can also store facts you already know, such as a plan from your billing system or a preference set in your app. <code>observer_id</code> is whose view the fact belongs to and <code>observed_id</code> who it is about; for what Recall knows about a person, both are that person. <code>session_id</code> is optional. Send 1 to 100 facts of up to 65,535 characters each; the answer is <code>201</code> with the stored facts and their ids.</p>
+    <p>Recall learns facts from messages, but you can also store facts you already know, such as a plan from your billing system or a preference set in your app. <code>observer_id</code> is whose view the fact belongs to and <code>observed_id</code> who it is about; for what Recall knows about a person, both are that person. <code>session_id</code> is optional, and so are <code>event_start</code> and <code>event_end</code>: when what the fact describes happened or began, and the last day of a span, as <code>YYYY</code>, <code>YYYY-MM</code> or <code>YYYY-MM-DD</code> (anything else answers <code>422</code>). <code>tags</code> (up to 6) name what the fact is about, <code>"pinned": true</code> keeps it as written (see below), and <code>expires_at</code> (ISO 8601) is when it stops holding ("on call until Friday"): after it, the fact counts as replaced. Send 1 to 100 facts of up to 65,535 characters each; the answer is <code>201</code> with the stored facts and their ids.</p>
 <pre><code>curl $RECALL_URL/v3/workspaces/my-app/conclusions \
   -H "Authorization: Bearer $RECALL_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"conclusions":[{"content":"Is on the Team plan since March 2026",
-                     "observer_id":"alice","observed_id":"alice"}]}'</code></pre>
-    <p>A fact that the same view already holds as a current fact, with the same text apart from case and spacing, is not stored twice. The answer has the stored fact, with <code>times_derived</code> one higher. Recall does the same with facts it learns from messages.</p>
+                     "observer_id":"alice","observed_id":"alice","event_start":"2026-03"}]}'</code></pre>
+    <p>A fact that the same view already holds as a current fact, with the same text apart from case and spacing, is not stored twice. The answer has the stored fact, with <code>times_derived</code> one higher, and the event time you sent if it had none. Recall does the same with facts it learns from messages, except that two dated occurrences that do not overlap (a gym visit on Monday and one on Thursday) stay two facts.</p>
 
     <h3 id="facts">Facts and their history</h3>
     <p><code>POST …/conclusions/list</code> pages through facts, newest first. <code>POST …/conclusions/query</code> finds the facts closest in meaning to <code>query</code> in one view, so its <code>filters</code> must name <code>observer_id</code> and <code>observed_id</code>. Both also return facts that no longer hold, so you can see how something changed. A fact looks like this:</p>
-<pre><code>{"id":"Hq3…","content":"alice lives in Rotterdam","observer_id":"alice","observed_id":"alice",
+<pre><code>{"id":"Hq3…","content":"alice lives in Boston","observer_id":"alice","observed_id":"alice",
  "session_id":"chat-1","level":"explicit","source_ids":[],"times_derived":1,
  "created_at":"2026-09-01T09:00:04.512Z","valid_from":"2026-09-01T09:00:00.000Z",
- "valid_to":"2026-09-20T09:00:00.000Z","superseded_by":"Vt8…","message_ids":["Kp2…"]}</code></pre>
+ "valid_to":"2026-09-20T09:00:00.000Z","superseded_by":"Vt8…","message_ids":["Kp2…"],
+ "event_start":"2026-08","event_end":"2026-09-14","event_precision":"month","tags":["move","boston"],"pinned":false}</code></pre>
     <table>
       <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
       <tbody>
@@ -478,6 +485,12 @@ GET /v3/workspaces/{workspace}/sessions/{session}</code></pre>
         <tr><td><code>valid_to</code><span class="pill">Recall</span></td><td>When it stopped holding. <code>null</code> while it is current.</td></tr>
         <tr><td><code>superseded_by</code><span class="pill">Recall</span></td><td>The id of the fact that replaced it, or <code>null</code>.</td></tr>
         <tr><td><code>message_ids</code><span class="pill">Recall</span></td><td>The ids of the messages it was learned from. Empty for facts you added.</td></tr>
+        <tr><td><code>event_start</code><span class="pill">Recall</span></td><td>When what the fact describes happened or began, as precise as it is known: <code>2026-08-27</code>, <code>2026-08</code> or <code>2026</code>. It can lie long before the fact was learned ("moved to Boston last month") or after it (a planned trip). <code>null</code> when the fact has no time of its own, such as a preference.</td></tr>
+        <tr><td><code>event_end</code><span class="pill">Recall</span></td><td>The last day of a span: a trip, or a state that a later one replaced. <code>null</code> otherwise.</td></tr>
+        <tr><td><code>event_precision</code><span class="pill">Recall</span></td><td><code>day</code>, <code>month</code> or <code>year</code>: how precise <code>event_start</code> is.</td></tr>
+        <tr><td><code>pinned</code><span class="pill">Recall</span></td><td><code>true</code> for a fact a person set: Recall never replaces it (see below).</td></tr>
+        <tr><td><code>expires_at</code><span class="pill">Recall</span></td><td>When the fact stops holding, or <code>null</code>. Change it with <code>PATCH …/conclusions/{id}</code> and <code>{"expires_at": "…"}</code>.</td></tr>
+        <tr><td><code>tags</code><span class="pill">Recall</span></td><td>What the fact is about: the kind of thing (<code>trip</code>, <code>concert</code>, <code>job</code>) and the names it mentions, lowercase and singular. Questions that count ("how many concerts…") gather every fact with the tag, not only the closest few.</td></tr>
       </tbody>
     </table>
     <p>To get only what holds now, filter on <code>"current": true</code>; <code>false</code> gives only the history. Without it you get both, as before.</p>
@@ -485,7 +498,28 @@ GET /v3/workspaces/{workspace}/sessions/{session}</code></pre>
   -H "Authorization: Bearer $RECALL_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"filters":{"observer_id":"alice","observed_id":"alice","current":true}}'</code></pre>
-    <p>Both routes filter on <code>id</code>, <code>workspace_id</code>, <code>observer_id</code>, <code>observed_id</code>, <code>session_id</code>, <code>level</code>, <code>source_ids</code>, <code>times_derived</code> and <code>metadata</code>, and on Recall's <code>current</code>, <code>valid_from</code>, <code>valid_to</code>, <code>superseded_by</code> and <code>message_ids</code>. For example, <code>{"message_ids": "Kp2…"}</code> finds the facts learned from one message, and <code>{"valid_to": {"gte": "2026-09-01"}}</code> the facts that stopped holding since 1 September. Any other field answers <code>422</code>.</p>
+    <p>Both routes filter on <code>id</code>, <code>workspace_id</code>, <code>observer_id</code>, <code>observed_id</code>, <code>session_id</code>, <code>level</code>, <code>source_ids</code>, <code>times_derived</code> and <code>metadata</code>, and on Recall's <code>current</code>, <code>valid_from</code>, <code>valid_to</code>, <code>superseded_by</code>, <code>message_ids</code>, <code>event_start</code>, <code>event_end</code> and <code>tags</code>. For example, <code>{"message_ids": "Kp2…"}</code> finds the facts learned from one message, <code>{"valid_to": {"gte": "2026-09-01"}}</code> the facts that stopped holding since 1 September, <code>{"event_start": {"gte": "2026-03-01", "lt": "2026-04-01"}}</code> what happened or began in March, and <code>{"tags": "concert"}</code> every concert. A fact without an event time matches no <code>event_start</code> or <code>event_end</code> filter. Any other field answers <code>422</code>.</p>
+
+    <h3 id="history">What happened to a fact</h3>
+    <p>Every change to a fact or a peer card is logged: who made it (Recall learning from messages, the night shift, the API, a person in the dashboard), why, and from which messages or facts. <code>GET …/conclusions/{id}/history</code> returns the fact, its <code>events</code> oldest first, the facts it <code>replaced</code> and the fact it was <code>replaced_by</code>. Deleting a fact or forgetting a person deletes their history too. Changes made before October 2026 are not in the log.</p>
+<pre><code>curl $RECALL_URL/v3/workspaces/my-app/conclusions/Hq3…/history \
+  -H "Authorization: Bearer $RECALL_API_KEY"
+
+{"conclusion":{"id":"Hq3…","content":"alice lives in Boston",…},
+ "events":[{"action":"created","actor":"reasoner","reason":"learned from messages","sources":["Kp2…"],…},
+           {"action":"superseded","actor":"reasoner","reason":"replaced by a newer statement","sources":["Vt8…","Lm4…"],
+            "after":{"superseded_by":"Vt8…","valid_to":"2026-09-20T09:00:00.000Z"},…}],
+ "replaced":[],"replaced_by":{"id":"Vt8…","content":"alice lives in New York",…}}</code></pre>
+    <p>To see what held on a date, send <code>as_of</code> to <code>…/conclusions/list</code>: <code>{"as_of": "2026-09-01"}</code> returns the facts that had begun by then and were not yet replaced, as memory knows them now.</p>
+
+    <h3 id="pinned">Pinned facts</h3>
+    <p>A pinned fact stays as written. Recall never closes, merges or rewrites it; when someone later says something that disagrees, that statement is stored next to it and the disagreement shows in the fact's history as a <code>conflict</code>, for a person to resolve. Pin when you add a fact (<code>"pinned": true</code>), or later:</p>
+<pre><code>curl -X PATCH $RECALL_URL/v3/workspaces/my-app/conclusions/Hq3… \
+  -H "Authorization: Bearer $RECALL_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"pinned": true}'</code></pre>
+    <p>Facts you add or correct in the dashboard are pinned; unpin them there or with <code>{"pinned": false}</code>.</p>
+    <p>Why did a result come back? Add <code>"explain": true</code> to any message search (<code>…/search</code>) or to <code>…/conclusions/query</code>: each result gets an <code>explain</code> object with its rank, and for messages its fused score, its place in the meaning search with its distance, and its place in the word search.</p>
 
     <h3 id="dreams">Run the night shift now</h3>
     <p>The night shift runs by itself; <code>POST …/schedule_dream</code> starts one now, for example after importing a history. The answer is <code>204</code> and the work is queued.</p>
@@ -672,5 +706,6 @@ RECALL_MODEL_CHAT_MAX=anthropic/claude-opus-5-5</code></pre>
 </footer>
 
 <script src="/site.js" defer></script>
+<script defer src="/u/script.js" data-website-id="49d3572d-ca3b-4281-a0ed-191b2f269094" data-host-url="/u"></script>
 </body>
 </html>

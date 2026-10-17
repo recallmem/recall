@@ -1,4 +1,5 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { cleanTag, type SignupSource } from "../../core/signup-source.js";
 
 /**
  * "Continue with GitHub" for the dashboard (RECALL_GITHUB_CLIENT_ID and _SECRET, a GitHub OAuth
@@ -40,6 +41,8 @@ export function signState(
   next: string | null,
   now = Date.now(),
   link = false,
+  /** Where the visit came from, for a sign-up (core/signup-source.ts). */
+  source: SignupSource | null = null,
 ): string {
   const payload = Buffer.from(
     JSON.stringify({
@@ -47,6 +50,7 @@ export function signState(
       t: now,
       r: randomBytes(9).toString("base64url"),
       ...(link ? { l: 1 } : {}),
+      ...(source ? { s: source.source, c: source.campaign } : {}),
     }),
   ).toString("base64url");
   return `${payload}.${sign(secret, payload, binding)}`;
@@ -58,7 +62,7 @@ export function verifyState(
   binding: string | null,
   state: string | undefined,
   now = Date.now(),
-): { next: string | null; link: boolean } | undefined {
+): { next: string | null; link: boolean; source: SignupSource | null } | undefined {
   if (!binding || !state || state.length > 6000) return undefined;
   const dot = state.lastIndexOf(".");
   if (dot <= 0) return undefined;
@@ -71,9 +75,16 @@ export function verifyState(
       n?: unknown;
       t?: unknown;
       l?: unknown;
+      s?: unknown;
+      c?: unknown;
     };
     if (typeof p.t !== "number" || now - p.t > STATE_TTL_MS || p.t > now + 60_000) return undefined;
-    return { next: typeof p.n === "string" ? p.n : null, link: p.l === 1 };
+    const source = cleanTag(p.s);
+    return {
+      next: typeof p.n === "string" ? p.n : null,
+      link: p.l === 1,
+      source: source ? { source, campaign: cleanTag(p.c) } : null,
+    };
   } catch {
     return undefined;
   }

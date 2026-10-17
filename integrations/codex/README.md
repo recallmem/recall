@@ -90,8 +90,12 @@ http_headers = { "X-Recall-Workspace-ID" = "my-workspace", "X-Recall-User-Name" 
 ## What gets sent and injected
 
 - **Sent:** your prompts (`UserPromptSubmit`) and Codex's final reply per turn (`Stop`, `last_assistant_message`),
-  each cut to 24,000 characters, with `{"source": "codex", "turn_id": ...}` as metadata. Not tool calls, command
-  output or file contents. The Recall server analyses them with its language model, so only point this at a server
+  with `{"source": "codex", "turn_id": ...}` as metadata and the time each was said. A message over the server's
+  25,000-character limit is stored whole, as consecutive parts. Not tool calls, command output or file contents:
+  Recall learns about you from what you say, and Codex's replies are context, never a source of facts about you.
+  Each message is written to disk (one file each) before anything is sent and removed only once Recall has taken
+  it, so a stopped or concurrent hook loses nothing; unsent messages (up to 500) go first, oldest first, when Recall
+  is back, and what a longer outage loses is reported in the next session's context and by the status script. A refused key or an account out of credit keeps them waiting the same way; only a message Recall rejects as such is let go of, and that is reported too. The Recall server analyses them with its language model, so only point this at a server
   you trust, and use `record: false` or `RECALL_ENABLED=false` for work you do not want remembered.
 - **Injected:** at session start, your peer card and the most relevant facts (about `contextTokens` tokens), plus a
   line naming the Recall session and the tools. With `lookup: prompt`, also the facts related to each prompt.

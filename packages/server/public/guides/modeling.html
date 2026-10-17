@@ -9,7 +9,11 @@
 <meta property="og:title" content="Designing workspaces, peers and sessions — Recall guides" />
 <meta property="og:description" content="How to map a product onto Recall's workspaces, peers, sessions and scopes, who observes whom, and the mistakes that mix up memories." />
 <meta property="og:type" content="article" />
-<meta property="og:image" content="/og.png" />
+<meta property="og:url" content="https://recallmem.dev/guides/modeling" />
+<meta property="og:image" content="https://recallmem.dev/og.png" />
+<meta property="og:site_name" content="Recall" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://recallmem.dev/og.png" />
 <link rel="canonical" href="https://recallmem.dev/guides/modeling" />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="preload" href="/fonts/silkscreen-700.woff2" as="font" type="font/woff2" crossorigin />
@@ -187,7 +191,7 @@ const trip = recall.session("chat-5531", {
   peers: { "user-8412": {}, "agent-planner": { observeOthers: true } },
 });
 await trip.addMessages([
-  user.message("I live in Utrecht and I am vegetarian."),
+  user.message("I live in Boston and I am vegetarian."),
   planner.message("Noted. I'll only suggest restaurants with good vegetarian menus."),
 ]);
 
@@ -196,8 +200,8 @@ const invoice = recall.session("chat-5532", {
   peers: { "user-8412": {}, "agent-billing": { observeOthers: true } },
 });
 await invoice.addMessages([
-  user.message("I moved to Amersfoort last week, please update my billing address."),
-  billing.message("Done. Your next invoice goes to your new address in Amersfoort."),
+  user.message("I moved to Chicago last week, please update my billing address."),
+  billing.message("Done. Your next invoice goes to your new address in Chicago."),
 ]);</code></pre>
 <pre data-panel="py" hidden><code># One session per conversation. Each agent joins with observe_others, so it builds its own
 # view of the people it talks to, from this conversation only.
@@ -208,7 +212,7 @@ trip = recall.session(
 )
 trip.add_messages(
     [
-        user.message("I live in Utrecht and I am vegetarian."),
+        user.message("I live in Boston and I am vegetarian."),
         planner.message("Noted. I'll only suggest restaurants with good vegetarian menus."),
     ]
 )
@@ -220,8 +224,8 @@ invoice = recall.session(
 )
 invoice.add_messages(
     [
-        user.message("I moved to Amersfoort last week, please update my billing address."),
-        billing.message("Done. Your next invoice goes to your new address in Amersfoort."),
+        user.message("I moved to Chicago last week, please update my billing address."),
+        billing.message("Done. Your next invoice goes to your new address in Chicago."),
     ]
 )</code></pre>
 </div>
@@ -230,9 +234,9 @@ invoice.add_messages(
   <div class="tabs" role="tablist" aria-label="Language"><button type="button" class="tab" role="tab" aria-selected="true" data-tab="ts">TypeScript</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="py">Python</button></div>
 <pre data-panel="ts"><code>// (waitForIdle is for this demo; real apps rarely wait for learning to finish.)
 await recall.waitForIdle();
-// Recall's view of the user, built from everything they said in any session: Amersfoort.
+// Recall's view of the user, built from everything they said in any session: Chicago.
 const recallView = await user.chat("Where do I live?", { reasoningLevel: "minimal" });
-// The planner's view holds only what it witnessed. It never heard about the move: Utrecht.
+// The planner's view holds only what it witnessed. It never heard about the move: Boston.
 const plannerView = await planner.chat("Where does the user live?", {
   target: user,
   reasoningLevel: "minimal",
@@ -241,9 +245,9 @@ const plannerView = await planner.chat("Where does the user live?", {
 const context = await trip.context({ peerTarget: user, peerPerspective: planner, tokens: 2000 });</code></pre>
 <pre data-panel="py" hidden><code># (wait_for_idle is for this demo; real apps rarely wait for learning to finish.)
 recall.wait_for_idle()
-# Recall's view of the user, built from everything they said in any session: Amersfoort.
+# Recall's view of the user, built from everything they said in any session: Chicago.
 recall_view = user.chat("Where do I live?", reasoning_level="minimal")
-# The planner's view holds only what it witnessed. It never heard about the move: Utrecht.
+# The planner's view holds only what it witnessed. It never heard about the move: Boston.
 planner_view = planner.chat("Where does the user live?", target=user, reasoning_level="minimal")
 # In a prompt, read the user through the eyes of the agent that is talking.
 context = trip.context(peer_target=user, peer_perspective=planner, tokens=2000)</code></pre>
@@ -338,5 +342,6 @@ GET /v3/workspaces/{workspace}/sessions/{session}</code></pre>
 </footer>
 
 <script src="/site.js" defer></script>
+<script defer src="/u/script.js" data-website-id="49d3572d-ca3b-4281-a0ed-191b2f269094" data-host-url="/u"></script>
 </body>
 </html>

@@ -1,4 +1,5 @@
 import { type SQL, sql } from "drizzle-orm";
+import { type EventPrecision, eventOf, formatEventDate } from "../lib/event-time.js";
 import { iso } from "../lib/time.js";
 
 /**
@@ -109,7 +110,8 @@ export const scopeOut = (r: ScopeRow) => ({
 
 export const CONCLUSION_COLS: SQL = sql`c.id, c.content, obs.name AS observer_name, obd.name AS observed_name,
   s.name AS session_name, c.level, c.source_ids, c.times_derived, c.created_at,
-  c.valid_from, c.valid_to, c.superseded_by, c.message_ids`;
+  c.valid_from, c.valid_to, c.superseded_by, c.message_ids, c.event_start, c.event_end, c.event_precision,
+  c.tags, c.pinned, c.expires_at`;
 export interface ConclusionRow {
   id: string;
   content: string;
@@ -124,12 +126,22 @@ export interface ConclusionRow {
   valid_to: Time;
   superseded_by: string | null;
   message_ids: string[] | null;
+  event_start: Time;
+  event_end: Time;
+  event_precision: EventPrecision | null;
+  tags: string[] | null;
+  pinned: boolean | null;
+  expires_at: Time;
 }
 /**
  * The Honcho fields, then Recall's: when the fact held (`valid_from`, which falls back to
  * `created_at`, and `valid_to`, null while it is current), the fact that replaced it, and the
  * public ids of the messages it was learned from. `source_ids` keeps its Honcho meaning
- * (premise conclusions of a derived fact).
+ * (premise conclusions of a derived fact). The event time says when what the fact describes
+ * happened or began: `event_start` as precise as it is known (`2025-05-27`, `2025-05` or `2025`),
+ * `event_end` the last day of a span, `event_precision` day, month or year; all null when the fact
+ * has no time of its own. `tags` name what the fact is about (lowercase, singular). `pinned`
+ * facts were set by a person, and the reasoner and dreams never change them.
  */
 export const conclusionOut = (r: ConclusionRow) => ({
   id: r.id,
@@ -145,7 +157,20 @@ export const conclusionOut = (r: ConclusionRow) => ({
   valid_to: r.valid_to == null ? null : iso(r.valid_to),
   superseded_by: r.superseded_by ?? null,
   message_ids: r.message_ids ?? [],
+  ...eventOut(r),
+  tags: r.tags ?? [],
+  pinned: r.pinned === true,
+  expires_at: r.expires_at == null ? null : iso(r.expires_at),
 });
+
+function eventOut(r: Pick<ConclusionRow, "event_start" | "event_end" | "event_precision">) {
+  const t = eventOf(r);
+  return {
+    event_start: t ? formatEventDate(t.start, t.precision) : null,
+    event_end: t?.end ? formatEventDate(t.end, "day") : null,
+    event_precision: t?.precision ?? null,
+  };
+}
 
 export const WEBHOOK_COLS: SQL = sql`e.id, w.name AS workspace_name, e.url, e.created_at`;
 export interface WebhookRow {

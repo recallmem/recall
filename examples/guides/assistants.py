@@ -30,7 +30,7 @@ def main(recall: Recall | None = None) -> dict[str, Any]:
     # The peer card: a short list of facts for every prompt. Recall writes and updates it as it
     # learns; you can add lines yourself, e.g. from onboarding. set_card replaces the whole card.
     card = user.get_card() or []
-    user.set_card([*card, "Prefers to be called Sam.", "Vegetarian.", "Timezone Europe/Amsterdam."])
+    user.set_card([*card, "Prefers to be called Sam.", "Vegetarian.", "Timezone America/New_York."])
     # endregion
 
     # region turn

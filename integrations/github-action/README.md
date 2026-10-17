@@ -19,7 +19,6 @@
   <a href="LICENSE"><img alt="Licence: MIT" src="https://img.shields.io/badge/licence-MIT-ffb000?style=flat-square&labelColor=171410"></a>
   <a href="https://github.com/marketplace/actions/recall-repo-memory"><img alt="GitHub Marketplace: Recall repo memory" src="https://img.shields.io/badge/marketplace-recall%20repo%20memory-ffb000?style=flat-square&labelColor=171410&logo=github"></a>
   <a href="https://github.com/recallmem/memory-action/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/recallmem/memory-action?style=flat-square&labelColor=171410&color=ffb000&label=release"></a>
-  <a href="LICENSE"><img alt="Licence: MIT" src="https://img.shields.io/badge/licence-MIT-ffb000?style=flat-square&labelColor=171410"></a>
   <a href="action.yml"><img alt="Runs on Node 24" src="https://img.shields.io/badge/runs%20on-node%2024-ffb000?style=flat-square&labelColor=171410"></a>
 </p>
 

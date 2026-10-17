@@ -2,7 +2,7 @@
 // Prints the settings the hooks use and whether Recall answers.
 //   node scripts/status.mjs
 
-import { HOST, loadSettings, request } from "./lib.mjs";
+import { HOST, loadSettings, lostReport, refusal, request, spoolFiles } from "./lib.mjs";
 
 const s = loadSettings();
 const key = s.apiKey
@@ -21,6 +21,19 @@ const lines = [
   `mcp profile     ${s.mcpProfile}`,
   `config file     ${s.configPath ?? "(none found)"}`,
 ];
+const waiting = spoolFiles();
+if (waiting.length)
+  lines.push(
+    `unsent          ${waiting.length} waiting since ${new Date(Number(waiting[0].split("-")[0]) || Date.now()).toISOString()}`,
+  );
+const refused = refusal();
+if (refused)
+  lines.push(`refused         ${refused.reason} (HTTP ${refused.status}) since ${refused.since}`);
+const lost = lostReport();
+if (lost.count)
+  lines.push(
+    `lost            ${lost.count} messages since ${lost.since}${lost.rejected ? ` (${lost.rejected} rejected by Recall)` : ""}`,
+  );
 console.log(lines.join("\n"));
 
 const health = await request(s, "GET", "/health", { timeoutMs: 5000 });

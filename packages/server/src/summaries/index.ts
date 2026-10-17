@@ -9,6 +9,7 @@ import { isoMinute, textArray } from "../reasoner/util.js";
 import { emitQueueEmpty } from "../webhooks/index.js";
 import "./offline.js";
 import {
+  blockDates,
   crossesBoundary,
   lastBoundary,
   loadBlocksAfter,
@@ -43,11 +44,11 @@ Input: PREVIOUS SUMMARY (may be empty) and the NEW MESSAGES, one per line as "<p
 
 Return JSON:
 short_summary: the previous summary updated so it covers the whole conversation so far: the most important facts about the peers, their preferences and requests, decisions made, and open threads. At most 200 words. Plain prose, no preamble, no meta-commentary.
-synopsis: 1 to 3 sentences on what the new messages covered (topics, decisions, requests, open questions).`;
+synopsis: 1 to 3 sentences on what the new messages covered (topics, decisions, requests, open questions), naming people, places, titles, numbers and dates exactly as they were given.`;
 
 export const SummaryOut = z.object({ short_summary: z.string(), synopsis: z.string() });
 
-const CONDENSE_SYSTEM = `You condense a dated log of conversation synopses into a shorter chronological summary. Keep names, dates, decisions, stated facts and preferences, and how things changed over time; drop repetition. Plain prose, no preamble.`;
+const CONDENSE_SYSTEM = `You condense a dated log of conversation synopses into a shorter chronological summary, in sections by period. Each section starts on its own line with the dates it covers ("2025-03-02 to 2025-04-18:"), then plain prose. Keep names, places, titles, numbers and dates exactly as written, and the decisions, stated facts, preferences and how things changed over time; drop repetition. End with one line "Left out:" naming the topics you dropped or cut short, so a reader knows what to look up. No preamble.`;
 
 /** True when a summary boundary has passed that the current summaries do not cover. */
 export async function summaryWorkPending(ctx: AppContext, session: SessionInfo): Promise<boolean> {
@@ -178,7 +179,7 @@ export async function handleSummarize(ctx: AppContext, job: ClaimedJob): Promise
         startSeq: Number(chunk[0]!.seq_in_session),
         endSeq,
         lastMessageId: lastMsg.id,
-        content: `${new Date(lastMsg.created_at).toISOString().slice(0, 10)}: ${data.synopsis.trim()}`,
+        content: `${blockDates(new Date(chunk[0]!.created_at), new Date(lastMsg.created_at))}: ${data.synopsis.trim()}`,
       });
       wrote =
         (await writeSummary(tx, {

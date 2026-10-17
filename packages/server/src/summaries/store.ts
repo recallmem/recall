@@ -153,6 +153,13 @@ export async function writeSummary(
   return true;
 }
 
+/** The dates a block covers: `2025-05-01`, or `2025-05-01 to 2025-05-03` when it spans days. */
+export function blockDates(first: Date, last: Date): string {
+  const a = first.toISOString().slice(0, 10);
+  const b = last.toISOString().slice(0, 10);
+  return a === b ? a : `${a} to ${b}`;
+}
+
 export async function writeBlock(
   tx: Tx,
   b: {

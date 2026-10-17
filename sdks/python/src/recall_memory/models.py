@@ -212,6 +212,19 @@ class ConclusionResponse(_Base):
     """The id of the conclusion that replaced it, if one did."""
     message_ids: list[str] = Field(default_factory=list)
     """Ids of the messages it was learned from (empty for facts saved directly)."""
+    event_start: str | None = None
+    """When what the fact describes happened or began, as precise as it is known:
+    ``2025-05-27``, ``2025-05`` or ``2025``. ``None`` when it has no time of its own."""
+    event_end: str | None = None
+    """The last day of a span (``2025-06-01``), or ``None``."""
+    event_precision: Literal["day", "month", "year"] | str | None = None
+    """How precise ``event_start`` is."""
+    tags: list[str] = Field(default_factory=list)
+    """What the fact is about: kinds of things and named entities, lowercase and singular."""
+    pinned: bool = False
+    """Set by a person: the reasoner and dreams never replace it; what disagrees is flagged."""
+    expires_at: datetime | None = None
+    """When the fact stops holding, if it has an end date."""
 
 
 class Conclusion(ConclusionResponse):
@@ -221,6 +234,14 @@ class Conclusion(ConclusionResponse):
 class ConclusionCreateParams(_Base):
     content: str
     session_id: str | None = None
+    event_start: str | None = None
+    """When it happened or began: ``YYYY``, ``YYYY-MM`` or ``YYYY-MM-DD``."""
+    event_end: str | None = None
+    """The last day of a span, in the same forms."""
+    tags: list[str] | None = None
+    pinned: bool | None = None
+    expires_at: str | None = None
+    """When the fact stops holding (ISO 8601)."""
 
 
 class WebhookEndpoint(_Base):
