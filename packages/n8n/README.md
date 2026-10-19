@@ -47,7 +47,7 @@ Clearing the memory (the Chat Memory Manager's delete) deletes the session from 
 Connected to an AI Agent's **Tool** input, the agent decides when to call it: "What did this customer order last
 time?", "Remember that I'm vegetarian".
 
-IDs may use letters, digits, `_` and `-`; anything else becomes `_`, so `jane@example.com` is `jane_example_com`.
+IDs may use letters, digits, `_` and `-`. Any other id is cleaned up and given a short hash of the original, so `jane@example.com` becomes `jane_example_com_` plus 10 characters and two different ids never share a memory. (Version 0.1.0 left out the hash; ids that had other characters map to new peers from 0.2.0. The workspace name is mapped as before.)
 
 ## Pricing and data
 

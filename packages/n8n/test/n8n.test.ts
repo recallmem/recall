@@ -7,7 +7,7 @@ import { startTestServer, type TestServer } from "../../sdk/test/harness.js";
 import { RecallApi } from "../src/credentials/RecallApi.credentials.js";
 import { Recall } from "../src/nodes/Recall/Recall.node.js";
 import { RecallMemory } from "../src/nodes/RecallMemory/RecallMemory.node.js";
-import { recallClient, safeId, split } from "../src/shared/api.js";
+import { recallClient, safeId, split, workspaceId } from "../src/shared/api.js";
 
 let server: TestServer;
 beforeAll(async () => {
@@ -167,7 +167,7 @@ describe("Recall Memory (AI Agent memory)", () => {
     const workspace = fresh();
     const one = await memoryFor(workspace, { sessionId: "monday", userId: "jane@example.com" });
     await one.memory.saveContext({ input: "Hi" }, { output: "Hello!" });
-    await sdk(workspace).peer("jane_example_com").conclusions.create("Works night shifts.");
+    await sdk(workspace).peer(safeId("jane@example.com")).conclusions.create("Works night shifts.");
 
     const two = await memoryFor(workspace, {
       sessionId: "tuesday",
@@ -258,7 +258,7 @@ describe("Recall (node and agent tool)", () => {
       role: "user",
       message: `My order is late. ${"x".repeat(30_000)}`,
     });
-    expect(added).toMatchObject({ sessionId: "ticket_4821", stored: 2 });
+    expect(added).toMatchObject({ sessionId: safeId("ticket 4821"), stored: 2 });
 
     const [profile] = await execute(workspace, { operation: "profile", userId: "bob" });
     expect(Array.isArray(profile!.profile)).toBe(true);
@@ -347,11 +347,20 @@ describe("requests", () => {
     expect(res.ok).toBe(true);
   });
 
-  it("turn any name into an id Recall accepts, and split long text", () => {
-    expect(safeId("jane@example.com")).toBe("jane_example_com");
+  it("turn any name into an id Recall accepts, never the same for two names, and split long text", () => {
+    expect(safeId("user-42_ok")).toBe("user-42_ok");
+    expect(safeId("  user-42 ")).toBe("user-42");
+    const jane = safeId("jane@example.com");
+    expect(jane).toMatch(/^jane_example_com_[0-9a-f]{10}$/);
+    expect(safeId("jane@example.com")).toBe(jane);
+    // Two people whose ids differ only in characters Recall does not accept never share a memory.
+    expect(safeId("john.doe@acme.com")).not.toBe(safeId("john_doe@acme.com"));
+    expect(safeId(`${"x".repeat(600)}@`).length).toBeLessThanOrEqual(512);
     expect(safeId("  ")).toBe("");
     expect(safeId("@@", "fallback")).toBe("fallback");
-    expect(safeId("user-42_ok")).toBe("user-42_ok");
+    // Workspaces keep the mapping of 0.1.0, so existing ones keep their memory.
+    expect(workspaceId("my.app", "default")).toBe("my_app");
+    expect(workspaceId("..", "default")).toBe("default");
     const parts = split(`${"a ".repeat(20_000)}`, 24_000);
     expect(parts.length).toBe(2);
     expect(parts.join("")).toBe("a ".repeat(20_000));

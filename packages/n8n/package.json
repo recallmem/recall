@@ -1,6 +1,6 @@
 {
   "name": "@recall-memory/n8n-nodes-recall",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Recall for n8n: long-term memory for the AI Agent that remembers each user across conversations, and a node to ask, search and update what it knows.",
   "keywords": [
     "n8n-community-node-package",
