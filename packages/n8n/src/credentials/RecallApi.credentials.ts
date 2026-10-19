@@ -53,10 +53,14 @@ export class RecallApi implements ICredentialType {
   // Gets or creates the workspace: the one call any valid key may make, and the first one a node makes.
   test: ICredentialTestRequest = {
     request: {
-      baseURL: '={{$credentials.baseUrl.replace(/\\/+$/, "")}}',
+      // The base URL and workspace id the nodes use (shared/api.ts): the defaults when empty, and
+      // the workspace name mapped as workspaceId() maps it.
+      baseURL: '={{($credentials.baseUrl || "https://api.recallmem.dev").replace(/\\/+$/, "")}}',
       url: "/v3/workspaces",
       method: "POST",
-      body: { id: "={{$credentials.workspace}}" },
+      body: {
+        id: '={{String($credentials.workspace || "default").trim().replace(/[^A-Za-z0-9_-]+/g, "_").slice(0, 512).replace(/^_+$/, "") || "default"}}',
+      },
     },
   };
 }

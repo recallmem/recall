@@ -72,7 +72,7 @@ def recall_rows(evals, repo_url):
         "what": "A memory API. It learns what is true about each person from your agent's conversations and answers questions about them, with sources, in one model call.",
         "hosted": "Yes. Data is stored in Frankfurt (EU).",
         "self": f'Yes. The server is source-available under the FSL-1.1-ALv2 (each version becomes Apache 2.0 after two years); the SDKs and integrations are MIT. <a href="/docs#self-host">Self-hosting</a>, <a href="{repo_url}">source</a>.',
-        "pricing": f'Pay as you go from prepaid credit: learning {P["ingest_per_mtok"]} per 1M message tokens, questions {P["minimal"]} to {P["max"]} by level. Context, search, storage and the night shift are included. <a href="/#pricing">Pricing</a>.',
+        "pricing": f'Pay as you go from prepaid credit: learning {P["ingest_per_mtok"]} per 1M message tokens, questions {P["minimal"]} to {P["max"]} by level. Context, search and the night shift are included, and there is no ongoing storage fee (a message stored without being learned from, or a fact you add yourself, costs {P["store_per_mtok"]} per 1M tokens, once). <a href="/#pricing">Pricing</a>.',
         "free": f'{P["signup_credit"]} of credit once, no card needed.',
         "api": 'The v3 memory REST API, which Honcho\'s clients also speak; TypeScript and Python SDKs, an MCP server, and plugins for Claude Code and Codex.',
     }
@@ -197,7 +197,7 @@ def mem0(evals, repo_url):
 <tr><td>Pro (adds graph memory, Dream consolidation, analytics)</td><td class="n">$249</td><td class="n">500,000</td><td class="n">50,000</td></tr>
 <tr><td>Enterprise (adds on-prem deployment, SSO, audit logs)</td><td class="n">Custom</td><td class="n">Unlimited</td><td class="n">Unlimited</td></tr>
 </tbody></table></div>
-<p>Recall: learning {P["ingest_per_mtok"]} per 1M message tokens (a message counts as at least {MIN_TOKENS} tokens), a question {P["minimal"]} at <code>minimal</code>, {P["low"]} at <code>low</code> (the default) and up to {P["max"]} at <code>max</code>; context, search, storage and the night shift included; {P["signup_credit"]} of credit to start. A retrieval in Mem0 returns memories for your own model to read; the closest Recall calls, context and search, are included in the price, and a Recall question also writes the answer. Which costs less depends on how long your messages are and how often you ask.</p>""",
+<p>Recall: learning {P["ingest_per_mtok"]} per 1M message tokens (a message counts as at least {MIN_TOKENS} tokens), a question {P["minimal"]} at <code>minimal</code>, {P["low"]} at <code>low</code> (the default) and up to {P["max"]} at <code>max</code>; context, search and the night shift included, no ongoing storage fee; {P["signup_credit"]} of credit to start. A retrieval in Mem0 returns memories for your own model to read; the closest Recall calls, context and search, are included in the price, and a Recall question also writes the answer. Which costs less depends on how long your messages are and how often you ask.</p>""",
         "bench": [
             ("LongMemEval", r["lme"] + " on LongMemEval-S", "94.4% (472 of 500) in the README; the per-question results file gives 93.4% (467 of 500)[[mem0-bench]]",
              f'Recall: {r["lme_how"]}. Mem0: Mem0\'s managed platform, top-200 retrieval, answers and PASS/FAIL verdicts by gpt-5 in Mem0\'s own harness; the README does not say which LongMemEval variant.[[mem0-bench]]',
@@ -306,7 +306,7 @@ def letta(evals, repo_url):
             "api": "The Letta API and the Letta Agent SDK for TypeScript; Python apps use the App Server's WebSocket protocol.[[letta-sdk]] Not compatible with Recall's API.",
         },
         "pricing": f"""
-<p>Letta prices an agent platform: plans, active agents, tool execution time and model usage.[[letta-pricing]] Recall prices a memory service: {P["ingest_per_mtok"]} per 1M message tokens learned and {P["minimal"]} to {P["max"]} per question, with context, search and storage included and no monthly fee. The two do not compare line by line; with Recall your agent and its model run, and are paid for, wherever you run them today.</p>
+<p>Letta prices an agent platform: plans, active agents, tool execution time and model usage.[[letta-pricing]] Recall prices a memory service: {P["ingest_per_mtok"]} per 1M message tokens learned and {P["minimal"]} to {P["max"]} per question, with context and search included, no ongoing storage fee and no monthly fee. The two do not compare line by line; with Recall your agent and its model run, and are paid for, wherever you run them today.</p>
 <div class="table-scroll"><table>
 <thead><tr><th>Letta plan[[letta-pricing]]</th><th>Price</th><th>What it includes</th></tr></thead>
 <tbody>

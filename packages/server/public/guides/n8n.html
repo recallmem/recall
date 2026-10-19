@@ -123,7 +123,7 @@
     <table>
       <thead><tr><th>Field</th><th>Use</th></tr></thead>
       <tbody>
-        <tr><td>User ID</td><td>Who the agent talks to. Letters, digits, <code>_</code> and <code>-</code>; anything else becomes <code>_</code>, so <code>jane@example.com</code> is stored as <code>jane_example_com</code>. Use the same ID in the Recall node.</td></tr>
+        <tr><td>User ID</td><td>Who the agent talks to. Letters, digits, <code>_</code> and <code>-</code> are kept as they are. Any other ID is cleaned up and given a short code made from the original, so <code>jane@example.com</code> is stored as <code>jane_example_com_</code> followed by 10 characters, and two different IDs never share a memory. Use the same ID in the Recall node.</td></tr>
         <tr><td>Memory Placement</td><td><b>System Message</b> (default) works with OpenAI, Mistral, Groq and Ollama models. Choose <b>User Message</b> with Anthropic and Gemini models, which accept a system message only as the first message.</td></tr>
         <tr><td>Context Tokens</td><td>Budget for this conversation's history (default 2,000). Older turns are summarised, not cut off.</td></tr>
         <tr><td>Relevant To</td><td>Recall brings the facts most relevant to this text; the default is the incoming chat message.</td></tr>

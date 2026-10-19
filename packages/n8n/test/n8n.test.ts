@@ -328,7 +328,28 @@ describe("requests", () => {
     const denied = await recallClient(refused.ctx as unknown as IExecuteFunctions);
     await expect(denied("GET", "/x")).rejects.toThrow();
     expect(refused.requests).toHaveLength(1); // a refused key is not retried
-  });
+
+    // A write without a key that must run at most once (saving a fact): a server error may
+    // come after it was stored, so it is not tried again; a rate limit means it never ran.
+    const failing = (code: string) =>
+      context(
+        "w",
+        {},
+        {
+          request: async () => {
+            throw Object.assign(new Error("failed"), { httpCode: code });
+          },
+        },
+      );
+    const broken = failing("500");
+    const once = await recallClient(broken.ctx as unknown as IExecuteFunctions);
+    await expect(once("POST", "/conclusions", { once: true })).rejects.toThrow();
+    expect(broken.requests).toHaveLength(1);
+    const limited = failing("429");
+    const later = await recallClient(limited.ctx as unknown as IExecuteFunctions);
+    await expect(later("POST", "/conclusions", { once: true })).rejects.toThrow();
+    expect(limited.requests).toHaveLength(4);
+  }, 30_000);
 
   it("use the credential's server and workspace, and its test request works", async () => {
     const workspace = fresh();
@@ -358,6 +379,18 @@ describe("requests", () => {
     expect(safeId(`${"x".repeat(600)}@`).length).toBeLessThanOrEqual(512);
     expect(safeId("  ")).toBe("");
     expect(safeId("@@", "fallback")).toBe("fallback");
+    // The credential test reaches the workspace the nodes use, and the default server when empty.
+    const request = new RecallApi().test.request as { baseURL: string; body: { id: string } };
+    const evaluate = (expression: string, credentials: Record<string, string>) =>
+      new Function("$credentials", `return ${expression.slice(3, -2)}`)(credentials) as string;
+    for (const name of ["my.app", "  ", "..", "default", "team-1", ""])
+      expect(evaluate(request.body.id, { workspace: name })).toBe(
+        workspaceId(name || "default", "default"),
+      );
+    expect(evaluate(request.baseURL, { baseUrl: "" })).toBe("https://api.recallmem.dev");
+    expect(evaluate(request.baseURL, { baseUrl: "http://localhost:8000/" })).toBe(
+      "http://localhost:8000",
+    );
     // Workspaces keep the mapping of 0.1.0, so existing ones keep their memory.
     expect(workspaceId("my.app", "default")).toBe("my_app");
     expect(workspaceId("..", "default")).toBe("default");

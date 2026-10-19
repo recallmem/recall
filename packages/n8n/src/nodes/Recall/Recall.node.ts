@@ -242,6 +242,8 @@ async function run(
           reasoning_level: String(this.getNodeParameter("reasoningLevel", i, "low")),
         },
         allowNotFound: true,
+        // A retried question is answered, and charged, once.
+        idempotencyKey: newKey("chat"),
       });
       // A person Recall has never seen has no memory yet: that is an empty answer, not an error.
       return { userId, question, answer: answer?.content ?? null };
@@ -250,11 +252,16 @@ async function run(
       const fact = String(this.getNodeParameter("fact", i)).trim();
       if (!fact) throw new NodeOperationError(this.getNode(), "Fact is empty", { itemIndex: i });
       const body = { conclusions: [{ content: fact, observer_id: userId, observed_id: userId }] };
-      let created = await recall<Fact[]>("POST", "/conclusions", { body, allowNotFound: true });
+      // Saving a fact has no idempotency key: a retry after a server error could save it twice.
+      let created = await recall<Fact[]>("POST", "/conclusions", {
+        body,
+        allowNotFound: true,
+        once: true,
+      });
       if (!created) {
         // The person is new to Recall: create them, then save the fact.
         await recall("POST", "/peers", { body: { id: userId } });
-        created = await recall<Fact[]>("POST", "/conclusions", { body });
+        created = await recall<Fact[]>("POST", "/conclusions", { body, once: true });
       }
       const saved = created?.[0];
       return { userId, saved: Boolean(saved), id: saved?.id ?? null, fact };

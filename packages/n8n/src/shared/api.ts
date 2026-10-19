@@ -24,6 +24,11 @@ export interface RequestOptions {
   query?: IDataObject;
   /** Sent as `Idempotency-Key`, so a retried write is stored once. */
   idempotencyKey?: string;
+  /**
+   * A write Recall would store again if it ran twice and that has no idempotency key: retried only
+   * after a rate limit (429), when it did not run, never after an error it may have survived.
+   */
+  once?: boolean;
   /** Resolve to `undefined` instead of failing when Recall answers 404 (nothing known yet). */
   allowNotFound?: boolean;
 }
@@ -57,8 +62,9 @@ export function statusOf(error: unknown): number {
   return 0;
 }
 
-/** Worth trying again: a busy session (409), rate limits and Recall's own errors. */
-const retryable = (status: number) => status === 409 || status === 429 || status >= 500;
+/** Worth trying again: rate limits, and unless the request must run at most once, a busy session (409) and Recall's own errors. */
+const retryable = (status: number, once: boolean) =>
+  status === 429 || (!once && (status === 409 || status >= 500));
 
 /**
  * Calls Recall's REST API in the credential's workspace, with the credential's key. Retries what
@@ -92,7 +98,7 @@ export async function recallClient(ctx: Context, itemIndex = 0): Promise<Recall>
       } catch (error) {
         const status = statusOf(error);
         if (options.allowNotFound && status === 404) return undefined;
-        if (retryable(status) && attempt < 3) {
+        if (retryable(status, options.once === true) && attempt < 3) {
           await sleep(400 * 2 ** attempt);
           continue;
         }
