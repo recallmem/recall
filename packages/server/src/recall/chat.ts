@@ -708,6 +708,7 @@ async function* generate(ctx: AppContext, p: Prepared, stream: boolean): AsyncGe
     messages: [{ role: "user", content: user }],
     maxTokens: plan.maxOut,
     effort: plan.effort,
+    ...(plan.thinking ? { thinking: true } : {}),
     workspaceId: view.ws.id,
     ...(p.providerSchema ? { jsonSchema: { name: "answer", schema: p.providerSchema } } : {}),
   };

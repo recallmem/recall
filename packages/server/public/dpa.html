@@ -41,7 +41,7 @@
   </aside>
   <article class="prose">
 <h1>Data processing agreement</h1>
-<p class="muted">Last updated: 14 October 2026 · Version 2.1</p>
+<p class="muted">Last updated: 18 October 2026 · Version 2.1</p>
 
 <p>This data processing agreement ("DPA") is part of the agreement between you, the customer, and Smidt Beheer, trading as Recall ("Recall", "we", "us"), Binnendelta 11M, 1261 WZ Blaricum, the Netherlands (KvK 99124254), under our <a href="/terms">terms of service</a>. It sets out how we process personal data on your behalf, as Article 28 of the General Data Protection Regulation (GDPR) requires.</p>
 
@@ -145,7 +145,7 @@
 <tr><td><b>Types of personal data</b></td><td>Whatever you send: message and file content, the names and identifiers you choose for peers, sessions and workspaces, metadata, and the facts, peer cards, summaries and embeddings derived from them. Special categories of data only if you send them (section 13).</td></tr>
 <tr><td><b>Frequency</b></td><td>Continuous, as you use the service.</td></tr>
 <tr><td><b>Retention</b></td><td>Until you delete the data or your account, as described in the <a href="/privacy#retention">privacy policy</a>.</td></tr>
-<tr><td><b>Location</b></td><td>Storage and application servers in Frankfurt, Germany (EU). Processing by AI model providers in the United States (Annex 3).</td></tr>
+<tr><td><b>Location</b></td><td>Storage, application servers and embeddings in Frankfurt, Germany (EU). Processing by an AI model provider in the United States (Annex 3).</td></tr>
 </tbody>
 </table>
 
@@ -171,7 +171,7 @@
 <ul>
 <li>IP addresses are not stored in our database. Where a limit needs one, we store a keyed hash.</li>
 <li>Card details go directly to Stripe; we never receive them.</li>
-<li>Requests to AI models, for text generation and for embeddings, ask OpenRouter to use only model providers that do not collect the data they process.</li>
+<li>Requests for text generation go to Anthropic directly, under commercial terms that do not allow it to train models on the data. Embeddings are computed in Frankfurt by Neon's AI Gateway, which runs on Databricks Model Serving; Databricks may keep the text there for up to 30 days, only to detect abuse.</li>
 <li>Customer Personal Data is not used to train models.</li>
 </ul>
 <h3 id="annex-2-organisation">Organisation and operations</h3>
@@ -188,10 +188,9 @@
 <thead><tr><th>Sub-processor</th><th>What it does</th><th>Location</th></tr></thead>
 <tbody>
 <tr><td>Vercel Inc.</td><td>Runs the API, dashboard and background work, and serves the website</td><td>Frankfurt, Germany (EU); company in the USA</td></tr>
-<tr><td>Neon</td><td>Database: stores all Customer Personal Data</td><td>Frankfurt, Germany (EU); company in the USA</td></tr>
-<tr><td>OpenRouter, Inc.</td><td>Passes requests to AI models for text generation and embeddings</td><td>USA</td></tr>
-<tr><td>OpenAI (through OpenRouter)</td><td>Runs the AI models that build memory and answer questions, and computes embeddings</td><td>USA</td></tr>
-<tr><td>Anthropic, PBC (through OpenRouter)</td><td>Runs the AI models that build memory and answer questions</td><td>USA</td></tr>
+<tr><td>Neon</td><td>Database: stores all Customer Personal Data; computes embeddings (the vectors used for search) through its AI Gateway</td><td>Frankfurt, Germany (EU); company in the USA</td></tr>
+<tr><td>Databricks, Inc. (through Neon)</td><td>Runs the embedding model of Neon's AI Gateway</td><td>Frankfurt, Germany (EU); company in the USA</td></tr>
+<tr><td>Anthropic, PBC</td><td>Runs the AI models that build memory and answer questions</td><td>USA</td></tr>
 </tbody>
 </table>
 <p>These providers do not receive Customer Personal Data and are therefore not sub-processors; we list them for transparency: Resend (sign-in and account emails to account members), Stripe Payments Europe, Ltd., Ireland (payments, invoices and tax), Cloudflare (DNS) and GitHub (an automated uptime check of our health endpoint).</p>

@@ -52,6 +52,7 @@ export async function getPeer(
   return r ? { id: r.id, name: r.name, isScope: r.is_scope, configuration: r.configuration } : null;
 }
 
+/** An active session; one pending deletion is treated as missing, so reads find nothing in it. */
 export async function getSession(
   ctx: AppContext,
   wsId: string,
@@ -59,7 +60,8 @@ export async function getSession(
 ): Promise<SessionRef | null> {
   const [r] = await rows<{ id: string; name: string; configuration: Obj }>(
     ctx.db,
-    sql`SELECT id, name, configuration FROM sessions WHERE workspace_id = ${wsId} AND name = ${name}`,
+    sql`SELECT id, name, configuration FROM sessions
+        WHERE workspace_id = ${wsId} AND name = ${name} AND is_active`,
   );
   return r ?? null;
 }

@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { decode, encode } from "gpt-tokenizer/encoding/cl100k_base";
 import OpenAI from "openai";
 import type { Config } from "../config.js";
+import { wellFormed } from "../lib/well-formed.js";
 import { PriceBook } from "./pricing.js";
 import { OPENAI_COMPATIBLE_BASE_URLS } from "./providers/openai.js";
 import type { EmbeddingProvider, UsageSink } from "./types.js";
@@ -15,6 +16,7 @@ const NATIVE_DIMS: Record<string, number> = {
   "Xenova/multilingual-e5-small": 384,
   "Xenova/all-MiniLM-L6-v2": 384,
   "Xenova/bge-small-en-v1.5": 384,
+  "qwen3-embedding-0-6b": 1024,
 };
 
 const MAX_BATCH = 64;
@@ -164,13 +166,18 @@ export class EmbeddingClient {
               ? env.OPENROUTER_API_KEY
               : providerName === "compat"
                 ? (env.RECALL_COMPAT_API_KEY ?? "not-needed")
-                : undefined;
+                : providerName === "neon"
+                  ? env.NEON_AI_GATEWAY_TOKEN
+                  : undefined;
       const baseURL =
         providerName === "compat"
           ? env.RECALL_COMPAT_BASE_URL
-          : providerName === "openai"
-            ? (env.OPENAI_BASE_URL ?? OPENAI_COMPATIBLE_BASE_URLS.openai)
-            : OPENAI_COMPATIBLE_BASE_URLS[providerName];
+          : providerName === "neon"
+            ? env.NEON_AI_GATEWAY_BASE_URL &&
+              `${env.NEON_AI_GATEWAY_BASE_URL.replace(/\/+$/, "")}/v1`
+            : providerName === "openai"
+              ? (env.OPENAI_BASE_URL ?? OPENAI_COMPATIBLE_BASE_URLS.openai)
+              : OPENAI_COMPATIBLE_BASE_URLS[providerName];
       // OpenRouter names models "<vendor>/<model>".
       const native = NATIVE_DIMS[model] ?? NATIVE_DIMS[model.split("/").pop()!] ?? this.dimensions;
       // Matryoshka models can be truncated server-side to fit the column.
@@ -186,7 +193,10 @@ export class EmbeddingClient {
               // Hosted: only providers that neither store nor train on the text, as for chat calls.
               providerName === "openrouter" && env.RECALL_HOSTED
                 ? { provider: { data_collection: "deny" } }
-                : {},
+                : // Neon's AI Gateway: floats, not the SDK's default base64.
+                  providerName === "neon"
+                  ? { encoding_format: "float" }
+                  : {},
             )
           : new UnconfiguredEmbeddings(
               providerName,
@@ -215,7 +225,7 @@ export class EmbeddingClient {
   ): Promise<number[][]> {
     // Every caller's text is capped here: messages, extracted facts (a model can copy a whole
     // document into one), consolidated conclusions and queries alike.
-    const texts = inputs.map(embeddingInput);
+    const texts = inputs.map((t) => wellFormed(embeddingInput(t)));
     const keys = texts.map((t) => createHash("sha1").update(t).digest("base64"));
     const missing = [...new Set(texts.filter((_, i) => !this.cache.has(keys[i]!)))];
     for (let i = 0; i < missing.length; i += MAX_BATCH) {

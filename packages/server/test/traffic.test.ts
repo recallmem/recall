@@ -500,6 +500,6 @@ describe("site analytics and CSP", () => {
     const privacy = pub("privacy.html");
     expect(privacy).toContain('id="analytics"');
     expect(privacy).toMatch(/Umami.*sets no cookies/s);
-    expect(privacy).toContain("Version 2.9");
+    expect(privacy).toContain("Version 2.11");
   });
 });

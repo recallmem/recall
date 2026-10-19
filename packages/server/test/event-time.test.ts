@@ -133,7 +133,13 @@ function script(
   answer: (text: string, known: ReturnType<typeof knownFacts>) => Partial<FactOut> | null,
 ) {
   return async (req: LlmRequest) => {
-    const out: ExtractionOut = { facts: [], cards: [], synopsis: null, short_summary: null };
+    const out: ExtractionOut = {
+      changes: [],
+      facts: [],
+      cards: [],
+      synopsis: null,
+      short_summary: null,
+    };
     if (req.task !== "reasoner") return { json: out };
     const facts = knownFacts(req);
     const transcript = req.messages.map((m) => m.content).join("\n");

@@ -202,6 +202,13 @@ describe("sessions", () => {
     expect((await json(await s.request("POST", "/v3/workspaces/dw/sessions/list"))).items).toEqual(
       [],
     );
+    // Before the job runs, reads already find nothing: the conversation is gone for the caller.
+    const context = await json(await s.request("GET", "/v3/workspaces/dw/sessions/gone/context"));
+    expect(context).toMatchObject({ id: "gone", messages: [], summary: null });
+    const summaries = await json(
+      await s.request("GET", "/v3/workspaces/dw/sessions/gone/summaries"),
+    );
+    expect(summaries).toMatchObject({ short_summary: null, long_summary: null });
 
     const jobs = await rows<{ kind: string; id: number }>(
       s.ctx.db,

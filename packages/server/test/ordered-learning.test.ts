@@ -96,7 +96,13 @@ function knownFacts(req: LlmRequest): { handle: string; date: string; content: s
 function petStory(delayMs = 120) {
   return async (req: LlmRequest) => {
     await sleep(delayMs);
-    const out: ExtractionOut = { facts: [], cards: [], synopsis: null, short_summary: null };
+    const out: ExtractionOut = {
+      changes: [],
+      facts: [],
+      cards: [],
+      synopsis: null,
+      short_summary: null,
+    };
     const known = knownFacts(req);
     const transcript = req.messages.map((m) => m.content).join("\n");
     for (const line of parseTranscript(transcript)) {

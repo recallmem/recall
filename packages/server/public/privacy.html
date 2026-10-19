@@ -41,7 +41,7 @@
   </aside>
   <article class="prose">
 <h1>Privacy policy</h1>
-<p class="muted">Last updated: 15 October 2026 · Version 2.9</p>
+<p class="muted">Last updated: 18 October 2026 · Version 2.11</p>
 <p>This policy explains which personal data Recall processes, why, how long we keep it and what your rights are. Recall is memory for AI agents: it stores what you or your software send it, so an agent can remember people across conversations.</p>
 
 <h2 id="who">Who we are</h2>
@@ -91,7 +91,7 @@
 <p>We do not sell personal data, show ads, use third-party analytics or tracking, or use your content to train AI models. We do not send marketing email: besides service messages, new accounts only get the two getting-started emails above, which you can turn off in each of them. If that changes, we will only do it as the law allows, and you can always opt out.</p>
 
 <h2 id="content">Content you send</h2>
-<p>Recall stores the messages and files you send and builds memory from them. All of it is stored in our database in Frankfurt (EU). To read messages, build memory and answer questions, Recall sends text to AI models through OpenRouter (see <a href="#recipients">who receives data</a>). We look at customer content only when that is needed to give support you ask for, to investigate abuse or a security incident, or when the law requires it.</p>
+<p>Recall stores the messages and files you send and builds memory from them. All of it is stored in our database in Frankfurt (EU). To read messages, build memory and answer questions, Recall sends text to AI models from Anthropic, and computes the embeddings used for search in Frankfurt through Neon (see <a href="#recipients">who receives data</a>). We look at customer content only when that is needed to give support you ask for, to investigate abuse or a security incident, or when the law requires it.</p>
 <p>For this content you are the controller and we are your processor, under the <a href="/dpa">DPA</a>. You need a lawful basis for it and must tell the people it is about.</p>
 
 <h2 id="plugins">Plugins and integrations</h2>
@@ -101,8 +101,8 @@
 <p>These service providers process data for us:</p>
 <ul>
 <li><b>Vercel Inc.</b> (USA) hosts the website, the dashboard and the API. The API and dashboard run in Frankfurt (EU); the website is served from Vercel's worldwide network.</li>
-<li><b>Neon</b> (USA) runs our database, in Frankfurt (EU).</li>
-<li><b>OpenRouter, Inc.</b> (USA) passes our requests to AI models. The model providers it uses process the text to build memory and answer questions: currently OpenAI (USA), which also computes embeddings, and Anthropic (USA).</li>
+<li><b>Neon</b> (USA) runs our database, in Frankfurt (EU), and computes embeddings (the vectors used for search) there through its AI Gateway, which runs on <b>Databricks Model Serving</b> (Databricks, Inc., USA); Databricks may keep that text in Frankfurt for up to 30 days, only to detect abuse.</li>
+<li><b>Anthropic, PBC</b> (USA) runs the AI models that process the text to build memory and answer questions.</li>
 <li><b>Resend</b> sends sign-in links and account emails. It receives your email address and the email, not your content.</li>
 <li><b>Stripe Payments Europe, Ltd.</b> (Ireland) handles payments, invoices and tax calculation. Stripe also processes some payment data as a controller in its own right, for example to prevent fraud; see Stripe's privacy policy.</li>
 <li><b>Cloudflare</b> provides DNS for our domains. It does not receive the content of your requests.</li>
@@ -111,7 +111,7 @@
 <p>We also share personal data, where needed, with our email provider (for messages to support@recallmem.dev), our accountant or tax adviser (billing data, for our bookkeeping), authorities and courts when the law requires it, and a buyer or successor of Recall's business, who must respect this policy.</p>
 
 <h2 id="transfers">International transfers</h2>
-<p>Our database and the servers that run the API and dashboard are in the EU. Some providers are based in, or process data in, the United States: OpenRouter and the model providers it uses (such as OpenAI), and, depending on the service, Vercel, Neon, Resend and companies of the Stripe group.</p>
+<p>Our database and the servers that run the API and dashboard are in the EU. Some providers are based in, or process data in, the United States: Anthropic, and, depending on the service, Vercel, Neon, Databricks, Resend and companies of the Stripe group.</p>
 <p>The European Commission has decided that the United States protects personal data adequately only for companies certified under the EU-US Data Privacy Framework. For each transfer we rely on that certification where the provider has it, and otherwise on the European Commission's Standard Contractual Clauses, with additional measures where needed. You can ask us for a copy of these safeguards at <a href="mailto:support@recallmem.dev">support@recallmem.dev</a>.</p>
 
 <h2 id="retention">How long we keep data</h2>

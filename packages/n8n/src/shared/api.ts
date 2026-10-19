@@ -1,0 +1,162 @@
+import { createHash } from "node:crypto";
+import type {
+  IDataObject,
+  IExecuteFunctions,
+  IHttpRequestMethods,
+  ISupplyDataFunctions,
+  JsonObject,
+} from "n8n-workflow";
+import { NodeApiError, sleep } from "n8n-workflow";
+
+/** The credential type both nodes use. */
+export const CREDENTIAL = "recallApi";
+
+export const DEFAULT_BASE_URL = "https://api.recallmem.dev";
+export const DEFAULT_WORKSPACE = "default";
+
+/** A message Recall stores whole is at most this long; longer text is stored as consecutive parts. */
+export const MAX_MESSAGE_CHARS = 24_000;
+
+type Context = IExecuteFunctions | ISupplyDataFunctions;
+
+export interface RequestOptions {
+  body?: IDataObject;
+  query?: IDataObject;
+  /** Sent as `Idempotency-Key`, so a retried write is stored once. */
+  idempotencyKey?: string;
+  /**
+   * A write Recall would store again if it ran twice and that has no idempotency key: retried only
+   * after a rate limit (429), when it did not run, never after an error it may have survived.
+   */
+  once?: boolean;
+  /** Resolve to `undefined` instead of failing when Recall answers 404 (nothing known yet). */
+  allowNotFound?: boolean;
+}
+
+export type Recall = <T>(
+  method: IHttpRequestMethods,
+  path: string,
+  options?: RequestOptions,
+) => Promise<T | undefined>;
+
+/** The HTTP status of a failed request, whichever shape n8n's request helper gave it. */
+export function statusOf(error: unknown): number {
+  const e = error as {
+    httpCode?: unknown;
+    statusCode?: unknown;
+    status?: unknown;
+    response?: { status?: unknown };
+    cause?: { response?: { status?: unknown }; status?: unknown };
+  };
+  for (const value of [
+    e?.httpCode,
+    e?.statusCode,
+    e?.status,
+    e?.response?.status,
+    e?.cause?.response?.status,
+    e?.cause?.status,
+  ]) {
+    const n = Number(value);
+    if (Number.isInteger(n) && n >= 100 && n < 600) return n;
+  }
+  return 0;
+}
+
+/** Worth trying again: rate limits, and unless the request must run at most once, a busy session (409) and Recall's own errors. */
+const retryable = (status: number, once: boolean) =>
+  status === 429 || (!once && (status === 409 || status >= 500));
+
+/**
+ * Calls Recall's REST API in the credential's workspace, with the credential's key. Retries what
+ * Recall asks to retry, up to three times with backoff; writes carry an idempotency key, so a retry
+ * never stores a message twice.
+ */
+export async function recallClient(ctx: Context, itemIndex = 0): Promise<Recall> {
+  const credentials = await ctx.getCredentials(CREDENTIAL, itemIndex);
+  const baseUrl = String(credentials.baseUrl || DEFAULT_BASE_URL).replace(/\/+$/, "");
+  const workspace = workspaceId(
+    String(credentials.workspace || DEFAULT_WORKSPACE),
+    DEFAULT_WORKSPACE,
+  );
+  const root = `${baseUrl}/v3/workspaces/${encodeURIComponent(workspace)}`;
+
+  return async <T>(method: IHttpRequestMethods, path: string, options: RequestOptions = {}) => {
+    for (let attempt = 0; ; attempt++) {
+      try {
+        return (await ctx.helpers.httpRequestWithAuthentication.call(ctx, CREDENTIAL, {
+          method,
+          url: `${root}${path}`,
+          ...(options.body ? { body: options.body } : {}),
+          ...(options.query ? { qs: options.query } : {}),
+          headers: {
+            accept: "application/json",
+            ...(options.idempotencyKey ? { "idempotency-key": options.idempotencyKey } : {}),
+          },
+          json: true,
+          timeout: 60_000,
+        })) as T;
+      } catch (error) {
+        const status = statusOf(error);
+        if (options.allowNotFound && status === 404) return undefined;
+        if (retryable(status, options.once === true) && attempt < 3) {
+          await sleep(400 * 2 ** attempt);
+          continue;
+        }
+        throw new NodeApiError(ctx.getNode(), error as JsonObject, { itemIndex });
+      }
+    }
+  };
+}
+
+const RECALL_ID = /^[A-Za-z0-9_-]{1,512}$/;
+
+/** `value` with every run of characters Recall does not accept in an id replaced by `_`. */
+function cleaned(value: string, max: number): string {
+  return value
+    .trim()
+    .replace(/[^A-Za-z0-9_-]+/g, "_")
+    .slice(0, max);
+}
+
+/**
+ * An id Recall accepts (letters, digits, `_` and `-`, at most 512 characters). A valid id is used
+ * as it is. Anything else is cleaned up and given a short hash of the original, so two different
+ * values never share an id: `jane@example.com` becomes `jane_example_com_` plus 10 hex characters,
+ * and `jane_example.com` a different one. Without the hash two users could share one memory.
+ */
+export function safeId(value: string, fallback = ""): string {
+  const trimmed = value.trim();
+  if (RECALL_ID.test(trimmed)) return trimmed;
+  const id = cleaned(trimmed, 500);
+  if (!id.replace(/[_-]/g, "")) return fallback;
+  return `${id}_${createHash("sha256").update(trimmed).digest("hex").slice(0, 10)}`;
+}
+
+/**
+ * The credential's workspace as an id, mapped as in 0.1.0 (no hash), so existing workspaces keep
+ * their memory. Workspaces belong to the account the API key is for, so two names that map to the
+ * same id are still the same customer's.
+ */
+export function workspaceId(value: string, fallback: string): string {
+  const id = cleaned(value, 512);
+  return id.replace(/_/g, "") ? id : fallback;
+}
+
+/** Text in parts Recall stores whole, cut at a line break or a space where it can. */
+export function split(text: string, max = MAX_MESSAGE_CHARS): string[] {
+  const parts: string[] = [];
+  let rest = text;
+  while (rest.length > max) {
+    const window = rest.slice(0, max);
+    const cut = Math.max(window.lastIndexOf("\n"), window.lastIndexOf(" "));
+    const at = cut > max / 2 ? cut + 1 : max;
+    parts.push(rest.slice(0, at));
+    rest = rest.slice(at);
+  }
+  if (rest) parts.push(rest);
+  return parts;
+}
+
+/** A fresh idempotency key. */
+export const newKey = (prefix: string) =>
+  `n8n-${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;

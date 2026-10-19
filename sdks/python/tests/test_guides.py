@@ -30,6 +30,7 @@ def test_framework_examples_are_run_by_their_package() -> None:
         assert f'"{name}.py"' in runner.read_text(encoding="utf-8"), runner
 
 
+@pytest.mark.integration
 @pytest.mark.parametrize(
     "path", [p for p in FILES if p.stem not in FRAMEWORK_EXAMPLES], ids=lambda p: p.stem
 )

@@ -1,0 +1,43 @@
+    <h1>n8n</h1>
+    <p class="lede">For AI agents built in <a href="https://n8n.io">n8n</a>. The community package <code>@recall-memory/n8n-nodes-recall</code> adds two nodes: <b>Recall Memory</b>, a memory for the AI Agent that remembers each user across conversations, and <b>Recall</b>, which asks, searches and updates what Recall knows, on its own or as a tool the agent calls.</p>
+
+    <h2 id="what-you-get">What you get</h2>
+    <table>
+      <thead><tr><th>Node</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td>Recall Memory</td><td>Plugs into the AI Agent's <b>Memory</b> input, like n8n's own memory nodes. Each run gets what Recall knows about the user from every earlier conversation (a short profile and the facts most relevant to the incoming message), then this conversation within a token budget: a summary of older turns and the latest messages. After the agent answers, the turn is stored and Recall keeps learning.</td></tr>
+        <tr><td>Recall</td><td>Ask Memory, Remember a Fact, Search Memory, Get Profile and Add Message. Connect it to the AI Agent's <b>Tool</b> input and the agent decides when to use it ("remember that I'm vegetarian"), or use it in any workflow, for example to store support tickets so Recall learns from them.</td></tr>
+      </tbody>
+    </table>
+    <p>The difference with a chat-history memory: n8n's Simple, Postgres and Redis memories keep the last messages of one conversation. Recall keeps what it learned about the person, so a user who comes back next week in a new conversation is still known, and every fact links to the message it came from.</p>
+
+    <h2 id="build">Build it</h2>
+    <ol>
+      <li><b>Install the nodes.</b> In a self-hosted n8n, open <b>Settings → Community Nodes → Install</b> and enter <code>@recall-memory/n8n-nodes-recall</code>.</li>
+      <li><b>Add the credential.</b> Create an API key at <a href="https://app.recallmem.dev/keys">app.recallmem.dev/keys</a> ($5 of free credit, no card) and add a <b>Recall API</b> credential with it. Workspace: one name per app (for example <code>support-bot</code>), so two apps never share what they know about a person. Leave the base URL as it is unless you run your own Recall server.</li>
+      <li><b>Connect the memory.</b> Add a <b>Recall Memory</b> node to your AI Agent's Memory input. With a Chat Trigger the defaults work as they are.</li>
+      <li><b>Say who the user is.</b> Set <b>User ID</b> to something stable for the person: an email address, a customer ID, or the sender's user ID for Telegram or WhatsApp. With the default (the session) Recall only remembers within one conversation.</li>
+      <li><b>Optionally, add the tool.</b> Add a <b>Recall</b> node to the agent's Tool input with the operation Remember a Fact, and the agent can save what the user asks it to remember.</li>
+    </ol>
+    <p>A Telegram bot, for example: Telegram Trigger → AI Agent with your chat model, Recall Memory (Session ID <code>{{ $json.message.chat.id }}</code>, User ID <code>{{ $json.message.from.id }}</code>) and, as a tool, Recall → Remember a Fact with the same User ID.</p>
+
+    <h2 id="settings">Settings that matter</h2>
+    <table>
+      <thead><tr><th>Field</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td>User ID</td><td>Who the agent talks to. Letters, digits, <code>_</code> and <code>-</code> are kept as they are. Any other ID is cleaned up and given a short code made from the original, so <code>jane@example.com</code> is stored as <code>jane_example_com_</code> followed by 10 characters, and two different IDs never share a memory. Use the same ID in the Recall node.</td></tr>
+        <tr><td>Memory Placement</td><td><b>System Message</b> (default) works with OpenAI, Mistral, Groq and Ollama models. Choose <b>User Message</b> with Anthropic and Gemini models, which accept a system message only as the first message.</td></tr>
+        <tr><td>Context Tokens</td><td>Budget for this conversation's history (default 2,000). Older turns are summarised, not cut off.</td></tr>
+        <tr><td>Relevant To</td><td>Recall brings the facts most relevant to this text; the default is the incoming chat message.</td></tr>
+        <tr><td>Agent ID</td><td>The agent's ID in Recall (default <code>assistant</code>). Its replies are kept as context, never as facts about anyone.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="cloud">n8n Cloud</h2>
+    <p>Community nodes installed from npm run on self-hosted n8n. n8n Cloud shows only community nodes n8n has verified; the package is built to n8n's verification rules (no dependencies, n8n's lint rules) and will appear there once n8n has reviewed it. Until then, Cloud users can call the <a href="/docs">REST API</a> with the HTTP Request node.</p>
+
+    <h2 id="cost-speed">Cost and speed</h2>
+    <p>Reading memory at the start of a run is a context call: included in the price and well under a second. Storing the turn is one request after the agent answers. Recall learns from the user's messages in the background, and that is what you pay for: $1.75 per million message tokens. Ask Memory is a question, a model call of a few seconds, from $0.0008. Prices are on the <a href="/docs#pricing">pricing</a> page and worked examples in <a href="/guides/cost-and-speed">Cost and speed</a>.</p>
+
+    <h2 id="privacy">Privacy and forgetting</h2>
+    <p>Everything a user writes to an agent with Recall Memory is stored and learned from. Say so in your privacy notice, and keep passwords and card numbers out of chats. Clearing the memory (n8n's Chat Memory Manager) deletes the session from Recall; to forget a person entirely, delete them in the dashboard or through the API, as <a href="/guides/privacy">Privacy, consent and forgetting</a> describes.</p>

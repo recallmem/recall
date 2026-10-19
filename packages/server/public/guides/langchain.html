@@ -80,6 +80,7 @@
         <a href="/guides/vercel-ai-sdk">Vercel AI SDK</a>
         <a href="/guides/langchain-js">LangChain.js</a>
         <a href="/guides/mastra">Mastra</a>
+        <a href="/guides/n8n">n8n</a>
         <a href="/guides/langchain" aria-current="page">LangChain and LangGraph</a>
         <a href="/guides/openai-agents">OpenAI Agents SDK</a>
         <a href="/guides/crewai">CrewAI</a>
@@ -97,7 +98,7 @@
   <article class="prose guide">
     <p class="crumbs"><a href="/guides">Guides</a> / Frameworks</p>
 <h1>LangChain and LangGraph</h1>
-    <p class="lede">For LangChain and LangGraph developers who want an agent to remember each user across threads. <code>langchain-recall</code> adds Recall as middleware for <code>create_agent</code>, as tools, as a retriever and as a chat history, in a few lines. This guide is for Python; for TypeScript see <a href="/guides/langchain-js">LangChain.js</a>.</p>
+    <p class="lede">For LangChain and LangGraph developers who want an agent to remember each user across threads. <code>langchain-recall</code> adds Recall as middleware for <code>create_agent</code>, as tools, as a retriever and as a chat history, in a few lines. This guide is for Python; for TypeScript see <a href="/guides/langchain-js">LangChain.js</a>. <code>RecallMiddleware</code> is listed in LangChain's own docs, among the <a href="https://docs.langchain.com/oss/python/integrations/middleware">middleware integrations</a>.</p>
 
     <h2 id="what-changes">What memory adds</h2>
     <p>A checkpointer keeps one thread's state. Everything the user said in other threads is out of reach. With Recall:</p>

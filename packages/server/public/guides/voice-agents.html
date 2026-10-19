@@ -80,6 +80,7 @@
         <a href="/guides/vercel-ai-sdk">Vercel AI SDK</a>
         <a href="/guides/langchain-js">LangChain.js</a>
         <a href="/guides/mastra">Mastra</a>
+        <a href="/guides/n8n">n8n</a>
         <a href="/guides/langchain">LangChain and LangGraph</a>
         <a href="/guides/openai-agents">OpenAI Agents SDK</a>
         <a href="/guides/crewai">CrewAI</a>
@@ -311,7 +312,7 @@ removed = person.delete()</code></pre>
       <li><b>Tell callers, and get consent where it is required.</b> Say at the start that the call is transcribed and that the assistant remembers earlier calls. The rules on recording and transcribing calls differ between countries, and in some countries between states; some require every party's consent. Recall stores the text you send, never audio.</li>
       <li><b>Caller ID is not identity.</b> Numbers can be spoofed. Verify the caller, with a code, account details or a call back, before the agent repeats anything personal from memory.</li>
       <li><b>Keep secrets out of the transcript.</b> Redact card numbers, PINs, one-time codes and answers to security questions before an utterance reaches Recall.</li>
-      <li><b>Say where the data goes.</b> Transcripts are stored in the EU (Frankfurt) and processed by AI model providers in the US through OpenRouter, restricted to providers that do not collect the data; they are not used to train models.</li>
+      <li><b>Say where the data goes.</b> Transcripts are stored in the EU (Frankfurt) and processed by AI models from Anthropic in the US; they are not used to train models.</li>
       <li><b>Forget on request.</b> Delete the caller and their calls as above. Facts about other people that merely mention them stay; delete those with <code>DELETE …/conclusions/{id}</code> if needed (<a href="/docs#forget-a-person">Forget a person</a>).</li>
     </ul>
     <p>Recall's own terms are in the <a href="/privacy">privacy policy</a> and the <a href="/dpa">DPA</a>.</p>

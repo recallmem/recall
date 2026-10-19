@@ -297,6 +297,21 @@ describe("recall: answers through the chat path", () => {
     }
   });
 
+  it("lets the single-call levels think, but not minimal or the tool loops", async () => {
+    reply(() => ({ text: "You live in Utrecht [F1]." }));
+    try {
+      const thinks: Record<string, boolean> = {};
+      for (const level of ["minimal", "low", "medium", "high", "max"]) {
+        await ask({ query: `Where does Alice live? (${level})`, reasoning_level: level });
+        const req = server.ctx.llm.mock.calls.at(-1)!.req;
+        thinks[level] = req.thinking === true;
+      }
+      expect(thinks).toEqual({ minimal: false, low: true, medium: true, high: false, max: false });
+    } finally {
+      server.ctx.llm.mock.respondWith(null);
+    }
+  });
+
   it("flags an answer that has no record as abstained at every level, streamed or not", async () => {
     for (const [text, abstained] of [
       [

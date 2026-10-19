@@ -53,7 +53,13 @@ function known(req: LlmRequest): { handle: string; content: string }[] {
 /** "I live in X" adds or supersedes alice's home; anything else is ignored. */
 function homes() {
   return (req: LlmRequest) => {
-    const out: ExtractionOut = { facts: [], cards: [], synopsis: null, short_summary: null };
+    const out: ExtractionOut = {
+      changes: [],
+      facts: [],
+      cards: [],
+      synopsis: null,
+      short_summary: null,
+    };
     if (req.task !== "reasoner") return { json: out };
     for (const line of parseTranscript(req.messages.map((m) => m.content).join("\n"))) {
       const m = line.text.match(/I live in (\w+)/);

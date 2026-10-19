@@ -26,9 +26,11 @@ export const FACT_CATEGORIES = [
 
 export const EXTRACTION_SYSTEM = `You keep long-term memory about the participants ("peers") of conversations. A peer may be a person, an AI agent, a bot or a service; refer to every peer by its id exactly as written.
 
-Input: KNOWN FACTS already stored per speaker (handles F1, F2, ...), each with the date it was learned and, after "event", when it happened if known, with each speaker's profile CARD; then a TRANSCRIPT of new messages, one per line: [mN] <peer> <UTC time> <weekday>: <text>. Continuation lines are indented. Lines marked (context) are earlier or unobserved messages: use them only to understand the others, never as a source.
+Input: KNOWN FACTS already stored per speaker (handles F1, F2, ...), each with the date it was learned and, after "event", when it happened if known, with each speaker's profile CARD; then a TRANSCRIPT of new messages, one per line: [mN] <peer> <UTC time> <weekday>: <text>. Continuation lines are indented. Lines marked (context) are earlier or unobserved messages: use them only to understand the others, never as a source. A long message appears as consecutive lines marked (part k of n): together they are one message, and each part can be cited.
 
 Return JSON:
+changes: first, compare each new message with its author's KNOWN FACTS and list every known fact whose value the message changes, corrects or ends, said outright or in passing: [{message: N, target: handle, now: the current value in a few words}]. [] when none. Each listed target gets a "supersede" fact below. Another occurrence of something that happens repeatedly (another race, trip or purchase) changes nothing and is not listed.
+
 facts: what the new messages reveal about their authors that is worth remembering beyond this conversation. Per fact:
 - about: the peer the fact describes; it must have written one of the source messages. Never record as a peer's fact what another peer said or assumed about them. Exception: when a peer accepts or answers someone's proposal or question ("yes", "the second one"), the accepted details are that peer's statement.
 - content: one standalone sentence with the peer id as subject, e.g. "alice adopted a dog named Rover". Replace pronouns and relative times ("yesterday", "next week") with names and absolute dates based on the message time. Keep qualifiers (reason, place, people, time, tools) and specifics (names, titles, brands, amounts, counts). One fact per item.
@@ -41,6 +43,7 @@ facts: what the new messages reveal about their authors that is worth rememberin
 - importance: 1 to 5; 5 = identity, health, close relationships, long-term goals, standing instructions; 1 = trivia.
 - source_messages: the N of each [mN] line the fact comes from.
 - action: "add" for new information (target null); "reinforce" when it repeats a KNOWN FACT unchanged (target = that handle); "supersede" when it changes, corrects, ends or contradicts a KNOWN FACT about the same peer: moved, changed job or opinion, cancelled or completed plan (target = the outdated handle; content = the new state, standalone, saying what changed). When the target bundles several details and only some change, the new content restates the details that still hold, so nothing true is lost. Each occurrence of something that happens repeatedly is its own fact: another gym visit, a second trip or a new purchase on a different date is "add", never "reinforce" or "supersede" of the earlier one.
+A changed value is often said in passing, inside a question, plan or aside ("hoping to beat my best of 25:50", "my new manager Priya wants..."): it still changes the known fact on the same thing (a record, home, job, count, name) and gets its own superseding fact, apart from the plan or question. A record for one distance, or a fact about one person or pet, never changes another's.
 Do record concrete events and activities (what the peer did, read, made, visited, attended or bought, with whom, and the absolute date), and specifics such as names, titles, places, origins, relationship status and numbers: memory questions usually ask about exactly these. Skip greetings, thanks, small talk, questions that reveal nothing, generic offers of help, how the conversation itself proceeds, and things true of almost anyone. Returning no facts is correct when nothing qualifies.
 
 cards: edits to the profile cards of speakers, only for stable facts likely to hold for months: [{peer, add, remove}]. Entries start with IDENTITY:, ATTRIBUTE:, RELATIONSHIP: or INSTRUCTION:, use the form "PREFIX: Label: value" (e.g. "ATTRIBUTE: Location: Berlin"), and stay under 200 characters. Only what the peer stated or accepted about itself. remove = exact existing entries that are now wrong. Usually [].
@@ -56,19 +59,22 @@ CARD coach: (empty)
 noor:
 F1 2025-02-10 noor lives in Lyon
 F2 2025-02-10 event 2023-09 noor works as a pharmacist
+F3 2025-04-14 noor's half marathon personal best is 1:58:20
 CARD noor: ATTRIBUTE: Location: Lyon
 synopsis: requested
 TRANSCRIPT
 [m1] coach 2025-06-03T08:00Z Tue: Morning! How is Lyon treating you?
 [m2] noor 2025-06-03T08:01Z Tue: We moved to Porto last week. Still a pharmacist, of course.
 [m3] coach 2025-06-03T08:02Z Tue: So you'll be surfing every weekend now?
-[m4] noor 2025-06-03T08:03Z Tue: Ha, no. My sister Lina flies in on Friday to see the flat.
-Output (coach's guess about surfing is not recorded: noor never said it):
-{"facts":[{"about":"noor","content":"noor lives in Porto, having moved from Lyon in the week of 2025-05-26","event_start":"2025-05-26","event_end":"2025-06-01","tags":["move","porto","lyon"],"level":"explicit","category":"identity","confidence":1,"importance":4,"source_messages":[2],"action":"supersede","target":"F1"},
+[m4] noor 2025-06-03T08:03Z Tue: Ha, no. Training to beat my half marathon best of 1:54:05 instead. My sister Lina flies in on Friday to see the flat.
+Output (coach's guess about surfing is not recorded: noor never said it; the best said in passing supersedes F3):
+{"changes":[{"message":2,"target":"F1","now":"lives in Porto"},{"message":4,"target":"F3","now":"half marathon best 1:54:05"}],
+"facts":[{"about":"noor","content":"noor lives in Porto, having moved from Lyon in the week of 2025-05-26","event_start":"2025-05-26","event_end":"2025-06-01","tags":["move","porto","lyon"],"level":"explicit","category":"identity","confidence":1,"importance":4,"source_messages":[2],"action":"supersede","target":"F1"},
 {"about":"noor","content":"noor works as a pharmacist","event_start":null,"event_end":null,"tags":["job","pharmacist"],"level":"explicit","category":"identity","confidence":1,"importance":4,"source_messages":[2],"action":"reinforce","target":"F2"},
+{"about":"noor","content":"noor's half marathon personal best is 1:54:05, improved from 1:58:20","event_start":null,"event_end":null,"tags":["race","half marathon"],"level":"explicit","category":"other","confidence":1,"importance":2,"source_messages":[4],"action":"supersede","target":"F3"},
 {"about":"noor","content":"noor expects a visit from sister Lina, who flies to Porto on 2025-06-06 to see the new flat","event_start":"2025-06-06","event_end":null,"tags":["visit","lina","porto"],"level":"explicit","category":"plan","confidence":0.9,"importance":3,"source_messages":[4],"action":"add","target":null}],
 "cards":[{"peer":"noor","add":["ATTRIBUTE: Location: Porto","RELATIONSHIP: Sister: Lina"],"remove":["ATTRIBUTE: Location: Lyon"]}],
-"synopsis":"noor moved from Lyon to Porto; noor's sister Lina visits on 2025-06-06.","short_summary":null}`;
+"synopsis":"noor moved from Lyon to Porto and has a new half marathon best; noor's sister Lina visits on 2025-06-06.","short_summary":null}`;
 
 export const FactOut = z.object({
   about: z.string(),
@@ -92,7 +98,17 @@ export const CardEditOut = z.object({
   remove: z.array(z.string()),
 });
 
+export const ChangeOut = z.object({
+  message: z.number(),
+  target: z.string(),
+  now: z.string(),
+});
+export type ChangeOut = z.infer<typeof ChangeOut>;
+
 export const ExtractionOut = z.object({
+  // Listed before the facts so the model compares before it writes; a model that leaves it out
+  // still gives usable output.
+  changes: z.array(ChangeOut).default([]),
   facts: z.array(FactOut),
   cards: z.array(CardEditOut),
   synopsis: z.string().nullable(),
@@ -184,12 +200,12 @@ export function formatContext(args: {
   return parts.join("\n");
 }
 
-/** Output budget: room for a few facts per message plus the requested summaries, never more. */
+/** Output budget: the changes list, a few facts per message and the requested summaries, never more. */
 export function extractionMaxTokens(
   targetMessages: number,
   synopsis: boolean,
   shortSummary: boolean,
 ): number {
-  const facts = 160 + 150 * targetMessages;
+  const facts = 200 + 150 * targetMessages;
   return Math.min(6000, facts + (synopsis ? 120 : 0) + (shortSummary ? 400 : 0));
 }

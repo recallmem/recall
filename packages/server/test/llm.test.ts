@@ -112,6 +112,16 @@ describe("LlmClient", () => {
     expect(s.additionalProperties).toBe(false);
     expect(s.required).toEqual(["a", "b"]);
   });
+
+  it("drops defaults and length limits, never a field named like them", () => {
+    const s = strictJsonSchema(
+      z.object({ list: z.array(z.string()).default([]), default: z.string().min(2) }),
+    );
+    const props = s.properties as Record<string, Record<string, unknown>>;
+    expect(s.required).toEqual(["list", "default"]);
+    expect(props.list).not.toHaveProperty("default");
+    expect(props.default).toEqual({ type: "string" });
+  });
 });
 
 describe("pricing", () => {

@@ -183,7 +183,7 @@ describe("the website", () => {
   it("names every model provider in the privacy policy and the DPA, but not which does what", () => {
     for (const file of ["privacy.html", "dpa.html", "guides/privacy.html"]) {
       const html = readFileSync(join(PUBLIC, file), "utf8");
-      for (const company of ["OpenRouter", "OpenAI", "Anthropic"])
+      for (const company of ["Anthropic", "Neon", "Databricks"])
         expect(html, `${file}: ${company}`).toContain(company);
       expect(html, file).not.toMatch(/when Anthropic is unavailable|Anthropic \(USA\), to answer/i);
     }

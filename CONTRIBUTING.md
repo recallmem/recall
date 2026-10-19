@@ -111,7 +111,9 @@ python3 -m pip install -e "sdks/python[dev]" && python3 -m pytest sdks/python/te
 Run one server test while you work: `cd packages/server && npx vitest run test/api-peers.test.ts`.
 Tests use `createTestServer()` (in-memory PGlite, mock model); set `RECALL_TEST_DATABASE_URL` to run
 the suite against a real Postgres with pgvector. CI (`.github/workflows/ci.yml`) runs all of the
-above on every push and pull request.
+above on every push and pull request that changes more than Markdown or `docs/`; the Python
+integrations (`.github/workflows/python-integrations.yml`) run when Python code or the guides'
+examples change, and weekly.
 
 ### The website
 

@@ -256,6 +256,11 @@ export function offlineExtraction(req: LlmRequest): ExtractionOut {
     short = words.slice(-200).join(" ");
   }
   return {
+    changes: facts.flatMap((f) =>
+      f.action === "supersede" && f.target
+        ? [{ message: f.source_messages[0]!, target: f.target, now: f.content }]
+        : [],
+    ),
     facts,
     cards: [...cards].map(([peer, e]) => ({ peer, ...e })),
     synopsis: context.includes("synopsis: requested") ? synopsis : null,

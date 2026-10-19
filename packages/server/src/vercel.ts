@@ -4,6 +4,7 @@ import { loadConfig } from "./config.js";
 import { type AppContext, createContext } from "./context.js";
 import { sendWeeklyFunnelReport } from "./core/funnel-report.js";
 import { sendOnboardingEmails } from "./core/onboarding.js";
+import { reembedStale } from "./core/reembed.js";
 import { createApp } from "./http/app.js";
 import { queueSignals } from "./queue/events.js";
 import { Worker } from "./queue/worker.js";
@@ -15,7 +16,7 @@ import { Worker } from "./queue/worker.js";
  * minute by a scheduler (a Neon Function trigger), runs whatever fell due while
  * no request was around, recovers expired leases, runs the billing sweep and
  * sends the operator's weekly funnel report and new accounts' onboarding emails
- * when they are due.
+ * when they are due, and re-embeds vectors an earlier embedding model made.
  */
 
 /** Below the function's maxDuration (300 s), so a drain finishes its running jobs. */
@@ -104,6 +105,7 @@ async function handle(req: Request): Promise<Response> {
         sendOnboardingEmails(ctx).catch((err) =>
           ctx.log.error({ err }, "onboarding email check failed"),
         ),
+        reembedStale(ctx).catch((err) => ctx.log.error({ err }, "re-embedding sweep failed")),
       ]),
     );
     return json(202, { accepted: true });

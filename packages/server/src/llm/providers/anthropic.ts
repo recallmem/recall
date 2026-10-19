@@ -10,7 +10,10 @@ import type {
 } from "../types.js";
 import { LlmError } from "../types.js";
 
-/** Models that accept `output_config.effort`. Haiku 4.5 and Sonnet 4.5 reject it. */
+/** Room added to `max_tokens` when a call may think: the thinking counts as output. */
+const THINKING_ROOM_TOKENS = 8192;
+
+/** Models that accept `output_config.effort` and adaptive thinking. Haiku 4.5 and Sonnet 4.5 reject it. */
 function supportsEffort(model: string): boolean {
   return /claude-(opus|sonnet|haiku|fable|mythos)-5|claude-opus-4-[5-9]|claude-sonnet-4-6/.test(
     model,
@@ -106,10 +109,12 @@ export function anthropicParams(
   if (req.effort && req.effort !== "none" && supportsEffort(model))
     outputConfig.effort = req.effort;
   if (req.jsonSchema) outputConfig.format = { type: "json_schema", schema: req.jsonSchema.schema };
+  const thinking = !!req.thinking && supportsEffort(model);
 
   return {
     model,
-    max_tokens: req.maxTokens ?? 8192,
+    max_tokens: (req.maxTokens ?? 8192) + (thinking ? THINKING_ROOM_TOKENS : 0),
+    ...(thinking ? { thinking: { type: "adaptive" as const } } : {}),
     messages,
     ...(system.length ? { system } : {}),
     ...(Object.keys(outputConfig).length ? { output_config: outputConfig } : {}),

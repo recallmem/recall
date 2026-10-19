@@ -63,6 +63,7 @@ export const DEFAULT_PRICES: Record<string, Price> = {
   "openai/gpt-4o-mini": { input: 0.15, output: 0.6, cacheRead: 0.075 },
   "openai/text-embedding-3-small": { input: 0.02, output: 0 },
   "openrouter/openai/text-embedding-3-small": { input: 0.02, output: 0 },
+  "neon/qwen3-embedding-0-6b": { input: 0.02, output: 0 },
   "openai/text-embedding-3-large": { input: 0.13, output: 0 },
   // Together AI serverless (together.ai/pricing, Oct 2026). Open weights: DeepSeek V4 (MIT), Qwen3.5 (Apache-2.0).
   // Fine-tuned LoRA models run on dedicated endpoints billed per GPU-hour, so they have no

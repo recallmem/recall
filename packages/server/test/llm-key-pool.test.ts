@@ -46,6 +46,8 @@ describe("accountModels", () => {
       card: { model: "openrouter/deepseek/deepseek-v4-flash", effort: "extreme" },
       dream: "no-slash",
       chat_low: "openrouter/some/model:free",
+      chat_high: { model: "anthropic/claude-fable-5-1", effort: "high", thinking: true },
+      chat_medium: { model: "anthropic/claude-fable-5-1", thinking: "yes" },
       embedding: "openai/text-embedding-3-small",
     };
     await ctx.db.execute(
@@ -59,6 +61,7 @@ describe("accountModels", () => {
     expect(await accountModels(ctx.db)(s.workspaceId)).toEqual({
       reasoner: { model: "openrouter/deepseek/deepseek-v4-flash" },
       summary: { model: "openrouter/deepseek/deepseek-v4-flash", effort: "none" },
+      chat_high: { model: "anthropic/claude-fable-5-1", effort: "high", thinking: true },
     });
     expect(await accountModels(ctx.db)("no-such-workspace")).toBeNull();
   });

@@ -80,6 +80,7 @@
         <a href="/guides/vercel-ai-sdk">Vercel AI SDK</a>
         <a href="/guides/langchain-js">LangChain.js</a>
         <a href="/guides/mastra">Mastra</a>
+        <a href="/guides/n8n">n8n</a>
         <a href="/guides/langchain">LangChain and LangGraph</a>
         <a href="/guides/openai-agents">OpenAI Agents SDK</a>
         <a href="/guides/crewai">CrewAI</a>
@@ -319,7 +320,7 @@ client.on("messageCreate", async (msg) =&gt; {
 
     <h2 id="privacy">Privacy and forgetting</h2>
     <p>Members do not expect a bot to remember them unless they are told. Pin a notice in the channels the bot reads, say it in the bot's profile, and give members two commands: <code>/memory</code> to see what the bot knows about them, and <code>/forget</code> to erase it. When a member asks, or leaves the server if your notice says so, <code>delete</code> erases their messages and every fact about them or from their view; other members' messages and facts about others that merely mention them stay. A member who never spoke answers <code>404</code>: there is nothing to forget.</p>
-    <p>Do not store what the bot does not need: skip channels it is not used in, and never record moderators' private channels. Many Discord communities include teenagers; read <a href="/guides/privacy">Privacy, consent and forgetting</a> before you build profiles of them. Recall stores data in Frankfurt; text is processed by AI model providers in the US through OpenRouter, restricted to providers that do not collect it, and never used for training. See the <a href="/dpa">DPA</a> and <a href="/docs#forget-a-person">Forget a person</a>.</p>
+    <p>Do not store what the bot does not need: skip channels it is not used in, and never record moderators' private channels. Many Discord communities include teenagers; read <a href="/guides/privacy">Privacy, consent and forgetting</a> before you build profiles of them. Recall stores data in Frankfurt; text is processed by AI models from Anthropic in the US, and never used for training. See the <a href="/dpa">DPA</a> and <a href="/docs#forget-a-person">Forget a person</a>.</p>
 
     <h2 id="pitfalls">Pitfalls</h2>
     <ul>

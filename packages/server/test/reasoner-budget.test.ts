@@ -17,7 +17,8 @@ import { addMessages, conclusions, seed } from "./reasoner-fixtures.js";
  * summaries every 20/60, both peers observed), then the session goes idle
  * and each collection dreams once (Honcho's scenario has two dreams).
  *
- * Honcho at defaults: ~56 calls, ~190k input tokens. Budget: <= 8 calls, <= 25k.
+ * Honcho at defaults: ~56 calls, ~190k input tokens. Budget: <= 8 calls, <= 26k (the cached
+ * extraction prefix grew by its changes list and in-passing rule: 25k before).
  */
 
 const USER = [
@@ -116,7 +117,7 @@ const SCHEMA_TOKENS: Record<string, number> = {
 };
 
 describe("cost per 100 messages", () => {
-  it("stays within 8 LLM calls and 25k input tokens", async () => {
+  it("stays within 8 LLM calls and 26k input tokens", async () => {
     const { ctx, close } = await createTestServer({ RECALL_REASONER_MAX_DELAY_MS: "600000" });
     try {
       const s = await seed(ctx, { peers: ["user", "assistant"] });
@@ -201,7 +202,7 @@ describe("cost per 100 messages", () => {
       );
 
       expect(totalCalls).toBeLessThanOrEqual(8);
-      expect(totalInput).toBeLessThanOrEqual(25_000);
+      expect(totalInput).toBeLessThanOrEqual(26_000);
       // Updates are applied at ingest: Amsterdam -> Berlin, nurse -> midwife.
       const current = cs
         .filter((c) => c.observed === "user" && !c.valid_to && !c.deleted_at)

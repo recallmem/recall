@@ -1,0 +1,68 @@
+{
+  "name": "@recall-memory/n8n-nodes-recall",
+  "version": "0.2.0",
+  "description": "Recall for n8n: long-term memory for the AI Agent that remembers each user across conversations, and a node to ask, search and update what it knows.",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "ai-agent",
+    "memory",
+    "long-term-memory",
+    "llm",
+    "recall"
+  ],
+  "license": "MIT",
+  "homepage": "https://recallmem.dev/guides/n8n",
+  "author": {
+    "name": "Recall",
+    "email": "support@recallmem.dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/recallmem/recall.git",
+    "directory": "packages/n8n"
+  },
+  "bugs": {
+    "url": "https://github.com/recallmem/recall/issues"
+  },
+  "main": "index.js",
+  "files": [
+    "dist",
+    "index.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20.15"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && node scripts/copy-icons.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "aiNodeSdkVersion": 1,
+    "credentials": [
+      "dist/credentials/RecallApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/Recall/Recall.node.js",
+      "dist/nodes/RecallMemory/RecallMemory.node.js"
+    ]
+  },
+  "peerDependencies": {
+    "@n8n/ai-node-sdk": "*",
+    "n8n-workflow": "*"
+  },
+  "devDependencies": {
+    "@n8n/ai-node-sdk": "0.33.5",
+    "@types/node": "^22.20.5",
+    "n8n-workflow": "2.43.5",
+    "typescript": "7.0.2",
+    "vitest": "^5.0.3"
+  }
+}

@@ -6,7 +6,8 @@
     "noEmit": true,
     "paths": {
       "@recall-memory/sdk": ["../sdk/src/index.ts"],
-      "@recall-memory/langchain": ["./src/index.ts"]
+      "@recall-memory/langchain": ["./src/index.ts"],
+      "@recall-memory/langchain/middleware": ["./src/middleware.ts"]
     }
   },
   "include": ["src", "test", "vitest.config.ts", "../../examples/guides/langchain-js.ts"]

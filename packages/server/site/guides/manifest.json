@@ -163,6 +163,14 @@
     "next": ["vercel-ai-sdk", "langchain-js"]
   },
   {
+    "slug": "n8n",
+    "group": "Frameworks",
+    "title": "n8n",
+    "short": "Memory for the AI Agent node that remembers each user across conversations.",
+    "description": "Give n8n's AI Agent long-term memory with Recall: the Recall Memory node remembers each user across conversations, and the Recall node asks, searches and updates what it knows.",
+    "next": ["support", "community-bots"]
+  },
+  {
     "slug": "langchain",
     "group": "Frameworks",
     "title": "LangChain and LangGraph",

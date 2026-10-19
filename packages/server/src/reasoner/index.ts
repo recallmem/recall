@@ -24,6 +24,7 @@ import {
   type ApplyStats,
   applyFacts,
   type KnownRef,
+  linkChanges,
   prepareFacts,
   type TranscriptRef,
   type WindowSpeaker,
@@ -135,17 +136,50 @@ async function loadPending(ctx: AppContext, sessionId: string): Promise<PendingM
 const TRIVIAL =
   /^(?:ok(?:ay)?|k+|thanks?(?: you)?(?: (?:so|very) much)?|thx|ty|cool|nice|great|awesome|perfect|sure|yes|yeah|yep|yup|no|nope|nah|lol|ha(?:ha)+|hehe|hm+|ah|oh|wow|got it|sounds good|alright|all right|right|fine|good|bye|goodbye|see you|hi|hello|hey|good (?:morning|night|evening|afternoon)|cheers|np|no problem|you'?re welcome|welcome)$/i;
 
-/** Acknowledgements and pleasantries carry nothing to remember on their own. */
-export function isTrivial(content: string): boolean {
-  const t = content
+/** Lower-cased words of a short message, without the punctuation around them. */
+const plainWords = (content: string): string =>
+  content
     .trim()
     .toLowerCase()
     .replace(/[\s.!?,;:)(*~-]+$/u, "")
     .replace(/^[\s.!?,;:)(*~-]+/u, "")
     .replace(/\s+/g, " ");
+
+/** Acknowledgements and pleasantries carry nothing to remember on their own. */
+export function isTrivial(content: string): boolean {
+  const t = plainWords(content);
   if (!t) return true;
   if (!/[\p{L}\p{N}]/u.test(t)) return true;
   return TRIVIAL.test(t) || t.split(" ").every((w) => TRIVIAL.test(w));
+}
+
+/** Words that give an answer: after a question, "yes" or "no" says as much as the question. */
+const ANSWER_WORDS = new Set([
+  "yes",
+  "yeah",
+  "yep",
+  "yup",
+  "sure",
+  "no",
+  "nope",
+  "nah",
+  "ok",
+  "okay",
+  "alright",
+  "right",
+  "fine",
+]);
+
+/**
+ * A short reply that answers the other speaker's question ("Did you adopt her?" "Yes"). It
+ * looks like an acknowledgement, but together with the question it states something.
+ */
+export function answersQuestion(content: string, previous: PendingMessage | null, peerId: string) {
+  if (!previous || previous.peerId === peerId) return false;
+  if (!previous.content.trim().slice(-300).includes("?")) return false;
+  return plainWords(content)
+    .split(" ")
+    .some((w) => ANSWER_WORDS.has(w));
 }
 
 function cutMessage(content: string, tokenCount: number, max: number): string {
@@ -153,6 +187,28 @@ function cutMessage(content: string, tokenCount: number, max: number): string {
   const head = truncateTokens(content, Math.floor(max * 0.7));
   const tailStart = Math.max(head.length, content.length - Math.floor(max * 0.3 * 4));
   return `${head} […] ${content.slice(tailStart)}`;
+}
+
+/**
+ * A message the extractor learns from, in parts of at most `max` tokens, cut at a line break or
+ * a space where it can. Nothing is left out: what a long message says in its middle counts.
+ */
+export function splitMessage(content: string, tokenCount: number, max: number): string[] {
+  if (tokenCount <= max) return [content];
+  const parts: string[] = [];
+  let rest = content;
+  while (rest) {
+    const head = truncateTokens(rest, max);
+    if (head.length >= rest.length) {
+      parts.push(rest);
+      break;
+    }
+    const cut = Math.max(head.lastIndexOf("\n"), head.lastIndexOf(" "));
+    const at = cut > head.length / 2 ? cut + 1 : head.length;
+    parts.push(rest.slice(0, at));
+    rest = rest.slice(at);
+  }
+  return parts.map((p) => p.trim()).filter(Boolean);
 }
 
 export async function handleReason(ctx: AppContext, job: ClaimedJob): Promise<JobOutcome> {
@@ -252,8 +308,9 @@ function buildWindows(
   isTarget: (m: PendingMessage) => boolean,
   maxTokens: number,
 ): PendingMessage[][] {
+  // A message learned from is read whole (in parts when long); context is cut short.
   const cost = (m: PendingMessage) =>
-    Math.min(m.tokenCount, isTarget(m) ? TARGET_MESSAGE_MAX_TOKENS : CONTEXT_MESSAGE_MAX_TOKENS) +
+    (isTarget(m) ? m.tokenCount : Math.min(m.tokenCount, CONTEXT_MESSAGE_MAX_TOKENS)) +
     LINE_OVERHEAD_TOKENS;
   const total = messages.reduce((n, m) => n + cost(m), 0);
   const count = Math.max(1, Math.ceil(total / maxTokens));
@@ -416,23 +473,41 @@ async function processWindow(
 ): Promise<WindowResult> {
   const empty: WindowResult = { touched: new Map(), summaryWritten: false };
   const cfg = session.config;
-  const said = window.filter((m) => isTargetIn(m) && !isTrivial(m.content));
+  const first = window[0]!.seqInSession;
+  // The message before the window, for context when the window opens with a short reply.
+  const prev =
+    first > 1 && window[0]!.tokenCount <= 40 ? await previousMessage(ctx, session.id, first) : null;
+  // "Yes" to the other speaker's question says something; on its own it is an acknowledgement.
+  const answers = new Set(
+    window
+      .filter(
+        (m, i) =>
+          isTrivial(m.content) && answersQuestion(m.content, i ? window[i - 1]! : prev, m.peerId),
+      )
+      .map((m) => m.id),
+  );
+  const substantive = (m: PendingMessage) => answers.has(m.id) || !isTrivial(m.content);
+  const said = window.filter((m) => isTargetIn(m) && substantive(m));
   if (!said.length) {
     await markReasoned(ctx, session, window);
     return empty;
   }
-  // Exact repeats are settled in code; they stay in the transcript as context only.
-  const { repeated, touched: repeatedIn } = await reinforceRepeats(ctx, session, said);
+  // Exact repeats are settled in code; they stay in the transcript as context only. An answer
+  // is not a repeat of an earlier "yes": it answers a different question.
+  const { repeated, touched: repeatedIn } = await reinforceRepeats(
+    ctx,
+    session,
+    said.filter((m) => !answers.has(m.id)),
+  );
   const isTarget = (m: PendingMessage) => isTargetIn(m) && !repeated.has(m.id);
   const targets = window.filter(isTarget);
-  if (!targets.some((m) => !isTrivial(m.content))) {
+  if (!targets.some(substantive)) {
     await markReasoned(ctx, session, window);
     return { ...empty, touched: repeatedIn };
   }
 
   // Summaries ride along in the same call when the window continues the current short summary.
   const summariesOn = cfg.summary.enabled && ctx.config.features.summaries;
-  const first = window[0]!.seqInSession;
   const last = window.at(-1)!;
   const mark = summariesOn ? await markSummaryInputs(ctx.db, session.id) : null;
   const sums = summariesOn ? await loadSummaries(ctx.db, session.id) : null;
@@ -448,8 +523,6 @@ async function processWindow(
     : [];
 
   // Transcript: an earlier message for context when the window opens with a short reply.
-  const prev =
-    first > 1 && window[0]!.tokenCount <= 40 ? await previousMessage(ctx, session.id, first) : null;
   const lines: (PromptMessage & { ref: TranscriptRef })[] = [];
   if (prev && prev.peerId !== window[0]!.peerId) {
     lines.push({
@@ -467,27 +540,31 @@ async function processWindow(
       },
     });
   }
-  window.forEach((m, i) => {
+  // A message learned from goes in whole, a long one as consecutive parts that cite the same
+  // message; a message read only for context is cut short.
+  let index = 0;
+  for (const m of window) {
     const target = isTarget(m);
-    lines.push({
-      index: i + 1,
-      peerName: m.peerName,
-      createdAt: m.createdAt,
-      content: cutMessage(
-        m.content,
-        m.tokenCount,
-        target ? TARGET_MESSAGE_MAX_TOKENS : CONTEXT_MESSAGE_MAX_TOKENS,
-      ),
-      context: !target,
-      ref: {
-        id: m.id,
-        peerId: m.peerId,
+    const parts = target
+      ? splitMessage(m.content, m.tokenCount, TARGET_MESSAGE_MAX_TOKENS)
+      : [cutMessage(m.content, m.tokenCount, CONTEXT_MESSAGE_MAX_TOKENS)];
+    parts.forEach((part, p) => {
+      lines.push({
+        index: ++index,
+        peerName: m.peerName,
         createdAt: m.createdAt,
-        target,
-        observers: target ? m.observers : [],
-      },
+        content: parts.length > 1 ? `(part ${p + 1} of ${parts.length}) ${part}` : part,
+        context: !target,
+        ref: {
+          id: m.id,
+          peerId: m.peerId,
+          createdAt: m.createdAt,
+          target,
+          observers: target ? m.observers : [],
+        },
+      });
     });
-  });
+  }
 
   // Speakers and the collections their known facts come from.
   const speakers = new Map<string, WindowSpeaker>();
@@ -511,9 +588,7 @@ async function processWindow(
     const ref = await referenceCollection(ctx, s);
     const facts: KnownFact[] = [];
     if (ref) {
-      const ids = targets
-        .filter((m) => m.peerId === s.peerId && !isTrivial(m.content))
-        .map((m) => m.id);
+      const ids = targets.filter((m) => m.peerId === s.peerId && substantive(m)).map((m) => m.id);
       for (const f of await similarFacts(ctx, ref.id, ids)) {
         const h = `F${++handle}`;
         known.set(h, { id: f.id, key: f.key, observedId: s.peerId });
@@ -557,7 +632,11 @@ async function processWindow(
         context,
         messages: [{ role: "user", content: formatTranscript(lines) }],
         effort: "low",
-        maxTokens: extractionMaxTokens(targets.length, summariesOn, wantShort),
+        maxTokens: extractionMaxTokens(
+          lines.filter((l) => !l.context).length,
+          summariesOn,
+          wantShort,
+        ),
       },
       ExtractionOut,
       "memory_extraction",
@@ -593,7 +672,7 @@ async function processWindow(
   }
 
   const transcript = new Map(lines.map((l) => [l.index, l.ref]));
-  const facts = prepareFacts(out.facts, speakers, transcript, known);
+  const facts = prepareFacts(linkChanges(out.changes, out.facts), speakers, transcript, known);
   const needVectors = facts.map((f) => f.content);
   const vectors = needVectors.length
     ? await ctx.embeddings.embed(needVectors, session.workspaceId)
