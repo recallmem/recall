@@ -1,6 +1,6 @@
 {
   "name": "@recall-memory/sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "TypeScript client for Recall, the reasoning-memory service for AI agents. Speaks the v3 memory REST API.",
   "keywords": [
     "agents",

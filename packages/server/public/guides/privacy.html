@@ -84,6 +84,7 @@
         <a href="/guides/vercel-ai-sdk">Vercel AI SDK</a>
         <a href="/guides/langchain-js">LangChain.js</a>
         <a href="/guides/mastra">Mastra</a>
+        <a href="/guides/n8n">n8n</a>
         <a href="/guides/langchain">LangChain and LangGraph</a>
         <a href="/guides/openai-agents">OpenAI Agents SDK</a>
         <a href="/guides/crewai">CrewAI</a>
@@ -191,15 +192,14 @@ call.add_messages([sanne.message("Can you move my one-to-one to Friday?")])</cod
     <p>Keep account-wide keys on your own servers. Give each business customer's service a key scoped to its workspace, and code on a user's device a key scoped to that user's peer or session, never more. A peer or session key cannot delete a peer (it answers <code>401</code>), so forgetting runs on your server. Keys are shown once and stored only as hashes; revoke them under <b>API keys</b>, and keys minted with <code>POST /v3/keys</code> are revoked together with the key that minted them. <a href="/guides/modeling#keys">Designing workspaces, peers and sessions</a> has a table of which key goes where.</p>
 
     <h2 id="hosting">Where the data goes</h2>
-    <p>The database and the servers that run the API and dashboard are in Frankfurt (EU). To build memory and answer questions, text is processed by AI model providers in the United States, through OpenRouter, which we ask to use only model providers that do not collect the data they process. Customer data is not used to train models, and we do not use it for our own purposes: not to sell, not for advertising and not for profiling. Every connection uses HTTPS, and the database is encrypted at rest.</p>
+    <p>The database and the servers that run the API and dashboard are in Frankfurt (EU). To build memory and answer questions, text is processed by Anthropic in the United States. The embeddings used for search are computed in Frankfurt by Neon's AI Gateway, which runs on Databricks Model Serving. Customer data is not used to train models, and we do not use it for our own purposes: not to sell, not for advertising and not for profiling. Every connection uses HTTPS, and the database is encrypted at rest.</p>
     <table>
       <thead><tr><th>Sub-processor</th><th>What it does</th><th>Location</th></tr></thead>
       <tbody>
         <tr><td>Vercel Inc.</td><td>Runs the API, dashboard and background work, and serves the website</td><td>Frankfurt, Germany (EU); company in the USA</td></tr>
-        <tr><td>Neon</td><td>Database: stores all customer personal data</td><td>Frankfurt, Germany (EU); company in the USA</td></tr>
-        <tr><td>OpenRouter, Inc.</td><td>Passes requests to AI models for text generation and embeddings</td><td>USA</td></tr>
-        <tr><td>OpenAI (through OpenRouter)</td><td>Runs the AI models that build memory and answer questions, and computes embeddings</td><td>USA</td></tr>
-        <tr><td>Anthropic, PBC (through OpenRouter)</td><td>Runs the AI models that build memory and answer questions</td><td>USA</td></tr>
+        <tr><td>Neon</td><td>Database: stores all customer personal data; computes embeddings through its AI Gateway</td><td>Frankfurt, Germany (EU); company in the USA</td></tr>
+        <tr><td>Anthropic, PBC</td><td>Runs the AI models that build memory and answer questions</td><td>USA</td></tr>
+        <tr><td>Databricks, Inc. (through Neon)</td><td>Runs the embedding model of Neon's AI Gateway</td><td>Frankfurt, Germany (EU); company in the USA</td></tr>
       </tbody>
     </table>
     <p>Transfers to the United States rely on the EU-US Data Privacy Framework where the recipient is certified, and otherwise on the European Commission's Standard Contractual Clauses. The DPA applies automatically when you accept the terms (a countersigned copy is available on request). It commits us to tell account owners at least 30 days before a sub-processor is added or replaced, and to notify you of a personal data breach without undue delay, within 48 hours at the latest. Resend, Stripe, Cloudflare and GitHub also work for us, but do not receive your customers' data. Full text: <a href="/dpa">Data processing agreement</a>.</p>

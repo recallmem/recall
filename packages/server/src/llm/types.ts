@@ -51,6 +51,11 @@ export interface LlmRequest {
   /** Sampling temperature; the provider's default when omitted (OpenAI-compatible providers only). */
   temperature?: number;
   effort?: Effort;
+  /**
+   * Let the model think before it answers, where the provider supports it (Claude's adaptive
+   * thinking, steered by `effort`). The thinking is billed as output tokens.
+   */
+  thinking?: boolean;
   tools?: ToolDef[];
   /** JSON schema the response must match (structured output). */
   jsonSchema?: { name: string; schema: Record<string, unknown> };

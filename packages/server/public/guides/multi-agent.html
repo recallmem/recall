@@ -80,6 +80,7 @@
         <a href="/guides/vercel-ai-sdk">Vercel AI SDK</a>
         <a href="/guides/langchain-js">LangChain.js</a>
         <a href="/guides/mastra">Mastra</a>
+        <a href="/guides/n8n">n8n</a>
         <a href="/guides/langchain">LangChain and LangGraph</a>
         <a href="/guides/openai-agents">OpenAI Agents SDK</a>
         <a href="/guides/crewai">CrewAI</a>
@@ -323,7 +324,7 @@ worker_key = recall.create_key(workspace_id="acme-agents", session_id="job-58213
 
     <h2 id="privacy">Privacy and forgetting</h2>
     <p>Agents pass on what users told them, so personal data ends up in agents' messages too. When a user asks to be forgotten, <code>user.delete()</code> erases their messages and every fact about them or from their view, including each agent's view of them. Facts about other peers that merely mention them stay: "the researcher found the user's budget is €20,000" is a fact about the researcher. Delete those by id, or delete the job's sessions. See <a href="/docs#forget-a-person">Forget a person</a>.</p>
-    <p>Do not let agents write credentials or tool output into messages. Webhook deliveries carry ids, not content. Recall stores data in Frankfurt; text is processed by AI model providers in the US through OpenRouter, restricted to providers that do not collect it, and never used for training. See <a href="/guides/privacy">Privacy, consent and forgetting</a> and the <a href="/dpa">DPA</a>.</p>
+    <p>Do not let agents write credentials or tool output into messages. Webhook deliveries carry ids, not content. Recall stores data in Frankfurt; text is processed by AI models from Anthropic in the US, and never used for training. See <a href="/guides/privacy">Privacy, consent and forgetting</a> and the <a href="/dpa">DPA</a>.</p>
 
     <h2 id="pitfalls">Pitfalls</h2>
     <ul>

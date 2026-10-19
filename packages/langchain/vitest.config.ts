@@ -6,10 +6,11 @@ const here = (path: string) => fileURLToPath(new URL(path, import.meta.url));
 export default defineConfig({
   resolve: {
     // Tests and the guide example (examples/guides) import the packages by name, as readers do.
-    alias: {
-      "@recall-memory/sdk": here("../sdk/src/index.ts"),
-      "@recall-memory/langchain": here("./src/index.ts"),
-    },
+    alias: [
+      { find: /^@recall-memory\/sdk$/, replacement: here("../sdk/src/index.ts") },
+      { find: /^@recall-memory\/langchain\/middleware$/, replacement: here("./src/middleware.ts") },
+      { find: /^@recall-memory\/langchain$/, replacement: here("./src/index.ts") },
+    ],
   },
   test: {
     include: ["test/**/*.test.ts"],

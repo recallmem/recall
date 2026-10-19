@@ -39,12 +39,21 @@ export function cleanText(s: string, max = 1000): string {
   return t.length > max ? `${t.slice(0, max - 1)}…` : t;
 }
 
-/** Case- and whitespace-insensitive comparison key. */
+/** Stands in for a minus sign while punctuation is stripped (a private-use character). */
+const MINUS = "";
+
+/**
+ * Case- and whitespace-insensitive comparison key. A minus sign in front of a number is kept,
+ * as it is meaning, not punctuation: "balance is -100" and "balance is +100" are different facts.
+ * A hyphen between words or numbers ("e-mail", "10-20") is still just punctuation.
+ */
 export const normKey = (s: string): string =>
   s
     .toLowerCase()
-    .replace(/[^\p{L}\p{N}]+/gu, " ")
-    .trim();
+    .replace(/(?<![\p{L}\p{N}])[-−–](?=\p{N})/gu, MINUS)
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim()
+    .replaceAll(MINUS, "-");
 
 export const clamp = (x: number, lo: number, hi: number): number => Math.min(hi, Math.max(lo, x));
 

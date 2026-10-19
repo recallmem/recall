@@ -28,7 +28,21 @@ describe("what gets published", () => {
 
   it("depends on the SDK and leaves the framework to the app", () => {
     expect(Object.keys(pkg.dependencies)).toEqual(["@recall-memory/sdk"]);
-    expect(Object.keys(pkg.peerDependencies).sort()).toEqual(["@langchain/core", "zod"]);
+    expect(Object.keys(pkg.peerDependencies).sort()).toEqual([
+      "@langchain/core",
+      "langchain",
+      "zod",
+    ]);
+    // Only the middleware (its own entry point) needs the langchain package.
+    expect(pkg.peerDependenciesMeta).toEqual({ langchain: { optional: true } });
     expect(pkg.files).toEqual(["dist", "README.md", "LICENSE"]);
+  });
+
+  it("loads the langchain package only from the middleware entry point", () => {
+    const importers = files(join(root, "src")).filter((file) =>
+      /from "langchain(\/[^"]*)?"/.test(readFileSync(file, "utf8")),
+    );
+    expect(importers.map((file) => file.slice(root.length))).toEqual(["src/middleware.ts"]);
+    expect(pkg.exports["./middleware"].import).toBe("./dist/middleware.js");
   });
 });

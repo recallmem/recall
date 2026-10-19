@@ -151,6 +151,9 @@ const EnvSchema = z.object({
   FIREWORKS_API_KEY: z.string().optional(),
   /** Any OpenAI-compatible endpoint (Ollama, vLLM, LM Studio, Together...). Use models as "compat/<name>". */
   RECALL_COMPAT_BASE_URL: z.string().optional(),
+  /** Neon AI Gateway (embedding model "neon/<model>"): the branch's gateway host and a credential. */
+  NEON_AI_GATEWAY_BASE_URL: z.string().optional(),
+  NEON_AI_GATEWAY_TOKEN: z.string().optional(),
   RECALL_COMPAT_API_KEY: z.string().optional(),
 
   RECALL_WORKER_CONCURRENCY: int(4),

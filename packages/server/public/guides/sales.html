@@ -80,6 +80,7 @@
         <a href="/guides/vercel-ai-sdk">Vercel AI SDK</a>
         <a href="/guides/langchain-js">LangChain.js</a>
         <a href="/guides/mastra">Mastra</a>
+        <a href="/guides/n8n">n8n</a>
         <a href="/guides/langchain">LangChain and LangGraph</a>
         <a href="/guides/openai-agents">OpenAI Agents SDK</a>
         <a href="/guides/crewai">CrewAI</a>
@@ -359,7 +360,7 @@ removed = it_lead.delete()</code></pre>
       <li><b>Keep it to business.</b> Calls drift into family, health and politics. Recall learns from what is said, so trim small talk from transcripts when you can.</li>
       <li><b>Objections and deletion.</b> A contact who objects to being profiled but stays in touch: set <code>observeMe: false</code> on their peer so Recall stops learning about them, and delete what was learned. A contact who asks to be deleted: <code>contact.delete()</code>, or <code>DELETE /v3/workspaces/{workspace}/peers/{peer}</code>. See <a href="/docs#forget-a-person">Forget a person</a>.</li>
       <li><b>Retention.</b> Delete the calls and threads of lost deals after the period your policy sets; deleting a session removes its messages and what was learned from it.</li>
-      <li><b>Where data lives:</b> the database and API are in Frankfurt (EU). Text is processed by AI model providers in the US through OpenRouter, restricted to providers that do not collect the data, and customer data is not used to train models. See the <a href="/privacy">privacy policy</a>, the <a href="/dpa">DPA</a> and <a href="/guides/privacy">Privacy, consent and forgetting</a>.</li>
+      <li><b>Where data lives:</b> the database and API are in Frankfurt (EU). Text is processed by AI models from Anthropic in the US, and customer data is not used to train models. See the <a href="/privacy">privacy policy</a>, the <a href="/dpa">DPA</a> and <a href="/guides/privacy">Privacy, consent and forgetting</a>.</li>
     </ul>
 
     <h2 id="pitfalls">Pitfalls</h2>

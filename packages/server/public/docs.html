@@ -142,7 +142,7 @@ API key   your Recall key (pk_live_...)</code></pre>
       <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
       <tbody>
         <tr><td><code>query</code></td><td>The question, in plain language.</td></tr>
-        <tr><td><code>reasoning_level</code></td><td><code>minimal</code>, <code>low</code> (default), <code>medium</code>, <code>high</code> or <code>max</code>. Up to medium: one retrieval and one model call. High and max use a tool loop for hard, multi-step questions. On the hosted service Recall Loom answers at <code>minimal</code> and Recall Lumen at <code>low</code> to <code>max</code> (<a href="/guides/levels-and-models#levels">levels compared</a>).</td></tr>
+        <tr><td><code>reasoning_level</code></td><td><code>minimal</code>, <code>low</code> (default), <code>medium</code>, <code>high</code> or <code>max</code>. Up to medium: one retrieval and one model call. High and max use a tool loop for hard, multi-step questions. On the hosted service Recall Loom answers at <code>minimal</code> and Recall Lumen at <code>low</code> to <code>max</code>, with larger Lumen models at <code>high</code> and <code>max</code> (<a href="/guides/levels-and-models#levels">levels compared</a>).</td></tr>
         <tr><td><code>include_evidence</code></td><td>Also return the facts and messages the answer used.</td></tr>
         <tr><td><code>response_format</code></td><td>A JSON Schema: the answer comes back as matching JSON.</td></tr>
       </tbody>
@@ -640,10 +640,10 @@ recall peer delete alice --yes         # CLI; --yes confirms</code></pre>
     </table>
     <p>A task you leave unset gets the cheapest suitable model among the providers that have a key (Anthropic, OpenAI, Gemini or OpenRouter), unless you pin one with <code>RECALL_DEFAULT_PROVIDER</code>. <code>recall doctor</code> prints the model each task will use.</p>
 <pre><code>OPENROUTER_API_KEY=sk-or-...
-ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...
 RECALL_MODEL_REASONER=openrouter/openai/gpt-oss-120b
-RECALL_MODEL_CHAT_HIGH=anthropic/claude-sonnet-5-5
-RECALL_MODEL_CHAT_MAX=anthropic/claude-opus-5-5</code></pre>
+RECALL_MODEL_CHAT_HIGH=openai/gpt-5.5
+RECALL_MODEL_CHAT_MAX=openai/gpt-6.1-sol</code></pre>
 
     <h3 id="openrouter">OpenRouter: fallbacks and price-sorted routing</h3>
     <p><code>RECALL_OPENROUTER_ROUTING</code> is a JSON object keyed by task, plus <code>default</code>, which applies to every task and is overridden field by field by the task's own entry:</p>

@@ -16,7 +16,7 @@ import {
 import { newId } from "../lib/ids.js";
 import { normalizeTags } from "../lib/tags.js";
 import { applyCardEdits, cardValueTerms } from "./cards.js";
-import type { ExtractionOut, FactOut } from "./prompt.js";
+import type { ChangeOut, ExtractionOut, FactOut } from "./prompt.js";
 import { clamp, cleanText, normKey, textArray, vec } from "./util.js";
 
 type Tx = Pick<Db, "execute">;
@@ -75,6 +75,64 @@ export interface PreparedFact {
  * Observers come from the cited messages, and reinforce/supersede targets must be
  * known facts about the same peer. Duplicates within the batch are merged.
  */
+/** Words that carry a changed value: every word with a digit, other words from 3 letters. */
+const CHANGE_FILLER = new Set([
+  "the",
+  "and",
+  "for",
+  "now",
+  "with",
+  "not",
+  "from",
+  "has",
+  "was",
+  "are",
+]);
+const valueWords = (s: string): string[] =>
+  normKey(s)
+    .split(" ")
+    .filter((w) => /\p{N}/u.test(w) || (w.length >= 3 && !CHANGE_FILLER.has(w)));
+
+/**
+ * The model lists the known facts each message changes before it writes the facts, and on a busy
+ * window sometimes still writes the new value as "add". Such a change is linked here: the add that
+ * states the new value supersedes the listed target, preferably one citing the listed message (the
+ * model may cite a later message that repeats it). It must carry every number of the new value and
+ * most of its words. A target the model already superseded or reinforced is left as it is.
+ */
+export function linkChanges(changes: ChangeOut[], facts: FactOut[]): FactOut[] {
+  const out = facts.map((f) => ({ ...f }));
+  const handled = new Set(
+    out.flatMap((f) => (f.action !== "add" && f.target ? [f.target.trim()] : [])),
+  );
+  for (const c of changes) {
+    const target = c.target.trim();
+    const want = [...new Set(valueWords(c.now))];
+    if (handled.has(target) || !want.length) continue;
+    const numbers = want.filter((w) => /\p{N}/u.test(w));
+    let best: FactOut | null = null;
+    let bestRank = 0;
+    for (const f of out) {
+      if (f.action !== "add") continue;
+      const have = new Set(valueWords(f.content));
+      if (!numbers.every((w) => have.has(w))) continue;
+      const score = want.filter((w) => have.has(w)).length / want.length;
+      if (score <= 0.5) continue;
+      const rank = score + (f.source_messages.includes(c.message) ? 1 : 0);
+      if (rank > bestRank) {
+        best = f;
+        bestRank = rank;
+      }
+    }
+    if (best) {
+      best.action = "supersede";
+      best.target = target;
+      handled.add(target);
+    }
+  }
+  return out;
+}
+
 export function prepareFacts(
   facts: FactOut[],
   speakers: Map<string, WindowSpeaker>,

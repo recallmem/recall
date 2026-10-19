@@ -390,23 +390,6 @@ canvas,
 .hero-grid > * {
   min-width: 0;
 }
-.kicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font: 13px var(--mono);
-  color: var(--amber);
-  border: 1px solid rgba(255, 176, 0, 0.45);
-  background: rgba(255, 176, 0, 0.06);
-  padding: 5px 12px;
-}
-.kicker i {
-  width: 8px;
-  height: 8px;
-  background: var(--amber);
-  display: block;
-  animation: blink 1s steps(1) infinite;
-}
 h1.display {
   font: 700 clamp(42px, 4.8vw, 68px) / 1.02 var(--pix2);
   letter-spacing: -0.02em;

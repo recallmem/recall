@@ -1,0 +1,65 @@
+name: Python integrations
+
+# The LangChain, OpenAI Agents SDK and CrewAI integrations, run when Python code, the guides'
+# examples or this workflow change, and weekly to catch a server change that breaks them.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "sdks/python/**"
+      - "sdks/python-integrations/**"
+      - "examples/guides/**"
+      - ".github/workflows/python-integrations.yml"
+  pull_request:
+    paths:
+      - "sdks/python/**"
+      - "sdks/python-integrations/**"
+      - "examples/guides/**"
+      - ".github/workflows/python-integrations.yml"
+  schedule:
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: python-integrations-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # The LangChain, OpenAI Agents SDK and CrewAI integrations (sdks/python-integrations), each in
+  # its own job: their frameworks pin conflicting versions of shared dependencies. The tests start
+  # the real server (in-memory database, offline mock model) and drive each framework with a
+  # scripted model; they also run the framework guides' code (examples/guides/<name>.py).
+  python-integrations:
+    name: Python integration (${{ matrix.package }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [langchain-recall, openai-agents-recall, crewai-recall]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: sdks/python-integrations/${{ matrix.package }}/pyproject.toml
+
+      - name: Install
+        run: |
+          pnpm install --frozen-lockfile
+          python -m pip install -e sdks/python -e "sdks/python-integrations/${{ matrix.package }}[dev]"
+
+      - name: Test
+        run: python -m pytest sdks/python-integrations/${{ matrix.package }}/tests -q

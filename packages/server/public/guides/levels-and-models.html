@@ -81,6 +81,7 @@
         <a href="/guides/vercel-ai-sdk">Vercel AI SDK</a>
         <a href="/guides/langchain-js">LangChain.js</a>
         <a href="/guides/mastra">Mastra</a>
+        <a href="/guides/n8n">n8n</a>
         <a href="/guides/langchain">LangChain and LangGraph</a>
         <a href="/guides/openai-agents">OpenAI Agents SDK</a>
         <a href="/guides/crewai">CrewAI</a>
@@ -173,8 +174,8 @@ hits = user.search("allergy", limit=5)</code></pre>
         <tr><td><code>minimal</code></td><td>One retrieval of up to 8 facts, one call to Recall Loom</td><td>$0.0008</td><td>Single facts: "where does she live?", game and workflow logic</td></tr>
         <tr><td><code>low</code> (default)</td><td>One retrieval of up to 24 facts, one call to Recall Lumen</td><td>$0.005</td><td>Everyday questions about a person</td></tr>
         <tr><td><code>medium</code></td><td>One retrieval of up to 32 facts, one call to Recall Lumen that thinks longer</td><td>$0.025</td><td>Questions that combine many facts: plans, summaries, comparisons</td></tr>
-        <tr><td><code>high</code></td><td>Recall Lumen searches memory itself, in up to 3 rounds, then answers</td><td>$0.05</td><td>Multi-step questions across many conversations</td></tr>
-        <tr><td><code>max</code></td><td>Up to 6 rounds of searching by Recall Lumen, with the largest budget</td><td>$0.25</td><td>Rare, hard questions where the answer is worth the wait</td></tr>
+        <tr><td><code>high</code></td><td>A larger Recall Lumen model searches memory itself, in up to 3 rounds, then answers</td><td>$0.05</td><td>Multi-step questions across many conversations</td></tr>
+        <tr><td><code>max</code></td><td>Up to 6 rounds of searching by the largest Recall Lumen model, with the largest budget</td><td>$0.25</td><td>Rare, hard questions where the answer is worth the wait</td></tr>
       </tbody>
     </table>
     <p>Recall Loom and Recall Lumen are the models of the hosted service (see <a href="#models">which models answer</a>); on your own server each level uses the model you set for it. <code>high</code> and <code>max</code> are slower than the single-call levels, by how many steps the question needs. An answer from empty memory is free. The price is taken when the answer starts and given back if no answer comes.</p>
@@ -253,7 +254,7 @@ profile = user.chat(
     <h2 id="models">Which models answer</h2>
     <p>Recall sends each kind of work (learning from messages, summaries, peer cards, the night shift, and chat at each level) to a model chosen for it. Each can come from a different provider.</p>
     <ul>
-      <li><b>On the hosted service</b> we choose the models, test candidates against public long-term memory benchmarks with the memory held fixed before changing one, and publish results on <a href="/evals">Evals</a>. Requests go through OpenRouter only to providers that do not collect the data (see <a href="/privacy">Privacy</a>). <code>GET …/usage</code> shows the tokens of each kind of work by model: Recall Lumen (<code>recall-lumen</code>) answers questions at <code>low</code> to <code>max</code>, Recall Loom (<code>recall-loom</code>) builds memory and answers at <code>minimal</code>, and Recall Embed (<code>recall-embed</code>) computes embeddings.</li>
+      <li><b>On the hosted service</b> we choose the models, test candidates against public long-term memory benchmarks with the memory held fixed before changing one, and publish results on <a href="/evals">Evals</a>. The model providers may not use the data to train models (see <a href="/privacy">Privacy</a>). <code>GET …/usage</code> shows the tokens of each kind of work by model: Recall Lumen (<code>recall-lumen</code>) answers questions at <code>low</code> to <code>max</code>, with larger Lumen models at <code>high</code> and <code>max</code>, Recall Loom (<code>recall-loom</code>) builds memory and answers at <code>minimal</code>, and Recall Embed (<code>recall-embed</code>) computes embeddings.</li>
       <li><b>When you <a href="/docs#self-host">run Recall yourself</a></b> you set a model per task with environment variables such as <code>RECALL_MODEL_REASONER</code> and <code>RECALL_MODEL_CHAT_LOW</code>, from OpenAI, Anthropic, Gemini, OpenRouter, Groq, xAI, DeepSeek, Together, Fireworks or any OpenAI-compatible server. See <a href="/docs#models">Models and providers</a>.</li>
     </ul>
     <p>What we have learned from testing: a stronger answer model helps most on questions about timelines and on questions that combine many conversations, and thinking models can add many seconds per answer. A cheap model is fine for learning, which runs in the background, as long as it extracts dates and changes reliably.</p>

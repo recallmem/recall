@@ -22,6 +22,7 @@ on:
       - "ai-sdk-v*"
       - "langchain-v*"
       - "mastra-v*"
+      - "n8n-v*"
       - "langchain-recall-v*"
       - "openai-agents-recall-v*"
       - "crewai-recall-v*"
@@ -36,6 +37,7 @@ on:
           - ai-sdk
           - langchain
           - mastra
+          - n8n
           - langchain-recall
           - openai-agents-recall
           - crewai-recall
@@ -126,17 +128,20 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-  # The framework integrations (packages/ai-sdk, packages/langchain, packages/mastra). They depend
-  # on the SDK as "workspace:^", which `pnpm pack` turns into the SDK's version range ("^0.1.0"),
-  # so the tarball is packed with pnpm and published with npm (for provenance).
+  # The framework integrations (packages/ai-sdk, packages/langchain, packages/mastra) and the n8n
+  # community nodes (packages/n8n). The framework ones depend on the SDK as "workspace:^", which
+  # `pnpm pack` turns into the SDK's version range ("^0.1.0"), so the tarball is packed with pnpm and
+  # published with npm (for provenance). The n8n package has no dependencies (n8n's rule for nodes).
   integration:
     name: Framework integration to npm
     if: >-
       startsWith(github.ref, 'refs/tags/ai-sdk-v') ||
       startsWith(github.ref, 'refs/tags/langchain-v') ||
       startsWith(github.ref, 'refs/tags/mastra-v') ||
+      startsWith(github.ref, 'refs/tags/n8n-v') ||
       (github.event_name == 'workflow_dispatch' &&
-        (inputs.target == 'ai-sdk' || inputs.target == 'langchain' || inputs.target == 'mastra'))
+        (inputs.target == 'ai-sdk' || inputs.target == 'langchain' || inputs.target == 'mastra' ||
+          inputs.target == 'n8n'))
     runs-on: ubuntu-latest
     timeout-minutes: 25
     permissions:
@@ -161,11 +166,17 @@ jobs:
             name="$TARGET"
           fi
           case "$name" in
-            ai-sdk|langchain|mastra) ;;
+            ai-sdk|langchain|mastra)
+              package="@recall-memory/$name"
+              built="dist/index.js dist/index.d.ts" ;;
+            n8n)
+              package="@recall-memory/n8n-nodes-recall"
+              built="dist/nodes/Recall/Recall.node.js dist/nodes/Recall/recall.svg dist/nodes/RecallMemory/RecallMemory.node.js dist/credentials/RecallApi.credentials.js" ;;
             *) echo "::error::Unknown integration '$name'"; exit 1 ;;
           esac
           echo "dir=packages/$name" >> "$GITHUB_OUTPUT"
-          echo "package=@recall-memory/$name" >> "$GITHUB_OUTPUT"
+          echo "package=$package" >> "$GITHUB_OUTPUT"
+          echo "built=$built" >> "$GITHUB_OUTPUT"
           echo "prefix=$name-v" >> "$GITHUB_OUTPUT"
 
       - uses: pnpm/action-setup@v4
@@ -212,10 +223,10 @@ jobs:
       - name: Build
         env:
           DIR: ${{ steps.pkg.outputs.dir }}
+          BUILT: ${{ steps.pkg.outputs.built }}
         run: |
           pnpm --filter "${{ steps.pkg.outputs.package }}..." build
-          test -f "$DIR/dist/index.js"
-          test -f "$DIR/dist/index.d.ts"
+          for f in $BUILT; do test -f "$DIR/$f"; done
 
       - name: Pack and show what would be published
         id: pack

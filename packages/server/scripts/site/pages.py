@@ -546,7 +546,7 @@ DPA_BODY = """
 <tr><td><b>Types of personal data</b></td><td>Whatever you send: message and file content, the names and identifiers you choose for peers, sessions and workspaces, metadata, and the facts, peer cards, summaries and embeddings derived from them. Special categories of data only if you send them (section 13).</td></tr>
 <tr><td><b>Frequency</b></td><td>Continuous, as you use the service.</td></tr>
 <tr><td><b>Retention</b></td><td>Until you delete the data or your account, as described in the <a href="/privacy#retention">privacy policy</a>.</td></tr>
-<tr><td><b>Location</b></td><td>Storage and application servers in Frankfurt, Germany (EU). Processing by AI model providers in the United States (Annex 3).</td></tr>
+<tr><td><b>Location</b></td><td>Storage, application servers and embeddings in Frankfurt, Germany (EU). Processing by an AI model provider in the United States (Annex 3).</td></tr>
 </tbody>
 </table>
 
@@ -572,7 +572,7 @@ DPA_BODY = """
 <ul>
 <li>IP addresses are not stored in our database. Where a limit needs one, we store a keyed hash.</li>
 <li>Card details go directly to Stripe; we never receive them.</li>
-<li>Requests to AI models, for text generation and for embeddings, ask OpenRouter to use only model providers that do not collect the data they process.</li>
+<li>Requests for text generation go to Anthropic directly, under commercial terms that do not allow it to train models on the data. Embeddings are computed in Frankfurt by Neon's AI Gateway, which runs on Databricks Model Serving; Databricks may keep the text there for up to 30 days, only to detect abuse.</li>
 <li>Customer Personal Data is not used to train models.</li>
 </ul>
 <h3 id="annex-2-organisation">Organisation and operations</h3>
@@ -589,10 +589,9 @@ DPA_BODY = """
 <thead><tr><th>Sub-processor</th><th>What it does</th><th>Location</th></tr></thead>
 <tbody>
 <tr><td>Vercel Inc.</td><td>Runs the API, dashboard and background work, and serves the website</td><td>Frankfurt, Germany (EU); company in the USA</td></tr>
-<tr><td>Neon</td><td>Database: stores all Customer Personal Data</td><td>Frankfurt, Germany (EU); company in the USA</td></tr>
-<tr><td>OpenRouter, Inc.</td><td>Passes requests to AI models for text generation and embeddings</td><td>USA</td></tr>
-<tr><td>OpenAI (through OpenRouter)</td><td>Runs the AI models that build memory and answer questions, and computes embeddings</td><td>USA</td></tr>
-<tr><td>Anthropic, PBC (through OpenRouter)</td><td>Runs the AI models that build memory and answer questions</td><td>USA</td></tr>
+<tr><td>Neon</td><td>Database: stores all Customer Personal Data; computes embeddings (the vectors used for search) through its AI Gateway</td><td>Frankfurt, Germany (EU); company in the USA</td></tr>
+<tr><td>Databricks, Inc. (through Neon)</td><td>Runs the embedding model of Neon's AI Gateway</td><td>Frankfurt, Germany (EU); company in the USA</td></tr>
+<tr><td>Anthropic, PBC</td><td>Runs the AI models that build memory and answer questions</td><td>USA</td></tr>
 </tbody>
 </table>
 <p>These providers do not receive Customer Personal Data and are therefore not sub-processors; we list them for transparency: Resend (sign-in and account emails to account members), Stripe Payments Europe, Ltd., Ireland (payments, invoices and tax), Cloudflare (DNS) and GitHub (an automated uptime check of our health endpoint).</p>
@@ -610,7 +609,7 @@ def dpa_page():
         # Annex 3 describes what the model providers do together, not which model runs which task
         # (the hosted models go by their codenames); a sub-processor change is not a new DPA version
         # (section 6).
-        date="14 October 2026",
+        date="18 October 2026",
     )
 
 
@@ -662,7 +661,7 @@ SECURITY_BODY = """
 <p><b>In scope:</b> recallmem.dev (the website), app.recallmem.dev (the dashboard), api.recallmem.dev (the API, MCP server and OAuth), and the source code we publish: the server, SDKs and integrations at <a href="@REPO_URL@">@REPO_HOST_PATH@</a>, and the plugins at <a href="https://github.com/recallmem/recall-plugin">github.com/recallmem/recall-plugin</a>.</p>
 <p><b>Out of scope:</b></p>
 <ul>
-<li>services run by our providers, such as Stripe's payment pages (pay.recallmem.dev and checkout.stripe.com), Vercel, Neon, OpenRouter, Resend and Cloudflare: please report to them directly;</li>
+<li>services run by our providers, such as Stripe's payment pages (pay.recallmem.dev and checkout.stripe.com), Vercel, Neon, Anthropic, Resend and Cloudflare: please report to them directly;</li>
 <li>denial of service, load testing and spam;</li>
 <li>reports from automated scanners without a demonstrated impact;</li>
 <li>missing security headers, cookie flags or email settings (SPF, DKIM, DMARC) without a demonstrated attack;</li>
@@ -685,7 +684,7 @@ SECURITY_BODY = """
 </ul>
 
 <h2 id="location">Where data is kept</h2>
-<p>Our database and the servers that run the API and dashboard are in Frankfurt (EU). To build memory and answer questions, text is processed by AI model providers in the United States, through OpenRouter. Some of our providers are US companies and can be subject to US law. We disclose customer data to authorities only when a law that binds us requires it, we challenge requests we consider unlawful, and we tell the customer unless the law forbids it. The <a href="/dpa">data processing agreement</a> lists our sub-processors and the safeguards for transfers.</p>
+<p>Our database and the servers that run the API and dashboard are in Frankfurt (EU). To build memory and answer questions, text is processed by Anthropic in the United States; the embeddings used for search are computed in Frankfurt. Some of our providers are US companies and can be subject to US law. We disclose customer data to authorities only when a law that binds us requires it, we challenge requests we consider unlawful, and we tell the customer unless the law forbids it. The <a href="/dpa">data processing agreement</a> lists our sub-processors and the safeguards for transfers.</p>
 
 <h2 id="contact">Contact</h2>
 <p><a href="mailto:security@recallmem.dev">security@recallmem.dev</a>. Machine-readable contact details are in our <a href="/.well-known/security.txt">security.txt</a>.</p>
@@ -701,8 +700,8 @@ def security_page():
             "@REPO_HOST_PATH@", REPO_URL.removeprefix("https://")
         ),
         toc=SECURITY_TOC,
-        version="1.2",
-        date="16 October 2026",
+        version="1.3",
+        date="18 October 2026",
     )
 
 

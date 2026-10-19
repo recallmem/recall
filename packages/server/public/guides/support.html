@@ -80,6 +80,7 @@
         <a href="/guides/vercel-ai-sdk">Vercel AI SDK</a>
         <a href="/guides/langchain-js">LangChain.js</a>
         <a href="/guides/mastra">Mastra</a>
+        <a href="/guides/n8n">n8n</a>
         <a href="/guides/langchain">LangChain and LangGraph</a>
         <a href="/guides/openai-agents">OpenAI Agents SDK</a>
         <a href="/guides/crewai">CrewAI</a>
@@ -354,7 +355,7 @@ for t in tickets:
       <li><b>Deletion requests:</b> <code>customer.delete()</code> (or <code>DELETE /v3/workspaces/{workspace}/peers/{peer}</code>) erases the customer's messages, every fact and card about them or from their view, the summaries that quoted them and cached answers. Facts about other people that merely mention them, and your agents' messages, stay: delete those tickets, and such facts with <code>DELETE …/conclusions/{id}</code>. See <a href="/docs#forget-a-person">Forget a person</a>.</li>
       <li><b>Retention:</b> delete closed tickets after the period your policy sets. Deleting a session removes its messages and what was learned from it, in the background.</li>
       <li><b>Access requests:</b> list the customer's facts (<code>customer.conclusions.list()</code>) and the messages of their tickets. Settings › Export all data downloads your whole account (<a href="/docs#export">Export</a>).</li>
-      <li><b>Where data lives:</b> the database and API are in Frankfurt (EU). Text is processed by AI model providers in the US through OpenRouter, restricted to providers that do not collect the data, and customer data is not used to train models. Recall processes this content on your instructions under its <a href="/dpa">DPA</a> (if you run support for other businesses, that makes it your sub-processor); the <a href="/privacy">privacy policy</a> and <a href="/security">security page</a> have the details. More in <a href="/guides/privacy">Privacy, consent and forgetting</a>.</li>
+      <li><b>Where data lives:</b> the database and API are in Frankfurt (EU). Text is processed by AI models from Anthropic in the US, and customer data is not used to train models. Recall processes this content on your instructions under its <a href="/dpa">DPA</a> (if you run support for other businesses, that makes it your sub-processor); the <a href="/privacy">privacy policy</a> and <a href="/security">security page</a> have the details. More in <a href="/guides/privacy">Privacy, consent and forgetting</a>.</li>
     </ul>
 
     <h2 id="pitfalls">Pitfalls</h2>

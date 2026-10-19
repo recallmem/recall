@@ -80,6 +80,7 @@
         <a href="/guides/vercel-ai-sdk">Vercel AI SDK</a>
         <a href="/guides/langchain-js">LangChain.js</a>
         <a href="/guides/mastra">Mastra</a>
+        <a href="/guides/n8n">n8n</a>
         <a href="/guides/langchain">LangChain and LangGraph</a>
         <a href="/guides/openai-agents">OpenAI Agents SDK</a>
         <a href="/guides/crewai">CrewAI</a>
@@ -298,7 +299,7 @@ removed = client.delete()</code></pre>
     <p>This is practical guidance, not legal advice. Check it against the law that applies to you, and see <a href="/guides/privacy">Privacy, consent and forgetting</a>.</p>
     <ul>
       <li><b>Health data is special-category data.</b> Under the GDPR, data about a person's health needs an explicit legal ground, usually their explicit consent: ask for it separately from your terms, in plain words, make it as easy to withdraw as to give, and check whether you need a data protection impact assessment. Our <a href="/dpa">DPA</a> asks you to send such data only where the law allows it, with the safeguards it requires.</li>
-      <li><b>Tell clients what is stored.</b> That the coach remembers their goals, progress, setbacks and what they say about their health and training; that the text is stored in the EU (Frankfurt) and processed by AI model providers in the US through OpenRouter, restricted to providers that do not collect the data; that it is not used to train models; and how to see and delete it.</li>
+      <li><b>Tell clients what is stored.</b> That the coach remembers their goals, progress, setbacks and what they say about their health and training; that the text is stored in the EU (Frankfurt) and processed by AI models from Anthropic in the US; that it is not used to train models; and how to see and delete it.</li>
       <li><b>Store what coaching needs.</b> Ask only for intake fields with a purpose, steer learning with a custom instruction, and leave out what you do not need.</li>
       <li><b>Let clients see it and delete it.</b> Build the "what my coach remembers" page above, with a delete per fact and a delete-everything button. For an access request, add their check-ins (<code>session.messages()</code>) to the facts; <a href="/docs#export">Export</a> under Settings downloads everything your account stores.</li>
       <li><b>Crisis content goes to your safety flow, not to memory.</b> If a message suggests a risk to the client or someone else, your app's own safety flow should handle it: your moderation, a person, emergency resources. Check messages before you send them to Recall, and do not rely on Recall to notice.</li>

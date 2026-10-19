@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { Config, LlmTask } from "../config.js";
+import { wellFormed } from "../lib/well-formed.js";
 import { type OpenRouterCatalog, openRouterBody, openRouterCatalog } from "./openrouter.js";
 import { PriceBook } from "./pricing.js";
 import { AnthropicProvider } from "./providers/anthropic.js";
@@ -26,20 +27,23 @@ export function strictJsonSchema(schema: z.ZodType): Record<string, unknown> {
     string,
     unknown
   >;
-  const visit = (node: unknown): unknown => {
-    if (Array.isArray(node)) return node.map(visit);
+  // `fields` is a properties map: its keys are field names, not keywords to drop.
+  const visit = (node: unknown, fields = false): unknown => {
+    if (Array.isArray(node)) return node.map((n) => visit(n));
     if (!node || typeof node !== "object") return node;
     const obj: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(node)) {
       if (
-        k === "$schema" ||
-        k === "minLength" ||
-        k === "maxLength" ||
-        k === "format" ||
-        k === "pattern"
+        !fields &&
+        (k === "$schema" ||
+          k === "default" ||
+          k === "minLength" ||
+          k === "maxLength" ||
+          k === "format" ||
+          k === "pattern")
       )
         continue;
-      obj[k] = visit(v);
+      obj[k] = visit(v, !fields && k === "properties");
     }
     if (obj.type === "object" && obj.properties && typeof obj.properties === "object") {
       obj.additionalProperties = false;
@@ -76,12 +80,26 @@ export type KeyPool = (workspaceId: string) => Promise<Pool>;
 export interface AccountModel {
   model: string;
   effort?: Effort;
+  thinking?: boolean;
 }
 
 /** Models an account uses for some tasks instead of the configured ones (operator-set, see key-pool.ts). */
 export type AccountModels = (
   workspaceId: string,
 ) => Promise<Partial<Record<LlmTask, AccountModel>> | null>;
+
+/**
+ * The request with any half-cut character in its text repaired: text cut anywhere upstream
+ * (excerpts, long messages, context) must never make a provider refuse the call.
+ */
+function wellFormedRequest(req: LlmRequest): LlmRequest {
+  return {
+    ...req,
+    ...(req.system !== undefined ? { system: wellFormed(req.system) } : {}),
+    ...(req.context !== undefined ? { context: wellFormed(req.context) } : {}),
+    messages: req.messages.map((m) => ({ ...m, content: wellFormed(m.content) })),
+  };
+}
 
 export class LlmClient {
   private readonly providers = new Map<string, LlmProvider>();
@@ -211,16 +229,22 @@ export class LlmClient {
 
   /**
    * The model a call runs on: the request's own, else the account's choice for the task (with its
-   * effort, when it sets one), else the configured one. A failed account lookup changes nothing.
+   * effort and thinking, when it sets them), else the configured one. A failed account lookup
+   * changes nothing.
    */
-  private async withModel<R extends Pick<LlmRequest, "task" | "model" | "workspaceId" | "effort">>(
-    req: R,
-  ): Promise<R> {
+  private async withModel<
+    R extends Pick<LlmRequest, "task" | "model" | "workspaceId" | "effort" | "thinking">,
+  >(req: R): Promise<R> {
     if (req.model || !this.accountModels || !req.workspaceId) return req;
     const models = await this.accountModels(req.workspaceId).catch(() => null);
     const pick = models?.[req.task as LlmTask];
     if (!pick) return req;
-    return { ...req, model: pick.model, ...(pick.effort ? { effort: pick.effort } : {}) };
+    return {
+      ...req,
+      model: pick.model,
+      ...(pick.effort ? { effort: pick.effort } : {}),
+      ...(pick.thinking ? { thinking: true } : {}),
+    };
   }
 
   /** The key pool of the workspace a call is for; a failed lookup falls back to the default keys. */
@@ -245,7 +269,7 @@ export class LlmClient {
   }
 
   async complete(request: LlmRequest): Promise<LlmResult> {
-    const req = await this.withModel(request);
+    const req = wellFormedRequest(await this.withModel(request));
     const { provider, model, ref } = this.resolve(req, await this.pool(req));
     const result = await provider.complete(model, req);
     this.meter(req, ref, result);
@@ -253,7 +277,7 @@ export class LlmClient {
   }
 
   async *stream(request: LlmRequest): AsyncIterable<StreamEvent> {
-    const req = await this.withModel(request);
+    const req = wellFormedRequest(await this.withModel(request));
     const { provider, model, ref } = this.resolve(req, await this.pool(req));
     for await (const event of provider.stream(model, req)) {
       if (event.type === "done") this.meter(req, ref, event.result);

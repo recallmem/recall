@@ -55,4 +55,17 @@ describe("fact sources", () => {
     expect(f?.messageIds.sort()).toEqual(["m_bob", "m_tea"]);
     expect(f?.observers).toEqual(["p_alice"]);
   });
+
+  it("keeps facts that differ only in sign apart", () => {
+    const out = prepareFacts(
+      [fact("Alice's balance is +100", [1]), fact("Alice's balance is -100", [1])],
+      speakers,
+      transcript,
+      new Map(),
+    );
+    expect(out.map((f) => f.content)).toEqual([
+      "Alice's balance is +100",
+      "Alice's balance is -100",
+    ]);
+  });
 });

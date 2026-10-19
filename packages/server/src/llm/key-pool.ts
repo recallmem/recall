@@ -44,13 +44,22 @@ const TASKS = new Set<string>([
 const EFFORTS = new Set<string>(["none", "low", "medium", "high"]);
 const MODEL_REF = /^[a-z0-9_-]+\/\S+$/;
 
-/** One task's entry: "provider/model", or {"model": "provider/model", "effort": "none"}; null if unusable. */
+/**
+ * One task's entry: "provider/model", or {"model": "provider/model", "effort": "none", "thinking":
+ * true}; null if unusable.
+ */
 function accountModel(v: unknown): AccountModel | null {
   const model = typeof v === "string" ? v : (v as { model?: unknown } | null)?.model;
   if (typeof model !== "string" || !MODEL_REF.test(model) || model.endsWith(":free")) return null;
-  const effort = typeof v === "object" && v ? (v as { effort?: unknown }).effort : undefined;
+  const entry = typeof v === "object" && v ? (v as { effort?: unknown; thinking?: unknown }) : {};
+  const effort = entry.effort;
   if (effort !== undefined && (typeof effort !== "string" || !EFFORTS.has(effort))) return null;
-  return effort ? { model, effort: effort as Effort } : { model };
+  if (entry.thinking !== undefined && typeof entry.thinking !== "boolean") return null;
+  return {
+    model,
+    ...(effort ? { effort: effort as Effort } : {}),
+    ...(entry.thinking ? { thinking: true } : {}),
+  };
 }
 
 /**
@@ -58,7 +67,7 @@ function accountModel(v: unknown): AccountModel | null {
  * (`metadata.answer_model_override`), `metadata.models` (admin API only) picks the model of a task,
  * e.g. `{"reasoner": "openrouter/deepseek/deepseek-v4-flash"}` to build that account's memory with
  * another model, or `{"reasoner": {"model": "...", "effort": "none"}}` to also set how hard it
- * reasons. Anything else (unknown task or effort, not "provider/model", a ":free" model) is ignored.
+ * reasons (`"thinking": true` lets a Claude model think first). Anything else (unknown task or effort, not "provider/model", a ":free" model) is ignored.
  */
 export function accountModels(db: Db): AccountModels {
   const cache = new Map<

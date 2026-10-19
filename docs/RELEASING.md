@@ -1,6 +1,6 @@
 # Releasing the client SDKs
 
-Eight packages are published from this repository by `.github/workflows/release-sdks.yml`:
+Nine packages are published from this repository by `.github/workflows/release-sdks.yml`:
 
 | Package | Registry | Name | Source | Tag |
 |---|---|---|---|---|
@@ -9,6 +9,7 @@ Eight packages are published from this repository by `.github/workflows/release-
 | Vercel AI SDK integration | npm | `@recall-memory/ai-sdk` | `packages/ai-sdk` | `ai-sdk-vX.Y.Z` |
 | LangChain.js integration | npm | `@recall-memory/langchain` | `packages/langchain` | `langchain-vX.Y.Z` |
 | Mastra integration | npm | `@recall-memory/mastra` | `packages/mastra` | `mastra-vX.Y.Z` |
+| n8n community nodes | npm | `@recall-memory/n8n-nodes-recall` | `packages/n8n` | `n8n-vX.Y.Z` |
 | LangChain / LangGraph integration | PyPI | `langchain-recall` (import `langchain_recall`) | `sdks/python-integrations/langchain-recall` | `langchain-recall-vX.Y.Z` |
 | OpenAI Agents SDK integration | PyPI | `openai-agents-recall` (import `openai_agents_recall`) | `sdks/python-integrations/openai-agents-recall` | `openai-agents-recall-vX.Y.Z` |
 | CrewAI integration | PyPI | `crewai-recall` (import `crewai_recall`) | `sdks/python-integrations/crewai-recall` | `crewai-recall-vX.Y.Z` |

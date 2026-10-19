@@ -58,10 +58,12 @@ async function launch(
     const { startWorker } = await import("./queue/worker.js");
     const { startFunnelReports } = await import("./core/funnel-report.js");
     const { startOnboardingEmails } = await import("./core/onboarding.js");
+    const { startReembedding } = await import("./core/reembed.js");
     stops.push(await startWorker(ctx));
     stops.push(ctx.billing.startSweeper());
     stops.push(startFunnelReports(ctx));
     stops.push(startOnboardingEmails(ctx));
+    stops.push(startReembedding(ctx));
   }
 
   return {

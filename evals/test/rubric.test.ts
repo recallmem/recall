@@ -76,11 +76,11 @@ describe("judge selection", () => {
   it("uses the offline judge only for mock models", () => {
     expect(isMockModel("mock")).toBe(true);
     expect(isMockModel("mock/default")).toBe(true);
-    expect(isMockModel("anthropic/claude-sonnet-5-5")).toBe(false);
+    expect(isMockModel("anthropic/claude-sonnet-4-6")).toBe(false);
     expect(createJudge("mock").settings.kind).toBe("lexical-offline");
   });
   it("builds an LLM judge through the server's LlmClient and fails fast on a missing key", () => {
-    expect(() => createJudge("anthropic/claude-sonnet-5-5", {})).toThrow(/ANTHROPIC_API_KEY/);
+    expect(() => createJudge("anthropic/claude-sonnet-4-6", {})).toThrow(/ANTHROPIC_API_KEY/);
     const judge = createJudge("openai/gpt-5-mini", { OPENAI_API_KEY: "sk-test" });
     expect(judge.settings).toMatchObject({
       kind: "llm",

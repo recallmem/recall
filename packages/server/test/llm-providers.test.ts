@@ -269,9 +269,27 @@ describe("effort none", () => {
       (chatParams("openai", model, none) as unknown as Record<string, unknown>).reasoning_effort;
     expect(effort("gpt-6-luna")).toBe("none");
     expect(effort("gpt-5")).toBeUndefined();
-    const claude = anthropicParams("claude-sonnet-5-5", none) as unknown as {
+    const claude = anthropicParams("claude-fable-5-1", none) as unknown as {
       output_config?: { effort?: string };
     };
     expect(claude.output_config?.effort).toBeUndefined();
+  });
+});
+
+describe("thinking", () => {
+  type Body = { max_tokens: number; thinking?: { type: string } };
+  const body = (model: string, thinking?: boolean) =>
+    anthropicParams(model, { ...request, maxTokens: 1000, thinking }) as unknown as Body;
+
+  it("lets Claude think adaptively, with room for it, only when asked", () => {
+    expect(body("claude-fable-5-1", true)).toMatchObject({
+      max_tokens: 1000 + 8192,
+      thinking: { type: "adaptive" },
+    });
+    const plain = body("claude-fable-5-1");
+    expect(plain.max_tokens).toBe(1000);
+    expect(plain.thinking).toBeUndefined();
+    // A model that rejects adaptive thinking is called as before.
+    expect(body("claude-sonnet-4-5", true).thinking).toBeUndefined();
   });
 });
